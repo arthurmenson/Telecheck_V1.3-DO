@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  telecheck:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: telecheck_prod
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - NODE_ENV=production
+      - PORT=8080
+      - HOST=0.0.0.0
+      # Database configuration (will be overridden by .env.production)
+      - DATABASE_URL=${DATABASE_URL}
+      - JWT_SECRET=${JWT_SECRET}
+      - FRONTEND_URL=${FRONTEND_URL}
+      - CORS_ORIGIN=${CORS_ORIGIN}
+      - DB_SSL=${DB_SSL}
+      - DB_SSL_REJECT_UNAUTHORIZED=${DB_SSL_REJECT_UNAUTHORIZED}
+      - RATE_LIMIT_WINDOW_MS=${RATE_LIMIT_WINDOW_MS}
+      - RATE_LIMIT_MAX_REQUESTS=${RATE_LIMIT_MAX_REQUESTS}
+      - MAX_FILE_SIZE=${MAX_FILE_SIZE}
+      - UPLOAD_PATH=${UPLOAD_PATH}
+      - LOG_LEVEL=${LOG_LEVEL}
+      - ENABLE_METRICS=${ENABLE_METRICS}
+    volumes:
+      - ./uploads:/app/uploads
+      - ./.env.production:/app/.env
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:8080/api/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - telecheck_network
+
+networks:
+  telecheck_network:
+    driver: bridge
