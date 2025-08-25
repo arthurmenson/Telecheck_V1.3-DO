@@ -9,7 +9,7 @@ export default defineConfig(({ mode }) => ({
     "import.meta.env.VITE_WS_URL": JSON.stringify(
       process.env.VITE_WS_URL ||
         (mode === "production"
-          ? "wss://your-domain.com"
+          ? "wss://telecheckhealth.com"
           : "ws://localhost:8080"),
     ),
     "import.meta.env.MODE": JSON.stringify(mode),
