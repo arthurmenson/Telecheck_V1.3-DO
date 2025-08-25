@@ -25,6 +25,9 @@
     "test:unit": "vitest --run tests/unit/",
     "test:integration": "vitest --run tests/integration/",
     "test:phase1": "vitest --run tests/phase1/",
+    "lint": "npm run typecheck && npm run format:check",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "format.fix": "prettier --write .",
     "typecheck": "tsc",
     "deploy:check": "npm run typecheck && npm run build:prod && npm run test"
