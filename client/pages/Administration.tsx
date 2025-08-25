@@ -8,7 +8,7 @@ import { HeartPulse, Users, Globe, Settings } from "lucide-react";
 import { Programs } from "./ehr/Programs";
 import { Providers } from "./ehr/Providers";
 import { PatientPortal } from "./ehr/PatientPortal";
-import { AdminSettings } from "./AdminSettings";
+import AdminSettings from "./AdminSettings";
 
 export function Administration() {
   const [activeTab, setActiveTab] = useState("programs");
