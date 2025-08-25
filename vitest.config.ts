@@ -20,12 +20,19 @@ export default defineConfig({
     },
     testTimeout: 10000,
     hookTimeout: 10000,
+    // Exclude server modules from client tests
+    exclude: [
+      "**/node_modules/**",
+      "**/dist/**",
+      "**/build/**",
+    ],
   },
   resolve: {
     alias: {
-      "@": resolve(__dirname, "./server"),
+      "@": resolve(__dirname, "./client"),
       "@shared": resolve(__dirname, "./shared"),
       "@tests": resolve(__dirname, "./tests"),
+      "@server": resolve(__dirname, "./server"),
     },
   },
 });
