@@ -60,7 +60,9 @@ class DatabaseAdapter {
   }
 
   async getUserByEmail(email: string): Promise<any> {
-    const users = await this.query("SELECT * FROM users WHERE email = $1", [email]);
+    const users = await this.query("SELECT * FROM users WHERE email = $1", [
+      email,
+    ]);
     return users[0] || null;
   }
 
@@ -107,11 +109,16 @@ class DatabaseAdapter {
   }
 
   async getVitalById(id: string): Promise<any> {
-    const vitals = await this.query("SELECT * FROM vital_signs WHERE id = $1", [id]);
+    const vitals = await this.query("SELECT * FROM vital_signs WHERE id = $1", [
+      id,
+    ]);
     return vitals[0] || null;
   }
 
-  async getMedications(userId: string, activeOnly: boolean = true): Promise<any[]> {
+  async getMedications(
+    userId: string,
+    activeOnly: boolean = true,
+  ): Promise<any[]> {
     const activeClause = activeOnly ? "AND active = true" : "";
     return await this.query(
       `
@@ -146,7 +153,10 @@ class DatabaseAdapter {
   }
 
   async getMedicationById(id: string): Promise<any> {
-    const medications = await this.query("SELECT * FROM medications WHERE id = $1", [id]);
+    const medications = await this.query(
+      "SELECT * FROM medications WHERE id = $1",
+      [id],
+    );
     return medications[0] || null;
   }
 
@@ -180,13 +190,25 @@ class DatabaseAdapter {
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
       RETURNING *
     `,
-      [userId, testName, value, unit, referenceRange, status, dateCollected, labName],
+      [
+        userId,
+        testName,
+        value,
+        unit,
+        referenceRange,
+        status,
+        dateCollected,
+        labName,
+      ],
     );
     return result[0];
   }
 
   async getLabResultById(id: string): Promise<any> {
-    const results = await this.query("SELECT * FROM lab_results WHERE id = $1", [id]);
+    const results = await this.query(
+      "SELECT * FROM lab_results WHERE id = $1",
+      [id],
+    );
     return results[0] || null;
   }
 
@@ -217,11 +239,17 @@ class DatabaseAdapter {
   }
 
   async getChatMessageById(id: string): Promise<any> {
-    const messages = await this.query("SELECT * FROM chat_messages WHERE id = $1", [id]);
+    const messages = await this.query(
+      "SELECT * FROM chat_messages WHERE id = $1",
+      [id],
+    );
     return messages[0] || null;
   }
 
-  async getHealthInsights(userId: string, dismissed: boolean = false): Promise<any[]> {
+  async getHealthInsights(
+    userId: string,
+    dismissed: boolean = false,
+  ): Promise<any[]> {
     return await this.query(
       `
       SELECT * FROM health_insights 
@@ -250,13 +278,25 @@ class DatabaseAdapter {
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
       RETURNING *
     `,
-      [userId, title, description, type, priority, category, confidence, actionRequired],
+      [
+        userId,
+        title,
+        description,
+        type,
+        priority,
+        category,
+        confidence,
+        actionRequired,
+      ],
     );
     return result[0];
   }
 
   async getHealthInsightById(id: string): Promise<any> {
-    const insights = await this.query("SELECT * FROM health_insights WHERE id = $1", [id]);
+    const insights = await this.query(
+      "SELECT * FROM health_insights WHERE id = $1",
+      [id],
+    );
     return insights[0] || null;
   }
 
@@ -282,7 +322,14 @@ class DatabaseAdapter {
       INSERT INTO audit_logs (user_id, action, description, details, ip_address, user_agent)
       VALUES ($1, $2, $3, $4, $5, $6)
     `,
-      [userId, action, description, JSON.stringify(details), ipAddress, userAgent],
+      [
+        userId,
+        action,
+        description,
+        JSON.stringify(details),
+        ipAddress,
+        userAgent,
+      ],
     );
   }
 }

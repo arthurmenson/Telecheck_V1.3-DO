@@ -1,10 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "./ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -53,8 +48,8 @@ const medicationCategories = {
       { name: "Semaglutide (Ozempic)", price: 850, rebateEligible: true },
       { name: "Tirzepatide (Mounjaro)", price: 950, rebateEligible: true },
       { name: "Liraglutide (Saxenda)", price: 750, rebateEligible: true },
-      { name: "Dulaglutide (Trulicity)", price: 800, rebateEligible: true }
-    ]
+      { name: "Dulaglutide (Trulicity)", price: 800, rebateEligible: true },
+    ],
   },
   mensED: {
     name: "Men's ED Treatment",
@@ -64,8 +59,8 @@ const medicationCategories = {
       { name: "Sildenafil (Viagra)", price: 120, rebateEligible: true },
       { name: "Tadalafil (Cialis)", price: 140, rebateEligible: true },
       { name: "Vardenafil (Levitra)", price: 130, rebateEligible: true },
-      { name: "Avanafil (Stendra)", price: 150, rebateEligible: true }
-    ]
+      { name: "Avanafil (Stendra)", price: 150, rebateEligible: true },
+    ],
   },
   nadPlus: {
     name: "NAD+ Supplements",
@@ -75,8 +70,12 @@ const medicationCategories = {
       { name: "NAD+ IV Therapy", price: 300, rebateEligible: true },
       { name: "Nicotinamide Riboside", price: 80, rebateEligible: true },
       { name: "NAD+ Sublingual", price: 120, rebateEligible: true },
-      { name: "NMN (Nicotinamide Mononucleotide)", price: 100, rebateEligible: true }
-    ]
+      {
+        name: "NMN (Nicotinamide Mononucleotide)",
+        price: 100,
+        rebateEligible: true,
+      },
+    ],
   },
   skinCare: {
     name: "Prescription Skin Care",
@@ -86,8 +85,8 @@ const medicationCategories = {
       { name: "Tretinoin Cream", price: 60, rebateEligible: true },
       { name: "Hydroquinone", price: 45, rebateEligible: true },
       { name: "Clindamycin Gel", price: 35, rebateEligible: true },
-      { name: "Azelaic Acid", price: 50, rebateEligible: true }
-    ]
+      { name: "Azelaic Acid", price: 50, rebateEligible: true },
+    ],
   },
   hairGrowth: {
     name: "Hair Growth Treatment",
@@ -97,9 +96,9 @@ const medicationCategories = {
       { name: "Finasteride", price: 25, rebateEligible: true },
       { name: "Minoxidil Solution", price: 30, rebateEligible: true },
       { name: "Dutasteride", price: 35, rebateEligible: true },
-      { name: "Biotin Complex", price: 20, rebateEligible: false }
-    ]
-  }
+      { name: "Biotin Complex", price: 20, rebateEligible: false },
+    ],
+  },
 };
 
 // Rebate Rules Engine
@@ -114,7 +113,7 @@ const rebateRules = [
     maxDiscount: 100,
     eligibleCategories: ["all"],
     conditions: ["first_purchase"],
-    active: true
+    active: true,
   },
   {
     id: "bulk_glp1",
@@ -126,7 +125,7 @@ const rebateRules = [
     maxDiscount: 400,
     eligibleCategories: ["weightLoss"],
     conditions: ["quantity_3_months"],
-    active: true
+    active: true,
   },
   {
     id: "combo_mens_health",
@@ -138,7 +137,7 @@ const rebateRules = [
     maxDiscount: 50,
     eligibleCategories: ["mensED", "hairGrowth"],
     conditions: ["multi_category"],
-    active: true
+    active: true,
   },
   {
     id: "loyalty_tier",
@@ -150,7 +149,7 @@ const rebateRules = [
     maxDiscount: 200,
     eligibleCategories: ["all"],
     conditions: ["vip_member"],
-    active: true
+    active: true,
   },
   {
     id: "seasonal_skincare",
@@ -162,19 +161,19 @@ const rebateRules = [
     maxDiscount: 75,
     eligibleCategories: ["skinCare"],
     conditions: ["seasonal"],
-    active: true
-  }
+    active: true,
+  },
 ];
 
 // Coupon Generator Component
-const CouponGenerator = ({ 
-  rebate, 
-  customerInfo, 
-  onGenerate 
-}: { 
-  rebate: any; 
-  customerInfo: any; 
-  onGenerate: (coupon: any) => void; 
+const CouponGenerator = ({
+  rebate,
+  customerInfo,
+  onGenerate,
+}: {
+  rebate: any;
+  customerInfo: any;
+  onGenerate: (coupon: any) => void;
 }) => {
   const [generatedCoupon, setGeneratedCoupon] = useState<any>(null);
   const [copied, setCopied] = useState(false);
@@ -199,9 +198,9 @@ const CouponGenerator = ({
       expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
       issuedAt: new Date(),
       used: false,
-      usageLimit: 1
+      usageLimit: 1,
     };
-    
+
     setGeneratedCoupon(coupon);
     onGenerate(coupon);
   };
@@ -229,7 +228,7 @@ const CouponGenerator = ({
                 <Scissors className="w-5 h-5 text-primary" />
                 <h3 className="font-bold text-lg">Your Coupon</h3>
               </div>
-              
+
               <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border-2 border-dashed">
                 <div className="text-2xl font-mono font-bold text-primary mb-2">
                   {generatedCoupon.code}
@@ -239,7 +238,11 @@ const CouponGenerator = ({
                 </p>
                 <div className="flex justify-center gap-2">
                   <Button size="sm" variant="outline" onClick={copyToClipboard}>
-                    {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                    {copied ? (
+                      <Check className="w-4 h-4" />
+                    ) : (
+                      <Copy className="w-4 h-4" />
+                    )}
                     {copied ? "Copied!" : "Copy Code"}
                   </Button>
                   <Button size="sm" variant="outline">
@@ -248,7 +251,7 @@ const CouponGenerator = ({
                   </Button>
                 </div>
               </div>
-              
+
               <div className="grid grid-cols-2 gap-4 text-xs text-muted-foreground">
                 <div>
                   <span className="font-medium">Min Purchase:</span>
@@ -256,7 +259,8 @@ const CouponGenerator = ({
                 </div>
                 <div>
                   <span className="font-medium">Expires:</span>
-                  <br />{generatedCoupon.expiresAt.toLocaleDateString()}
+                  <br />
+                  {generatedCoupon.expiresAt.toLocaleDateString()}
                 </div>
               </div>
             </div>
@@ -268,12 +272,12 @@ const CouponGenerator = ({
 };
 
 // Rebate Calculator
-const RebateCalculator = ({ 
-  cart, 
-  customerProfile 
-}: { 
-  cart: any[]; 
-  customerProfile: any; 
+const RebateCalculator = ({
+  cart,
+  customerProfile,
+}: {
+  cart: any[];
+  customerProfile: any;
 }) => {
   const [applicableRebates, setApplicableRebates] = useState<any[]>([]);
   const [totalSavings, setTotalSavings] = useState(0);
@@ -283,43 +287,58 @@ const RebateCalculator = ({
   }, [cart, customerProfile]);
 
   const calculateRebates = () => {
-    const cartTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    const cartCategories = [...new Set(cart.map(item => item.category))];
-    
-    const applicable = rebateRules.filter(rule => {
+    const cartTotal = cart.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0,
+    );
+    const cartCategories = [...new Set(cart.map((item) => item.category))];
+
+    const applicable = rebateRules.filter((rule) => {
       if (!rule.active) return false;
-      
+
       // Check minimum purchase
       if (cartTotal < rule.minPurchase) return false;
-      
+
       // Check category eligibility
       if (!rule.eligibleCategories.includes("all")) {
-        const hasEligibleCategory = cartCategories.some(cat => 
-          rule.eligibleCategories.includes(cat)
+        const hasEligibleCategory = cartCategories.some((cat) =>
+          rule.eligibleCategories.includes(cat),
         );
         if (!hasEligibleCategory) return false;
       }
-      
+
       // Check conditions
-      if (rule.conditions.includes("first_purchase") && !customerProfile.isFirstTime) return false;
-      if (rule.conditions.includes("vip_member") && !customerProfile.isVIP) return false;
-      if (rule.conditions.includes("multi_category") && cartCategories.length < 2) return false;
-      
+      if (
+        rule.conditions.includes("first_purchase") &&
+        !customerProfile.isFirstTime
+      )
+        return false;
+      if (rule.conditions.includes("vip_member") && !customerProfile.isVIP)
+        return false;
+      if (
+        rule.conditions.includes("multi_category") &&
+        cartCategories.length < 2
+      )
+        return false;
+
       return true;
     });
 
     setApplicableRebates(applicable);
-    
+
     // Calculate total savings
     const savings = applicable.reduce((total, rebate) => {
       if (rebate.type === "percentage") {
-        const discount = Math.min(cartTotal * (rebate.discount / 100), rebate.maxDiscount);
+        const discount = Math.min(
+          cartTotal * (rebate.discount / 100),
+          rebate.maxDiscount,
+        );
         return total + discount;
       } else {
         return total + rebate.discount;
       }
     }, 0);
-    
+
     setTotalSavings(savings);
   };
 
@@ -329,33 +348,44 @@ const RebateCalculator = ({
         <h3 className="font-semibold">Available Rebates</h3>
         <Badge variant="secondary">{applicableRebates.length} available</Badge>
       </div>
-      
+
       {applicableRebates.length > 0 ? (
         <div className="space-y-3">
           {applicableRebates.map((rebate) => (
-            <Card key={rebate.id} className="border-green-200 bg-green-50 dark:bg-green-900/20">
+            <Card
+              key={rebate.id}
+              className="border-green-200 bg-green-50 dark:bg-green-900/20"
+            >
               <CardContent className="p-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Percent className="w-4 h-4 text-green-600" />
                     <div>
                       <p className="font-medium text-sm">{rebate.name}</p>
-                      <p className="text-xs text-muted-foreground">{rebate.description}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {rebate.description}
+                      </p>
                     </div>
                   </div>
                   <Badge className="bg-green-600">
-                    {rebate.type === "percentage" ? `${rebate.discount}%` : `$${rebate.discount}`}
+                    {rebate.type === "percentage"
+                      ? `${rebate.discount}%`
+                      : `$${rebate.discount}`}
                   </Badge>
                 </div>
               </CardContent>
             </Card>
           ))}
-          
+
           <Card className="border-primary bg-primary/5">
             <CardContent className="p-4">
               <div className="text-center">
-                <p className="text-sm text-muted-foreground">Total Potential Savings</p>
-                <p className="text-2xl font-bold text-primary">${totalSavings.toFixed(2)}</p>
+                <p className="text-sm text-muted-foreground">
+                  Total Potential Savings
+                </p>
+                <p className="text-2xl font-bold text-primary">
+                  ${totalSavings.toFixed(2)}
+                </p>
               </div>
             </CardContent>
           </Card>
@@ -364,7 +394,9 @@ const RebateCalculator = ({
         <Card>
           <CardContent className="p-4 text-center">
             <AlertCircle className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-            <p className="text-sm text-muted-foreground">No rebates available for current cart</p>
+            <p className="text-sm text-muted-foreground">
+              No rebates available for current cart
+            </p>
           </CardContent>
         </Card>
       )}
@@ -382,27 +414,30 @@ export function RebateEngine() {
     email: "patient@example.com",
     isFirstTime: true,
     isVIP: false,
-    purchaseHistory: []
+    purchaseHistory: [],
   });
 
   const addToCart = (medication: any, category: string) => {
-    setCart(prev => [...prev, { 
-      ...medication, 
-      category, 
-      quantity: 1,
-      id: Date.now() 
-    }]);
+    setCart((prev) => [
+      ...prev,
+      {
+        ...medication,
+        category,
+        quantity: 1,
+        id: Date.now(),
+      },
+    ]);
   };
 
   const handleCouponGenerated = (coupon: any) => {
-    setGeneratedCoupons(prev => [...prev, coupon]);
+    setGeneratedCoupons((prev) => [...prev, coupon]);
   };
 
   const tabs = [
     { id: "browse", label: "Browse Medications", icon: ShoppingCart },
     { id: "rebates", label: "Rebate Calculator", icon: Percent },
     { id: "coupons", label: "Generate Coupons", icon: Gift },
-    { id: "analytics", label: "Rebate Analytics", icon: TrendingUp }
+    { id: "analytics", label: "Rebate Analytics", icon: TrendingUp },
   ];
 
   return (
@@ -418,19 +453,30 @@ export function RebateEngine() {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="text-center">
-              <p className="text-2xl font-bold text-primary">{rebateRules.filter(r => r.active).length}</p>
+              <p className="text-2xl font-bold text-primary">
+                {rebateRules.filter((r) => r.active).length}
+              </p>
               <p className="text-sm text-muted-foreground">Active Rebates</p>
             </div>
             <div className="text-center">
-              <p className="text-2xl font-bold text-green-600">${cart.reduce((sum, item) => sum + item.price * item.quantity, 0).toFixed(2)}</p>
+              <p className="text-2xl font-bold text-green-600">
+                $
+                {cart
+                  .reduce((sum, item) => sum + item.price * item.quantity, 0)
+                  .toFixed(2)}
+              </p>
               <p className="text-sm text-muted-foreground">Cart Total</p>
             </div>
             <div className="text-center">
-              <p className="text-2xl font-bold text-orange-600">{cart.length}</p>
+              <p className="text-2xl font-bold text-orange-600">
+                {cart.length}
+              </p>
               <p className="text-sm text-muted-foreground">Items in Cart</p>
             </div>
             <div className="text-center">
-              <p className="text-2xl font-bold text-purple-600">{generatedCoupons.length}</p>
+              <p className="text-2xl font-bold text-purple-600">
+                {generatedCoupons.length}
+              </p>
               <p className="text-sm text-muted-foreground">Generated Coupons</p>
             </div>
           </div>
@@ -469,7 +515,10 @@ export function RebateEngine() {
                   <Card key={key}>
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
-                        <Icon className="w-5 h-5" style={{ color: category.color }} />
+                        <Icon
+                          className="w-5 h-5"
+                          style={{ color: category.color }}
+                        />
                         {category.name}
                       </CardTitle>
                     </CardHeader>
@@ -489,8 +538,8 @@ export function RebateEngine() {
                               <span className="text-lg font-bold text-primary">
                                 ${med.price}
                               </span>
-                              <Button 
-                                size="sm" 
+                              <Button
+                                size="sm"
                                 onClick={() => addToCart(med, key)}
                                 className="gap-1"
                               >
@@ -521,10 +570,15 @@ export function RebateEngine() {
                 {cart.length > 0 ? (
                   <div className="space-y-3">
                     {cart.map((item) => (
-                      <div key={item.id} className="flex items-center justify-between p-2 border rounded">
+                      <div
+                        key={item.id}
+                        className="flex items-center justify-between p-2 border rounded"
+                      >
                         <div>
                           <p className="font-medium text-sm">{item.name}</p>
-                          <p className="text-xs text-muted-foreground">Qty: {item.quantity}</p>
+                          <p className="text-xs text-muted-foreground">
+                            Qty: {item.quantity}
+                          </p>
                         </div>
                         <span className="font-bold">${item.price}</span>
                       </div>
@@ -532,11 +586,21 @@ export function RebateEngine() {
                     <Separator />
                     <div className="flex items-center justify-between font-bold">
                       <span>Total:</span>
-                      <span>${cart.reduce((sum, item) => sum + item.price * item.quantity, 0).toFixed(2)}</span>
+                      <span>
+                        $
+                        {cart
+                          .reduce(
+                            (sum, item) => sum + item.price * item.quantity,
+                            0,
+                          )
+                          .toFixed(2)}
+                      </span>
                     </div>
                   </div>
                 ) : (
-                  <p className="text-center text-muted-foreground py-4">Cart is empty</p>
+                  <p className="text-center text-muted-foreground py-4">
+                    Cart is empty
+                  </p>
                 )}
               </CardContent>
             </Card>
@@ -548,7 +612,7 @@ export function RebateEngine() {
       {activeTab === "rebates" && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <RebateCalculator cart={cart} customerProfile={customerProfile} />
-          
+
           <Card>
             <CardHeader>
               <CardTitle>Rebate Rules</CardTitle>
@@ -563,7 +627,9 @@ export function RebateEngine() {
                         {rule.active ? "Active" : "Inactive"}
                       </Badge>
                     </div>
-                    <p className="text-sm text-muted-foreground mb-2">{rule.description}</p>
+                    <p className="text-sm text-muted-foreground mb-2">
+                      {rule.description}
+                    </p>
                     <div className="grid grid-cols-2 gap-2 text-xs">
                       <span>Min Purchase: ${rule.minPurchase}</span>
                       <span>Max Discount: ${rule.maxDiscount}</span>
@@ -579,24 +645,28 @@ export function RebateEngine() {
       {/* Generate Coupons Tab */}
       {activeTab === "coupons" && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {rebateRules.filter(rule => rule.active).map((rebate) => (
-            <Card key={rebate.id}>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Gift className="w-5 h-5 text-primary" />
-                  {rebate.name}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground mb-4">{rebate.description}</p>
-                <CouponGenerator 
-                  rebate={rebate} 
-                  customerInfo={customerProfile}
-                  onGenerate={handleCouponGenerated}
-                />
-              </CardContent>
-            </Card>
-          ))}
+          {rebateRules
+            .filter((rule) => rule.active)
+            .map((rebate) => (
+              <Card key={rebate.id}>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Gift className="w-5 h-5 text-primary" />
+                    {rebate.name}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    {rebate.description}
+                  </p>
+                  <CouponGenerator
+                    rebate={rebate}
+                    customerInfo={customerProfile}
+                    onGenerate={handleCouponGenerated}
+                  />
+                </CardContent>
+              </Card>
+            ))}
         </div>
       )}
 
@@ -611,11 +681,15 @@ export function RebateEngine() {
               <div className="space-y-4">
                 <div className="text-center">
                   <p className="text-3xl font-bold text-primary">$12,450</p>
-                  <p className="text-sm text-muted-foreground">Total Rebates Issued</p>
+                  <p className="text-sm text-muted-foreground">
+                    Total Rebates Issued
+                  </p>
                 </div>
                 <div className="text-center">
                   <p className="text-3xl font-bold text-green-600">342</p>
-                  <p className="text-sm text-muted-foreground">Coupons Generated</p>
+                  <p className="text-sm text-muted-foreground">
+                    Coupons Generated
+                  </p>
                 </div>
               </div>
             </CardContent>

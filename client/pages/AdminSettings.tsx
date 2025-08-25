@@ -1,12 +1,23 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
-import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
-import { Label } from '../components/ui/label';
-import { Switch } from '../components/ui/switch';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
-import { useToast } from '../hooks/use-toast';
-import { messagingAdminService } from '../services/messagingAdmin.service';
+import React, { useState, useEffect } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import { Label } from "../components/ui/label";
+import { Switch } from "../components/ui/switch";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../components/ui/tabs";
+import { useToast } from "../hooks/use-toast";
+import { messagingAdminService } from "../services/messagingAdmin.service";
 
 interface MessagingConfig {
   telnyxApiKey: string;
@@ -34,7 +45,7 @@ interface MessagingAnalytics {
 
 export default function AdminSettings() {
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState('general');
+  const [activeTab, setActiveTab] = useState("general");
   const [messagingConfig, setMessagingConfig] = useState<MessagingConfig>({
     telnyxApiKey: "YOUR_TELNYX_API_KEY_HERE",
     twilioAccountSid: "",
@@ -52,19 +63,20 @@ export default function AdminSettings() {
     retryDelayMinutes: 5,
   });
 
-  const [messagingAnalytics, setMessagingAnalytics] = useState<MessagingAnalytics>({
-    totalMessages: 0,
-    successfulDeliveries: 0,
-    failedDeliveries: 0,
-    averageResponseTime: 0,
-  });
+  const [messagingAnalytics, setMessagingAnalytics] =
+    useState<MessagingAnalytics>({
+      totalMessages: 0,
+      successfulDeliveries: 0,
+      failedDeliveries: 0,
+      averageResponseTime: 0,
+    });
 
   const [isLoading, setIsLoading] = useState(false);
   const [showApiKey, setShowApiKey] = useState(false);
 
   // Load messaging configuration when messaging tab is active
   useEffect(() => {
-    if (activeTab === 'messaging') {
+    if (activeTab === "messaging") {
       loadMessagingData();
     }
   }, [activeTab]);
@@ -75,7 +87,7 @@ export default function AdminSettings() {
 
       const [configResult, analyticsResult] = await Promise.all([
         messagingAdminService.getConfig(),
-        messagingAdminService.getAnalytics('24h')
+        messagingAdminService.getAnalytics("24h"),
       ]);
 
       if (configResult.success && configResult.config) {
@@ -85,13 +97,12 @@ export default function AdminSettings() {
       if (analyticsResult.success && analyticsResult.analytics) {
         setMessagingAnalytics(analyticsResult.analytics);
       }
-
     } catch (error) {
-      console.error('Error loading messaging data:', error);
+      console.error("Error loading messaging data:", error);
       toast({
         title: "Error",
         description: "Failed to load messaging configuration",
-        variant: "destructive"
+        variant: "destructive",
       });
     } finally {
       setIsLoading(false);
@@ -102,23 +113,26 @@ export default function AdminSettings() {
     if (!messagingConfig) return;
 
     try {
-      const result = await messagingAdminService.updateConfig({ ...messagingConfig, ...updates });
+      const result = await messagingAdminService.updateConfig({
+        ...messagingConfig,
+        ...updates,
+      });
 
       if (result.success) {
         setMessagingConfig({ ...messagingConfig, ...updates });
         toast({
           title: "Success",
-          description: "Messaging configuration updated successfully"
+          description: "Messaging configuration updated successfully",
         });
       } else {
-        throw new Error(result.error || 'Update failed');
+        throw new Error(result.error || "Update failed");
       }
     } catch (error) {
-      console.error('Error updating messaging config:', error);
+      console.error("Error updating messaging config:", error);
       toast({
         title: "Error",
         description: "Failed to update messaging configuration",
-        variant: "destructive"
+        variant: "destructive",
       });
     }
   };
@@ -127,10 +141,16 @@ export default function AdminSettings() {
     <div className="container mx-auto p-6">
       <div className="mb-6">
         <h1 className="text-3xl font-bold">Admin Settings</h1>
-        <p className="text-gray-600">Manage system configuration and settings</p>
+        <p className="text-gray-600">
+          Manage system configuration and settings
+        </p>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+      <Tabs
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className="space-y-6"
+      >
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="general">General</TabsTrigger>
           <TabsTrigger value="messaging">Messaging</TabsTrigger>
@@ -163,7 +183,9 @@ export default function AdminSettings() {
           <Card>
             <CardHeader>
               <CardTitle>Messaging Configuration</CardTitle>
-              <CardDescription>Configure SMS and voice messaging services</CardDescription>
+              <CardDescription>
+                Configure SMS and voice messaging services
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
@@ -174,7 +196,9 @@ export default function AdminSettings() {
                       id="telnyxApiKey"
                       type={showApiKey ? "text" : "password"}
                       value={messagingConfig.telnyxApiKey}
-                      onChange={(e) => updateMessagingConfig({ telnyxApiKey: e.target.value })}
+                      onChange={(e) =>
+                        updateMessagingConfig({ telnyxApiKey: e.target.value })
+                      }
                       placeholder="Enter your Telnyx API key"
                     />
                     <Button
@@ -193,7 +217,11 @@ export default function AdminSettings() {
                   <Input
                     id="telnyxPhoneNumber"
                     value={messagingConfig.telnyxPhoneNumber}
-                    onChange={(e) => updateMessagingConfig({ telnyxPhoneNumber: e.target.value })}
+                    onChange={(e) =>
+                      updateMessagingConfig({
+                        telnyxPhoneNumber: e.target.value,
+                      })
+                    }
                     placeholder="+1234567890"
                   />
                 </div>
@@ -205,7 +233,11 @@ export default function AdminSettings() {
                   <Input
                     id="twilioAccountSid"
                     value={messagingConfig.twilioAccountSid}
-                    onChange={(e) => updateMessagingConfig({ twilioAccountSid: e.target.value })}
+                    onChange={(e) =>
+                      updateMessagingConfig({
+                        twilioAccountSid: e.target.value,
+                      })
+                    }
                     placeholder="Enter your Twilio Account SID"
                   />
                 </div>
@@ -215,7 +247,9 @@ export default function AdminSettings() {
                     id="twilioAuthToken"
                     type="password"
                     value={messagingConfig.twilioAuthToken}
-                    onChange={(e) => updateMessagingConfig({ twilioAuthToken: e.target.value })}
+                    onChange={(e) =>
+                      updateMessagingConfig({ twilioAuthToken: e.target.value })
+                    }
                     placeholder="Enter your Twilio Auth Token"
                   />
                 </div>
@@ -227,23 +261,37 @@ export default function AdminSettings() {
                   <Switch
                     id="enableSMS"
                     checked={messagingConfig.enableSMSNotifications}
-                    onCheckedChange={(checked) => updateMessagingConfig({ enableSMSNotifications: checked })}
+                    onCheckedChange={(checked) =>
+                      updateMessagingConfig({ enableSMSNotifications: checked })
+                    }
                   />
                 </div>
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="enableVoice">Enable Voice Notifications</Label>
+                  <Label htmlFor="enableVoice">
+                    Enable Voice Notifications
+                  </Label>
                   <Switch
                     id="enableVoice"
                     checked={messagingConfig.enableVoiceNotifications}
-                    onCheckedChange={(checked) => updateMessagingConfig({ enableVoiceNotifications: checked })}
+                    onCheckedChange={(checked) =>
+                      updateMessagingConfig({
+                        enableVoiceNotifications: checked,
+                      })
+                    }
                   />
                 </div>
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="enableScheduled">Enable Scheduled Messaging</Label>
+                  <Label htmlFor="enableScheduled">
+                    Enable Scheduled Messaging
+                  </Label>
                   <Switch
                     id="enableScheduled"
                     checked={messagingConfig.enableScheduledMessaging}
-                    onCheckedChange={(checked) => updateMessagingConfig({ enableScheduledMessaging: checked })}
+                    onCheckedChange={(checked) =>
+                      updateMessagingConfig({
+                        enableScheduledMessaging: checked,
+                      })
+                    }
                   />
                 </div>
               </div>
@@ -257,19 +305,27 @@ export default function AdminSettings() {
             <CardContent>
               <div className="grid grid-cols-4 gap-4">
                 <div className="text-center">
-                  <div className="text-2xl font-bold">{messagingAnalytics.totalMessages}</div>
+                  <div className="text-2xl font-bold">
+                    {messagingAnalytics.totalMessages}
+                  </div>
                   <div className="text-sm text-gray-600">Total Messages</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-green-600">{messagingAnalytics.successfulDeliveries}</div>
+                  <div className="text-2xl font-bold text-green-600">
+                    {messagingAnalytics.successfulDeliveries}
+                  </div>
                   <div className="text-sm text-gray-600">Successful</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-red-600">{messagingAnalytics.failedDeliveries}</div>
+                  <div className="text-2xl font-bold text-red-600">
+                    {messagingAnalytics.failedDeliveries}
+                  </div>
                   <div className="text-sm text-gray-600">Failed</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold">{messagingAnalytics.averageResponseTime}ms</div>
+                  <div className="text-2xl font-bold">
+                    {messagingAnalytics.averageResponseTime}ms
+                  </div>
                   <div className="text-sm text-gray-600">Avg Response</div>
                 </div>
               </div>
@@ -281,17 +337,28 @@ export default function AdminSettings() {
           <Card>
             <CardHeader>
               <CardTitle>Security Settings</CardTitle>
-              <CardDescription>Configure security and authentication</CardDescription>
+              <CardDescription>
+                Configure security and authentication
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="twoFactor">Enable Two-Factor Authentication</Label>
+                  <Label htmlFor="twoFactor">
+                    Enable Two-Factor Authentication
+                  </Label>
                   <Switch id="twoFactor" />
                 </div>
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="sessionTimeout">Session Timeout (minutes)</Label>
-                  <Input id="sessionTimeout" type="number" defaultValue="30" className="w-24" />
+                  <Label htmlFor="sessionTimeout">
+                    Session Timeout (minutes)
+                  </Label>
+                  <Input
+                    id="sessionTimeout"
+                    type="number"
+                    defaultValue="30"
+                    className="w-24"
+                  />
                 </div>
               </div>
             </CardContent>

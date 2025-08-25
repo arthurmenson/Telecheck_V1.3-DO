@@ -67,7 +67,7 @@ const quickStats = [
     change: "+12.5%",
     changeType: "increase",
     icon: Users,
-    color: "#10b981"
+    color: "#10b981",
   },
   {
     title: "Today's Appointments",
@@ -75,7 +75,7 @@ const quickStats = [
     change: "+8 new",
     changeType: "increase",
     icon: Calendar,
-    color: "#3b82f6"
+    color: "#3b82f6",
   },
   {
     title: "Pending Charts",
@@ -83,7 +83,7 @@ const quickStats = [
     change: "-15 completed",
     changeType: "decrease",
     icon: FileText,
-    color: "#f59e0b"
+    color: "#f59e0b",
   },
   {
     title: "Revenue (MTD)",
@@ -91,8 +91,8 @@ const quickStats = [
     change: "+18.2%",
     changeType: "increase",
     icon: DollarSign,
-    color: "#ef4444"
-  }
+    color: "#ef4444",
+  },
 ];
 
 export function EHR() {
@@ -101,7 +101,6 @@ export function EHR() {
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-4 py-6 space-y-8">
-        
         {/* Header */}
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
           <div>
@@ -110,7 +109,8 @@ export function EHR() {
               Cloud-Based EHR System
             </h1>
             <p className="text-lg text-muted-foreground">
-              Comprehensive Electronic Health Records & Practice Management Platform
+              Comprehensive Electronic Health Records & Practice Management
+              Platform
             </p>
             <div className="flex items-center gap-4 mt-3">
               <Badge className="bg-green-100 text-green-700 gap-1">
@@ -127,7 +127,7 @@ export function EHR() {
               </Badge>
             </div>
           </div>
-          
+
           <div className="flex gap-3">
             <Button variant="outline" className="gap-2">
               <Settings className="w-4 h-4" />
@@ -145,16 +145,27 @@ export function EHR() {
           {quickStats.map((stat, idx) => {
             const Icon = stat.icon;
             return (
-              <Card key={idx} className="hover:shadow-lg transition-all duration-300">
+              <Card
+                key={idx}
+                className="hover:shadow-lg transition-all duration-300"
+              >
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
-                      <p className="text-3xl font-bold text-foreground">{stat.value}</p>
-                      <div className={`flex items-center gap-1 text-sm mt-1 ${
-                        stat.changeType === 'increase' ? 'text-green-600' : 'text-red-600'
-                      }`}>
-                        {stat.changeType === 'increase' ? (
+                      <p className="text-sm font-medium text-muted-foreground">
+                        {stat.title}
+                      </p>
+                      <p className="text-3xl font-bold text-foreground">
+                        {stat.value}
+                      </p>
+                      <div
+                        className={`flex items-center gap-1 text-sm mt-1 ${
+                          stat.changeType === "increase"
+                            ? "text-green-600"
+                            : "text-red-600"
+                        }`}
+                      >
+                        {stat.changeType === "increase" ? (
                           <TrendingUp className="w-3 h-3" />
                         ) : (
                           <TrendingUp className="w-3 h-3 rotate-180" />
@@ -162,7 +173,7 @@ export function EHR() {
                         <span>{stat.change}</span>
                       </div>
                     </div>
-                    <div 
+                    <div
                       className="w-12 h-12 rounded-lg flex items-center justify-center"
                       style={{ backgroundColor: `${stat.color}15` }}
                     >
@@ -188,15 +199,20 @@ export function EHR() {
               <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Sparkles className="w-8 h-8 text-primary" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">Welcome to the EHR System</h3>
+              <h3 className="text-xl font-semibold mb-2">
+                Welcome to the EHR System
+              </h3>
               <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
-                Access all EHR modules directly from the navigation menu on the left. Each module is designed 
-                to streamline your healthcare workflow and improve patient care delivery.
+                Access all EHR modules directly from the navigation menu on the
+                left. Each module is designed to streamline your healthcare
+                workflow and improve patient care delivery.
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-4xl mx-auto">
                 <div className="flex items-center gap-3 p-3 border rounded-lg">
                   <UserPlus className="w-5 h-5 text-green-600" />
-                  <span className="text-sm font-medium">Patient Management</span>
+                  <span className="text-sm font-medium">
+                    Patient Management
+                  </span>
                 </div>
                 <div className="flex items-center gap-3 p-3 border rounded-lg">
                   <Stethoscope className="w-5 h-5 text-blue-600" />
@@ -204,19 +220,27 @@ export function EHR() {
                 </div>
                 <div className="flex items-center gap-3 p-3 border rounded-lg">
                   <Building className="w-5 h-5 text-purple-600" />
-                  <span className="text-sm font-medium">Practice Management</span>
+                  <span className="text-sm font-medium">
+                    Practice Management
+                  </span>
                 </div>
                 <div className="flex items-center gap-3 p-3 border rounded-lg">
                   <BarChart3 className="w-5 h-5 text-orange-600" />
-                  <span className="text-sm font-medium">Analytics & Reports</span>
+                  <span className="text-sm font-medium">
+                    Analytics & Reports
+                  </span>
                 </div>
                 <div className="flex items-center gap-3 p-3 border rounded-lg">
                   <HeartPulse className="w-5 h-5 text-red-600" />
-                  <span className="text-sm font-medium">Patient Engagement</span>
+                  <span className="text-sm font-medium">
+                    Patient Engagement
+                  </span>
                 </div>
                 <div className="flex items-center gap-3 p-3 border rounded-lg">
                   <Share2 className="w-5 h-5 text-teal-600" />
-                  <span className="text-sm font-medium">Business Operations</span>
+                  <span className="text-sm font-medium">
+                    Business Operations
+                  </span>
                 </div>
               </div>
             </div>

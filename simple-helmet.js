@@ -1,5 +1,7 @@
-  // Security middleware - simplified to avoid syntax errors
-  app.use(helmet({
+// Security middleware - simplified to avoid syntax errors
+app.use(
+  helmet({
     contentSecurityPolicy: false,
-    crossOriginEmbedderPolicy: false
-  }));
+    crossOriginEmbedderPolicy: false,
+  }),
+);

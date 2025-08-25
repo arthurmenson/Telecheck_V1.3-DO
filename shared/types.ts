@@ -5,7 +5,7 @@ export interface User {
   name: string;
   firstName?: string;
   lastName?: string;
-  role: 'patient' | 'doctor' | 'admin' | 'pharmacist' | 'nurse';
+  role: "patient" | "doctor" | "admin" | "pharmacist" | "nurse";
   avatar?: string;
   dateOfBirth?: string;
   phone?: string;
@@ -22,7 +22,7 @@ export interface User {
 }
 
 export interface UserPreferences {
-  theme: 'light' | 'dark' | 'system';
+  theme: "light" | "dark" | "system";
   notifications: {
     email: boolean;
     push: boolean;
@@ -43,7 +43,7 @@ export interface LabResult {
   value: number;
   unit: string;
   referenceRange: string;
-  status: 'normal' | 'borderline' | 'high' | 'low' | 'critical';
+  status: "normal" | "borderline" | "high" | "low" | "critical";
   testDate: string;
   labName?: string;
   doctorNotes?: string;
@@ -56,7 +56,7 @@ export interface LabReport {
   fileName: string;
   fileSize: number;
   uploadDate: string;
-  analysisStatus: 'pending' | 'processing' | 'completed' | 'failed';
+  analysisStatus: "pending" | "processing" | "completed" | "failed";
   results: LabResult[];
   aiSummary?: string;
   confidence: number;
@@ -88,13 +88,13 @@ export interface VitalSigns {
   weight?: number;
   height?: number;
   recordedAt: string;
-  source: 'manual' | 'device' | 'wearable';
+  source: "manual" | "device" | "wearable";
 }
 
 export interface ChatMessage {
   id: string;
   userId: string;
-  type: 'user' | 'ai' | 'system';
+  type: "user" | "ai" | "system";
   content: string;
   context?: {
     labs?: boolean;
@@ -110,10 +110,10 @@ export interface ChatMessage {
 export interface HealthInsight {
   id: string;
   userId: string;
-  type: 'recommendation' | 'alert' | 'insight' | 'warning';
+  type: "recommendation" | "alert" | "insight" | "warning";
   title: string;
   description: string;
-  priority: 'low' | 'medium' | 'high' | 'critical';
+  priority: "low" | "medium" | "high" | "critical";
   category: string;
   confidence: number;
   actionRequired: boolean;
@@ -147,7 +147,7 @@ export interface RegisterRequest {
   email: string;
   password: string;
   name: string;
-  role?: 'patient' | 'doctor' | 'admin' | 'pharmacist' | 'nurse';
+  role?: "patient" | "doctor" | "admin" | "pharmacist" | "nurse";
 }
 
 export interface AuthResponse {
@@ -162,11 +162,11 @@ export interface Program {
   id: string;
   title: string;
   description: string;
-  type: 'rolling-start' | 'fixed-start';
+  type: "rolling-start" | "fixed-start";
   duration: string;
   enrolledParticipants: number;
   maxParticipants?: number;
-  status: 'active' | 'archived' | 'draft';
+  status: "active" | "archived" | "draft";
   category: string;
   price: number;
   coach: string;
@@ -188,7 +188,7 @@ export interface ProgramParticipant {
   enrollmentDate: string;
   completionDate?: string;
   progress: number;
-  status: 'enrolled' | 'active' | 'completed' | 'dropped';
+  status: "enrolled" | "active" | "completed" | "dropped";
   notes?: string;
 }
 
@@ -218,7 +218,7 @@ export interface FileUpload {
 export interface Notification {
   id: string;
   userId: string;
-  type: 'info' | 'warning' | 'error' | 'success';
+  type: "info" | "warning" | "error" | "success";
   title: string;
   message: string;
   isRead: boolean;

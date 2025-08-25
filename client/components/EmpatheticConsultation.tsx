@@ -23,7 +23,7 @@ import {
   Target,
   ChevronRight,
   Smile,
-  ThumbsUp
+  ThumbsUp,
 } from "lucide-react";
 
 import {
@@ -34,8 +34,8 @@ import {
   calculateProgress,
   getEmpatheticResponse,
   type ConsultationMCQ,
-  type MCQQuestion
-} from '../data/consultationMCQTemplates';
+  type MCQQuestion,
+} from "../data/consultationMCQTemplates";
 
 interface EmpatheticConsultationProps {
   isOpen: boolean;
@@ -53,30 +53,30 @@ interface EmpatheticConsultationProps {
 // Mapping medications to MCQ templates
 const MEDICATION_MCQ_MAPPING: Record<string, string> = {
   // Weight loss medications -> mental health screening (often related)
-  'Semaglutide': 'mental_health_screening',
-  'Tirzepatide': 'mental_health_screening', 
-  'Liraglutide': 'mental_health_screening',
-  'Dulaglutide': 'diabetes_management',
+  Semaglutide: "mental_health_screening",
+  Tirzepatide: "mental_health_screening",
+  Liraglutide: "mental_health_screening",
+  Dulaglutide: "diabetes_management",
 
   // ED medications -> cardiovascular screening
-  'Sildenafil': 'cardiovascular_risk',
-  'Tadalafil': 'cardiovascular_risk',
-  'Vardenafil': 'cardiovascular_risk',
-  'Avanafil': 'cardiovascular_risk',
+  Sildenafil: "cardiovascular_risk",
+  Tadalafil: "cardiovascular_risk",
+  Vardenafil: "cardiovascular_risk",
+  Avanafil: "cardiovascular_risk",
 
   // Skin medications -> dermatology
-  'Tretinoin': 'dermatology_consultation',
-  'Hydroquinone': 'dermatology_consultation',
-  'Clindamycin': 'dermatology_consultation',
-  'Azelaic Acid': 'dermatology_consultation',
+  Tretinoin: "dermatology_consultation",
+  Hydroquinone: "dermatology_consultation",
+  Clindamycin: "dermatology_consultation",
+  "Azelaic Acid": "dermatology_consultation",
 
   // Hair medications -> general health
-  'Finasteride': 'cardiovascular_risk',
-  'Dutasteride': 'cardiovascular_risk',
-  'Minoxidil': 'cardiovascular_risk',
+  Finasteride: "cardiovascular_risk",
+  Dutasteride: "cardiovascular_risk",
+  Minoxidil: "cardiovascular_risk",
 
   // Default fallback
-  'default': 'mental_health_screening'
+  default: "mental_health_screening",
 };
 
 export function EmpatheticConsultation({
@@ -95,23 +95,29 @@ export function EmpatheticConsultation({
 
   // Initialize MCQ template based on medication
   useEffect(() => {
-    const templateId = MEDICATION_MCQ_MAPPING[medication.name] || MEDICATION_MCQ_MAPPING['default'];
-    const template = CONSULTATION_MCQ_TEMPLATES.find(t => t.id === templateId);
+    const templateId =
+      MEDICATION_MCQ_MAPPING[medication.name] ||
+      MEDICATION_MCQ_MAPPING["default"];
+    const template = CONSULTATION_MCQ_TEMPLATES.find(
+      (t) => t.id === templateId,
+    );
     if (template) {
       setMcqTemplate(template);
     }
   }, [medication.name]);
 
-  const progress = mcqTemplate ? calculateProgress(responses, mcqTemplate.questions) : 0;
+  const progress = mcqTemplate
+    ? calculateProgress(responses, mcqTemplate.questions)
+    : 0;
   const currentQuestion = mcqTemplate?.questions[currentQuestionIndex];
 
   const handleResponse = (questionId: string, value: any) => {
-    setResponses(prev => ({ ...prev, [questionId]: value }));
+    setResponses((prev) => ({ ...prev, [questionId]: value }));
   };
 
   const handleNextQuestion = () => {
     if (!mcqTemplate) return;
-    
+
     if (currentQuestionIndex < mcqTemplate.questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
@@ -130,15 +136,18 @@ export function EmpatheticConsultation({
 
   const handleAIAnalysis = async () => {
     if (!mcqTemplate) return;
-    
+
     setIsAnalyzing(true);
 
     // Simulate AI analysis with actual risk calculation
     setTimeout(() => {
       const riskScore = calculateRiskScore(responses, mcqTemplate.questions);
       const needsConsultation = requiresConsultation(responses, mcqTemplate);
-      const recommendations = getConsultationRecommendations(responses, mcqTemplate);
-      
+      const recommendations = getConsultationRecommendations(
+        responses,
+        mcqTemplate,
+      );
+
       const result = {
         approved: !needsConsultation,
         needsConsultation,
@@ -147,24 +156,30 @@ export function EmpatheticConsultation({
         riskLevel: recommendations.urgency,
         supportiveMessage: recommendations.supportiveMessage,
         nextSteps: recommendations.nextSteps,
-        recommendations: needsConsultation ? mcqTemplate.consultationCriteria : [
-          `${medication.name} appears appropriate for your situation`,
-          'Start with the lowest effective dose',
-          'Monitor for side effects during first week',
-          'Follow up if symptoms persist or worsen'
-        ],
+        recommendations: needsConsultation
+          ? mcqTemplate.consultationCriteria
+          : [
+              `${medication.name} appears appropriate for your situation`,
+              "Start with the lowest effective dose",
+              "Monitor for side effects during first week",
+              "Follow up if symptoms persist or worsen",
+            ],
         dosageRecommendation: medication.dosage,
         duration: "As needed with 3-month review",
-        warnings: needsConsultation ? [
-          'Professional consultation required before treatment',
-          'Do not start medication without medical supervision'
-        ] : [
-          'Take exactly as prescribed',
-          'Contact healthcare provider if side effects occur'
-        ],
-        estimatedDelivery: needsConsultation ? "After consultation approval" : "2-3 business days",
+        warnings: needsConsultation
+          ? [
+              "Professional consultation required before treatment",
+              "Do not start medication without medical supervision",
+            ]
+          : [
+              "Take exactly as prescribed",
+              "Contact healthcare provider if side effects occur",
+            ],
+        estimatedDelivery: needsConsultation
+          ? "After consultation approval"
+          : "2-3 business days",
         totalCost: medication.price,
-        category: mcqTemplate.category
+        category: mcqTemplate.category,
       };
 
       setAssessmentResult(result);
@@ -182,7 +197,9 @@ export function EmpatheticConsultation({
         assessment: assessmentResult,
         timestamp: new Date().toISOString(),
       },
-      status: assessmentResult?.needsConsultation ? "consultation_required" : "approved",
+      status: assessmentResult?.needsConsultation
+        ? "consultation_required"
+        : "approved",
       orderId: `MCQ-${Date.now()}`,
     };
 
@@ -208,8 +225,8 @@ export function EmpatheticConsultation({
           {step < 3 && (
             <div
               className={`w-12 h-1 ml-2 transition-all ${
-                currentStep > step 
-                  ? "bg-gradient-to-r from-emerald-500 to-blue-500" 
+                currentStep > step
+                  ? "bg-gradient-to-r from-emerald-500 to-blue-500"
                   : "bg-gray-200"
               }`}
             />
@@ -272,19 +289,28 @@ export function EmpatheticConsultation({
                       {mcqTemplate.name}
                     </h3>
                     <p className="text-sm text-muted-foreground">
-                      Question {currentQuestionIndex + 1} of {mcqTemplate.questions.length}
+                      Question {currentQuestionIndex + 1} of{" "}
+                      {mcqTemplate.questions.length}
                     </p>
                   </div>
                 </div>
                 <div className="text-right">
                   <div className="text-2xl font-bold text-emerald-600">
-                    {Math.round(((currentQuestionIndex + 1) / mcqTemplate.questions.length) * 100)}%
+                    {Math.round(
+                      ((currentQuestionIndex + 1) /
+                        mcqTemplate.questions.length) *
+                        100,
+                    )}
+                    %
                   </div>
                   <div className="text-xs text-muted-foreground">Complete</div>
                 </div>
               </div>
               <Progress
-                value={((currentQuestionIndex + 1) / mcqTemplate.questions.length) * 100}
+                value={
+                  ((currentQuestionIndex + 1) / mcqTemplate.questions.length) *
+                  100
+                }
                 className="w-full h-3"
               />
             </div>
@@ -299,14 +325,15 @@ export function EmpatheticConsultation({
                       <span className="text-red-500 ml-1">*</span>
                     )}
                   </h3>
-                  
+
                   {/* Supportive subtitle */}
-                  {(currentQuestion as any).subtitle && showSupportiveMessages && (
-                    <p className="text-emerald-600 dark:text-emerald-400 mb-3 italic">
-                      {(currentQuestion as any).subtitle}
-                    </p>
-                  )}
-                  
+                  {(currentQuestion as any).subtitle &&
+                    showSupportiveMessages && (
+                      <p className="text-emerald-600 dark:text-emerald-400 mb-3 italic">
+                        {(currentQuestion as any).subtitle}
+                      </p>
+                    )}
+
                   {currentQuestion.description && (
                     <p className="text-muted-foreground mb-4">
                       {currentQuestion.description}
@@ -314,106 +341,160 @@ export function EmpatheticConsultation({
                   )}
 
                   {/* Question Input */}
-                  {currentQuestion.type === 'text' && (
+                  {currentQuestion.type === "text" && (
                     <Input
-                      value={responses[currentQuestion.id] || ''}
-                      onChange={(e) => handleResponse(currentQuestion.id, e.target.value)}
+                      value={responses[currentQuestion.id] || ""}
+                      onChange={(e) =>
+                        handleResponse(currentQuestion.id, e.target.value)
+                      }
                       placeholder="Your answer..."
                       className="text-lg"
                     />
                   )}
 
-                  {currentQuestion.type === 'textarea' && (
+                  {currentQuestion.type === "textarea" && (
                     <Textarea
-                      value={responses[currentQuestion.id] || ''}
-                      onChange={(e) => handleResponse(currentQuestion.id, e.target.value)}
+                      value={responses[currentQuestion.id] || ""}
+                      onChange={(e) =>
+                        handleResponse(currentQuestion.id, e.target.value)
+                      }
                       placeholder="Share your thoughts..."
                       rows={3}
                     />
                   )}
 
-                  {(currentQuestion.type === 'multiple_choice' || currentQuestion.type === 'checkbox') && currentQuestion.options && (
-                    <div className="space-y-3">
-                      {currentQuestion.options.map((option, index) => (
-                        <div
-                          key={index}
-                          className={`p-4 rounded-lg border-2 cursor-pointer transition-all hover:bg-emerald-50 dark:hover:bg-emerald-900/20 ${
-                            currentQuestion.type === 'multiple_choice'
-                              ? responses[currentQuestion.id] === option
-                                ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20'
-                                : 'border-gray-200 dark:border-gray-700 hover:border-emerald-300'
-                              : Array.isArray(responses[currentQuestion.id]) && responses[currentQuestion.id].includes(option)
-                                ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20'
-                                : 'border-gray-200 dark:border-gray-700 hover:border-emerald-300'
-                          }`}
-                          onClick={() => {
-                            if (currentQuestion.type === 'multiple_choice') {
-                              handleResponse(currentQuestion.id, option);
-                            } else {
-                              const current = responses[currentQuestion.id] || [];
-                              if (current.includes(option)) {
-                                handleResponse(currentQuestion.id, current.filter((item: string) => item !== option));
-                              } else {
-                                handleResponse(currentQuestion.id, [...current, option]);
-                              }
-                            }
-                          }}
-                        >
-                          <div className="flex items-center gap-3">
-                            <div
-                              className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
-                                (currentQuestion.type === 'multiple_choice' 
-                                  ? responses[currentQuestion.id] === option
-                                  : Array.isArray(responses[currentQuestion.id]) && responses[currentQuestion.id].includes(option))
-                                  ? 'border-emerald-500 bg-emerald-500'
-                                  : 'border-gray-300'
-                              }`}
-                            >
-                              {(currentQuestion.type === 'multiple_choice' 
+                  {(currentQuestion.type === "multiple_choice" ||
+                    currentQuestion.type === "checkbox") &&
+                    currentQuestion.options && (
+                      <div className="space-y-3">
+                        {currentQuestion.options.map((option, index) => (
+                          <div
+                            key={index}
+                            className={`p-4 rounded-lg border-2 cursor-pointer transition-all hover:bg-emerald-50 dark:hover:bg-emerald-900/20 ${
+                              currentQuestion.type === "multiple_choice"
                                 ? responses[currentQuestion.id] === option
-                                : Array.isArray(responses[currentQuestion.id]) && responses[currentQuestion.id].includes(option)) && (
-                                <CheckCircle className="w-3 h-3 text-white" />
-                              )}
+                                  ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20"
+                                  : "border-gray-200 dark:border-gray-700 hover:border-emerald-300"
+                                : Array.isArray(
+                                      responses[currentQuestion.id],
+                                    ) &&
+                                    responses[currentQuestion.id].includes(
+                                      option,
+                                    )
+                                  ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20"
+                                  : "border-gray-200 dark:border-gray-700 hover:border-emerald-300"
+                            }`}
+                            onClick={() => {
+                              if (currentQuestion.type === "multiple_choice") {
+                                handleResponse(currentQuestion.id, option);
+                              } else {
+                                const current =
+                                  responses[currentQuestion.id] || [];
+                                if (current.includes(option)) {
+                                  handleResponse(
+                                    currentQuestion.id,
+                                    current.filter(
+                                      (item: string) => item !== option,
+                                    ),
+                                  );
+                                } else {
+                                  handleResponse(currentQuestion.id, [
+                                    ...current,
+                                    option,
+                                  ]);
+                                }
+                              }
+                            }}
+                          >
+                            <div className="flex items-center gap-3">
+                              <div
+                                className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
+                                  (
+                                    currentQuestion.type === "multiple_choice"
+                                      ? responses[currentQuestion.id] === option
+                                      : Array.isArray(
+                                          responses[currentQuestion.id],
+                                        ) &&
+                                        responses[currentQuestion.id].includes(
+                                          option,
+                                        )
+                                  )
+                                    ? "border-emerald-500 bg-emerald-500"
+                                    : "border-gray-300"
+                                }`}
+                              >
+                                {(currentQuestion.type === "multiple_choice"
+                                  ? responses[currentQuestion.id] === option
+                                  : Array.isArray(
+                                      responses[currentQuestion.id],
+                                    ) &&
+                                    responses[currentQuestion.id].includes(
+                                      option,
+                                    )) && (
+                                  <CheckCircle className="w-3 h-3 text-white" />
+                                )}
+                              </div>
+                              <span className="text-foreground font-medium">
+                                {option}
+                              </span>
                             </div>
-                            <span className="text-foreground font-medium">{option}</span>
                           </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                        ))}
+                      </div>
+                    )}
 
-                  {currentQuestion.type === 'boolean' && (
+                  {currentQuestion.type === "boolean" && (
                     <div className="flex gap-4">
                       <Button
-                        variant={responses[currentQuestion.id] === 'Yes' ? 'default' : 'outline'}
+                        variant={
+                          responses[currentQuestion.id] === "Yes"
+                            ? "default"
+                            : "outline"
+                        }
                         size="lg"
-                        onClick={() => handleResponse(currentQuestion.id, 'Yes')}
-                        className={responses[currentQuestion.id] === 'Yes' ? 'bg-emerald-600 hover:bg-emerald-700' : ''}
+                        onClick={() =>
+                          handleResponse(currentQuestion.id, "Yes")
+                        }
+                        className={
+                          responses[currentQuestion.id] === "Yes"
+                            ? "bg-emerald-600 hover:bg-emerald-700"
+                            : ""
+                        }
                       >
                         Yes
                       </Button>
                       <Button
-                        variant={responses[currentQuestion.id] === 'No' ? 'default' : 'outline'}
+                        variant={
+                          responses[currentQuestion.id] === "No"
+                            ? "default"
+                            : "outline"
+                        }
                         size="lg"
-                        onClick={() => handleResponse(currentQuestion.id, 'No')}
-                        className={responses[currentQuestion.id] === 'No' ? 'bg-emerald-600 hover:bg-emerald-700' : ''}
+                        onClick={() => handleResponse(currentQuestion.id, "No")}
+                        className={
+                          responses[currentQuestion.id] === "No"
+                            ? "bg-emerald-600 hover:bg-emerald-700"
+                            : ""
+                        }
                       >
                         No
                       </Button>
                     </div>
                   )}
 
-                  {currentQuestion.type === 'rating' && (
+                  {currentQuestion.type === "rating" && (
                     <div className="flex gap-2">
-                      {[1,2,3,4,5].map(rating => (
+                      {[1, 2, 3, 4, 5].map((rating) => (
                         <Star
                           key={rating}
                           className={`w-8 h-8 cursor-pointer transition-colors ${
                             responses[currentQuestion.id] >= rating
-                              ? 'text-yellow-400 fill-yellow-400'
-                              : 'text-gray-300 hover:text-yellow-300'
+                              ? "text-yellow-400 fill-yellow-400"
+                              : "text-gray-300 hover:text-yellow-300"
                           }`}
-                          onClick={() => handleResponse(currentQuestion.id, rating)}
+                          onClick={() =>
+                            handleResponse(currentQuestion.id, rating)
+                          }
                         />
                       ))}
                     </div>
@@ -422,10 +503,7 @@ export function EmpatheticConsultation({
 
                 {/* Navigation */}
                 <div className="flex justify-between items-center">
-                  <Button
-                    variant="outline"
-                    onClick={handlePreviousQuestion}
-                  >
+                  <Button variant="outline" onClick={handlePreviousQuestion}>
                     <ArrowLeft className="w-4 h-4 mr-2" />
                     {currentQuestionIndex === 0 ? "Cancel" : "Previous"}
                   </Button>
@@ -437,7 +515,8 @@ export function EmpatheticConsultation({
                       currentQuestion.required && !responses[currentQuestion.id]
                     }
                   >
-                    {currentQuestionIndex === mcqTemplate.questions.length - 1 ? (
+                    {currentQuestionIndex ===
+                    mcqTemplate.questions.length - 1 ? (
                       <>
                         Complete Assessment
                         <Brain className="w-4 h-4 ml-2" />
@@ -454,31 +533,35 @@ export function EmpatheticConsultation({
             )}
 
             {/* Supportive Message */}
-            {currentQuestion && (currentQuestion as any).supportiveMessage && showSupportiveMessages && (
-              <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-400 rounded-r-lg">
-                <div className="flex items-start gap-3">
-                  <HelpCircle className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
-                  <div>
-                    <h5 className="font-medium text-blue-800 dark:text-blue-200 mb-1">
-                      We're here to help
-                    </h5>
-                    <p className="text-sm text-blue-700 dark:text-blue-300">
-                      {(currentQuestion as any).supportiveMessage}
-                    </p>
+            {currentQuestion &&
+              (currentQuestion as any).supportiveMessage &&
+              showSupportiveMessages && (
+                <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-400 rounded-r-lg">
+                  <div className="flex items-start gap-3">
+                    <HelpCircle className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <h5 className="font-medium text-blue-800 dark:text-blue-200 mb-1">
+                        We're here to help
+                      </h5>
+                      <p className="text-sm text-blue-700 dark:text-blue-300">
+                        {(currentQuestion as any).supportiveMessage}
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
 
             {/* Settings */}
             <div className="flex justify-end">
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => setShowSupportiveMessages(!showSupportiveMessages)}
+                onClick={() =>
+                  setShowSupportiveMessages(!showSupportiveMessages)
+                }
               >
                 <Smile className="w-4 h-4 mr-2" />
-                {showSupportiveMessages ? 'Hide' : 'Show'} Support Messages
+                {showSupportiveMessages ? "Hide" : "Show"} Support Messages
               </Button>
             </div>
           </div>
@@ -495,7 +578,8 @@ export function EmpatheticConsultation({
                 Personalized Health Analysis
               </h3>
               <p className="text-muted-foreground mb-8">
-                Our AI is carefully reviewing your responses to provide safe, personalized care recommendations for {medication.name}
+                Our AI is carefully reviewing your responses to provide safe,
+                personalized care recommendations for {medication.name}
               </p>
 
               {!isAnalyzing ? (
@@ -519,7 +603,9 @@ export function EmpatheticConsultation({
                   <div className="space-y-2 text-sm text-muted-foreground">
                     <div className="flex items-center justify-center gap-2">
                       <Clock className="w-4 h-4" />
-                      <span>Checking safety profile and contraindications...</span>
+                      <span>
+                        Checking safety profile and contraindications...
+                      </span>
                     </div>
                     <div className="flex items-center justify-center gap-2">
                       <Shield className="w-4 h-4" />
@@ -543,8 +629,8 @@ export function EmpatheticConsultation({
               <div className="flex items-center space-x-4 mb-6">
                 <div
                   className={`w-16 h-16 rounded-xl flex items-center justify-center ${
-                    assessmentResult.approved 
-                      ? "bg-gradient-to-r from-emerald-500 to-green-500" 
+                    assessmentResult.approved
+                      ? "bg-gradient-to-r from-emerald-500 to-green-500"
                       : "bg-gradient-to-r from-orange-500 to-red-500"
                   }`}
                 >
@@ -561,9 +647,9 @@ export function EmpatheticConsultation({
                       : "Consultation Recommended"}
                   </h3>
                   <p className="text-muted-foreground">
-                    AI Confidence: {Math.round(assessmentResult.confidence)}% • 
-                    Risk Level: {assessmentResult.riskLevel} • 
-                    Category: {assessmentResult.category}
+                    AI Confidence: {Math.round(assessmentResult.confidence)}% •
+                    Risk Level: {assessmentResult.riskLevel} • Category:{" "}
+                    {assessmentResult.category}
                   </p>
                 </div>
               </div>
@@ -611,7 +697,8 @@ export function EmpatheticConsultation({
                           {assessmentResult.riskLevel} Risk
                         </Badge>
                         <p className="text-sm text-muted-foreground">
-                          Based on your responses, this medication appears safe for you
+                          Based on your responses, this medication appears safe
+                          for you
                         </p>
                       </CardContent>
                     </Card>
@@ -624,12 +711,19 @@ export function EmpatheticConsultation({
                         Personalized Recommendations
                       </h4>
                       <ul className="space-y-2">
-                        {assessmentResult.recommendations.map((rec: string, index: number) => (
-                          <li key={index} className="flex items-start space-x-3 text-sm">
-                            <CheckCircle className="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0" />
-                            <span className="text-muted-foreground">{rec}</span>
-                          </li>
-                        ))}
+                        {assessmentResult.recommendations.map(
+                          (rec: string, index: number) => (
+                            <li
+                              key={index}
+                              className="flex items-start space-x-3 text-sm"
+                            >
+                              <CheckCircle className="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0" />
+                              <span className="text-muted-foreground">
+                                {rec}
+                              </span>
+                            </li>
+                          ),
+                        )}
                       </ul>
                     </div>
 
@@ -640,12 +734,19 @@ export function EmpatheticConsultation({
                           Important Information
                         </h4>
                         <ul className="space-y-2">
-                          {assessmentResult.warnings.map((warning: string, index: number) => (
-                            <li key={index} className="flex items-start space-x-3 text-sm">
-                              <AlertTriangle className="w-4 h-4 text-yellow-500 mt-0.5 flex-shrink-0" />
-                              <span className="text-muted-foreground">{warning}</span>
-                            </li>
-                          ))}
+                          {assessmentResult.warnings.map(
+                            (warning: string, index: number) => (
+                              <li
+                                key={index}
+                                className="flex items-start space-x-3 text-sm"
+                              >
+                                <AlertTriangle className="w-4 h-4 text-yellow-500 mt-0.5 flex-shrink-0" />
+                                <span className="text-muted-foreground">
+                                  {warning}
+                                </span>
+                              </li>
+                            ),
+                          )}
                         </ul>
                       </div>
                     )}
@@ -658,19 +759,29 @@ export function EmpatheticConsultation({
                       Professional Consultation Required
                     </h4>
                     <p className="text-orange-700 dark:text-orange-300 text-sm">
-                      Based on your responses, we recommend speaking with a healthcare professional before starting this medication.
+                      Based on your responses, we recommend speaking with a
+                      healthcare professional before starting this medication.
                     </p>
                   </div>
-                  
+
                   <div>
-                    <h4 className="font-semibold text-foreground mb-3">Why a consultation is recommended:</h4>
+                    <h4 className="font-semibold text-foreground mb-3">
+                      Why a consultation is recommended:
+                    </h4>
                     <ul className="space-y-2">
-                      {assessmentResult.recommendations.map((reason: string, index: number) => (
-                        <li key={index} className="flex items-start space-x-3 text-sm">
-                          <AlertTriangle className="w-4 h-4 text-orange-500 mt-0.5 flex-shrink-0" />
-                          <span className="text-muted-foreground">{reason}</span>
-                        </li>
-                      ))}
+                      {assessmentResult.recommendations.map(
+                        (reason: string, index: number) => (
+                          <li
+                            key={index}
+                            className="flex items-start space-x-3 text-sm"
+                          >
+                            <AlertTriangle className="w-4 h-4 text-orange-500 mt-0.5 flex-shrink-0" />
+                            <span className="text-muted-foreground">
+                              {reason}
+                            </span>
+                          </li>
+                        ),
+                      )}
                     </ul>
                   </div>
                 </div>
@@ -678,19 +789,29 @@ export function EmpatheticConsultation({
 
               {/* Order Summary */}
               <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-                <h4 className="font-semibold text-foreground mb-3">Order Summary</h4>
+                <h4 className="font-semibold text-foreground mb-3">
+                  Order Summary
+                </h4>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Medication:</span>
-                    <span className="font-medium">{medication.name} ({medication.brand})</span>
+                    <span className="font-medium">
+                      {medication.name} ({medication.brand})
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Dosage:</span>
-                    <span className="font-medium">{assessmentResult.dosageRecommendation}</span>
+                    <span className="font-medium">
+                      {assessmentResult.dosageRecommendation}
+                    </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Estimated Delivery:</span>
-                    <span className="font-medium">{assessmentResult.estimatedDelivery}</span>
+                    <span className="text-muted-foreground">
+                      Estimated Delivery:
+                    </span>
+                    <span className="font-medium">
+                      {assessmentResult.estimatedDelivery}
+                    </span>
                   </div>
                   <div className="flex justify-between font-semibold text-base">
                     <span>Total Cost:</span>
@@ -708,9 +829,9 @@ export function EmpatheticConsultation({
                 <Button
                   onClick={handleApproveOrder}
                   className={`${
-                    assessmentResult.approved 
-                      ? 'bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600' 
-                      : 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600'
+                    assessmentResult.approved
+                      ? "bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600"
+                      : "bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
                   } text-white border-0`}
                   size="lg"
                 >

@@ -1,4 +1,4 @@
-import { apiClient } from '../lib/api-client';
+import { apiClient } from "../lib/api-client";
 
 export interface Patient {
   id: string;
@@ -17,7 +17,7 @@ export interface Patient {
   emergencyContacts?: any;
   insuranceInfo?: any;
   primaryProviderId?: string;
-  status: 'active' | 'inactive' | 'archived';
+  status: "active" | "inactive" | "archived";
   mrn?: string;
   createdAt: string;
   updatedAt: string;
@@ -63,19 +63,19 @@ export interface UpdatePatientRequest {
   emergencyContacts?: any;
   insuranceInfo?: any;
   primaryProviderId?: string;
-  status?: 'active' | 'inactive' | 'archived';
+  status?: "active" | "inactive" | "archived";
 }
 
 export interface PatientSearchFilters {
   query?: string;
-  status?: 'active' | 'inactive' | 'archived';
+  status?: "active" | "inactive" | "archived";
   gender?: string;
   ageMin?: number;
   ageMax?: number;
   providerId?: string;
   insuranceProvider?: string;
   hasConditions?: boolean;
-  riskLevel?: 'low' | 'medium' | 'high';
+  riskLevel?: "low" | "medium" | "high";
   lastAppointmentBefore?: string;
   lastAppointmentAfter?: string;
 }
@@ -122,7 +122,7 @@ export interface VitalSigns {
 }
 
 export class PatientService {
-  private static baseUrl = '/patients'; // Patient API endpoints (API client adds /api prefix)
+  private static baseUrl = "/patients"; // Patient API endpoints (API client adds /api prefix)
 
   /**
    * Get patient statistics
@@ -130,26 +130,28 @@ export class PatientService {
   static async getPatientStats(): Promise<PatientStats> {
     try {
       const response = await apiClient.get(`${PatientService.baseUrl}/stats`);
-      return response.data?.data || {
-        total_patients: 0,
-        active_patients: 0,
-        inactive_patients: 0,
-        new_this_month: 0,
-        pediatric_patients: 0,
-        senior_patients: 0
-      };
+      return (
+        response.data?.data || {
+          total_patients: 0,
+          active_patients: 0,
+          inactive_patients: 0,
+          new_this_month: 0,
+          pediatric_patients: 0,
+          senior_patients: 0,
+        }
+      );
     } catch (error: any) {
-      console.error('Error fetching patient stats:', error);
+      console.error("Error fetching patient stats:", error);
 
       // Always return fallback data instead of throwing to prevent undefined
-      console.warn('API error, returning fallback stats data');
+      console.warn("API error, returning fallback stats data");
       return {
         total_patients: 0,
         active_patients: 0,
         inactive_patients: 0,
         new_this_month: 0,
         pediatric_patients: 0,
-        senior_patients: 0
+        senior_patients: 0,
       };
     }
   }
@@ -160,36 +162,42 @@ export class PatientService {
   static async searchPatients(
     filters: PatientSearchFilters = {},
     page: number = 1,
-    limit: number = 20
+    limit: number = 20,
   ): Promise<PaginatedPatients> {
     try {
       const params = new URLSearchParams({
         page: page.toString(),
         limit: limit.toString(),
         ...Object.fromEntries(
-          Object.entries(filters).filter(([_, value]) => value !== undefined && value !== '')
-        )
+          Object.entries(filters).filter(
+            ([_, value]) => value !== undefined && value !== "",
+          ),
+        ),
       });
 
-      const response = await apiClient.get(`${PatientService.baseUrl}/search?${params}`);
-      return response.data?.data || {
-        patients: [],
-        total: 0,
-        page: page,
-        limit: limit,
-        totalPages: 0
-      };
+      const response = await apiClient.get(
+        `${PatientService.baseUrl}/search?${params}`,
+      );
+      return (
+        response.data?.data || {
+          patients: [],
+          total: 0,
+          page: page,
+          limit: limit,
+          totalPages: 0,
+        }
+      );
     } catch (error: any) {
-      console.error('Error searching patients:', error);
+      console.error("Error searching patients:", error);
 
       // Return empty results instead of throwing to prevent undefined
-      console.warn('API error, returning empty search results');
+      console.warn("API error, returning empty search results");
       return {
         patients: [],
         total: 0,
         page: page,
         limit: limit,
-        totalPages: 0
+        totalPages: 0,
       };
     }
   }
@@ -200,34 +208,38 @@ export class PatientService {
   static async getPatients(
     page: number = 1,
     limit: number = 20,
-    status: 'active' | 'inactive' | 'archived' = 'active'
+    status: "active" | "inactive" | "archived" = "active",
   ): Promise<PaginatedPatients> {
     try {
       const params = new URLSearchParams({
         page: page.toString(),
         limit: limit.toString(),
-        status
+        status,
       });
 
-      const response = await apiClient.get(`${PatientService.baseUrl}?${params}`);
-      return response.data?.data || {
-        patients: [],
-        total: 0,
-        page: page,
-        limit: limit,
-        totalPages: 0
-      };
+      const response = await apiClient.get(
+        `${PatientService.baseUrl}?${params}`,
+      );
+      return (
+        response.data?.data || {
+          patients: [],
+          total: 0,
+          page: page,
+          limit: limit,
+          totalPages: 0,
+        }
+      );
     } catch (error: any) {
-      console.error('Error fetching patients:', error);
+      console.error("Error fetching patients:", error);
 
       // Return empty results instead of throwing to prevent undefined
-      console.warn('API error, returning empty patient list');
+      console.warn("API error, returning empty patient list");
       return {
         patients: [],
         total: 0,
         page: page,
         limit: limit,
-        totalPages: 0
+        totalPages: 0,
       };
     }
   }
@@ -240,33 +252,46 @@ export class PatientService {
       console.log(`[PatientService] Fetching patient with ID: ${patientId}`);
 
       try {
-        const response = await apiClient.get(`${PatientService.baseUrl}/${patientId}`);
-        console.log(`[PatientService] Successfully fetched patient for ID: ${patientId}`);
+        const response = await apiClient.get(
+          `${PatientService.baseUrl}/${patientId}`,
+        );
+        console.log(
+          `[PatientService] Successfully fetched patient for ID: ${patientId}`,
+        );
 
         // Check different possible response structures
         if (response.data && response.data.data) {
           console.log(`[PatientService] Using response.data.data structure`);
           return response.data.data;
-        } else if (response.data && response.data.success && response.data.data) {
-          console.log(`[PatientService] Using response.data.data with success flag`);
+        } else if (
+          response.data &&
+          response.data.success &&
+          response.data.data
+        ) {
+          console.log(
+            `[PatientService] Using response.data.data with success flag`,
+          );
           return response.data.data;
         } else if (response.data && !response.data.data) {
           console.log(`[PatientService] Using direct response.data structure`);
           return response.data;
         } else {
-          console.warn(`[PatientService] Unexpected response structure:`, response);
-          throw new Error('Invalid response structure');
+          console.warn(
+            `[PatientService] Unexpected response structure:`,
+            response,
+          );
+          throw new Error("Invalid response structure");
         }
       } catch (error: any) {
-        console.error('[PatientService] Error fetching patient:', error);
+        console.error("[PatientService] Error fetching patient:", error);
 
         // Log the full error for debugging
-        console.error('Patient error details:');
-        console.error('- Status:', error.response?.status);
-        console.error('- Data:', error.response?.data);
-        console.error('- Patient ID:', patientId);
-        console.error('- Message:', error.message);
-        console.error('- Error name:', error.name);
+        console.error("Patient error details:");
+        console.error("- Status:", error.response?.status);
+        console.error("- Data:", error.response?.data);
+        console.error("- Patient ID:", patientId);
+        console.error("- Message:", error.message);
+        console.error("- Error name:", error.name);
 
         // For React Query compatibility, return a fallback patient object instead of throwing
         // This prevents the "Query data cannot be undefined" error
@@ -274,55 +299,61 @@ export class PatientService {
           id: patientId,
           userId: `user-${patientId.slice(-4)}`,
           mrn: `MRN-${patientId.slice(-4)}`,
-          firstName: 'Unknown',
-          lastName: 'Patient',
-          email: 'unknown@example.com',
-          phone: '(000) 000-0000',
-          dateOfBirth: '1990-01-01',
-          gender: 'unknown',
-          address: '',
-          city: '',
-          state: '',
-          zipCode: '',
+          firstName: "Unknown",
+          lastName: "Patient",
+          email: "unknown@example.com",
+          phone: "(000) 000-0000",
+          dateOfBirth: "1990-01-01",
+          gender: "unknown",
+          address: "",
+          city: "",
+          state: "",
+          zipCode: "",
           allergies: [],
           emergencyContacts: {},
           insuranceInfo: {},
-          status: 'inactive' as const,
-          primaryProviderId: '',
+          status: "inactive" as const,
+          primaryProviderId: "",
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
-          _error: error.response?.data?.error || 'Failed to fetch patient'
+          _error: error.response?.data?.error || "Failed to fetch patient",
         } as Patient & { _error: string };
 
-        console.log(`[PatientService] Returning fallback patient:`, fallbackPatient);
+        console.log(
+          `[PatientService] Returning fallback patient:`,
+          fallbackPatient,
+        );
         return fallbackPatient;
       }
     } catch (outerError) {
-      console.error('[PatientService] Unexpected error in getPatientById:', outerError);
+      console.error(
+        "[PatientService] Unexpected error in getPatientById:",
+        outerError,
+      );
 
       // Ultimate fallback to ensure we never return undefined
       return {
         id: patientId,
         userId: `user-${patientId.slice(-4)}`,
         mrn: `MRN-${patientId.slice(-4)}`,
-        firstName: 'Error',
-        lastName: 'Loading Patient',
-        email: 'error@example.com',
-        phone: '(000) 000-0000',
-        dateOfBirth: '1990-01-01',
-        gender: 'unknown',
-        address: '',
-        city: '',
-        state: '',
-        zipCode: '',
+        firstName: "Error",
+        lastName: "Loading Patient",
+        email: "error@example.com",
+        phone: "(000) 000-0000",
+        dateOfBirth: "1990-01-01",
+        gender: "unknown",
+        address: "",
+        city: "",
+        state: "",
+        zipCode: "",
         allergies: [],
         emergencyContacts: {},
         insuranceInfo: {},
-        status: 'inactive' as const,
-        primaryProviderId: '',
+        status: "inactive" as const,
+        primaryProviderId: "",
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-        _error: 'Unexpected error occurred'
+        _error: "Unexpected error occurred",
       } as Patient & { _error: string };
     }
   }
@@ -330,36 +361,42 @@ export class PatientService {
   /**
    * Create a new patient
    */
-  static async createPatient(patientData: CreatePatientRequest): Promise<Patient> {
+  static async createPatient(
+    patientData: CreatePatientRequest,
+  ): Promise<Patient> {
     try {
-      console.log('[PatientService] Creating patient with data:', patientData);
-      const response = await apiClient.post(PatientService.baseUrl, patientData);
+      console.log("[PatientService] Creating patient with data:", patientData);
+      const response = await apiClient.post(
+        PatientService.baseUrl,
+        patientData,
+      );
       return response.data.data;
     } catch (error: any) {
-      console.error('[PatientService] Error creating patient:', error);
+      console.error("[PatientService] Error creating patient:", error);
 
       if (error.status === 400 && error.details) {
         // Validation errors
-        const validationErrors = error.details.map((detail: any) =>
-          `${detail.path}: ${detail.msg}`
-        ).join(', ');
+        const validationErrors = error.details
+          .map((detail: any) => `${detail.path}: ${detail.msg}`)
+          .join(", ");
         throw new Error(`Validation failed: ${validationErrors}`);
       }
 
       if (error.status === 409) {
-        throw new Error('Patient with this email already exists');
+        throw new Error("Patient with this email already exists");
       }
 
       if (error.status === 401) {
-        throw new Error('Authentication required. Please log in.');
+        throw new Error("Authentication required. Please log in.");
       }
 
       if (error.status === 403) {
-        throw new Error('You do not have permission to create patients.');
+        throw new Error("You do not have permission to create patients.");
       }
 
       // Generic error with more details
-      const errorMessage = error.details?.error || error.message || 'Failed to create patient';
+      const errorMessage =
+        error.details?.error || error.message || "Failed to create patient";
       throw new Error(errorMessage);
     }
   }
@@ -367,19 +404,27 @@ export class PatientService {
   /**
    * Update patient
    */
-  static async updatePatient(patientId: string, updateData: UpdatePatientRequest): Promise<Patient> {
+  static async updatePatient(
+    patientId: string,
+    updateData: UpdatePatientRequest,
+  ): Promise<Patient> {
     try {
-      const response = await apiClient.put(`${PatientService.baseUrl}/${patientId}`, updateData);
+      const response = await apiClient.put(
+        `${PatientService.baseUrl}/${patientId}`,
+        updateData,
+      );
       return response.data.data;
     } catch (error: any) {
-      console.error('Error updating patient:', error);
+      console.error("Error updating patient:", error);
       if (error.response?.status === 404) {
-        throw new Error('Patient not found');
+        throw new Error("Patient not found");
       }
       if (error.response?.status === 409) {
-        throw new Error('Email already exists');
+        throw new Error("Email already exists");
       }
-      throw new Error(error.response?.data?.error || 'Failed to update patient');
+      throw new Error(
+        error.response?.data?.error || "Failed to update patient",
+      );
     }
   }
 
@@ -390,54 +435,85 @@ export class PatientService {
     try {
       await apiClient.delete(`${PatientService.baseUrl}/${patientId}`);
     } catch (error: any) {
-      console.error('Error archiving patient:', error);
+      console.error("Error archiving patient:", error);
       if (error.response?.status === 404) {
-        throw new Error('Patient not found');
+        throw new Error("Patient not found");
       }
-      throw new Error(error.response?.data?.error || 'Failed to archive patient');
+      throw new Error(
+        error.response?.data?.error || "Failed to archive patient",
+      );
     }
   }
 
   /**
    * Get patient appointments
    */
-  static async getPatientAppointments(patientId: string): Promise<Appointment[]> {
+  static async getPatientAppointments(
+    patientId: string,
+  ): Promise<Appointment[]> {
     try {
-      console.log(`[PatientService] Fetching appointments for patient: ${patientId}`);
+      console.log(
+        `[PatientService] Fetching appointments for patient: ${patientId}`,
+      );
 
       try {
-        const response = await apiClient.get(`${PatientService.baseUrl}/${patientId}/appointments`);
-        console.log(`[PatientService] Successfully fetched appointments for patient: ${patientId}`);
+        const response = await apiClient.get(
+          `${PatientService.baseUrl}/${patientId}/appointments`,
+        );
+        console.log(
+          `[PatientService] Successfully fetched appointments for patient: ${patientId}`,
+        );
 
         // Check different possible response structures
         if (response.data && Array.isArray(response.data.data)) {
-          console.log(`[PatientService] Using response.data.data array structure for appointments`);
+          console.log(
+            `[PatientService] Using response.data.data array structure for appointments`,
+          );
           return response.data.data;
-        } else if (response.data && response.data.success && Array.isArray(response.data.data)) {
-          console.log(`[PatientService] Using response.data.data with success flag for appointments`);
+        } else if (
+          response.data &&
+          response.data.success &&
+          Array.isArray(response.data.data)
+        ) {
+          console.log(
+            `[PatientService] Using response.data.data with success flag for appointments`,
+          );
           return response.data.data;
         } else if (response.data && Array.isArray(response.data)) {
-          console.log(`[PatientService] Using direct response.data array for appointments`);
+          console.log(
+            `[PatientService] Using direct response.data array for appointments`,
+          );
           return response.data;
         } else {
-          console.warn(`[PatientService] Unexpected appointments response structure:`, response);
+          console.warn(
+            `[PatientService] Unexpected appointments response structure:`,
+            response,
+          );
           return [];
         }
       } catch (error: any) {
-        console.error('[PatientService] Error fetching patient appointments:', error);
+        console.error(
+          "[PatientService] Error fetching patient appointments:",
+          error,
+        );
 
-        console.error('Appointments error details:');
-        console.error('- Status:', error.response?.status);
-        console.error('- Data:', error.response?.data);
-        console.error('- Patient ID:', patientId);
-        console.error('- Message:', error.message);
+        console.error("Appointments error details:");
+        console.error("- Status:", error.response?.status);
+        console.error("- Data:", error.response?.data);
+        console.error("- Patient ID:", patientId);
+        console.error("- Message:", error.message);
 
         // Always return empty array to prevent undefined errors
-        console.log(`[PatientService] Returning empty appointments array due to error`);
+        console.log(
+          `[PatientService] Returning empty appointments array due to error`,
+        );
         return [];
       }
     } catch (outerError) {
-      console.error('[PatientService] Unexpected error in getPatientAppointments:', outerError);
+      console.error(
+        "[PatientService] Unexpected error in getPatientAppointments:",
+        outerError,
+      );
       return [];
     }
   }
@@ -448,7 +524,7 @@ export class PatientService {
   static async getPatientVitals(
     patientId: string,
     limit: number = 20,
-    offset: number = 0
+    offset: number = 0,
   ): Promise<VitalSigns[]> {
     try {
       console.log(`[PatientService] Fetching vitals for patient: ${patientId}`);
@@ -456,41 +532,63 @@ export class PatientService {
       try {
         const params = new URLSearchParams({
           limit: limit.toString(),
-          offset: offset.toString()
+          offset: offset.toString(),
         });
 
-        const response = await apiClient.get(`${PatientService.baseUrl}/${patientId}/vitals?${params}`);
-        console.log(`[PatientService] Successfully fetched vitals for patient: ${patientId}`);
+        const response = await apiClient.get(
+          `${PatientService.baseUrl}/${patientId}/vitals?${params}`,
+        );
+        console.log(
+          `[PatientService] Successfully fetched vitals for patient: ${patientId}`,
+        );
 
         // Check different possible response structures
         if (response.data && Array.isArray(response.data.data)) {
-          console.log(`[PatientService] Using response.data.data array structure for vitals`);
+          console.log(
+            `[PatientService] Using response.data.data array structure for vitals`,
+          );
           return response.data.data;
-        } else if (response.data && response.data.success && Array.isArray(response.data.data)) {
-          console.log(`[PatientService] Using response.data.data with success flag for vitals`);
+        } else if (
+          response.data &&
+          response.data.success &&
+          Array.isArray(response.data.data)
+        ) {
+          console.log(
+            `[PatientService] Using response.data.data with success flag for vitals`,
+          );
           return response.data.data;
         } else if (response.data && Array.isArray(response.data)) {
-          console.log(`[PatientService] Using direct response.data array for vitals`);
+          console.log(
+            `[PatientService] Using direct response.data array for vitals`,
+          );
           return response.data;
         } else {
-          console.warn(`[PatientService] Unexpected vitals response structure:`, response);
+          console.warn(
+            `[PatientService] Unexpected vitals response structure:`,
+            response,
+          );
           return [];
         }
       } catch (error: any) {
-        console.error('[PatientService] Error fetching patient vitals:', error);
+        console.error("[PatientService] Error fetching patient vitals:", error);
 
-        console.error('Vitals error details:');
-        console.error('- Status:', error.response?.status);
-        console.error('- Data:', error.response?.data);
-        console.error('- Patient ID:', patientId);
-        console.error('- Message:', error.message);
+        console.error("Vitals error details:");
+        console.error("- Status:", error.response?.status);
+        console.error("- Data:", error.response?.data);
+        console.error("- Patient ID:", patientId);
+        console.error("- Message:", error.message);
 
         // Always return empty array to prevent undefined errors
-        console.log(`[PatientService] Returning empty vitals array due to error`);
+        console.log(
+          `[PatientService] Returning empty vitals array due to error`,
+        );
         return [];
       }
     } catch (outerError) {
-      console.error('[PatientService] Unexpected error in getPatientVitals:', outerError);
+      console.error(
+        "[PatientService] Unexpected error in getPatientVitals:",
+        outerError,
+      );
       return [];
     }
   }
@@ -500,35 +598,53 @@ export class PatientService {
    */
   static exportToCsv(patients: Patient[]): string {
     const headers = [
-      'MRN', 'First Name', 'Last Name', 'Email', 'Phone', 'Date of Birth',
-      'Age', 'Gender', 'Address', 'City', 'State', 'Zip Code', 'Status',
-      'Provider', 'Last Appointment', 'Insurance Provider', 'Created Date'
+      "MRN",
+      "First Name",
+      "Last Name",
+      "Email",
+      "Phone",
+      "Date of Birth",
+      "Age",
+      "Gender",
+      "Address",
+      "City",
+      "State",
+      "Zip Code",
+      "Status",
+      "Provider",
+      "Last Appointment",
+      "Insurance Provider",
+      "Created Date",
     ];
 
     const csvRows = [
-      headers.join(','),
-      ...patients.map(patient => [
-        patient.mrn || '',
-        `"${patient.firstName}"`,
-        `"${patient.lastName}"`,
-        patient.email,
-        patient.phone || '',
-        patient.dateOfBirth,
-        PatientService.calculateAge(patient.dateOfBirth),
-        patient.gender || '',
-        `"${patient.address || ''}"`,
-        `"${patient.city || ''}"`,
-        `"${patient.state || ''}"`,
-        patient.zipCode || '',
-        patient.status,
-        `"${patient.providerName || ''}"`,
-        patient.lastAppointment ? new Date(patient.lastAppointment).toLocaleDateString() : '',
-        `"${patient.insuranceInfo?.provider || ''}"`,
-        new Date(patient.createdAt).toLocaleDateString()
-      ].join(','))
+      headers.join(","),
+      ...patients.map((patient) =>
+        [
+          patient.mrn || "",
+          `"${patient.firstName}"`,
+          `"${patient.lastName}"`,
+          patient.email,
+          patient.phone || "",
+          patient.dateOfBirth,
+          PatientService.calculateAge(patient.dateOfBirth),
+          patient.gender || "",
+          `"${patient.address || ""}"`,
+          `"${patient.city || ""}"`,
+          `"${patient.state || ""}"`,
+          patient.zipCode || "",
+          patient.status,
+          `"${patient.providerName || ""}"`,
+          patient.lastAppointment
+            ? new Date(patient.lastAppointment).toLocaleDateString()
+            : "",
+          `"${patient.insuranceInfo?.provider || ""}"`,
+          new Date(patient.createdAt).toLocaleDateString(),
+        ].join(","),
+      ),
     ];
 
-    return csvRows.join('\n');
+    return csvRows.join("\n");
   }
 
   /**
@@ -543,11 +659,14 @@ export class PatientService {
     const birthDate = new Date(dateOfBirth);
     let age = today.getFullYear() - birthDate.getFullYear();
     const monthDifference = today.getMonth() - birthDate.getMonth();
-    
-    if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
+
+    if (
+      monthDifference < 0 ||
+      (monthDifference === 0 && today.getDate() < birthDate.getDate())
+    ) {
       age--;
     }
-    
+
     return age;
   }
 
@@ -561,16 +680,19 @@ export class PatientService {
   /**
    * Get patient display status
    */
-  static getPatientStatusDisplay(status: string): { label: string; color: string } {
+  static getPatientStatusDisplay(status: string): {
+    label: string;
+    color: string;
+  } {
     switch (status) {
-      case 'active':
-        return { label: 'Active', color: 'green' };
-      case 'inactive':
-        return { label: 'Inactive', color: 'yellow' };
-      case 'archived':
-        return { label: 'Archived', color: 'gray' };
+      case "active":
+        return { label: "Active", color: "green" };
+      case "inactive":
+        return { label: "Inactive", color: "yellow" };
+      case "archived":
+        return { label: "Archived", color: "gray" };
       default:
-        return { label: 'Unknown', color: 'gray' };
+        return { label: "Unknown", color: "gray" };
     }
   }
 
@@ -582,27 +704,28 @@ export class PatientService {
       patient.address,
       patient.city,
       patient.state,
-      patient.zipCode
+      patient.zipCode,
     ].filter(Boolean);
-    
-    return parts.join(', ');
+
+    return parts.join(", ");
   }
 
   /**
    * Get risk level based on age and conditions
    */
-  static calculateRiskLevel(patient: Patient): 'low' | 'medium' | 'high' {
+  static calculateRiskLevel(patient: Patient): "low" | "medium" | "high" {
     const age = this.calculateAge(patient.dateOfBirth);
     const hasAllergies = patient.allergies && patient.allergies.length > 0;
-    const hasConditions = patient.activeConditions && patient.activeConditions.length > 0;
+    const hasConditions =
+      patient.activeConditions && patient.activeConditions.length > 0;
 
     if (age >= 65 || (hasConditions && hasAllergies)) {
-      return 'high';
+      return "high";
     } else if (age >= 45 || hasConditions || hasAllergies) {
-      return 'medium';
+      return "medium";
     }
-    
-    return 'low';
+
+    return "low";
   }
 
   /**
@@ -618,21 +741,21 @@ export class PatientService {
    */
   static validatePhone(phone: string): boolean {
     const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
-    return phoneRegex.test(phone.replace(/[\s\-\(\)]/g, ''));
+    return phoneRegex.test(phone.replace(/[\s\-\(\)]/g, ""));
   }
 
   /**
    * Format phone number for display
    */
   static formatPhoneNumber(phone: string): string {
-    const cleaned = phone.replace(/\D/g, '');
-    
+    const cleaned = phone.replace(/\D/g, "");
+
     if (cleaned.length === 10) {
       return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)}-${cleaned.slice(6)}`;
-    } else if (cleaned.length === 11 && cleaned[0] === '1') {
+    } else if (cleaned.length === 11 && cleaned[0] === "1") {
       return `+1 (${cleaned.slice(1, 4)}) ${cleaned.slice(4, 7)}-${cleaned.slice(7)}`;
     }
-    
+
     return phone; // Return original if format not recognized
   }
 }

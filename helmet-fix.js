@@ -1,5 +1,6 @@
-  // Security middleware
-  app.use(helmet({
+// Security middleware
+app.use(
+  helmet({
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
@@ -11,7 +12,8 @@
         objectSrc: ["'none'"],
         scriptSrc: ["'self'"],
         scriptSrcAttr: ["'none'"],
-        styleSrc: ["'self'", "https:", "'unsafe-inline'"]
-      }
-    }
-  }));
+        styleSrc: ["'self'", "https:", "'unsafe-inline'"],
+      },
+    },
+  }),
+);

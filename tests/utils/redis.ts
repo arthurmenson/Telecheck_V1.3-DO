@@ -1,5 +1,5 @@
-import { createClient } from 'redis';
-import { redisClient } from '../../server/config/database';
+import { createClient } from "redis";
+import { redisClient } from "../../server/config/database";
 
 let testRedisClient: ReturnType<typeof createClient>;
 

@@ -1,6 +1,6 @@
-import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
-import { dbPool } from '../config/database';
+import { Request, Response, NextFunction } from "express";
+import jwt from "jsonwebtoken";
+import { dbPool } from "../config/database";
 
 export interface AuthenticatedRequest extends Request {
   user?: {
@@ -13,41 +13,45 @@ export interface AuthenticatedRequest extends Request {
 export const authenticateToken = async (
   req: AuthenticatedRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const authHeader = req.headers.authorization;
-    const token = authHeader && authHeader.split(' ')[1];
+    const token = authHeader && authHeader.split(" ")[1];
 
-    console.log('[Auth] Authentication attempt:', {
+    console.log("[Auth] Authentication attempt:", {
       hasAuthHeader: !!authHeader,
-      authHeaderPrefix: authHeader?.substring(0, 20) + '...',
+      authHeaderPrefix: authHeader?.substring(0, 20) + "...",
       hasToken: !!token,
-      userAgent: req.headers['user-agent'],
+      userAgent: req.headers["user-agent"],
       url: req.url,
       method: req.method,
-      isPatientRoute: req.url.includes('/patients'),
-      flyAppName: process.env.FLY_APP_NAME
+      isPatientRoute: req.url.includes("/patients"),
+      flyAppName: process.env.FLY_APP_NAME,
     });
 
     if (!token) {
-      console.log('[Auth] No token provided');
+      console.log("[Auth] No token provided");
 
       // For demo deployments or patient routes, provide a demo user instead of failing
-      if (process.env.FLY_APP_NAME || req.url.includes('/patients') || process.env.NODE_ENV !== 'production') {
-        console.log('[Auth] Providing demo user for demo deployment');
+      if (
+        process.env.FLY_APP_NAME ||
+        req.url.includes("/patients") ||
+        process.env.NODE_ENV !== "production"
+      ) {
+        console.log("[Auth] Providing demo user for demo deployment");
         req.user = {
-          id: 'demo-user',
-          email: 'demo@example.com',
-          role: 'admin'
+          id: "demo-user",
+          email: "demo@example.com",
+          role: "admin",
         };
         next();
         return;
       }
 
       return res.status(401).json({
-        error: 'Access token required',
-        code: 'TOKEN_MISSING'
+        error: "Access token required",
+        code: "TOKEN_MISSING",
       });
     }
 
@@ -56,46 +60,58 @@ export const authenticateToken = async (
 
     try {
       // First try JWT verification
-      decoded = jwt.verify(token, process.env.JWT_SECRET || 'dev-secret') as any;
-      console.log('[Auth] JWT token verified successfully');
+      decoded = jwt.verify(
+        token,
+        process.env.JWT_SECRET || "dev-secret",
+      ) as any;
+      console.log("[Auth] JWT token verified successfully");
     } catch (jwtError) {
-      console.log('[Auth] JWT verification failed, trying mock token format');
+      console.log("[Auth] JWT verification failed, trying mock token format");
       // If JWT fails, try base64 decoding for mock tokens
       try {
         const mockToken = atob(token);
         decoded = JSON.parse(mockToken);
-        console.log('[Auth] Mock token decoded successfully:', { userId: decoded.id || decoded.userId, role: decoded.role });
+        console.log("[Auth] Mock token decoded successfully:", {
+          userId: decoded.id || decoded.userId,
+          role: decoded.role,
+        });
 
         // Check if mock token has expired
         if (decoded.exp && Date.now() > decoded.exp) {
-          console.log('[Auth] Mock token expired');
+          console.log("[Auth] Mock token expired");
           return res.status(401).json({
-            error: 'Token expired',
-            code: 'TOKEN_EXPIRED'
+            error: "Token expired",
+            code: "TOKEN_EXPIRED",
           });
         }
       } catch (mockError) {
-        console.error('[Auth] Token validation failed:', {
+        console.error("[Auth] Token validation failed:", {
           jwtError: jwtError.message,
           mockError: mockError.message,
-          tokenPreview: token.substring(0, 20) + '...'
+          tokenPreview: token.substring(0, 20) + "...",
         });
 
         // For demo deployments, provide a demo user instead of failing
-        if (process.env.FLY_APP_NAME || req.url.includes('/patients') || process.env.NODE_ENV !== 'production') {
-          console.log('[Auth] Token validation failed, providing demo user for demo deployment');
+        if (
+          process.env.FLY_APP_NAME ||
+          req.url.includes("/patients") ||
+          process.env.NODE_ENV !== "production"
+        ) {
+          console.log(
+            "[Auth] Token validation failed, providing demo user for demo deployment",
+          );
           req.user = {
-            id: 'demo-user',
-            email: 'demo@example.com',
-            role: 'admin'
+            id: "demo-user",
+            email: "demo@example.com",
+            role: "admin",
           };
           next();
           return;
         }
 
         return res.status(401).json({
-          error: 'Invalid token',
-          code: 'TOKEN_INVALID'
+          error: "Invalid token",
+          code: "TOKEN_INVALID",
         });
       }
     }
@@ -103,45 +119,51 @@ export const authenticateToken = async (
     // Validate user exists in database
     if (dbPool && decoded.id) {
       try {
-        const result = await dbPool.query('SELECT id, email, role FROM users WHERE id = $1', [decoded.id]);
+        const result = await dbPool.query(
+          "SELECT id, email, role FROM users WHERE id = $1",
+          [decoded.id],
+        );
         if (result.rows.length === 0) {
-          console.log('[Auth] User not found in database:', decoded.id);
+          console.log("[Auth] User not found in database:", decoded.id);
           return res.status(401).json({
-            error: 'User not found',
-            code: 'USER_NOT_FOUND'
+            error: "User not found",
+            code: "USER_NOT_FOUND",
           });
         }
-        
+
         const user = result.rows[0];
         req.user = {
           id: user.id,
           email: user.email,
-          role: user.role
+          role: user.role,
         };
-        
-        console.log('[Auth] User authenticated successfully:', { userId: user.id, role: user.role });
+
+        console.log("[Auth] User authenticated successfully:", {
+          userId: user.id,
+          role: user.role,
+        });
       } catch (dbError) {
-        console.error('[Auth] Database error during user validation:', dbError);
+        console.error("[Auth] Database error during user validation:", dbError);
         return res.status(500).json({
-          error: 'Database error during authentication',
-          code: 'DB_ERROR'
+          error: "Database error during authentication",
+          code: "DB_ERROR",
         });
       }
     } else {
       // For demo or development without database
       req.user = {
-        id: decoded.id || decoded.userId || 'demo-user',
-        email: decoded.email || 'demo@example.com',
-        role: decoded.role || 'admin'
+        id: decoded.id || decoded.userId || "demo-user",
+        email: decoded.email || "demo@example.com",
+        role: decoded.role || "admin",
       };
     }
 
     next();
   } catch (error) {
-    console.error('[Auth] Authentication error:', error);
+    console.error("[Auth] Authentication error:", error);
     return res.status(500).json({
-      error: 'Authentication failed',
-      code: 'AUTH_ERROR'
+      error: "Authentication failed",
+      code: "AUTH_ERROR",
     });
   }
 };
@@ -149,16 +171,16 @@ export const authenticateToken = async (
 export const requireRole = (roles: string[]) => {
   return (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     if (!req.user) {
-      return res.status(401).json({ 
-        error: 'Authentication required',
-        code: 'AUTH_REQUIRED'
+      return res.status(401).json({
+        error: "Authentication required",
+        code: "AUTH_REQUIRED",
       });
     }
 
     if (!roles.includes(req.user.role)) {
-      return res.status(403).json({ 
-        error: 'Insufficient permissions',
-        code: 'INSUFFICIENT_PERMISSIONS'
+      return res.status(403).json({
+        error: "Insufficient permissions",
+        code: "INSUFFICIENT_PERMISSIONS",
       });
     }
 
@@ -166,6 +188,6 @@ export const requireRole = (roles: string[]) => {
   };
 };
 
-export const requireAdmin = requireRole(['admin']);
-export const requireDoctor = requireRole(['doctor', 'admin']);
-export const requirePharmacist = requireRole(['pharmacist', 'admin']);
+export const requireAdmin = requireRole(["admin"]);
+export const requireDoctor = requireRole(["doctor", "admin"]);
+export const requirePharmacist = requireRole(["pharmacist", "admin"]);

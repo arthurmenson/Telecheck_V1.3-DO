@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Badge } from './ui/badge';
-import { Button } from './ui/button';
-import { Progress } from './ui/progress';
+import React, { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Badge } from "./ui/badge";
+import { Button } from "./ui/button";
+import { Progress } from "./ui/progress";
 import {
   Play,
   Pause,
@@ -16,60 +16,65 @@ import {
   Timer,
   Zap,
   Activity,
-  TestTube
-} from 'lucide-react';
+  TestTube,
+} from "lucide-react";
 
 interface InteractiveDemoProps {
   feature: string;
   onStepChange?: (step: number) => void;
 }
 
-export function InteractiveDemo({ feature, onStepChange }: InteractiveDemoProps) {
+export function InteractiveDemo({
+  feature,
+  onStepChange,
+}: InteractiveDemoProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
 
   const demoSteps = {
-    'ai-lab-analysis': [
+    "ai-lab-analysis": [
       {
-        title: 'Upload Lab Report',
-        description: 'Secure file upload with validation',
+        title: "Upload Lab Report",
+        description: "Secure file upload with validation",
         icon: Upload,
         duration: 3000,
-        details: 'Processing Comprehensive_Metabolic_Panel.pdf...'
+        details: "Processing Comprehensive_Metabolic_Panel.pdf...",
       },
       {
-        title: 'OCR Processing',
-        description: 'Extracting text and medical data',
+        title: "OCR Processing",
+        description: "Extracting text and medical data",
         icon: Eye,
         duration: 4000,
-        details: 'Recognizing medical terminology and values...'
+        details: "Recognizing medical terminology and values...",
       },
       {
-        title: 'Data Structuring',
-        description: 'Organizing and validating lab values',
+        title: "Data Structuring",
+        description: "Organizing and validating lab values",
         icon: Database,
         duration: 2000,
-        details: 'Validating 12 lab values against reference ranges...'
+        details: "Validating 12 lab values against reference ranges...",
       },
       {
-        title: 'AI Analysis',
-        description: 'Generating clinical insights',
+        title: "AI Analysis",
+        description: "Generating clinical insights",
         icon: Brain,
         duration: 3000,
-        details: 'Analyzing cardiovascular and metabolic health...'
+        details: "Analyzing cardiovascular and metabolic health...",
       },
       {
-        title: 'Report Complete',
-        description: 'Comprehensive health report ready',
+        title: "Report Complete",
+        description: "Comprehensive health report ready",
         icon: FileText,
         duration: 1000,
-        details: 'Generated personalized recommendations and action items'
-      }
-    ]
+        details: "Generated personalized recommendations and action items",
+      },
+    ],
   };
 
-  const steps = demoSteps[feature as keyof typeof demoSteps] || demoSteps['ai-lab-analysis'];
+  const steps =
+    demoSteps[feature as keyof typeof demoSteps] ||
+    demoSteps["ai-lab-analysis"];
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -77,21 +82,21 @@ export function InteractiveDemo({ feature, onStepChange }: InteractiveDemoProps)
 
     if (isPlaying) {
       const currentStepData = steps[currentStep];
-      
+
       // Progress animation
       progressInterval = setInterval(() => {
-        setProgress(prev => {
+        setProgress((prev) => {
           if (prev >= 100) {
             return 100;
           }
-          return prev + (100 / (currentStepData.duration / 100));
+          return prev + 100 / (currentStepData.duration / 100);
         });
       }, 100);
 
       // Step advancement
       interval = setTimeout(() => {
         setProgress(0);
-        setCurrentStep(prev => {
+        setCurrentStep((prev) => {
           const nextStep = prev >= steps.length - 1 ? 0 : prev + 1;
           onStepChange?.(nextStep);
           return nextStep;
@@ -131,8 +136,12 @@ export function InteractiveDemo({ feature, onStepChange }: InteractiveDemoProps)
           </CardTitle>
           <div className="flex items-center space-x-2">
             <Button variant="outline" size="sm" onClick={handlePlayPause}>
-              {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-              {isPlaying ? 'Pause' : 'Play'}
+              {isPlaying ? (
+                <Pause className="w-4 h-4" />
+              ) : (
+                <Play className="w-4 h-4" />
+              )}
+              {isPlaying ? "Pause" : "Play"}
             </Button>
             <Button variant="outline" size="sm" onClick={handleReset}>
               <RotateCcw className="w-4 h-4" />
@@ -148,7 +157,7 @@ export function InteractiveDemo({ feature, onStepChange }: InteractiveDemoProps)
             <div className="flex items-start space-x-4">
               <div className="w-12 h-12 gradient-bg rounded-xl flex items-center justify-center">
                 {React.createElement(steps[currentStep].icon, {
-                  className: "w-6 h-6 text-white"
+                  className: "w-6 h-6 text-white",
                 })}
               </div>
               <div className="flex-1">
@@ -173,7 +182,9 @@ export function InteractiveDemo({ feature, onStepChange }: InteractiveDemoProps)
                   <div className="mt-4">
                     <div className="flex justify-between text-sm mb-1">
                       <span className="text-muted-foreground">Progress</span>
-                      <span className="text-primary">{Math.round(progress)}%</span>
+                      <span className="text-primary">
+                        {Math.round(progress)}%
+                      </span>
                     </div>
                     <Progress value={progress} className="h-2" />
                   </div>
@@ -192,10 +203,10 @@ export function InteractiveDemo({ feature, onStepChange }: InteractiveDemoProps)
                   onClick={() => handleStepClick(index)}
                   className={`p-3 rounded-xl border transition-all duration-300 text-left hover-lift ${
                     index === currentStep
-                      ? 'border-primary bg-primary/5'
+                      ? "border-primary bg-primary/5"
                       : index < currentStep
-                      ? 'border-green-200 bg-green-50'
-                      : 'border-border/20 glass-morphism hover:border-primary/30'
+                        ? "border-green-200 bg-green-50"
+                        : "border-border/20 glass-morphism hover:border-primary/30"
                   }`}
                 >
                   <div className="flex items-center space-x-2 mb-2">
@@ -224,13 +235,19 @@ export function InteractiveDemo({ feature, onStepChange }: InteractiveDemoProps)
               <div className="flex items-center space-x-3 mb-4">
                 <CheckCircle className="w-8 h-8 text-green-500" />
                 <div>
-                  <h3 className="text-lg font-bold text-foreground">Analysis Complete!</h3>
-                  <p className="text-muted-foreground">Your lab report has been successfully processed</p>
+                  <h3 className="text-lg font-bold text-foreground">
+                    Analysis Complete!
+                  </h3>
+                  <p className="text-muted-foreground">
+                    Your lab report has been successfully processed
+                  </p>
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <h4 className="font-semibold text-foreground mb-2">Key Findings</h4>
+                  <h4 className="font-semibold text-foreground mb-2">
+                    Key Findings
+                  </h4>
                   <ul className="space-y-1 text-sm text-muted-foreground">
                     <li className="flex items-center space-x-2">
                       <CheckCircle className="w-3 h-3 text-green-500" />
@@ -247,7 +264,9 @@ export function InteractiveDemo({ feature, onStepChange }: InteractiveDemoProps)
                   </ul>
                 </div>
                 <div>
-                  <h4 className="font-semibold text-foreground mb-2">AI Recommendations</h4>
+                  <h4 className="font-semibold text-foreground mb-2">
+                    AI Recommendations
+                  </h4>
                   <ul className="space-y-1 text-sm text-muted-foreground">
                     <li className="flex items-center space-x-2">
                       <Zap className="w-3 h-3 text-primary" />

@@ -1,5 +1,11 @@
 import React from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -26,13 +32,16 @@ export function CaregiverDashboard() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Caregiver Dashboard</h1>
-          <p className="text-muted-foreground">
-            Welcome back, Maria Rodriguez
-          </p>
+          <h1 className="text-3xl font-bold text-foreground">
+            Caregiver Dashboard
+          </h1>
+          <p className="text-muted-foreground">Welcome back, Maria Rodriguez</p>
         </div>
         <div className="flex items-center gap-3">
-          <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+          <Badge
+            variant="outline"
+            className="bg-blue-50 text-blue-700 border-blue-200"
+          >
             <Home className="w-4 h-4 mr-1" />
             Active Care
           </Badge>
@@ -47,7 +56,9 @@ export function CaregiverDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Care Recipients</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Care Recipients
+            </CardTitle>
             <Users className="h-4 w-4 text-blue-600" />
           </CardHeader>
           <CardContent>
@@ -69,7 +80,9 @@ export function CaregiverDashboard() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Vitals Recorded</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Vitals Recorded
+            </CardTitle>
             <Activity className="h-4 w-4 text-purple-600" />
           </CardHeader>
           <CardContent>
@@ -99,9 +112,7 @@ export function CaregiverDashboard() {
               <Users className="w-5 h-5 text-blue-600" />
               Current Patients
             </CardTitle>
-            <CardDescription>
-              People under your care today
-            </CardDescription>
+            <CardDescription>People under your care today</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {[
@@ -139,8 +150,12 @@ export function CaregiverDashboard() {
                     <User className="w-6 h-6 text-blue-600" />
                   </div>
                   <div>
-                    <p className="font-medium">{patient.name}, {patient.age}</p>
-                    <p className="text-sm text-muted-foreground">{patient.condition}</p>
+                    <p className="font-medium">
+                      {patient.name}, {patient.age}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {patient.condition}
+                    </p>
                     <p className="text-xs text-muted-foreground">
                       Last reading: {patient.lastReading}
                     </p>
@@ -153,8 +168,8 @@ export function CaregiverDashboard() {
                       patient.status === "stable"
                         ? "bg-green-50 text-green-700 border-green-200"
                         : patient.status === "monitoring"
-                        ? "bg-yellow-50 text-yellow-700 border-yellow-200"
-                        : "bg-red-50 text-red-700 border-red-200"
+                          ? "bg-yellow-50 text-yellow-700 border-yellow-200"
+                          : "bg-red-50 text-red-700 border-red-200"
                     }
                   >
                     {patient.status}
@@ -263,10 +278,22 @@ export function CaregiverDashboard() {
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
             {[
-              { name: "Record Vitals", href: "/vital-submission", icon: HeartPulse },
+              {
+                name: "Record Vitals",
+                href: "/vital-submission",
+                icon: HeartPulse,
+              },
               { name: "Patient RPM", href: "/patient-rpm", icon: Activity },
-              { name: "Diabetes Monitor", href: "/diabetes-rpm-dashboard", icon: TrendingUp },
-              { name: "Send Message", href: "/ehr/messaging", icon: MessageCircle },
+              {
+                name: "Diabetes Monitor",
+                href: "/diabetes-rpm-dashboard",
+                icon: TrendingUp,
+              },
+              {
+                name: "Send Message",
+                href: "/ehr/messaging",
+                icon: MessageCircle,
+              },
               { name: "Schedule", href: "/schedule", icon: Calendar },
               { name: "Family Portal", href: "/ehr/portal", icon: Users },
             ].map((action, index) => (
@@ -274,7 +301,7 @@ export function CaregiverDashboard() {
                 key={index}
                 variant="outline"
                 className="h-20 flex flex-col items-center gap-2"
-                onClick={() => window.location.href = action.href}
+                onClick={() => (window.location.href = action.href)}
               >
                 <action.icon className="w-6 h-6" />
                 <span className="text-xs">{action.name}</span>
@@ -323,7 +350,9 @@ export function CaregiverDashboard() {
             <div className="p-3 border rounded-lg">
               <div className="flex justify-between items-start mb-2">
                 <p className="font-medium text-sm">Dr. Wilson</p>
-                <span className="text-xs text-muted-foreground">10 min ago</span>
+                <span className="text-xs text-muted-foreground">
+                  10 min ago
+                </span>
               </div>
               <p className="text-sm text-muted-foreground">
                 Please increase Eleanor's BP monitoring frequency today.
@@ -332,7 +361,9 @@ export function CaregiverDashboard() {
             <div className="p-3 border rounded-lg">
               <div className="flex justify-between items-start mb-2">
                 <p className="font-medium text-sm">Nurse Smith</p>
-                <span className="text-xs text-muted-foreground">1 hour ago</span>
+                <span className="text-xs text-muted-foreground">
+                  1 hour ago
+                </span>
               </div>
               <p className="text-sm text-muted-foreground">
                 Great work on George's wound care documentation.
@@ -341,7 +372,9 @@ export function CaregiverDashboard() {
             <div className="p-3 border rounded-lg">
               <div className="flex justify-between items-start mb-2">
                 <p className="font-medium text-sm">Family (Patterson)</p>
-                <span className="text-xs text-muted-foreground">2 hours ago</span>
+                <span className="text-xs text-muted-foreground">
+                  2 hours ago
+                </span>
               </div>
               <p className="text-sm text-muted-foreground">
                 Thank you for the update on mom's condition today.

@@ -10,7 +10,13 @@ import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { Progress } from "./ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
 import {
   LineChart,
   Line,
@@ -32,7 +38,7 @@ import {
   ScatterChart,
   Scatter,
   RadialBarChart,
-  RadialBar
+  RadialBar,
 } from "recharts";
 import {
   BarChart3,
@@ -72,7 +78,7 @@ import {
   Pill,
   Droplets,
   Scale,
-  Thermometer
+  Thermometer,
 } from "lucide-react";
 
 interface PopulationMetrics {
@@ -173,14 +179,14 @@ const mockPopulationData: PopulationMetrics = {
     type1: 89,
     type2: 1024,
     gestational: 12,
-    prediabetes: 122
+    prediabetes: 122,
   },
   comorbidities: {
     hypertension: 856,
     heartDisease: 234,
     kidneyDisease: 178,
-    neuropathy: 345
-  }
+    neuropathy: 345,
+  },
 };
 
 const mockClinicalData: ClinicalOutcomes = {
@@ -193,7 +199,7 @@ const mockClinicalData: ClinicalOutcomes = {
   medicationAdherence: 87,
   weightChange: -4.2,
   bpControl: 78,
-  footUlcerPrevention: 95
+  footUlcerPrevention: 95,
 };
 
 const mockDeviceData: DeviceMetrics = {
@@ -207,26 +213,26 @@ const mockDeviceData: DeviceMetrics = {
     glucometer: 534,
     bloodPressure: 456,
     scale: 189,
-    other: 32
+    other: 32,
   },
   manufacturerDistribution: {
     dexcom: 45,
     abbott: 32,
     lifescan: 15,
     omron: 6,
-    withings: 2
-  }
+    withings: 2,
+  },
 };
 
 const mockBillingData: BillingMetrics = {
   totalRevenue: 487650,
   rpmBillings: 312400,
   ccmBillings: 175250,
-  avgReimbursement: 67.50,
+  avgReimbursement: 67.5,
   billingCompliance: 96,
   denialRate: 3.2,
   collectionsRate: 94.5,
-  monthlyGrowth: 12.8
+  monthlyGrowth: 12.8,
 };
 
 const mockQualityData: QualityMetrics = {
@@ -234,32 +240,68 @@ const mockQualityData: QualityMetrics = {
     hba1cControl: 78,
     eyeExam: 82,
     nephropathy: 75,
-    bpControl: 72
+    bpControl: 72,
   },
   starRatings: {
     overall: 4.2,
     diabetes: 4.5,
     hypertension: 4.1,
-    coordination: 4.3
+    coordination: 4.3,
   },
   patientSatisfaction: 89,
   careGaps: 15,
-  qualityImprovement: 23
+  qualityImprovement: 23,
 };
 
 const trendData = [
-  { month: "Jan", patients: 985, a1c: 7.8, timeInRange: 68, hospitalizations: 18 },
-  { month: "Feb", patients: 1034, a1c: 7.6, timeInRange: 70, hospitalizations: 16 },
-  { month: "Mar", patients: 1089, a1c: 7.4, timeInRange: 71, hospitalizations: 14 },
-  { month: "Apr", patients: 1142, a1c: 7.3, timeInRange: 72, hospitalizations: 13 },
-  { month: "May", patients: 1198, a1c: 7.2, timeInRange: 73, hospitalizations: 12 },
-  { month: "Jun", patients: 1247, a1c: 7.2, timeInRange: 73, hospitalizations: 12 }
+  {
+    month: "Jan",
+    patients: 985,
+    a1c: 7.8,
+    timeInRange: 68,
+    hospitalizations: 18,
+  },
+  {
+    month: "Feb",
+    patients: 1034,
+    a1c: 7.6,
+    timeInRange: 70,
+    hospitalizations: 16,
+  },
+  {
+    month: "Mar",
+    patients: 1089,
+    a1c: 7.4,
+    timeInRange: 71,
+    hospitalizations: 14,
+  },
+  {
+    month: "Apr",
+    patients: 1142,
+    a1c: 7.3,
+    timeInRange: 72,
+    hospitalizations: 13,
+  },
+  {
+    month: "May",
+    patients: 1198,
+    a1c: 7.2,
+    timeInRange: 73,
+    hospitalizations: 12,
+  },
+  {
+    month: "Jun",
+    patients: 1247,
+    a1c: 7.2,
+    timeInRange: 73,
+    hospitalizations: 12,
+  },
 ];
 
 const riskStratification = [
   { name: "Low Risk", value: 645, color: "#22c55e" },
   { name: "Moderate Risk", value: 368, color: "#eab308" },
-  { name: "High Risk", value: 234, color: "#ef4444" }
+  { name: "High Risk", value: 234, color: "#ef4444" },
 ];
 
 const outcomeMetrics = [
@@ -267,7 +309,7 @@ const outcomeMetrics = [
   { metric: "Time in Range (70-180)", baseline: 68, current: 73, target: 75 },
   { metric: "Medication Adherence", baseline: 76, current: 87, target: 90 },
   { metric: "BP Control (<130/80)", baseline: 65, current: 78, target: 80 },
-  { metric: "Weight Management", baseline: 32, current: 58, target: 65 }
+  { metric: "Weight Management", baseline: 32, current: 58, target: 65 },
 ];
 
 export function RPMAnalytics() {
@@ -279,7 +321,7 @@ export function RPMAnalytics() {
   const calculateROI = () => {
     const totalCosts = 285000; // Mock operational costs
     const totalSavings = 750000; // Mock healthcare savings
-    return ((totalSavings - totalCosts) / totalCosts * 100).toFixed(1);
+    return (((totalSavings - totalCosts) / totalCosts) * 100).toFixed(1);
   };
 
   const getQualityRating = (score: number) => {
@@ -298,7 +340,8 @@ export function RPMAnalytics() {
             RPM Analytics & Reporting
           </h1>
           <p className="text-muted-foreground">
-            Comprehensive insights into population health, outcomes, and program performance
+            Comprehensive insights into population health, outcomes, and program
+            performance
           </p>
         </div>
         <div className="flex items-center space-x-2">
@@ -326,9 +369,15 @@ export function RPMAnalytics() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Total Patients</p>
-                <div className="text-2xl font-bold">{mockPopulationData.totalPatients.toLocaleString()}</div>
-                <p className="text-sm text-green-600">↑ {mockPopulationData.newEnrollments} new this month</p>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Total Patients
+                </p>
+                <div className="text-2xl font-bold">
+                  {mockPopulationData.totalPatients.toLocaleString()}
+                </div>
+                <p className="text-sm text-green-600">
+                  ↑ {mockPopulationData.newEnrollments} new this month
+                </p>
               </div>
               <Users className="h-8 w-8 text-blue-500" />
             </div>
@@ -339,9 +388,15 @@ export function RPMAnalytics() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Avg A1C</p>
-                <div className="text-2xl font-bold">{mockClinicalData.avgA1C}%</div>
-                <p className="text-sm text-green-600">↓ {Math.abs(mockClinicalData.a1cImprovement)} improvement</p>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Avg A1C
+                </p>
+                <div className="text-2xl font-bold">
+                  {mockClinicalData.avgA1C}%
+                </div>
+                <p className="text-sm text-green-600">
+                  ↓ {Math.abs(mockClinicalData.a1cImprovement)} improvement
+                </p>
               </div>
               <Target className="h-8 w-8 text-red-500" />
             </div>
@@ -352,8 +407,12 @@ export function RPMAnalytics() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Time in Range</p>
-                <div className="text-2xl font-bold">{mockClinicalData.timeInRange}%</div>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Time in Range
+                </p>
+                <div className="text-2xl font-bold">
+                  {mockClinicalData.timeInRange}%
+                </div>
                 <p className="text-sm text-green-600">Above target (70%)</p>
               </div>
               <Activity className="h-8 w-8 text-green-500" />
@@ -365,9 +424,15 @@ export function RPMAnalytics() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Program ROI</p>
-                <div className="text-2xl font-bold text-green-600">{calculateROI()}%</div>
-                <p className="text-sm text-muted-foreground">Healthcare savings</p>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Program ROI
+                </p>
+                <div className="text-2xl font-bold text-green-600">
+                  {calculateROI()}%
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Healthcare savings
+                </p>
               </div>
               <DollarSign className="h-8 w-8 text-green-500" />
             </div>
@@ -376,7 +441,11 @@ export function RPMAnalytics() {
       </div>
 
       {/* Main Content */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+      <Tabs
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className="space-y-4"
+      >
         <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="population">Population</TabsTrigger>
@@ -391,7 +460,9 @@ export function RPMAnalytics() {
             <Card>
               <CardHeader>
                 <CardTitle>Population Growth & Clinical Trends</CardTitle>
-                <CardDescription>Patient enrollment and key clinical metrics over time</CardDescription>
+                <CardDescription>
+                  Patient enrollment and key clinical metrics over time
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
@@ -402,9 +473,26 @@ export function RPMAnalytics() {
                     <YAxis yAxisId="right" orientation="right" />
                     <Tooltip />
                     <Legend />
-                    <Bar yAxisId="left" dataKey="patients" fill="#3b82f6" name="Patients" />
-                    <Line yAxisId="right" type="monotone" dataKey="a1c" stroke="#ef4444" name="Avg A1C %" />
-                    <Line yAxisId="right" type="monotone" dataKey="timeInRange" stroke="#22c55e" name="Time in Range %" />
+                    <Bar
+                      yAxisId="left"
+                      dataKey="patients"
+                      fill="#3b82f6"
+                      name="Patients"
+                    />
+                    <Line
+                      yAxisId="right"
+                      type="monotone"
+                      dataKey="a1c"
+                      stroke="#ef4444"
+                      name="Avg A1C %"
+                    />
+                    <Line
+                      yAxisId="right"
+                      type="monotone"
+                      dataKey="timeInRange"
+                      stroke="#22c55e"
+                      name="Time in Range %"
+                    />
                   </ComposedChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -413,7 +501,9 @@ export function RPMAnalytics() {
             <Card>
               <CardHeader>
                 <CardTitle>Risk Stratification</CardTitle>
-                <CardDescription>Patient distribution by risk level</CardDescription>
+                <CardDescription>
+                  Patient distribution by risk level
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
@@ -471,7 +561,9 @@ export function RPMAnalytics() {
               <CardContent className="space-y-3">
                 <div className="flex justify-between items-center">
                   <span className="text-sm">Active RPM Patients</span>
-                  <span className="font-medium">{mockPopulationData.activePatients}</span>
+                  <span className="font-medium">
+                    {mockPopulationData.activePatients}
+                  </span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm">CCM Enrolled</span>
@@ -479,7 +571,9 @@ export function RPMAnalytics() {
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm">Device Utilization</span>
-                  <span className="font-medium">{mockDeviceData.connectivityRate}%</span>
+                  <span className="font-medium">
+                    {mockDeviceData.connectivityRate}%
+                  </span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm">Care Team Contacts</span>
@@ -495,22 +589,30 @@ export function RPMAnalytics() {
               <CardContent className="space-y-3">
                 <div className="flex justify-between items-center">
                   <span className="text-sm">HEDIS Diabetes</span>
-                  <span className="font-medium text-green-600">{mockQualityData.hedisScores.hba1cControl}%</span>
+                  <span className="font-medium text-green-600">
+                    {mockQualityData.hedisScores.hba1cControl}%
+                  </span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm">Star Rating</span>
                   <div className="flex items-center">
                     <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                    <span className="font-medium ml-1">{mockQualityData.starRatings.overall}</span>
+                    <span className="font-medium ml-1">
+                      {mockQualityData.starRatings.overall}
+                    </span>
                   </div>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm">Patient Satisfaction</span>
-                  <span className="font-medium text-blue-600">{mockQualityData.patientSatisfaction}%</span>
+                  <span className="font-medium text-blue-600">
+                    {mockQualityData.patientSatisfaction}%
+                  </span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm">Care Gaps</span>
-                  <span className="font-medium text-orange-600">{mockQualityData.careGaps}</span>
+                  <span className="font-medium text-orange-600">
+                    {mockQualityData.careGaps}
+                  </span>
                 </div>
               </CardContent>
             </Card>
@@ -519,8 +621,13 @@ export function RPMAnalytics() {
 
         <TabsContent value="population" className="space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold">Population Health Analytics</h3>
-            <Select value={populationFilter} onValueChange={setPopulationFilter}>
+            <h3 className="text-lg font-semibold">
+              Population Health Analytics
+            </h3>
+            <Select
+              value={populationFilter}
+              onValueChange={setPopulationFilter}
+            >
               <SelectTrigger className="w-48">
                 <SelectValue />
               </SelectTrigger>
@@ -538,17 +645,27 @@ export function RPMAnalytics() {
             <Card>
               <CardHeader>
                 <CardTitle>Demographics Overview</CardTitle>
-                <CardDescription>Patient population characteristics</CardDescription>
+                <CardDescription>
+                  Patient population characteristics
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="text-center p-3 border rounded">
-                    <div className="text-2xl font-bold">{mockPopulationData.avgAge}</div>
-                    <div className="text-sm text-muted-foreground">Average Age</div>
+                    <div className="text-2xl font-bold">
+                      {mockPopulationData.avgAge}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      Average Age
+                    </div>
                   </div>
                   <div className="text-center p-3 border rounded">
-                    <div className="text-2xl font-bold">{mockPopulationData.highRiskPatients}</div>
-                    <div className="text-sm text-muted-foreground">High Risk</div>
+                    <div className="text-2xl font-bold">
+                      {mockPopulationData.highRiskPatients}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      High Risk
+                    </div>
                   </div>
                 </div>
 
@@ -558,14 +675,20 @@ export function RPMAnalytics() {
                       <span>Male</span>
                       <span>{mockPopulationData.malePercentage}%</span>
                     </div>
-                    <Progress value={mockPopulationData.malePercentage} className="h-2" />
+                    <Progress
+                      value={mockPopulationData.malePercentage}
+                      className="h-2"
+                    />
                   </div>
                   <div>
                     <div className="flex justify-between text-sm mb-1">
                       <span>Female</span>
                       <span>{mockPopulationData.femalePercentage}%</span>
                     </div>
-                    <Progress value={mockPopulationData.femalePercentage} className="h-2" />
+                    <Progress
+                      value={mockPopulationData.femalePercentage}
+                      className="h-2"
+                    />
                   </div>
                 </div>
               </CardContent>
@@ -574,16 +697,32 @@ export function RPMAnalytics() {
             <Card>
               <CardHeader>
                 <CardTitle>Diabetes Types Distribution</CardTitle>
-                <CardDescription>Breakdown by diabetes classification</CardDescription>
+                <CardDescription>
+                  Breakdown by diabetes classification
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={200}>
-                  <BarChart data={[
-                    { type: "Type 1", count: mockPopulationData.diabetesTypes.type1 },
-                    { type: "Type 2", count: mockPopulationData.diabetesTypes.type2 },
-                    { type: "Gestational", count: mockPopulationData.diabetesTypes.gestational },
-                    { type: "Prediabetes", count: mockPopulationData.diabetesTypes.prediabetes }
-                  ]}>
+                  <BarChart
+                    data={[
+                      {
+                        type: "Type 1",
+                        count: mockPopulationData.diabetesTypes.type1,
+                      },
+                      {
+                        type: "Type 2",
+                        count: mockPopulationData.diabetesTypes.type2,
+                      },
+                      {
+                        type: "Gestational",
+                        count: mockPopulationData.diabetesTypes.gestational,
+                      },
+                      {
+                        type: "Prediabetes",
+                        count: mockPopulationData.diabetesTypes.prediabetes,
+                      },
+                    ]}
+                  >
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="type" />
                     <YAxis />
@@ -598,32 +737,50 @@ export function RPMAnalytics() {
           <Card>
             <CardHeader>
               <CardTitle>Comorbidities Analysis</CardTitle>
-              <CardDescription>Prevalence of common comorbid conditions</CardDescription>
+              <CardDescription>
+                Prevalence of common comorbid conditions
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div className="text-center p-4 border rounded">
                   <Heart className="w-8 h-8 text-red-500 mx-auto mb-2" />
-                  <div className="text-2xl font-bold">{mockPopulationData.comorbidities.hypertension}</div>
-                  <div className="text-sm text-muted-foreground">Hypertension</div>
+                  <div className="text-2xl font-bold">
+                    {mockPopulationData.comorbidities.hypertension}
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    Hypertension
+                  </div>
                   <div className="text-xs text-green-600">68% of patients</div>
                 </div>
                 <div className="text-center p-4 border rounded">
                   <Heart className="w-8 h-8 text-purple-500 mx-auto mb-2" />
-                  <div className="text-2xl font-bold">{mockPopulationData.comorbidities.heartDisease}</div>
-                  <div className="text-sm text-muted-foreground">Heart Disease</div>
+                  <div className="text-2xl font-bold">
+                    {mockPopulationData.comorbidities.heartDisease}
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    Heart Disease
+                  </div>
                   <div className="text-xs text-orange-600">19% of patients</div>
                 </div>
                 <div className="text-center p-4 border rounded">
                   <Stethoscope className="w-8 h-8 text-blue-500 mx-auto mb-2" />
-                  <div className="text-2xl font-bold">{mockPopulationData.comorbidities.kidneyDisease}</div>
-                  <div className="text-sm text-muted-foreground">Kidney Disease</div>
+                  <div className="text-2xl font-bold">
+                    {mockPopulationData.comorbidities.kidneyDisease}
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    Kidney Disease
+                  </div>
                   <div className="text-xs text-yellow-600">14% of patients</div>
                 </div>
                 <div className="text-center p-4 border rounded">
                   <Zap className="w-8 h-8 text-green-500 mx-auto mb-2" />
-                  <div className="text-2xl font-bold">{mockPopulationData.comorbidities.neuropathy}</div>
-                  <div className="text-sm text-muted-foreground">Neuropathy</div>
+                  <div className="text-2xl font-bold">
+                    {mockPopulationData.comorbidities.neuropathy}
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    Neuropathy
+                  </div>
                   <div className="text-xs text-purple-600">28% of patients</div>
                 </div>
               </div>
@@ -635,7 +792,9 @@ export function RPMAnalytics() {
           <Card>
             <CardHeader>
               <CardTitle>Clinical Outcomes Dashboard</CardTitle>
-              <CardDescription>Key performance indicators and improvement metrics</CardDescription>
+              <CardDescription>
+                Key performance indicators and improvement metrics
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
@@ -644,26 +803,40 @@ export function RPMAnalytics() {
                     <div className="flex justify-between items-center">
                       <h4 className="font-medium">{metric.metric}</h4>
                       <div className="flex items-center space-x-4 text-sm">
-                        <span className="text-muted-foreground">Baseline: {metric.baseline}%</span>
-                        <span className="font-medium">Current: {metric.current}%</span>
-                        <span className="text-blue-600">Target: {metric.target}%</span>
+                        <span className="text-muted-foreground">
+                          Baseline: {metric.baseline}%
+                        </span>
+                        <span className="font-medium">
+                          Current: {metric.current}%
+                        </span>
+                        <span className="text-blue-600">
+                          Target: {metric.target}%
+                        </span>
                       </div>
                     </div>
                     <div className="relative">
                       <Progress value={metric.current} className="h-3" />
-                      <div 
-                        className="absolute top-0 h-3 w-0.5 bg-blue-600" 
+                      <div
+                        className="absolute top-0 h-3 w-0.5 bg-blue-600"
                         style={{ left: `${metric.target}%` }}
                       />
-                      <div 
-                        className="absolute top-0 h-3 w-0.5 bg-gray-400" 
+                      <div
+                        className="absolute top-0 h-3 w-0.5 bg-gray-400"
                         style={{ left: `${metric.baseline}%` }}
                       />
                     </div>
                     <div className="flex justify-between text-xs text-muted-foreground">
                       <span>0%</span>
-                      <span className={metric.current >= metric.target ? "text-green-600" : "text-orange-600"}>
-                        {metric.current >= metric.target ? "Target Achieved" : `${metric.target - metric.current}% to target`}
+                      <span
+                        className={
+                          metric.current >= metric.target
+                            ? "text-green-600"
+                            : "text-orange-600"
+                        }
+                      >
+                        {metric.current >= metric.target
+                          ? "Target Achieved"
+                          : `${metric.target - metric.current}% to target`}
                       </span>
                       <span>100%</span>
                     </div>
@@ -677,17 +850,21 @@ export function RPMAnalytics() {
             <Card>
               <CardHeader>
                 <CardTitle>A1C Distribution</CardTitle>
-                <CardDescription>Patient A1C levels across population</CardDescription>
+                <CardDescription>
+                  Patient A1C levels across population
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={250}>
-                  <BarChart data={[
-                    { range: "<6.5%", count: 234, color: "#22c55e" },
-                    { range: "6.5-7%", count: 378, color: "#3b82f6" },
-                    { range: "7-8%", count: 445, color: "#eab308" },
-                    { range: "8-9%", count: 156, color: "#f97316" },
-                    { range: ">9%", count: 34, color: "#ef4444" }
-                  ]}>
+                  <BarChart
+                    data={[
+                      { range: "<6.5%", count: 234, color: "#22c55e" },
+                      { range: "6.5-7%", count: 378, color: "#3b82f6" },
+                      { range: "7-8%", count: 445, color: "#eab308" },
+                      { range: "8-9%", count: 156, color: "#f97316" },
+                      { range: ">9%", count: 34, color: "#ef4444" },
+                    ]}
+                  >
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="range" />
                     <YAxis />
@@ -701,25 +878,39 @@ export function RPMAnalytics() {
             <Card>
               <CardHeader>
                 <CardTitle>Healthcare Utilization</CardTitle>
-                <CardDescription>Impact on healthcare services usage</CardDescription>
+                <CardDescription>
+                  Impact on healthcare services usage
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="text-center p-3 border rounded">
-                    <div className="text-2xl font-bold text-green-600">-34%</div>
-                    <div className="text-sm text-muted-foreground">Emergency Visits</div>
+                    <div className="text-2xl font-bold text-green-600">
+                      -34%
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      Emergency Visits
+                    </div>
                   </div>
                   <div className="text-center p-3 border rounded">
-                    <div className="text-2xl font-bold text-green-600">-28%</div>
-                    <div className="text-sm text-muted-foreground">Hospitalizations</div>
+                    <div className="text-2xl font-bold text-green-600">
+                      -28%
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      Hospitalizations
+                    </div>
                   </div>
                   <div className="text-center p-3 border rounded">
                     <div className="text-2xl font-bold text-blue-600">+45%</div>
-                    <div className="text-sm text-muted-foreground">Provider Contacts</div>
+                    <div className="text-sm text-muted-foreground">
+                      Provider Contacts
+                    </div>
                   </div>
                   <div className="text-center p-3 border rounded">
                     <div className="text-2xl font-bold text-blue-600">+67%</div>
-                    <div className="text-sm text-muted-foreground">Preventive Care</div>
+                    <div className="text-sm text-muted-foreground">
+                      Preventive Care
+                    </div>
                   </div>
                 </div>
 
@@ -747,17 +938,27 @@ export function RPMAnalytics() {
             <Card>
               <CardHeader>
                 <CardTitle>Device Utilization Overview</CardTitle>
-                <CardDescription>Connected devices and usage patterns</CardDescription>
+                <CardDescription>
+                  Connected devices and usage patterns
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="text-center p-3 border rounded">
-                    <div className="text-2xl font-bold">{mockDeviceData.totalDevices}</div>
-                    <div className="text-sm text-muted-foreground">Total Devices</div>
+                    <div className="text-2xl font-bold">
+                      {mockDeviceData.totalDevices}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      Total Devices
+                    </div>
                   </div>
                   <div className="text-center p-3 border rounded">
-                    <div className="text-2xl font-bold text-green-600">{mockDeviceData.connectivityRate}%</div>
-                    <div className="text-sm text-muted-foreground">Connected</div>
+                    <div className="text-2xl font-bold text-green-600">
+                      {mockDeviceData.connectivityRate}%
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      Connected
+                    </div>
                   </div>
                 </div>
 
@@ -767,12 +968,17 @@ export function RPMAnalytics() {
                       <span>Data Quality</span>
                       <span>{mockDeviceData.dataQuality}%</span>
                     </div>
-                    <Progress value={mockDeviceData.dataQuality} className="h-2" />
+                    <Progress
+                      value={mockDeviceData.dataQuality}
+                      className="h-2"
+                    />
                   </div>
                   <div>
                     <div className="flex justify-between text-sm mb-1">
                       <span>Daily Data Points</span>
-                      <span>{mockDeviceData.avgDataPoints.toLocaleString()}</span>
+                      <span>
+                        {mockDeviceData.avgDataPoints.toLocaleString()}
+                      </span>
                     </div>
                     <Progress value={85} className="h-2" />
                   </div>
@@ -790,11 +996,31 @@ export function RPMAnalytics() {
                   <PieChart>
                     <Pie
                       data={[
-                        { name: "CGM", value: mockDeviceData.deviceTypes.cgm, color: "#3b82f6" },
-                        { name: "Glucometer", value: mockDeviceData.deviceTypes.glucometer, color: "#ef4444" },
-                        { name: "BP Monitor", value: mockDeviceData.deviceTypes.bloodPressure, color: "#22c55e" },
-                        { name: "Scale", value: mockDeviceData.deviceTypes.scale, color: "#eab308" },
-                        { name: "Other", value: mockDeviceData.deviceTypes.other, color: "#8b5cf6" }
+                        {
+                          name: "CGM",
+                          value: mockDeviceData.deviceTypes.cgm,
+                          color: "#3b82f6",
+                        },
+                        {
+                          name: "Glucometer",
+                          value: mockDeviceData.deviceTypes.glucometer,
+                          color: "#ef4444",
+                        },
+                        {
+                          name: "BP Monitor",
+                          value: mockDeviceData.deviceTypes.bloodPressure,
+                          color: "#22c55e",
+                        },
+                        {
+                          name: "Scale",
+                          value: mockDeviceData.deviceTypes.scale,
+                          color: "#eab308",
+                        },
+                        {
+                          name: "Other",
+                          value: mockDeviceData.deviceTypes.other,
+                          color: "#8b5cf6",
+                        },
                       ]}
                       cx="50%"
                       cy="50%"
@@ -802,11 +1028,31 @@ export function RPMAnalytics() {
                       dataKey="value"
                     >
                       {[
-                        { name: "CGM", value: mockDeviceData.deviceTypes.cgm, color: "#3b82f6" },
-                        { name: "Glucometer", value: mockDeviceData.deviceTypes.glucometer, color: "#ef4444" },
-                        { name: "BP Monitor", value: mockDeviceData.deviceTypes.bloodPressure, color: "#22c55e" },
-                        { name: "Scale", value: mockDeviceData.deviceTypes.scale, color: "#eab308" },
-                        { name: "Other", value: mockDeviceData.deviceTypes.other, color: "#8b5cf6" }
+                        {
+                          name: "CGM",
+                          value: mockDeviceData.deviceTypes.cgm,
+                          color: "#3b82f6",
+                        },
+                        {
+                          name: "Glucometer",
+                          value: mockDeviceData.deviceTypes.glucometer,
+                          color: "#ef4444",
+                        },
+                        {
+                          name: "BP Monitor",
+                          value: mockDeviceData.deviceTypes.bloodPressure,
+                          color: "#22c55e",
+                        },
+                        {
+                          name: "Scale",
+                          value: mockDeviceData.deviceTypes.scale,
+                          color: "#eab308",
+                        },
+                        {
+                          name: "Other",
+                          value: mockDeviceData.deviceTypes.other,
+                          color: "#8b5cf6",
+                        },
                       ].map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
@@ -822,37 +1068,49 @@ export function RPMAnalytics() {
           <Card>
             <CardHeader>
               <CardTitle>Manufacturer Analysis</CardTitle>
-              <CardDescription>Market share and device performance by manufacturer</CardDescription>
+              <CardDescription>
+                Market share and device performance by manufacturer
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
                 <div className="text-center p-4 border rounded">
                   <Smartphone className="w-8 h-8 text-blue-500 mx-auto mb-2" />
-                  <div className="text-2xl font-bold">{mockDeviceData.manufacturerDistribution.dexcom}%</div>
+                  <div className="text-2xl font-bold">
+                    {mockDeviceData.manufacturerDistribution.dexcom}%
+                  </div>
                   <div className="text-sm text-muted-foreground">Dexcom</div>
                   <div className="text-xs text-green-600">96% uptime</div>
                 </div>
                 <div className="text-center p-4 border rounded">
                   <Droplets className="w-8 h-8 text-red-500 mx-auto mb-2" />
-                  <div className="text-2xl font-bold">{mockDeviceData.manufacturerDistribution.abbott}%</div>
+                  <div className="text-2xl font-bold">
+                    {mockDeviceData.manufacturerDistribution.abbott}%
+                  </div>
                   <div className="text-sm text-muted-foreground">Abbott</div>
                   <div className="text-xs text-green-600">94% uptime</div>
                 </div>
                 <div className="text-center p-4 border rounded">
                   <Activity className="w-8 h-8 text-purple-500 mx-auto mb-2" />
-                  <div className="text-2xl font-bold">{mockDeviceData.manufacturerDistribution.lifescan}%</div>
+                  <div className="text-2xl font-bold">
+                    {mockDeviceData.manufacturerDistribution.lifescan}%
+                  </div>
                   <div className="text-sm text-muted-foreground">LifeScan</div>
                   <div className="text-xs text-blue-600">91% uptime</div>
                 </div>
                 <div className="text-center p-4 border rounded">
                   <Heart className="w-8 h-8 text-green-500 mx-auto mb-2" />
-                  <div className="text-2xl font-bold">{mockDeviceData.manufacturerDistribution.omron}%</div>
+                  <div className="text-2xl font-bold">
+                    {mockDeviceData.manufacturerDistribution.omron}%
+                  </div>
                   <div className="text-sm text-muted-foreground">Omron</div>
                   <div className="text-xs text-green-600">93% uptime</div>
                 </div>
                 <div className="text-center p-4 border rounded">
                   <Scale className="w-8 h-8 text-yellow-500 mx-auto mb-2" />
-                  <div className="text-2xl font-bold">{mockDeviceData.manufacturerDistribution.withings}%</div>
+                  <div className="text-2xl font-bold">
+                    {mockDeviceData.manufacturerDistribution.withings}%
+                  </div>
                   <div className="text-sm text-muted-foreground">Withings</div>
                   <div className="text-xs text-blue-600">89% uptime</div>
                 </div>
@@ -866,64 +1124,85 @@ export function RPMAnalytics() {
             <Card>
               <CardHeader>
                 <CardTitle>HEDIS Quality Measures</CardTitle>
-                <CardDescription>Healthcare Effectiveness Data and Information Set scores</CardDescription>
+                <CardDescription>
+                  Healthcare Effectiveness Data and Information Set scores
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                {Object.entries(mockQualityData.hedisScores).map(([measure, score]) => (
-                  <div key={measure} className="space-y-2">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium">
-                        {measure === 'hba1cControl' ? 'HbA1c Control (<8%)' :
-                         measure === 'eyeExam' ? 'Eye Exam (Annual)' :
-                         measure === 'nephropathy' ? 'Nephropathy Assessment' :
-                         'Blood Pressure Control'}
-                      </span>
-                      <div className="flex items-center space-x-2">
-                        <span className={`font-medium ${getQualityRating(score).color}`}>
-                          {score}%
+                {Object.entries(mockQualityData.hedisScores).map(
+                  ([measure, score]) => (
+                    <div key={measure} className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm font-medium">
+                          {measure === "hba1cControl"
+                            ? "HbA1c Control (<8%)"
+                            : measure === "eyeExam"
+                              ? "Eye Exam (Annual)"
+                              : measure === "nephropathy"
+                                ? "Nephropathy Assessment"
+                                : "Blood Pressure Control"}
                         </span>
-                        <Badge variant={score >= 75 ? "default" : "secondary"}>
-                          {getQualityRating(score).rating}
-                        </Badge>
+                        <div className="flex items-center space-x-2">
+                          <span
+                            className={`font-medium ${getQualityRating(score).color}`}
+                          >
+                            {score}%
+                          </span>
+                          <Badge
+                            variant={score >= 75 ? "default" : "secondary"}
+                          >
+                            {getQualityRating(score).rating}
+                          </Badge>
+                        </div>
                       </div>
+                      <Progress value={score} className="h-2" />
                     </div>
-                    <Progress value={score} className="h-2" />
-                  </div>
-                ))}
+                  ),
+                )}
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader>
                 <CardTitle>Star Ratings Performance</CardTitle>
-                <CardDescription>CMS Five-Star Quality Rating System</CardDescription>
+                <CardDescription>
+                  CMS Five-Star Quality Rating System
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                {Object.entries(mockQualityData.starRatings).map(([category, rating]) => (
-                  <div key={category} className="flex justify-between items-center">
-                    <span className="text-sm font-medium">
-                      {category === 'overall' ? 'Overall Rating' :
-                       category === 'diabetes' ? 'Diabetes Care' :
-                       category === 'hypertension' ? 'Hypertension Management' :
-                       'Care Coordination'}
-                    </span>
-                    <div className="flex items-center space-x-2">
-                      <div className="flex">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <Star
-                            key={star}
-                            className={`w-4 h-4 ${
-                              star <= rating
-                                ? "fill-yellow-400 text-yellow-400"
-                                : "text-gray-300"
-                            }`}
-                          />
-                        ))}
+                {Object.entries(mockQualityData.starRatings).map(
+                  ([category, rating]) => (
+                    <div
+                      key={category}
+                      className="flex justify-between items-center"
+                    >
+                      <span className="text-sm font-medium">
+                        {category === "overall"
+                          ? "Overall Rating"
+                          : category === "diabetes"
+                            ? "Diabetes Care"
+                            : category === "hypertension"
+                              ? "Hypertension Management"
+                              : "Care Coordination"}
+                      </span>
+                      <div className="flex items-center space-x-2">
+                        <div className="flex">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <Star
+                              key={star}
+                              className={`w-4 h-4 ${
+                                star <= rating
+                                  ? "fill-yellow-400 text-yellow-400"
+                                  : "text-gray-300"
+                              }`}
+                            />
+                          ))}
+                        </div>
+                        <span className="font-medium">{rating}</span>
                       </div>
-                      <span className="font-medium">{rating}</span>
                     </div>
-                  </div>
-                ))}
+                  ),
+                )}
               </CardContent>
             </Card>
           </div>
@@ -937,7 +1216,9 @@ export function RPMAnalytics() {
                 <div className="text-4xl font-bold text-green-600 mb-2">
                   {mockQualityData.patientSatisfaction}%
                 </div>
-                <p className="text-muted-foreground mb-4">Overall Satisfaction</p>
+                <p className="text-muted-foreground mb-4">
+                  Overall Satisfaction
+                </p>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span>Care Quality</span>
@@ -1016,7 +1297,9 @@ export function RPMAnalytics() {
             <Card>
               <CardHeader>
                 <CardTitle>Revenue Analytics</CardTitle>
-                <CardDescription>Financial performance and growth metrics</CardDescription>
+                <CardDescription>
+                  Financial performance and growth metrics
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
@@ -1024,13 +1307,17 @@ export function RPMAnalytics() {
                     <div className="text-2xl font-bold text-green-600">
                       ${mockBillingData.totalRevenue.toLocaleString()}
                     </div>
-                    <div className="text-sm text-muted-foreground">Total Revenue</div>
+                    <div className="text-sm text-muted-foreground">
+                      Total Revenue
+                    </div>
                   </div>
                   <div className="text-center p-3 border rounded">
                     <div className="text-2xl font-bold text-blue-600">
                       +{mockBillingData.monthlyGrowth}%
                     </div>
-                    <div className="text-sm text-muted-foreground">Monthly Growth</div>
+                    <div className="text-sm text-muted-foreground">
+                      Monthly Growth
+                    </div>
                   </div>
                 </div>
 
@@ -1038,14 +1325,18 @@ export function RPMAnalytics() {
                   <div>
                     <div className="flex justify-between text-sm mb-1">
                       <span>RPM Revenue</span>
-                      <span>${mockBillingData.rpmBillings.toLocaleString()}</span>
+                      <span>
+                        ${mockBillingData.rpmBillings.toLocaleString()}
+                      </span>
                     </div>
                     <Progress value={64} className="h-2" />
                   </div>
                   <div>
                     <div className="flex justify-between text-sm mb-1">
                       <span>CCM Revenue</span>
-                      <span>${mockBillingData.ccmBillings.toLocaleString()}</span>
+                      <span>
+                        ${mockBillingData.ccmBillings.toLocaleString()}
+                      </span>
                     </div>
                     <Progress value={36} className="h-2" />
                   </div>
@@ -1056,7 +1347,9 @@ export function RPMAnalytics() {
             <Card>
               <CardHeader>
                 <CardTitle>Billing Performance</CardTitle>
-                <CardDescription>Claims processing and reimbursement metrics</CardDescription>
+                <CardDescription>
+                  Claims processing and reimbursement metrics
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
@@ -1064,24 +1357,32 @@ export function RPMAnalytics() {
                     <div className="text-2xl font-bold text-green-600">
                       {mockBillingData.billingCompliance}%
                     </div>
-                    <div className="text-sm text-muted-foreground">Compliance Rate</div>
+                    <div className="text-sm text-muted-foreground">
+                      Compliance Rate
+                    </div>
                   </div>
                   <div className="text-center p-3 border rounded">
                     <div className="text-2xl font-bold text-red-600">
                       {mockBillingData.denialRate}%
                     </div>
-                    <div className="text-sm text-muted-foreground">Denial Rate</div>
+                    <div className="text-sm text-muted-foreground">
+                      Denial Rate
+                    </div>
                   </div>
                 </div>
 
                 <div className="space-y-2">
                   <div className="flex justify-between items-center text-sm">
                     <span>Avg Reimbursement</span>
-                    <span className="font-medium">${mockBillingData.avgReimbursement}</span>
+                    <span className="font-medium">
+                      ${mockBillingData.avgReimbursement}
+                    </span>
                   </div>
                   <div className="flex justify-between items-center text-sm">
                     <span>Collections Rate</span>
-                    <span className="font-medium text-green-600">{mockBillingData.collectionsRate}%</span>
+                    <span className="font-medium text-green-600">
+                      {mockBillingData.collectionsRate}%
+                    </span>
                   </div>
                   <div className="flex justify-between items-center text-sm">
                     <span>Outstanding A/R</span>
@@ -1095,12 +1396,16 @@ export function RPMAnalytics() {
           <Card>
             <CardHeader>
               <CardTitle>Cost-Benefit Analysis</CardTitle>
-              <CardDescription>Program costs vs. healthcare savings and quality improvements</CardDescription>
+              <CardDescription>
+                Program costs vs. healthcare savings and quality improvements
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-red-600 mb-2">$285,000</div>
+                  <div className="text-3xl font-bold text-red-600 mb-2">
+                    $285,000
+                  </div>
                   <p className="text-muted-foreground mb-4">Program Costs</p>
                   <div className="space-y-1 text-sm">
                     <div className="flex justify-between">
@@ -1119,8 +1424,12 @@ export function RPMAnalytics() {
                 </div>
 
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-green-600 mb-2">$750,000</div>
-                  <p className="text-muted-foreground mb-4">Healthcare Savings</p>
+                  <div className="text-3xl font-bold text-green-600 mb-2">
+                    $750,000
+                  </div>
+                  <p className="text-muted-foreground mb-4">
+                    Healthcare Savings
+                  </p>
                   <div className="space-y-1 text-sm">
                     <div className="flex justify-between">
                       <span>Reduced ER visits</span>
@@ -1138,8 +1447,12 @@ export function RPMAnalytics() {
                 </div>
 
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-blue-600 mb-2">{calculateROI()}%</div>
-                  <p className="text-muted-foreground mb-4">Return on Investment</p>
+                  <div className="text-3xl font-bold text-blue-600 mb-2">
+                    {calculateROI()}%
+                  </div>
+                  <p className="text-muted-foreground mb-4">
+                    Return on Investment
+                  </p>
                   <div className="space-y-1 text-sm">
                     <div className="flex justify-between">
                       <span>Net Savings</span>

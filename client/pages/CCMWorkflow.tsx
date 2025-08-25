@@ -8,9 +8,23 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import {
   Clipboard,
   Users,
@@ -55,7 +69,7 @@ import {
   Zap,
   Shield,
   Award,
-  Bookmark
+  Bookmark,
 } from "lucide-react";
 
 export function CCMWorkflow() {
@@ -86,10 +100,38 @@ export function CCMWorkflow() {
       lastEncounter: "2024-01-28",
       nextEncounter: "2024-02-15",
       careGoals: [
-        { id: 1, goal: "HbA1c < 7%", status: "in_progress", target: "7.0", current: "7.8", dueDate: "2024-03-01" },
-        { id: 2, goal: "Blood Pressure < 130/80", status: "completed", target: "130/80", current: "125/78", dueDate: "2024-02-15" },
-        { id: 3, goal: "Weight loss 10 lbs", status: "in_progress", target: "180", current: "188", dueDate: "2024-04-01" },
-        { id: 4, goal: "Daily medication adherence", status: "completed", target: "100%", current: "98%", dueDate: "ongoing" }
+        {
+          id: 1,
+          goal: "HbA1c < 7%",
+          status: "in_progress",
+          target: "7.0",
+          current: "7.8",
+          dueDate: "2024-03-01",
+        },
+        {
+          id: 2,
+          goal: "Blood Pressure < 130/80",
+          status: "completed",
+          target: "130/80",
+          current: "125/78",
+          dueDate: "2024-02-15",
+        },
+        {
+          id: 3,
+          goal: "Weight loss 10 lbs",
+          status: "in_progress",
+          target: "180",
+          current: "188",
+          dueDate: "2024-04-01",
+        },
+        {
+          id: 4,
+          goal: "Daily medication adherence",
+          status: "completed",
+          target: "100%",
+          current: "98%",
+          dueDate: "ongoing",
+        },
       ],
       billingStatus: "eligible",
       minutesThisMonth: 45,
@@ -105,19 +147,39 @@ export function CCMWorkflow() {
         bloodPressure: "135/85",
         weight: "188 lbs",
         glucose: "165 mg/dL",
-        date: "2024-01-28"
+        date: "2024-01-28",
       },
       encounters: [
-        { date: "2024-01-28", type: "Monthly Check-in", duration: 25, provider: "Dr. Johnson", notes: "BP improving, glucose still elevated" },
-        { date: "2024-01-15", type: "Initial Enrollment", duration: 45, provider: "Dr. Johnson", notes: "Comprehensive assessment completed" }
+        {
+          date: "2024-01-28",
+          type: "Monthly Check-in",
+          duration: 25,
+          provider: "Dr. Johnson",
+          notes: "BP improving, glucose still elevated",
+        },
+        {
+          date: "2024-01-15",
+          type: "Initial Enrollment",
+          duration: 45,
+          provider: "Dr. Johnson",
+          notes: "Comprehensive assessment completed",
+        },
       ],
       alerts: [
-        { type: "medication", message: "Missed metformin dose - 2 days ago", priority: "medium" },
-        { type: "vital", message: "Blood glucose trending up", priority: "high" }
-      ]
+        {
+          type: "medication",
+          message: "Missed metformin dose - 2 days ago",
+          priority: "medium",
+        },
+        {
+          type: "vital",
+          message: "Blood glucose trending up",
+          priority: "high",
+        },
+      ],
     },
     {
-      id: "CCM-002", 
+      id: "CCM-002",
       name: "Robert Chen",
       age: 72,
       mrn: "MRN-78901235",
@@ -128,20 +190,71 @@ export function CCMWorkflow() {
       lastEncounter: "2024-01-30",
       nextEncounter: "2024-02-18",
       careGoals: [
-        { id: 1, goal: "Fluid management < 2L/day", status: "completed", target: "2L", current: "1.8L", dueDate: "ongoing" },
-        { id: 2, goal: "Exercise 3x/week", status: "in_progress", target: "3", current: "2", dueDate: "ongoing" },
-        { id: 3, goal: "Medication adherence > 95%", status: "completed", target: "95%", current: "97%", dueDate: "ongoing" },
-        { id: 4, goal: "Weight stability ±2 lbs", status: "completed", target: "±2", current: "+1", dueDate: "ongoing" },
-        { id: 5, goal: "HbA1c < 7.5%", status: "in_progress", target: "7.5%", current: "7.2%", dueDate: "2024-03-15" },
-        { id: 6, goal: "Smoking cessation", status: "completed", target: "0", current: "0", dueDate: "completed" }
+        {
+          id: 1,
+          goal: "Fluid management < 2L/day",
+          status: "completed",
+          target: "2L",
+          current: "1.8L",
+          dueDate: "ongoing",
+        },
+        {
+          id: 2,
+          goal: "Exercise 3x/week",
+          status: "in_progress",
+          target: "3",
+          current: "2",
+          dueDate: "ongoing",
+        },
+        {
+          id: 3,
+          goal: "Medication adherence > 95%",
+          status: "completed",
+          target: "95%",
+          current: "97%",
+          dueDate: "ongoing",
+        },
+        {
+          id: 4,
+          goal: "Weight stability ±2 lbs",
+          status: "completed",
+          target: "±2",
+          current: "+1",
+          dueDate: "ongoing",
+        },
+        {
+          id: 5,
+          goal: "HbA1c < 7.5%",
+          status: "in_progress",
+          target: "7.5%",
+          current: "7.2%",
+          dueDate: "2024-03-15",
+        },
+        {
+          id: 6,
+          goal: "Smoking cessation",
+          status: "completed",
+          target: "0",
+          current: "0",
+          dueDate: "completed",
+        },
       ],
       billingStatus: "completed",
       minutesThisMonth: 62,
       totalMinutesYear: 485,
       provider: "Dr. Michael Brown",
       riskLevel: "high",
-      riskFactors: ["Multiple comorbidities", "Recent hospitalization", "Advanced age"],
-      medications: ["Furosemide 40mg", "Carvedilol 25mg", "Insulin Glargine", "Albuterol"],
+      riskFactors: [
+        "Multiple comorbidities",
+        "Recent hospitalization",
+        "Advanced age",
+      ],
+      medications: [
+        "Furosemide 40mg",
+        "Carvedilol 25mg",
+        "Insulin Glargine",
+        "Albuterol",
+      ],
       allergies: ["Sulfa drugs"],
       emergencyContact: "Lisa Chen (Daughter) - (555) 876-5432",
       insuranceInfo: "Medicare Parts A & B",
@@ -149,19 +262,31 @@ export function CCMWorkflow() {
         bloodPressure: "118/72",
         weight: "175 lbs",
         glucose: "142 mg/dL",
-        date: "2024-01-30"
+        date: "2024-01-30",
       },
       encounters: [
-        { date: "2024-01-30", type: "Complex CCM", duration: 62, provider: "Dr. Brown", notes: "Comprehensive care plan review, medication adjustments" },
-        { date: "2024-01-15", type: "Follow-up", duration: 35, provider: "Dr. Brown", notes: "Stable condition, continue current management" }
+        {
+          date: "2024-01-30",
+          type: "Complex CCM",
+          duration: 62,
+          provider: "Dr. Brown",
+          notes: "Comprehensive care plan review, medication adjustments",
+        },
+        {
+          date: "2024-01-15",
+          type: "Follow-up",
+          duration: 35,
+          provider: "Dr. Brown",
+          notes: "Stable condition, continue current management",
+        },
       ],
-      alerts: []
+      alerts: [],
     },
     {
       id: "CCM-003",
       name: "Linda Martinez",
       age: 58,
-      mrn: "MRN-78901236", 
+      mrn: "MRN-78901236",
       phone: "(555) 345-6789",
       email: "linda.m@email.com",
       conditions: ["Diabetes Type 2", "Hypertension"],
@@ -169,9 +294,30 @@ export function CCMWorkflow() {
       lastEncounter: "2024-02-01",
       nextEncounter: "2024-02-20",
       careGoals: [
-        { id: 1, goal: "HbA1c < 6.5%", status: "in_progress", target: "6.5%", current: "8.2%", dueDate: "2024-05-01" },
-        { id: 2, goal: "Daily glucose monitoring", status: "in_progress", target: "2x/day", current: "1x/day", dueDate: "ongoing" },
-        { id: 3, goal: "Nutrition counseling compliance", status: "at_risk", target: "100%", current: "60%", dueDate: "2024-03-01" }
+        {
+          id: 1,
+          goal: "HbA1c < 6.5%",
+          status: "in_progress",
+          target: "6.5%",
+          current: "8.2%",
+          dueDate: "2024-05-01",
+        },
+        {
+          id: 2,
+          goal: "Daily glucose monitoring",
+          status: "in_progress",
+          target: "2x/day",
+          current: "1x/day",
+          dueDate: "ongoing",
+        },
+        {
+          id: 3,
+          goal: "Nutrition counseling compliance",
+          status: "at_risk",
+          target: "100%",
+          current: "60%",
+          dueDate: "2024-03-01",
+        },
       ],
       billingStatus: "pending",
       minutesThisMonth: 28,
@@ -187,15 +333,25 @@ export function CCMWorkflow() {
         bloodPressure: "142/88",
         weight: "165 lbs",
         glucose: "195 mg/dL",
-        date: "2024-02-01"
+        date: "2024-02-01",
       },
       encounters: [
-        { date: "2024-02-01", type: "Initial Assessment", duration: 28, provider: "Dr. Johnson", notes: "Baseline assessment, education provided" }
+        {
+          date: "2024-02-01",
+          type: "Initial Assessment",
+          duration: 28,
+          provider: "Dr. Johnson",
+          notes: "Baseline assessment, education provided",
+        },
       ],
       alerts: [
-        { type: "education", message: "Missed nutrition appointment", priority: "low" }
-      ]
-    }
+        {
+          type: "education",
+          message: "Missed nutrition appointment",
+          priority: "low",
+        },
+      ],
+    },
   ];
 
   const monthlyStats = {
@@ -208,104 +364,147 @@ export function CCMWorkflow() {
     highRiskPatients: 45,
     newEnrollments: 12,
     outcomesMet: 156,
-    satisfactionScore: 4.8
+    satisfactionScore: 4.8,
   };
 
   const billingCodes = [
-    { code: "99490", description: "CCM services; first 20 minutes", rate: "$42.60", used: 156, revenue: 6646 },
-    { code: "99491", description: "CCM services; each additional 20 minutes", rate: "$36.38", used: 89, revenue: 3238 },
-    { code: "99487", description: "Complex CCM; first 60 minutes", rate: "$95.52", used: 23, revenue: 2197 },
-    { code: "99489", description: "Complex CCM; each additional 30 minutes", rate: "$50.16", used: 12, revenue: 602 }
+    {
+      code: "99490",
+      description: "CCM services; first 20 minutes",
+      rate: "$42.60",
+      used: 156,
+      revenue: 6646,
+    },
+    {
+      code: "99491",
+      description: "CCM services; each additional 20 minutes",
+      rate: "$36.38",
+      used: 89,
+      revenue: 3238,
+    },
+    {
+      code: "99487",
+      description: "Complex CCM; first 60 minutes",
+      rate: "$95.52",
+      used: 23,
+      revenue: 2197,
+    },
+    {
+      code: "99489",
+      description: "Complex CCM; each additional 30 minutes",
+      rate: "$50.16",
+      used: 12,
+      revenue: 602,
+    },
   ];
 
   const upcomingEncounters = [
-    { 
-      patient: "Margaret Thompson", 
-      time: "2:00 PM", 
-      type: "Monthly Check-in", 
+    {
+      patient: "Margaret Thompson",
+      time: "2:00 PM",
+      type: "Monthly Check-in",
       duration: "20 min",
       patientId: "CCM-001",
       priority: "medium",
-      notes: "Follow-up on medication adherence"
+      notes: "Follow-up on medication adherence",
     },
-    { 
-      patient: "Robert Chen", 
-      time: "3:30 PM", 
-      type: "Complex Care Review", 
+    {
+      patient: "Robert Chen",
+      time: "3:30 PM",
+      type: "Complex Care Review",
       duration: "45 min",
-      patientId: "CCM-002", 
+      patientId: "CCM-002",
       priority: "high",
-      notes: "Comprehensive care plan assessment"
+      notes: "Comprehensive care plan assessment",
     },
-    { 
-      patient: "Linda Martinez", 
-      time: "4:15 PM", 
-      type: "Goal Assessment", 
+    {
+      patient: "Linda Martinez",
+      time: "4:15 PM",
+      type: "Goal Assessment",
       duration: "20 min",
       patientId: "CCM-003",
       priority: "low",
-      notes: "Review glucose monitoring progress"
-    }
+      notes: "Review glucose monitoring progress",
+    },
   ];
 
   const getFilteredPatients = () => {
     let filtered = ccmPatients;
-    
+
     if (searchTerm) {
-      filtered = filtered.filter(patient => 
-        patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        patient.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        patient.mrn.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        patient.conditions.some(condition => 
-          condition.toLowerCase().includes(searchTerm.toLowerCase())
-        )
+      filtered = filtered.filter(
+        (patient) =>
+          patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          patient.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          patient.mrn.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          patient.conditions.some((condition) =>
+            condition.toLowerCase().includes(searchTerm.toLowerCase()),
+          ),
       );
     }
-    
+
     if (filterStatus !== "all") {
-      filtered = filtered.filter(patient => patient.billingStatus === filterStatus);
+      filtered = filtered.filter(
+        (patient) => patient.billingStatus === filterStatus,
+      );
     }
-    
+
     if (filterRisk !== "all") {
-      filtered = filtered.filter(patient => patient.riskLevel === filterRisk);
+      filtered = filtered.filter((patient) => patient.riskLevel === filterRisk);
     }
-    
+
     return filtered;
   };
 
   const getRiskLevelColor = (level: string) => {
     switch (level) {
-      case "high": return "text-red-600 bg-red-50 border-red-200";
-      case "medium": return "text-yellow-600 bg-yellow-50 border-yellow-200";
-      case "low": return "text-green-600 bg-green-50 border-green-200";
-      default: return "text-gray-600 bg-gray-50 border-gray-200";
+      case "high":
+        return "text-red-600 bg-red-50 border-red-200";
+      case "medium":
+        return "text-yellow-600 bg-yellow-50 border-yellow-200";
+      case "low":
+        return "text-green-600 bg-green-50 border-green-200";
+      default:
+        return "text-gray-600 bg-gray-50 border-gray-200";
     }
   };
 
   const getBillingStatusColor = (status: string) => {
     switch (status) {
-      case "completed": return "bg-green-100 text-green-800";
-      case "eligible": return "bg-blue-100 text-blue-800";
-      case "pending": return "bg-yellow-100 text-yellow-800";
-      default: return "bg-gray-100 text-gray-800";
+      case "completed":
+        return "bg-green-100 text-green-800";
+      case "eligible":
+        return "bg-blue-100 text-blue-800";
+      case "pending":
+        return "bg-yellow-100 text-yellow-800";
+      default:
+        return "bg-gray-100 text-gray-800";
     }
   };
 
   const getGoalStatusColor = (status: string) => {
     switch (status) {
-      case "completed": return "text-green-600 bg-green-50 border-green-200";
-      case "in_progress": return "text-blue-600 bg-blue-50 border-blue-200";
-      case "at_risk": return "text-red-600 bg-red-50 border-red-200";
-      default: return "text-gray-600 bg-gray-50 border-gray-200";
+      case "completed":
+        return "text-green-600 bg-green-50 border-green-200";
+      case "in_progress":
+        return "text-blue-600 bg-blue-50 border-blue-200";
+      case "at_risk":
+        return "text-red-600 bg-red-50 border-red-200";
+      default:
+        return "text-gray-600 bg-gray-50 border-gray-200";
     }
   };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case "high": return "text-red-600 bg-red-50 border-red-200";
-      case "medium": return "text-yellow-600 bg-yellow-50 border-yellow-200";
-      case "low": return "text-green-600 bg-green-50 border-green-200";
-      default: return "text-gray-600 bg-gray-50 border-gray-200";
+      case "high":
+        return "text-red-600 bg-red-50 border-red-200";
+      case "medium":
+        return "text-yellow-600 bg-yellow-50 border-yellow-200";
+      case "low":
+        return "text-green-600 bg-green-50 border-green-200";
+      default:
+        return "text-gray-600 bg-gray-50 border-gray-200";
     }
   };
 
@@ -325,7 +524,7 @@ export function CCMWorkflow() {
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
   // Timer effect would go here in a real implementation
@@ -333,7 +532,7 @@ export function CCMWorkflow() {
     let interval: NodeJS.Timeout;
     if (isTimerRunning) {
       interval = setInterval(() => {
-        setEncounterTimer(prev => prev + 1);
+        setEncounterTimer((prev) => prev + 1);
       }, 1000);
     }
     return () => clearInterval(interval);
@@ -342,7 +541,6 @@ export function CCMWorkflow() {
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-7xl mx-auto space-y-6">
-        
         {/* Header with Active Encounter */}
         <div className="flex items-center justify-between">
           <div>
@@ -350,7 +548,9 @@ export function CCMWorkflow() {
               <Clipboard className="w-8 h-8 text-primary" />
               Chronic Care Management
             </h1>
-            <p className="text-muted-foreground">Comprehensive CCM workflow with CMS billing integration</p>
+            <p className="text-muted-foreground">
+              Comprehensive CCM workflow with CMS billing integration
+            </p>
           </div>
           <div className="flex items-center gap-3">
             {activeEncounter && (
@@ -365,18 +565,24 @@ export function CCMWorkflow() {
                     </div>
                     <div className="text-sm">
                       <p className="font-medium">Active Encounter</p>
-                      <p className="text-muted-foreground">{activeEncounter.encounterType}</p>
+                      <p className="text-muted-foreground">
+                        {activeEncounter.encounterType}
+                      </p>
                     </div>
                     <div className="flex gap-1">
-                      <Button 
-                        size="sm" 
+                      <Button
+                        size="sm"
                         variant="outline"
                         onClick={() => setIsTimerRunning(!isTimerRunning)}
                       >
-                        {isTimerRunning ? <PauseCircle className="w-4 h-4" /> : <PlayCircle className="w-4 h-4" />}
+                        {isTimerRunning ? (
+                          <PauseCircle className="w-4 h-4" />
+                        ) : (
+                          <PlayCircle className="w-4 h-4" />
+                        )}
                       </Button>
-                      <Button 
-                        size="sm" 
+                      <Button
+                        size="sm"
                         variant="outline"
                         onClick={endEncounter}
                       >
@@ -391,7 +597,10 @@ export function CCMWorkflow() {
               <Download className="w-4 h-4 mr-2" />
               Export Report
             </Button>
-            <Dialog open={showNewEncounterDialog} onOpenChange={setShowNewEncounterDialog}>
+            <Dialog
+              open={showNewEncounterDialog}
+              onOpenChange={setShowNewEncounterDialog}
+            >
               <DialogTrigger asChild>
                 <Button>
                   <Plus className="w-4 h-4 mr-2" />
@@ -402,7 +611,8 @@ export function CCMWorkflow() {
                 <DialogHeader>
                   <DialogTitle>Start New CCM Encounter</DialogTitle>
                   <DialogDescription>
-                    Select a patient and encounter type to begin a new CCM session.
+                    Select a patient and encounter type to begin a new CCM
+                    session.
                   </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4">
@@ -413,7 +623,7 @@ export function CCMWorkflow() {
                         <SelectValue placeholder="Select patient" />
                       </SelectTrigger>
                       <SelectContent>
-                        {ccmPatients.map(patient => (
+                        {ccmPatients.map((patient) => (
                           <SelectItem key={patient.id} value={patient.id}>
                             {patient.name} - {patient.id}
                           </SelectItem>
@@ -428,22 +638,35 @@ export function CCMWorkflow() {
                         <SelectValue placeholder="Select encounter type" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="monthly">Monthly Check-in (20 min)</SelectItem>
-                        <SelectItem value="complex">Complex CCM (60 min)</SelectItem>
-                        <SelectItem value="followup">Follow-up (15 min)</SelectItem>
-                        <SelectItem value="assessment">Care Plan Assessment (30 min)</SelectItem>
+                        <SelectItem value="monthly">
+                          Monthly Check-in (20 min)
+                        </SelectItem>
+                        <SelectItem value="complex">
+                          Complex CCM (60 min)
+                        </SelectItem>
+                        <SelectItem value="followup">
+                          Follow-up (15 min)
+                        </SelectItem>
+                        <SelectItem value="assessment">
+                          Care Plan Assessment (30 min)
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                 </div>
                 <DialogFooter>
-                  <Button variant="outline" onClick={() => setShowNewEncounterDialog(false)}>
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowNewEncounterDialog(false)}
+                  >
                     Cancel
                   </Button>
-                  <Button onClick={() => {
-                    startEncounter("CCM-001", "Monthly Check-in");
-                    setShowNewEncounterDialog(false);
-                  }}>
+                  <Button
+                    onClick={() => {
+                      startEncounter("CCM-001", "Monthly Check-in");
+                      setShowNewEncounterDialog(false);
+                    }}
+                  >
                     Start Encounter
                   </Button>
                 </DialogFooter>
@@ -458,61 +681,86 @@ export function CCMWorkflow() {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Total Patients</p>
-                  <p className="text-2xl font-bold">{monthlyStats.totalPatients}</p>
-                  <p className="text-xs text-green-600">+{monthlyStats.newEnrollments} new</p>
+                  <p className="text-sm text-muted-foreground">
+                    Total Patients
+                  </p>
+                  <p className="text-2xl font-bold">
+                    {monthlyStats.totalPatients}
+                  </p>
+                  <p className="text-xs text-green-600">
+                    +{monthlyStats.newEnrollments} new
+                  </p>
                 </div>
                 <Users className="w-6 h-6 text-blue-500" />
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Active Encounters</p>
-                  <p className="text-2xl font-bold text-green-600">{monthlyStats.activeEncounters}</p>
+                  <p className="text-sm text-muted-foreground">
+                    Active Encounters
+                  </p>
+                  <p className="text-2xl font-bold text-green-600">
+                    {monthlyStats.activeEncounters}
+                  </p>
                   <p className="text-xs text-muted-foreground">In progress</p>
                 </div>
                 <Activity className="w-6 h-6 text-green-500" />
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Monthly Revenue</p>
-                  <p className="text-2xl font-bold text-green-600">${monthlyStats.revenue.toLocaleString()}</p>
+                  <p className="text-sm text-muted-foreground">
+                    Monthly Revenue
+                  </p>
+                  <p className="text-2xl font-bold text-green-600">
+                    ${monthlyStats.revenue.toLocaleString()}
+                  </p>
                   <p className="text-xs text-green-600">+12% vs last month</p>
                 </div>
                 <DollarSign className="w-6 h-6 text-green-500" />
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Goal Completion</p>
-                  <p className="text-2xl font-bold">{monthlyStats.goalCompletionRate}%</p>
-                  <Progress value={monthlyStats.goalCompletionRate} className="mt-1" />
+                  <p className="text-sm text-muted-foreground">
+                    Goal Completion
+                  </p>
+                  <p className="text-2xl font-bold">
+                    {monthlyStats.goalCompletionRate}%
+                  </p>
+                  <Progress
+                    value={monthlyStats.goalCompletionRate}
+                    className="mt-1"
+                  />
                 </div>
                 <Target className="w-6 h-6 text-indigo-500" />
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">High Risk</p>
-                  <p className="text-2xl font-bold text-red-600">{monthlyStats.highRiskPatients}</p>
-                  <p className="text-xs text-muted-foreground">Need attention</p>
+                  <p className="text-2xl font-bold text-red-600">
+                    {monthlyStats.highRiskPatients}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Need attention
+                  </p>
                 </div>
                 <AlertTriangle className="w-6 h-6 text-red-500" />
               </div>
@@ -531,7 +779,10 @@ export function CCMWorkflow() {
           <CardContent>
             <div className="space-y-3">
               {upcomingEncounters.map((encounter, index) => (
-                <div key={index} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
+                <div
+                  key={index}
+                  className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50"
+                >
                   <div className="flex items-center gap-4">
                     <div className="flex items-center gap-2">
                       <Clock className="w-4 h-4 text-muted-foreground" />
@@ -539,12 +790,19 @@ export function CCMWorkflow() {
                     </div>
                     <div>
                       <p className="font-medium">{encounter.patient}</p>
-                      <p className="text-sm text-muted-foreground">{encounter.type}</p>
-                      <p className="text-xs text-muted-foreground">{encounter.notes}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {encounter.type}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {encounter.notes}
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <Badge variant="outline" className={getPriorityColor(encounter.priority)}>
+                    <Badge
+                      variant="outline"
+                      className={getPriorityColor(encounter.priority)}
+                    >
                       {encounter.priority}
                     </Badge>
                     <Badge variant="outline">{encounter.duration}</Badge>
@@ -555,9 +813,11 @@ export function CCMWorkflow() {
                       <Button size="sm" variant="outline">
                         <Video className="w-4 h-4" />
                       </Button>
-                      <Button 
+                      <Button
                         size="sm"
-                        onClick={() => startEncounter(encounter.patientId, encounter.type)}
+                        onClick={() =>
+                          startEncounter(encounter.patientId, encounter.type)
+                        }
                       >
                         <PlayCircle className="w-4 h-4 mr-1" />
                         Start
@@ -570,7 +830,11 @@ export function CCMWorkflow() {
           </CardContent>
         </Card>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="space-y-4"
+        >
           <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="overview">Patient Registry</TabsTrigger>
             <TabsTrigger value="encounters">Encounters</TabsTrigger>
@@ -595,7 +859,10 @@ export function CCMWorkflow() {
                         className="pl-10 w-80"
                       />
                     </div>
-                    <Select value={filterStatus} onValueChange={setFilterStatus}>
+                    <Select
+                      value={filterStatus}
+                      onValueChange={setFilterStatus}
+                    >
                       <SelectTrigger className="w-40">
                         <SelectValue placeholder="Billing Status" />
                       </SelectTrigger>
@@ -627,24 +894,36 @@ export function CCMWorkflow() {
               <CardContent>
                 <div className="space-y-4">
                   {getFilteredPatients().map((patient) => (
-                    <div key={patient.id} className="border rounded-lg overflow-hidden">
+                    <div
+                      key={patient.id}
+                      className="border rounded-lg overflow-hidden"
+                    >
                       <div className="p-4">
                         <div className="flex items-center justify-between mb-4">
                           <div className="flex items-center gap-4">
                             <div>
-                              <h3 className="font-semibold text-lg">{patient.name}</h3>
+                              <h3 className="font-semibold text-lg">
+                                {patient.name}
+                              </h3>
                               <p className="text-sm text-muted-foreground">
-                                {patient.id} • {patient.mrn} • Age {patient.age} • Provider: {patient.provider}
+                                {patient.id} • {patient.mrn} • Age {patient.age}{" "}
+                                • Provider: {patient.provider}
                               </p>
                               <p className="text-xs text-muted-foreground">
                                 {patient.phone} • {patient.email}
                               </p>
                             </div>
                             <div className="flex items-center gap-2">
-                              <Badge className={getRiskLevelColor(patient.riskLevel)}>
+                              <Badge
+                                className={getRiskLevelColor(patient.riskLevel)}
+                              >
                                 {patient.riskLevel} risk
                               </Badge>
-                              <Badge className={getBillingStatusColor(patient.billingStatus)}>
+                              <Badge
+                                className={getBillingStatusColor(
+                                  patient.billingStatus,
+                                )}
+                              >
                                 {patient.billingStatus}
                               </Badge>
                               {patient.alerts && patient.alerts.length > 0 && (
@@ -655,10 +934,16 @@ export function CCMWorkflow() {
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
-                            <Button 
-                              size="sm" 
+                            <Button
+                              size="sm"
                               variant="outline"
-                              onClick={() => setExpandedPatient(expandedPatient === patient.id ? null : patient.id)}
+                              onClick={() =>
+                                setExpandedPatient(
+                                  expandedPatient === patient.id
+                                    ? null
+                                    : patient.id,
+                                )
+                              }
                             >
                               {expandedPatient === patient.id ? (
                                 <ChevronDown className="w-4 h-4" />
@@ -677,16 +962,22 @@ export function CCMWorkflow() {
                             </Button>
                           </div>
                         </div>
-                        
+
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                           <div className="space-y-2">
                             <p className="text-sm font-medium">Conditions</p>
                             <div className="space-y-1">
-                              {patient.conditions.slice(0, 3).map((condition, idx) => (
-                                <Badge key={idx} variant="secondary" className="text-xs mr-1 mb-1">
-                                  {condition}
-                                </Badge>
-                              ))}
+                              {patient.conditions
+                                .slice(0, 3)
+                                .map((condition, idx) => (
+                                  <Badge
+                                    key={idx}
+                                    variant="secondary"
+                                    className="text-xs mr-1 mb-1"
+                                  >
+                                    {condition}
+                                  </Badge>
+                                ))}
                               {patient.conditions.length > 3 && (
                                 <Badge variant="outline" className="text-xs">
                                   +{patient.conditions.length - 3} more
@@ -694,47 +985,82 @@ export function CCMWorkflow() {
                               )}
                             </div>
                           </div>
-                          
+
                           <div className="space-y-2">
-                            <p className="text-sm font-medium">Care Goals Progress</p>
+                            <p className="text-sm font-medium">
+                              Care Goals Progress
+                            </p>
                             <div className="flex items-center gap-2">
-                              <Progress 
-                                value={(patient.careGoals.filter(g => g.status === 'completed').length / patient.careGoals.length) * 100} 
-                                className="flex-1" 
+                              <Progress
+                                value={
+                                  (patient.careGoals.filter(
+                                    (g) => g.status === "completed",
+                                  ).length /
+                                    patient.careGoals.length) *
+                                  100
+                                }
+                                className="flex-1"
                               />
                               <span className="text-sm font-medium">
-                                {patient.careGoals.filter(g => g.status === 'completed').length}/{patient.careGoals.length}
+                                {
+                                  patient.careGoals.filter(
+                                    (g) => g.status === "completed",
+                                  ).length
+                                }
+                                /{patient.careGoals.length}
                               </span>
                             </div>
                           </div>
-                          
+
                           <div className="space-y-2">
                             <p className="text-sm font-medium">This Month</p>
                             <div className="space-y-1 text-sm">
                               <div className="flex justify-between">
                                 <span>Minutes:</span>
-                                <span className="font-medium">{patient.minutesThisMonth}</span>
+                                <span className="font-medium">
+                                  {patient.minutesThisMonth}
+                                </span>
                               </div>
                               <div className="flex justify-between">
                                 <span>Last encounter:</span>
-                                <span>{new Date(patient.lastEncounter).toLocaleDateString()}</span>
+                                <span>
+                                  {new Date(
+                                    patient.lastEncounter,
+                                  ).toLocaleDateString()}
+                                </span>
                               </div>
                             </div>
                           </div>
-                          
+
                           <div className="space-y-2">
                             <p className="text-sm font-medium">Quick Actions</p>
                             <div className="flex gap-1">
-                              <Button size="sm" variant="outline" title="Call Patient">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                title="Call Patient"
+                              >
                                 <Phone className="w-4 h-4" />
                               </Button>
-                              <Button size="sm" variant="outline" title="Send Message">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                title="Send Message"
+                              >
                                 <MessageSquare className="w-4 h-4" />
                               </Button>
-                              <Button size="sm" variant="outline" title="View Chart">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                title="View Chart"
+                              >
                                 <FileText className="w-4 h-4" />
                               </Button>
-                              <Button size="sm" variant="outline" title="Video Call">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                title="Video Call"
+                              >
                                 <Video className="w-4 h-4" />
                               </Button>
                             </div>
@@ -744,13 +1070,21 @@ export function CCMWorkflow() {
                         {/* Alerts */}
                         {patient.alerts && patient.alerts.length > 0 && (
                           <div className="mt-4 pt-4 border-t">
-                            <p className="text-sm font-medium mb-2">Active Alerts</p>
+                            <p className="text-sm font-medium mb-2">
+                              Active Alerts
+                            </p>
                             <div className="space-y-2">
                               {patient.alerts.map((alert, idx) => (
-                                <Alert key={idx} className={`${getPriorityColor(alert.priority)} border`}>
+                                <Alert
+                                  key={idx}
+                                  className={`${getPriorityColor(alert.priority)} border`}
+                                >
                                   <AlertCircle className="h-4 w-4" />
                                   <AlertDescription className="text-sm">
-                                    <span className="font-medium capitalize">{alert.type}:</span> {alert.message}
+                                    <span className="font-medium capitalize">
+                                      {alert.type}:
+                                    </span>{" "}
+                                    {alert.message}
                                   </AlertDescription>
                                 </Alert>
                               ))}
@@ -772,7 +1106,11 @@ export function CCMWorkflow() {
                                 </h4>
                                 <div className="space-y-1">
                                   {patient.medications.map((med, idx) => (
-                                    <Badge key={idx} variant="outline" className="text-xs block w-fit mb-1">
+                                    <Badge
+                                      key={idx}
+                                      variant="outline"
+                                      className="text-xs block w-fit mb-1"
+                                    >
                                       {med}
                                     </Badge>
                                   ))}
@@ -785,7 +1123,11 @@ export function CCMWorkflow() {
                                 </h4>
                                 <div className="space-y-1">
                                   {patient.allergies.map((allergy, idx) => (
-                                    <Badge key={idx} variant="destructive" className="text-xs block w-fit mb-1">
+                                    <Badge
+                                      key={idx}
+                                      variant="destructive"
+                                      className="text-xs block w-fit mb-1"
+                                    >
                                       {allergy}
                                     </Badge>
                                   ))}
@@ -802,15 +1144,21 @@ export function CCMWorkflow() {
                               <div className="space-y-2 text-sm">
                                 <div className="flex justify-between">
                                   <span>Blood Pressure:</span>
-                                  <span className="font-medium">{patient.recentVitals.bloodPressure}</span>
+                                  <span className="font-medium">
+                                    {patient.recentVitals.bloodPressure}
+                                  </span>
                                 </div>
                                 <div className="flex justify-between">
                                   <span>Weight:</span>
-                                  <span className="font-medium">{patient.recentVitals.weight}</span>
+                                  <span className="font-medium">
+                                    {patient.recentVitals.weight}
+                                  </span>
                                 </div>
                                 <div className="flex justify-between">
                                   <span>Glucose:</span>
-                                  <span className="font-medium">{patient.recentVitals.glucose}</span>
+                                  <span className="font-medium">
+                                    {patient.recentVitals.glucose}
+                                  </span>
                                 </div>
                               </div>
                             </div>
@@ -823,11 +1171,15 @@ export function CCMWorkflow() {
                               </h4>
                               <div className="space-y-2 text-sm">
                                 <div>
-                                  <span className="font-medium">Emergency Contact:</span>
+                                  <span className="font-medium">
+                                    Emergency Contact:
+                                  </span>
                                   <p>{patient.emergencyContact}</p>
                                 </div>
                                 <div>
-                                  <span className="font-medium">Insurance:</span>
+                                  <span className="font-medium">
+                                    Insurance:
+                                  </span>
                                   <p>{patient.insuranceInfo}</p>
                                 </div>
                               </div>
@@ -842,11 +1194,20 @@ export function CCMWorkflow() {
                             </h4>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               {patient.careGoals.map((goal) => (
-                                <div key={goal.id} className="border rounded-lg p-3">
+                                <div
+                                  key={goal.id}
+                                  className="border rounded-lg p-3"
+                                >
                                   <div className="flex items-center justify-between mb-2">
-                                    <span className="font-medium text-sm">{goal.goal}</span>
-                                    <Badge className={getGoalStatusColor(goal.status)}>
-                                      {goal.status.replace('_', ' ')}
+                                    <span className="font-medium text-sm">
+                                      {goal.goal}
+                                    </span>
+                                    <Badge
+                                      className={getGoalStatusColor(
+                                        goal.status,
+                                      )}
+                                    >
+                                      {goal.status.replace("_", " ")}
                                     </Badge>
                                   </div>
                                   <div className="text-xs text-muted-foreground">
@@ -854,7 +1215,9 @@ export function CCMWorkflow() {
                                       <span>Target: {goal.target}</span>
                                       <span>Current: {goal.current}</span>
                                     </div>
-                                    <div className="mt-1">Due: {goal.dueDate}</div>
+                                    <div className="mt-1">
+                                      Due: {goal.dueDate}
+                                    </div>
                                   </div>
                                 </div>
                               ))}
@@ -877,7 +1240,9 @@ export function CCMWorkflow() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Activity className="w-5 h-5" />
-                    {activeEncounter ? "Active Encounter" : "Encounter Management"}
+                    {activeEncounter
+                      ? "Active Encounter"
+                      : "Encounter Management"}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -887,26 +1252,37 @@ export function CCMWorkflow() {
                         <div className="flex items-center justify-between mb-4">
                           <div>
                             <h3 className="font-semibold">
-                              {ccmPatients.find(p => p.id === activeEncounter.patientId)?.name}
+                              {
+                                ccmPatients.find(
+                                  (p) => p.id === activeEncounter.patientId,
+                                )?.name
+                              }
                             </h3>
-                            <p className="text-sm text-muted-foreground">{activeEncounter.encounterType}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {activeEncounter.encounterType}
+                            </p>
                           </div>
                           <div className="text-right">
                             <div className="text-2xl font-bold text-blue-600 font-mono">
                               {formatTime(encounterTimer)}
                             </div>
                             <p className="text-sm text-muted-foreground">
-                              Started: {activeEncounter.startTime?.toLocaleTimeString()}
+                              Started:{" "}
+                              {activeEncounter.startTime?.toLocaleTimeString()}
                             </p>
                           </div>
                         </div>
                         <div className="flex gap-2">
-                          <Button 
-                            size="sm" 
+                          <Button
+                            size="sm"
                             variant="outline"
                             onClick={() => setIsTimerRunning(!isTimerRunning)}
                           >
-                            {isTimerRunning ? <PauseCircle className="w-4 h-4 mr-1" /> : <PlayCircle className="w-4 h-4 mr-1" />}
+                            {isTimerRunning ? (
+                              <PauseCircle className="w-4 h-4 mr-1" />
+                            ) : (
+                              <PlayCircle className="w-4 h-4 mr-1" />
+                            )}
                             {isTimerRunning ? "Pause" : "Resume"}
                           </Button>
                           <Button size="sm" variant="outline">
@@ -940,7 +1316,9 @@ export function CCMWorkflow() {
                   ) : (
                     <div className="text-center py-12">
                       <Clipboard className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-                      <h3 className="text-lg font-medium mb-2">Start a New Encounter</h3>
+                      <h3 className="text-lg font-medium mb-2">
+                        Start a New Encounter
+                      </h3>
                       <p className="text-muted-foreground mb-4">
                         Begin a CCM encounter with one of your patients
                       </p>
@@ -963,21 +1341,32 @@ export function CCMWorkflow() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {ccmPatients.flatMap(patient => 
-                      patient.encounters.map((encounter, idx) => (
-                        <div key={`${patient.id}-${idx}`} className="border rounded-lg p-3">
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="font-medium text-sm">{patient.name}</span>
-                            <Badge variant="outline">{encounter.duration} min</Badge>
+                    {ccmPatients
+                      .flatMap((patient) =>
+                        patient.encounters.map((encounter, idx) => (
+                          <div
+                            key={`${patient.id}-${idx}`}
+                            className="border rounded-lg p-3"
+                          >
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="font-medium text-sm">
+                                {patient.name}
+                              </span>
+                              <Badge variant="outline">
+                                {encounter.duration} min
+                              </Badge>
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              <p>{encounter.type}</p>
+                              <p>
+                                {new Date(encounter.date).toLocaleDateString()}
+                              </p>
+                              <p className="mt-1">{encounter.notes}</p>
+                            </div>
                           </div>
-                          <div className="text-xs text-muted-foreground">
-                            <p>{encounter.type}</p>
-                            <p>{new Date(encounter.date).toLocaleDateString()}</p>
-                            <p className="mt-1">{encounter.notes}</p>
-                          </div>
-                        </div>
-                      ))
-                    ).slice(0, 5)}
+                        )),
+                      )
+                      .slice(0, 5)}
                   </div>
                 </CardContent>
               </Card>
@@ -999,19 +1388,35 @@ export function CCMWorkflow() {
                     <div className="grid grid-cols-3 gap-4 text-center">
                       <div>
                         <p className="text-2xl font-bold text-green-600">
-                          {ccmPatients.flatMap(p => p.careGoals).filter(g => g.status === 'completed').length}
+                          {
+                            ccmPatients
+                              .flatMap((p) => p.careGoals)
+                              .filter((g) => g.status === "completed").length
+                          }
                         </p>
-                        <p className="text-sm text-muted-foreground">Completed</p>
+                        <p className="text-sm text-muted-foreground">
+                          Completed
+                        </p>
                       </div>
                       <div>
                         <p className="text-2xl font-bold text-blue-600">
-                          {ccmPatients.flatMap(p => p.careGoals).filter(g => g.status === 'in_progress').length}
+                          {
+                            ccmPatients
+                              .flatMap((p) => p.careGoals)
+                              .filter((g) => g.status === "in_progress").length
+                          }
                         </p>
-                        <p className="text-sm text-muted-foreground">In Progress</p>
+                        <p className="text-sm text-muted-foreground">
+                          In Progress
+                        </p>
                       </div>
                       <div>
                         <p className="text-2xl font-bold text-red-600">
-                          {ccmPatients.flatMap(p => p.careGoals).filter(g => g.status === 'at_risk').length}
+                          {
+                            ccmPatients
+                              .flatMap((p) => p.careGoals)
+                              .filter((g) => g.status === "at_risk").length
+                          }
                         </p>
                         <p className="text-sm text-muted-foreground">At Risk</p>
                       </div>
@@ -1019,23 +1424,29 @@ export function CCMWorkflow() {
 
                     <div className="space-y-3">
                       <h4 className="font-medium">Goals Requiring Attention</h4>
-                      {ccmPatients.flatMap(patient => 
+                      {ccmPatients.flatMap((patient) =>
                         patient.careGoals
-                          .filter(goal => goal.status === 'at_risk')
-                          .map(goal => (
-                            <div key={`${patient.id}-${goal.id}`} className="border border-red-200 rounded-lg p-3">
+                          .filter((goal) => goal.status === "at_risk")
+                          .map((goal) => (
+                            <div
+                              key={`${patient.id}-${goal.id}`}
+                              className="border border-red-200 rounded-lg p-3"
+                            >
                               <div className="flex items-center justify-between mb-2">
-                                <span className="font-medium text-sm">{patient.name}</span>
+                                <span className="font-medium text-sm">
+                                  {patient.name}
+                                </span>
                                 <Badge className="bg-red-50 text-red-700 border-red-200">
                                   At Risk
                                 </Badge>
                               </div>
                               <p className="text-sm">{goal.goal}</p>
                               <div className="text-xs text-muted-foreground mt-1">
-                                Target: {goal.target} | Current: {goal.current} | Due: {goal.dueDate}
+                                Target: {goal.target} | Current: {goal.current}{" "}
+                                | Due: {goal.dueDate}
                               </div>
                             </div>
-                          ))
+                          )),
                       )}
                     </div>
                   </div>
@@ -1053,29 +1464,48 @@ export function CCMWorkflow() {
                   <div className="space-y-6">
                     <div>
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-medium">Goal Completion Rate</span>
-                        <span className="text-sm font-bold">{monthlyStats.goalCompletionRate}%</span>
+                        <span className="text-sm font-medium">
+                          Goal Completion Rate
+                        </span>
+                        <span className="text-sm font-bold">
+                          {monthlyStats.goalCompletionRate}%
+                        </span>
                       </div>
                       <Progress value={monthlyStats.goalCompletionRate} />
                     </div>
 
                     <div>
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-medium">Patient Satisfaction</span>
-                        <span className="text-sm font-bold">{monthlyStats.satisfactionScore}/5.0</span>
+                        <span className="text-sm font-medium">
+                          Patient Satisfaction
+                        </span>
+                        <span className="text-sm font-bold">
+                          {monthlyStats.satisfactionScore}/5.0
+                        </span>
                       </div>
-                      <Progress value={(monthlyStats.satisfactionScore / 5) * 100} />
+                      <Progress
+                        value={(monthlyStats.satisfactionScore / 5) * 100}
+                      />
                     </div>
 
                     <div>
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-medium">Outcomes Met</span>
-                        <span className="text-sm font-bold">{monthlyStats.outcomesMet}</span>
+                        <span className="text-sm font-medium">
+                          Outcomes Met
+                        </span>
+                        <span className="text-sm font-bold">
+                          {monthlyStats.outcomesMet}
+                        </span>
                       </div>
-                      <p className="text-xs text-muted-foreground">Clinical outcomes achieved this month</p>
+                      <p className="text-xs text-muted-foreground">
+                        Clinical outcomes achieved this month
+                      </p>
                     </div>
 
-                    <Button className="w-full" onClick={() => setShowGoalDialog(true)}>
+                    <Button
+                      className="w-full"
+                      onClick={() => setShowGoalDialog(true)}
+                    >
                       <Plus className="w-4 h-4 mr-2" />
                       Add New Goal
                     </Button>
@@ -1098,11 +1528,18 @@ export function CCMWorkflow() {
                 <CardContent>
                   <div className="space-y-4">
                     {billingCodes.map((code, index) => (
-                      <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
+                      <div
+                        key={index}
+                        className="flex items-center justify-between p-4 border rounded-lg"
+                      >
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
-                            <Badge variant="outline" className="font-mono">{code.code}</Badge>
-                            <span className="font-medium text-green-600">{code.rate}</span>
+                            <Badge variant="outline" className="font-mono">
+                              {code.code}
+                            </Badge>
+                            <span className="font-medium text-green-600">
+                              {code.rate}
+                            </span>
                           </div>
                           <p className="text-sm text-muted-foreground">
                             {code.description}
@@ -1110,7 +1547,9 @@ export function CCMWorkflow() {
                         </div>
                         <div className="text-right">
                           <p className="font-bold text-lg">{code.used}</p>
-                          <p className="text-sm text-muted-foreground">used this month</p>
+                          <p className="text-sm text-muted-foreground">
+                            used this month
+                          </p>
                           <p className="text-sm font-medium text-green-600">
                             ${code.revenue.toLocaleString()}
                           </p>
@@ -1131,23 +1570,37 @@ export function CCMWorkflow() {
                 <CardContent>
                   <div className="space-y-6">
                     <div className="text-center p-4 bg-green-50 rounded-lg">
-                      <p className="text-sm text-muted-foreground">Total Revenue</p>
+                      <p className="text-sm text-muted-foreground">
+                        Total Revenue
+                      </p>
                       <p className="text-3xl font-bold text-green-600">
                         ${monthlyStats.revenue.toLocaleString()}
                       </p>
-                      <p className="text-sm text-green-600">+12% vs last month</p>
+                      <p className="text-sm text-green-600">
+                        +12% vs last month
+                      </p>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4 text-center">
                       <div>
-                        <p className="text-xl font-bold">{monthlyStats.completedBilling}</p>
-                        <p className="text-sm text-muted-foreground">Completed Billings</p>
+                        <p className="text-xl font-bold">
+                          {monthlyStats.completedBilling}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          Completed Billings
+                        </p>
                       </div>
                       <div>
                         <p className="text-xl font-bold">
-                          ${Math.round(monthlyStats.revenue / monthlyStats.completedBilling)}
+                          $
+                          {Math.round(
+                            monthlyStats.revenue /
+                              monthlyStats.completedBilling,
+                          )}
                         </p>
-                        <p className="text-sm text-muted-foreground">Average per Patient</p>
+                        <p className="text-sm text-muted-foreground">
+                          Average per Patient
+                        </p>
                       </div>
                     </div>
 
@@ -1181,15 +1634,21 @@ export function CCMWorkflow() {
                   <div className="space-y-4">
                     <div className="text-center">
                       <p className="text-2xl font-bold text-blue-600">89%</p>
-                      <p className="text-sm text-muted-foreground">HbA1c Goals Met</p>
+                      <p className="text-sm text-muted-foreground">
+                        HbA1c Goals Met
+                      </p>
                     </div>
                     <div className="text-center">
                       <p className="text-2xl font-bold text-green-600">92%</p>
-                      <p className="text-sm text-muted-foreground">BP Control Rate</p>
+                      <p className="text-sm text-muted-foreground">
+                        BP Control Rate
+                      </p>
                     </div>
                     <div className="text-center">
                       <p className="text-2xl font-bold text-purple-600">76%</p>
-                      <p className="text-sm text-muted-foreground">Medication Adherence</p>
+                      <p className="text-sm text-muted-foreground">
+                        Medication Adherence
+                      </p>
                     </div>
                   </div>
                 </CardContent>
@@ -1241,21 +1700,27 @@ export function CCMWorkflow() {
                     <div>
                       <div className="flex items-center justify-between">
                         <span className="text-sm">Enrollment Rate</span>
-                        <span className="text-sm font-bold text-green-600">+12%</span>
+                        <span className="text-sm font-bold text-green-600">
+                          +12%
+                        </span>
                       </div>
                       <Progress value={75} className="mt-1" />
                     </div>
                     <div>
                       <div className="flex items-center justify-between">
                         <span className="text-sm">Engagement Score</span>
-                        <span className="text-sm font-bold text-blue-600">+8%</span>
+                        <span className="text-sm font-bold text-blue-600">
+                          +8%
+                        </span>
                       </div>
                       <Progress value={83} className="mt-1" />
                     </div>
                     <div>
                       <div className="flex items-center justify-between">
                         <span className="text-sm">Revenue Growth</span>
-                        <span className="text-sm font-bold text-purple-600">+15%</span>
+                        <span className="text-sm font-bold text-purple-600">
+                          +15%
+                        </span>
                       </div>
                       <Progress value={90} className="mt-1" />
                     </div>
@@ -1283,7 +1748,7 @@ export function CCMWorkflow() {
                     <SelectValue placeholder="Select patient" />
                   </SelectTrigger>
                   <SelectContent>
-                    {ccmPatients.map(patient => (
+                    {ccmPatients.map((patient) => (
                       <SelectItem key={patient.id} value={patient.id}>
                         {patient.name} - {patient.id}
                       </SelectItem>
@@ -1311,12 +1776,13 @@ export function CCMWorkflow() {
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setShowGoalDialog(false)}>
+              <Button
+                variant="outline"
+                onClick={() => setShowGoalDialog(false)}
+              >
                 Cancel
               </Button>
-              <Button onClick={() => setShowGoalDialog(false)}>
-                Add Goal
-              </Button>
+              <Button onClick={() => setShowGoalDialog(false)}>Add Goal</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>

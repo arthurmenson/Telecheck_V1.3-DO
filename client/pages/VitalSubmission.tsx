@@ -19,7 +19,7 @@ import {
   TrendingUp,
   Target,
   Camera,
-  Smartphone
+  Smartphone,
 } from "lucide-react";
 
 export function VitalSubmission() {
@@ -30,7 +30,7 @@ export function VitalSubmission() {
     weight: "",
     temperature: "",
     heartRate: "",
-    oxygenSat: ""
+    oxygenSat: "",
   });
 
   const [submissionStatus, setSubmissionStatus] = useState<{
@@ -39,27 +39,30 @@ export function VitalSubmission() {
   }>({ submitted: false, alerts: [] });
 
   const handleVitalChange = (field: string, value: string) => {
-    setVitals(prev => ({ ...prev, [field]: value }));
+    setVitals((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleSubmit = async () => {
     // Simulate API call
     const alerts = [];
-    
+
     // Check thresholds (simplified)
     if (parseFloat(vitals.glucose) > 180) {
       alerts.push({
         type: "glucose_high",
         message: "Blood glucose is elevated. Care team has been notified.",
-        severity: "medium"
+        severity: "medium",
       });
     }
-    
-    if (parseFloat(vitals.systolic) > 140 || parseFloat(vitals.diastolic) > 90) {
+
+    if (
+      parseFloat(vitals.systolic) > 140 ||
+      parseFloat(vitals.diastolic) > 90
+    ) {
       alerts.push({
         type: "bp_high",
         message: "Blood pressure is elevated. Please monitor closely.",
-        severity: "medium"
+        severity: "medium",
       });
     }
 
@@ -67,22 +70,59 @@ export function VitalSubmission() {
   };
 
   const vitalHistory = [
-    { date: "2024-02-15", glucose: "142 mg/dL", bp: "125/82 mmHg", weight: "184.2 lbs", status: "normal" },
-    { date: "2024-02-14", glucose: "156 mg/dL", bp: "128/84 mmHg", weight: "184.5 lbs", status: "normal" },
-    { date: "2024-02-13", glucose: "189 mg/dL", bp: "135/87 mmHg", weight: "185.1 lbs", status: "elevated" },
+    {
+      date: "2024-02-15",
+      glucose: "142 mg/dL",
+      bp: "125/82 mmHg",
+      weight: "184.2 lbs",
+      status: "normal",
+    },
+    {
+      date: "2024-02-14",
+      glucose: "156 mg/dL",
+      bp: "128/84 mmHg",
+      weight: "184.5 lbs",
+      status: "normal",
+    },
+    {
+      date: "2024-02-13",
+      glucose: "189 mg/dL",
+      bp: "135/87 mmHg",
+      weight: "185.1 lbs",
+      status: "elevated",
+    },
   ];
 
   const deviceConnections = [
-    { name: "Glucose Meter", model: "OneTouch Verio", connected: true, lastSync: "2 min ago" },
-    { name: "Blood Pressure Monitor", model: "Omron 10 Series", connected: true, lastSync: "1 hour ago" },
-    { name: "Smart Scale", model: "Withings Body+", connected: false, lastSync: "2 days ago" },
-    { name: "Pulse Oximeter", model: "ChoiceMMed MD300", connected: true, lastSync: "30 min ago" }
+    {
+      name: "Glucose Meter",
+      model: "OneTouch Verio",
+      connected: true,
+      lastSync: "2 min ago",
+    },
+    {
+      name: "Blood Pressure Monitor",
+      model: "Omron 10 Series",
+      connected: true,
+      lastSync: "1 hour ago",
+    },
+    {
+      name: "Smart Scale",
+      model: "Withings Body+",
+      connected: false,
+      lastSync: "2 days ago",
+    },
+    {
+      name: "Pulse Oximeter",
+      model: "ChoiceMMed MD300",
+      connected: true,
+      lastSync: "30 min ago",
+    },
   ];
 
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-4xl mx-auto space-y-6">
-        
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
@@ -90,7 +130,9 @@ export function VitalSubmission() {
               <Activity className="w-8 h-8 text-primary" />
               Daily Vitals Check-in
             </h1>
-            <p className="text-muted-foreground">Submit your daily health readings</p>
+            <p className="text-muted-foreground">
+              Submit your daily health readings
+            </p>
           </div>
           <Badge className="bg-green-100 text-green-800">
             <CheckCircle className="w-4 h-4 mr-1" />
@@ -104,11 +146,18 @@ export function VitalSubmission() {
             <CheckCircle className="h-4 w-4 text-green-600" />
             <AlertDescription>
               <div className="space-y-2">
-                <p className="text-green-800 font-medium">Vitals submitted successfully!</p>
+                <p className="text-green-800 font-medium">
+                  Vitals submitted successfully!
+                </p>
                 {submissionStatus.alerts.map((alert, index) => (
-                  <div key={index} className={`p-2 rounded border ${
-                    alert.severity === "medium" ? "bg-yellow-50 border-yellow-200 text-yellow-800" : ""
-                  }`}>
+                  <div
+                    key={index}
+                    className={`p-2 rounded border ${
+                      alert.severity === "medium"
+                        ? "bg-yellow-50 border-yellow-200 text-yellow-800"
+                        : ""
+                    }`}
+                  >
                     {alert.message}
                   </div>
                 ))}
@@ -128,7 +177,6 @@ export function VitalSubmission() {
           {/* Submit Vitals */}
           <TabsContent value="submit" className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              
               {/* Blood Glucose */}
               <Card>
                 <CardHeader>
@@ -145,7 +193,9 @@ export function VitalSubmission() {
                       type="number"
                       placeholder="Enter glucose level"
                       value={vitals.glucose}
-                      onChange={(e) => handleVitalChange("glucose", e.target.value)}
+                      onChange={(e) =>
+                        handleVitalChange("glucose", e.target.value)
+                      }
                     />
                   </div>
                   <div className="text-sm text-muted-foreground">
@@ -175,7 +225,9 @@ export function VitalSubmission() {
                         type="number"
                         placeholder="120"
                         value={vitals.systolic}
-                        onChange={(e) => handleVitalChange("systolic", e.target.value)}
+                        onChange={(e) =>
+                          handleVitalChange("systolic", e.target.value)
+                        }
                       />
                     </div>
                     <div className="space-y-2">
@@ -185,7 +237,9 @@ export function VitalSubmission() {
                         type="number"
                         placeholder="80"
                         value={vitals.diastolic}
-                        onChange={(e) => handleVitalChange("diastolic", e.target.value)}
+                        onChange={(e) =>
+                          handleVitalChange("diastolic", e.target.value)
+                        }
                       />
                     </div>
                   </div>
@@ -216,7 +270,9 @@ export function VitalSubmission() {
                       step="0.1"
                       placeholder="Enter weight"
                       value={vitals.weight}
-                      onChange={(e) => handleVitalChange("weight", e.target.value)}
+                      onChange={(e) =>
+                        handleVitalChange("weight", e.target.value)
+                      }
                     />
                   </div>
                   <div className="text-sm text-muted-foreground">
@@ -246,15 +302,21 @@ export function VitalSubmission() {
                       step="0.1"
                       placeholder="98.6"
                       value={vitals.temperature}
-                      onChange={(e) => handleVitalChange("temperature", e.target.value)}
+                      onChange={(e) =>
+                        handleVitalChange("temperature", e.target.value)
+                      }
                     />
                   </div>
                   <div className="text-sm text-muted-foreground">
                     Normal range: 97.0 - 99.0°F
                   </div>
                   <div className="grid grid-cols-2 gap-2">
-                    <Button variant="outline" size="sm">Oral</Button>
-                    <Button variant="outline" size="sm">Temporal</Button>
+                    <Button variant="outline" size="sm">
+                      Oral
+                    </Button>
+                    <Button variant="outline" size="sm">
+                      Temporal
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
@@ -274,7 +336,9 @@ export function VitalSubmission() {
                       type="number"
                       placeholder="72"
                       value={vitals.heartRate}
-                      onChange={(e) => handleVitalChange("heartRate", e.target.value)}
+                      onChange={(e) =>
+                        handleVitalChange("heartRate", e.target.value)
+                      }
                     />
                   </div>
                   <div className="space-y-2">
@@ -284,7 +348,9 @@ export function VitalSubmission() {
                       type="number"
                       placeholder="98"
                       value={vitals.oxygenSat}
-                      onChange={(e) => handleVitalChange("oxygenSat", e.target.value)}
+                      onChange={(e) =>
+                        handleVitalChange("oxygenSat", e.target.value)
+                      }
                     />
                   </div>
                 </div>
@@ -298,7 +364,8 @@ export function VitalSubmission() {
                   <div>
                     <h3 className="font-medium">Ready to submit?</h3>
                     <p className="text-sm text-muted-foreground">
-                      Your care team will review these readings and contact you if needed.
+                      Your care team will review these readings and contact you
+                      if needed.
                     </p>
                   </div>
                   <Button onClick={handleSubmit} className="px-8">
@@ -319,7 +386,10 @@ export function VitalSubmission() {
               <CardContent>
                 <div className="space-y-4">
                   {vitalHistory.map((entry, index) => (
-                    <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div
+                      key={index}
+                      className="flex items-center justify-between p-4 border rounded-lg"
+                    >
                       <div>
                         <p className="font-medium">{entry.date}</p>
                         <div className="text-sm text-muted-foreground space-y-1">
@@ -328,7 +398,13 @@ export function VitalSubmission() {
                           <p>Weight: {entry.weight}</p>
                         </div>
                       </div>
-                      <Badge variant={entry.status === "normal" ? "secondary" : "destructive"}>
+                      <Badge
+                        variant={
+                          entry.status === "normal"
+                            ? "secondary"
+                            : "destructive"
+                        }
+                      >
                         {entry.status}
                       </Badge>
                     </div>
@@ -347,17 +423,26 @@ export function VitalSubmission() {
               <CardContent>
                 <div className="space-y-4">
                   {deviceConnections.map((device, index) => (
-                    <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div
+                      key={index}
+                      className="flex items-center justify-between p-4 border rounded-lg"
+                    >
                       <div className="flex items-center gap-3">
                         <Smartphone className="w-5 h-5 text-blue-600" />
                         <div>
                           <p className="font-medium">{device.name}</p>
-                          <p className="text-sm text-muted-foreground">{device.model}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {device.model}
+                          </p>
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
                         <div className="text-right">
-                          <Badge variant={device.connected ? "secondary" : "destructive"}>
+                          <Badge
+                            variant={
+                              device.connected ? "secondary" : "destructive"
+                            }
+                          >
                             {device.connected ? "Connected" : "Offline"}
                           </Badge>
                           <p className="text-xs text-muted-foreground mt-1">

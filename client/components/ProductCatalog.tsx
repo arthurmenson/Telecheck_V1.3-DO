@@ -1,20 +1,25 @@
-import React, { useState, useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Button } from './ui/button';
-import { Badge } from './ui/badge';
-import { Input } from './ui/input';
-import { Label } from './ui/label';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import React, { useState, useMemo } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Button } from "./ui/button";
+import { Badge } from "./ui/badge";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from './ui/select';
-import { useCart } from '../contexts/CartContext';
-import { Product, SAMPLE_PRODUCTS, PRODUCT_CATEGORIES, ProductManager } from '../data/products';
-import { AIProductSearch } from './AIProductSearch';
+} from "./ui/select";
+import { useCart } from "../contexts/CartContext";
+import {
+  Product,
+  SAMPLE_PRODUCTS,
+  PRODUCT_CATEGORIES,
+  ProductManager,
+} from "../data/products";
+import { AIProductSearch } from "./AIProductSearch";
 import {
   Search,
   Filter,
@@ -40,26 +45,29 @@ import {
   Plus,
   Minus,
   SortAsc,
-  SortDesc
-} from 'lucide-react';
+  SortDesc,
+} from "lucide-react";
 
 interface ProductCatalogProps {
   isOpen?: boolean;
   onClose?: () => void;
 }
 
-type ViewMode = 'grid' | 'list';
-type SortOption = 'name' | 'price' | 'rating' | 'popularity';
-type SortDirection = 'asc' | 'desc';
+type ViewMode = "grid" | "list";
+type SortOption = "name" | "price" | "rating" | "popularity";
+type SortDirection = "asc" | "desc";
 
-export function ProductCatalog({ isOpen = true, onClose }: ProductCatalogProps) {
+export function ProductCatalog({
+  isOpen = true,
+  onClose,
+}: ProductCatalogProps) {
   const { addItem } = useCart();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  const [selectedType, setSelectedType] = useState('all');
-  const [viewMode, setViewMode] = useState<ViewMode>('grid');
-  const [sortBy, setSortBy] = useState<SortOption>('name');
-  const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [selectedType, setSelectedType] = useState("all");
+  const [viewMode, setViewMode] = useState<ViewMode>("grid");
+  const [sortBy, setSortBy] = useState<SortOption>("name");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
   const [priceRange, setPriceRange] = useState({ min: 0, max: 1000 });
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [showFilters, setShowFilters] = useState(false);
@@ -75,47 +83,58 @@ export function ProductCatalog({ isOpen = true, onClose }: ProductCatalogProps) 
     }
 
     // Category filter
-    if (selectedCategory !== 'all') {
+    if (selectedCategory !== "all") {
       products = ProductManager.filterByCategory(selectedCategory, products);
     }
 
     // Type filter
-    if (selectedType !== 'all') {
-      products = ProductManager.filterByType(selectedType as Product['type'], products);
+    if (selectedType !== "all") {
+      products = ProductManager.filterByType(
+        selectedType as Product["type"],
+        products,
+      );
     }
 
     // Price range filter
     products = products.filter(
-      product => product.price >= priceRange.min && product.price <= priceRange.max
+      (product) =>
+        product.price >= priceRange.min && product.price <= priceRange.max,
     );
 
     // Only show active products
-    products = products.filter(product => product.isActive);
+    products = products.filter((product) => product.isActive);
 
     // Sort products
     products.sort((a, b) => {
       let comparison = 0;
-      
+
       switch (sortBy) {
-        case 'name':
+        case "name":
           comparison = a.name.localeCompare(b.name);
           break;
-        case 'price':
+        case "price":
           comparison = a.price - b.price;
           break;
-        case 'rating':
+        case "rating":
           comparison = a.rating - b.rating;
           break;
-        case 'popularity':
+        case "popularity":
           comparison = a.reviewCount - b.reviewCount;
           break;
       }
 
-      return sortDirection === 'asc' ? comparison : -comparison;
+      return sortDirection === "asc" ? comparison : -comparison;
     });
 
     return products;
-  }, [searchQuery, selectedCategory, selectedType, priceRange, sortBy, sortDirection]);
+  }, [
+    searchQuery,
+    selectedCategory,
+    selectedType,
+    priceRange,
+    sortBy,
+    sortDirection,
+  ]);
 
   const handleAddToCart = (product: Product) => {
     addItem({
@@ -123,7 +142,7 @@ export function ProductCatalog({ isOpen = true, onClose }: ProductCatalogProps) 
       name: product.name,
       genericName: product.genericName,
       brand: product.brand,
-      dosage: product.strength || product.dosages[0] || '',
+      dosage: product.strength || product.dosages[0] || "",
       quantity: 1,
       unitPrice: product.price,
       totalPrice: product.price,
@@ -133,37 +152,37 @@ export function ProductCatalog({ isOpen = true, onClose }: ProductCatalogProps) 
       image: product.images[0],
       isSubscription: false,
       autoRefill: false,
-      shippingMethod: 'standard',
+      shippingMethod: "standard",
       insuranceCovered: false,
-      aiRecommended: false
+      aiRecommended: false,
     });
   };
 
   const toggleWishlist = (productId: string) => {
-    setWishlist(prev => 
-      prev.includes(productId) 
-        ? prev.filter(id => id !== productId)
-        : [...prev, productId]
+    setWishlist((prev) =>
+      prev.includes(productId)
+        ? prev.filter((id) => id !== productId)
+        : [...prev, productId],
     );
   };
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
     }).format(price);
   };
 
   const getStockStatusColor = (stock: number, lowThreshold: number) => {
-    if (stock === 0) return 'text-red-600';
-    if (stock <= lowThreshold) return 'text-yellow-600';
-    return 'text-green-600';
+    if (stock === 0) return "text-red-600";
+    if (stock <= lowThreshold) return "text-yellow-600";
+    return "text-green-600";
   };
 
   const getStockStatusText = (stock: number, lowThreshold: number) => {
-    if (stock === 0) return 'Out of Stock';
-    if (stock <= lowThreshold) return 'Low Stock';
-    return 'In Stock';
+    if (stock === 0) return "Out of Stock";
+    if (stock <= lowThreshold) return "Low Stock";
+    return "In Stock";
   };
 
   const ProductCard = ({ product }: { product: Product }) => (
@@ -187,12 +206,12 @@ export function ProductCatalog({ isOpen = true, onClose }: ProductCatalogProps) 
           onClick={() => toggleWishlist(product.id)}
           className="absolute top-2 right-2 p-2 bg-white dark:bg-gray-800 rounded-full shadow-md hover:shadow-lg transition-all"
         >
-          <Heart 
+          <Heart
             className={`w-4 h-4 ${
-              wishlist.includes(product.id) 
-                ? 'fill-red-500 text-red-500' 
-                : 'text-gray-400 hover:text-red-500'
-            }`} 
+              wishlist.includes(product.id)
+                ? "fill-red-500 text-red-500"
+                : "text-gray-400 hover:text-red-500"
+            }`}
           />
         </button>
 
@@ -205,9 +224,7 @@ export function ProductCatalog({ isOpen = true, onClose }: ProductCatalogProps) 
             </Badge>
           )}
           {product.compareAtPrice && product.compareAtPrice > product.price && (
-            <Badge className="bg-red-500 text-white text-xs">
-              Sale
-            </Badge>
+            <Badge className="bg-red-500 text-white text-xs">Sale</Badge>
           )}
           {product.isOnBackorder && (
             <Badge className="bg-yellow-500 text-white text-xs">
@@ -239,8 +256,8 @@ export function ProductCatalog({ isOpen = true, onClose }: ProductCatalogProps) 
                   key={i}
                   className={`w-3 h-3 ${
                     i < Math.floor(product.rating)
-                      ? 'fill-yellow-400 text-yellow-400'
-                      : 'text-gray-300'
+                      ? "fill-yellow-400 text-yellow-400"
+                      : "text-gray-300"
                   }`}
                 />
               ))}
@@ -256,13 +273,16 @@ export function ProductCatalog({ isOpen = true, onClose }: ProductCatalogProps) 
               <span className="text-lg font-bold text-gray-900 dark:text-white">
                 {formatPrice(product.price)}
               </span>
-              {product.compareAtPrice && product.compareAtPrice > product.price && (
-                <span className="text-sm text-gray-500 line-through ml-2">
-                  {formatPrice(product.compareAtPrice)}
-                </span>
-              )}
+              {product.compareAtPrice &&
+                product.compareAtPrice > product.price && (
+                  <span className="text-sm text-gray-500 line-through ml-2">
+                    {formatPrice(product.compareAtPrice)}
+                  </span>
+                )}
             </div>
-            <div className={`text-xs ${getStockStatusColor(product.stock, product.lowStockThreshold)}`}>
+            <div
+              className={`text-xs ${getStockStatusColor(product.stock, product.lowStockThreshold)}`}
+            >
               {getStockStatusText(product.stock, product.lowStockThreshold)}
             </div>
           </div>
@@ -328,7 +348,7 @@ export function ProductCatalog({ isOpen = true, onClose }: ProductCatalogProps) 
                 <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 mt-1">
                   {product.shortDescription}
                 </p>
-                
+
                 <div className="flex items-center gap-4 mt-2">
                   <div className="flex items-center gap-1">
                     <div className="flex">
@@ -337,8 +357,8 @@ export function ProductCatalog({ isOpen = true, onClose }: ProductCatalogProps) 
                           key={i}
                           className={`w-3 h-3 ${
                             i < Math.floor(product.rating)
-                              ? 'fill-yellow-400 text-yellow-400'
-                              : 'text-gray-300'
+                              ? "fill-yellow-400 text-yellow-400"
+                              : "text-gray-300"
                           }`}
                         />
                       ))}
@@ -347,11 +367,11 @@ export function ProductCatalog({ isOpen = true, onClose }: ProductCatalogProps) 
                       ({product.reviewCount})
                     </span>
                   </div>
-                  
+
                   <Badge variant="outline" className="text-xs">
                     {product.category.name}
                   </Badge>
-                  
+
                   {product.prescriptionRequired && (
                     <Badge className="bg-blue-500 text-white text-xs">
                       <Shield className="w-3 h-3 mr-1" />
@@ -367,16 +387,22 @@ export function ProductCatalog({ isOpen = true, onClose }: ProductCatalogProps) 
                   <div className="text-lg font-bold text-gray-900 dark:text-white">
                     {formatPrice(product.price)}
                   </div>
-                  {product.compareAtPrice && product.compareAtPrice > product.price && (
-                    <div className="text-sm text-gray-500 line-through">
-                      {formatPrice(product.compareAtPrice)}
-                    </div>
-                  )}
-                  <div className={`text-xs ${getStockStatusColor(product.stock, product.lowStockThreshold)}`}>
-                    {getStockStatusText(product.stock, product.lowStockThreshold)}
+                  {product.compareAtPrice &&
+                    product.compareAtPrice > product.price && (
+                      <div className="text-sm text-gray-500 line-through">
+                        {formatPrice(product.compareAtPrice)}
+                      </div>
+                    )}
+                  <div
+                    className={`text-xs ${getStockStatusColor(product.stock, product.lowStockThreshold)}`}
+                  >
+                    {getStockStatusText(
+                      product.stock,
+                      product.lowStockThreshold,
+                    )}
                   </div>
                 </div>
-                
+
                 <div className="flex gap-2">
                   <Button
                     onClick={() => handleAddToCart(product)}
@@ -399,12 +425,12 @@ export function ProductCatalog({ isOpen = true, onClose }: ProductCatalogProps) 
                     size="sm"
                     onClick={() => toggleWishlist(product.id)}
                   >
-                    <Heart 
+                    <Heart
                       className={`w-4 h-4 ${
-                        wishlist.includes(product.id) 
-                          ? 'fill-red-500 text-red-500' 
-                          : 'text-gray-400'
-                      }`} 
+                        wishlist.includes(product.id)
+                          ? "fill-red-500 text-red-500"
+                          : "text-gray-400"
+                      }`}
                     />
                   </Button>
                 </div>
@@ -429,15 +455,21 @@ export function ProductCatalog({ isOpen = true, onClose }: ProductCatalogProps) 
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <AIProductSearch onProductSelect={(product) => {
-            handleAddToCart(product);
-          }} />
+          <AIProductSearch
+            onProductSelect={(product) => {
+              handleAddToCart(product);
+            }}
+          />
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
+            onClick={() => setViewMode(viewMode === "grid" ? "list" : "grid")}
           >
-            {viewMode === 'grid' ? <List className="w-4 h-4" /> : <Grid className="w-4 h-4" />}
+            {viewMode === "grid" ? (
+              <List className="w-4 h-4" />
+            ) : (
+              <Grid className="w-4 h-4" />
+            )}
           </Button>
           <Button
             variant="outline"
@@ -469,13 +501,16 @@ export function ProductCatalog({ isOpen = true, onClose }: ProductCatalogProps) 
 
             {/* Quick Filters */}
             <div className="flex gap-2">
-              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+              <Select
+                value={selectedCategory}
+                onValueChange={setSelectedCategory}
+              >
                 <SelectTrigger className="w-48">
                   <SelectValue placeholder="All Categories" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Categories</SelectItem>
-                  {PRODUCT_CATEGORIES.map(category => (
+                  {PRODUCT_CATEGORIES.map((category) => (
                     <SelectItem key={category.id} value={category.id}>
                       {category.name}
                     </SelectItem>
@@ -497,11 +532,14 @@ export function ProductCatalog({ isOpen = true, onClose }: ProductCatalogProps) 
                 </SelectContent>
               </Select>
 
-              <Select value={`${sortBy}-${sortDirection}`} onValueChange={(value) => {
-                const [sort, direction] = value.split('-');
-                setSortBy(sort as SortOption);
-                setSortDirection(direction as SortDirection);
-              }}>
+              <Select
+                value={`${sortBy}-${sortDirection}`}
+                onValueChange={(value) => {
+                  const [sort, direction] = value.split("-");
+                  setSortBy(sort as SortOption);
+                  setSortDirection(direction as SortDirection);
+                }}
+              >
                 <SelectTrigger className="w-40">
                   <SelectValue placeholder="Sort by" />
                 </SelectTrigger>
@@ -527,13 +565,23 @@ export function ProductCatalog({ isOpen = true, onClose }: ProductCatalogProps) 
                     type="number"
                     placeholder="Min"
                     value={priceRange.min}
-                    onChange={(e) => setPriceRange(prev => ({ ...prev, min: Number(e.target.value) }))}
+                    onChange={(e) =>
+                      setPriceRange((prev) => ({
+                        ...prev,
+                        min: Number(e.target.value),
+                      }))
+                    }
                   />
                   <Input
                     type="number"
                     placeholder="Max"
                     value={priceRange.max}
-                    onChange={(e) => setPriceRange(prev => ({ ...prev, max: Number(e.target.value) }))}
+                    onChange={(e) =>
+                      setPriceRange((prev) => ({
+                        ...prev,
+                        max: Number(e.target.value),
+                      }))
+                    }
                   />
                 </div>
               </div>
@@ -583,18 +631,20 @@ export function ProductCatalog({ isOpen = true, onClose }: ProductCatalogProps) 
 
       {/* Products Grid/List */}
       {filteredProducts.length > 0 ? (
-        <div className={
-          viewMode === 'grid' 
-            ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'
-            : 'space-y-4'
-        }>
-          {filteredProducts.map((product) => (
-            viewMode === 'grid' ? (
+        <div
+          className={
+            viewMode === "grid"
+              ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+              : "space-y-4"
+          }
+        >
+          {filteredProducts.map((product) =>
+            viewMode === "grid" ? (
               <ProductCard key={product.id} product={product} />
             ) : (
               <ProductListItem key={product.id} product={product} />
-            )
-          ))}
+            ),
+          )}
         </div>
       ) : (
         <Card>
@@ -606,11 +656,11 @@ export function ProductCatalog({ isOpen = true, onClose }: ProductCatalogProps) 
             <p className="text-gray-600 dark:text-gray-400 mb-4">
               Try adjusting your search terms or filters
             </p>
-            <Button 
+            <Button
               onClick={() => {
-                setSearchQuery('');
-                setSelectedCategory('all');
-                setSelectedType('all');
+                setSearchQuery("");
+                setSelectedCategory("all");
+                setSelectedType("all");
                 setPriceRange({ min: 0, max: 1000 });
               }}
             >

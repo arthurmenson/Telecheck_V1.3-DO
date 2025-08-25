@@ -3,6 +3,7 @@
 This document provides comprehensive documentation for the Telecheck healthcare management platform API.
 
 ## Base URL
+
 ```
 Development: http://localhost:3000/api
 Production: https://api.telecheck.com/api
@@ -46,11 +47,13 @@ Error responses:
 ## Authentication Endpoints
 
 ### Register User
+
 **POST** `/auth/register`
 
 Register a new user account.
 
 **Request Body:**
+
 ```json
 {
   "email": "user@example.com",
@@ -63,6 +66,7 @@ Register a new user account.
 ```
 
 **Response:**
+
 ```json
 {
   "message": "User registered successfully",
@@ -79,11 +83,13 @@ Register a new user account.
 ```
 
 ### Login User
+
 **POST** `/auth/login`
 
 Authenticate user and receive access token.
 
 **Request Body:**
+
 ```json
 {
   "email": "user@example.com",
@@ -92,6 +98,7 @@ Authenticate user and receive access token.
 ```
 
 **Response:**
+
 ```json
 {
   "message": "Login successful",
@@ -108,11 +115,13 @@ Authenticate user and receive access token.
 ```
 
 ### Refresh Token
+
 **POST** `/auth/refresh`
 
 Refresh expired access token.
 
 **Request Body:**
+
 ```json
 {
   "refreshToken": "refresh-token"
@@ -120,6 +129,7 @@ Refresh expired access token.
 ```
 
 **Response:**
+
 ```json
 {
   "message": "Token refreshed successfully",
@@ -128,16 +138,19 @@ Refresh expired access token.
 ```
 
 ### Logout User
+
 **POST** `/auth/logout`
 
 Logout user and invalidate tokens.
 
 **Headers:**
+
 ```
 Authorization: Bearer <jwt-token>
 ```
 
 **Response:**
+
 ```json
 {
   "message": "Logout successful"
@@ -145,16 +158,19 @@ Authorization: Bearer <jwt-token>
 ```
 
 ### Get User Profile
+
 **GET** `/auth/profile`
 
 Get current user's profile information.
 
 **Headers:**
+
 ```
 Authorization: Bearer <jwt-token>
 ```
 
 **Response:**
+
 ```json
 {
   "user": {
@@ -173,16 +189,19 @@ Authorization: Bearer <jwt-token>
 ```
 
 ### Update User Profile
+
 **PUT** `/auth/profile`
 
 Update current user's profile information.
 
 **Headers:**
+
 ```
 Authorization: Bearer <jwt-token>
 ```
 
 **Request Body:**
+
 ```json
 {
   "firstName": "Jane",
@@ -192,6 +211,7 @@ Authorization: Bearer <jwt-token>
 ```
 
 **Response:**
+
 ```json
 {
   "message": "Profile updated successfully",
@@ -210,21 +230,25 @@ Authorization: Bearer <jwt-token>
 ## User Management Endpoints (Admin Only)
 
 ### List All Users
+
 **GET** `/users?page=1&limit=20&q=search`
 
 Get paginated list of all users.
 
 **Headers:**
+
 ```
 Authorization: Bearer <admin-jwt-token>
 ```
 
 **Query Parameters:**
+
 - `page` (optional): Page number (default: 1)
 - `limit` (optional): Items per page (default: 20, max: 100)
 - `q` (optional): Search query for email, first name, or last name
 
 **Response:**
+
 ```json
 {
   "users": [
@@ -253,16 +277,19 @@ Authorization: Bearer <admin-jwt-token>
 ```
 
 ### Get User by ID
+
 **GET** `/users/:id`
 
 Get specific user by ID.
 
 **Headers:**
+
 ```
 Authorization: Bearer <admin-jwt-token>
 ```
 
 **Response:**
+
 ```json
 {
   "user": {
@@ -282,16 +309,19 @@ Authorization: Bearer <admin-jwt-token>
 ```
 
 ### Update User
+
 **PUT** `/users/:id`
 
 Update specific user information.
 
 **Headers:**
+
 ```
 Authorization: Bearer <admin-jwt-token>
 ```
 
 **Request Body:**
+
 ```json
 {
   "firstName": "Jane",
@@ -302,6 +332,7 @@ Authorization: Bearer <admin-jwt-token>
 ```
 
 **Response:**
+
 ```json
 {
   "message": "User updated successfully",
@@ -318,16 +349,19 @@ Authorization: Bearer <admin-jwt-token>
 ```
 
 ### Delete User
+
 **DELETE** `/users/:id`
 
 Soft delete user (set isActive to false).
 
 **Headers:**
+
 ```
 Authorization: Bearer <admin-jwt-token>
 ```
 
 **Response:**
+
 ```json
 {
   "message": "User deactivated successfully"
@@ -337,21 +371,25 @@ Authorization: Bearer <admin-jwt-token>
 ## Patient Management Endpoints
 
 ### List All Patients
+
 **GET** `/patients?page=1&limit=20&q=search`
 
 Get paginated list of all patients (doctors and admins only).
 
 **Headers:**
+
 ```
 Authorization: Bearer <jwt-token>
 ```
 
 **Query Parameters:**
+
 - `page` (optional): Page number (default: 1)
 - `limit` (optional): Items per page (default: 20, max: 100)
 - `q` (optional): Search query for name or email
 
 **Response:**
+
 ```json
 {
   "patients": [
@@ -393,16 +431,19 @@ Authorization: Bearer <jwt-token>
 ```
 
 ### Get Patient by ID
+
 **GET** `/patients/:id`
 
 Get specific patient by ID.
 
 **Headers:**
+
 ```
 Authorization: Bearer <jwt-token>
 ```
 
 **Response:**
+
 ```json
 {
   "patient": {
@@ -426,16 +467,19 @@ Authorization: Bearer <jwt-token>
 ```
 
 ### Create Patient Record
+
 **POST** `/patients`
 
 Create a new patient record.
 
 **Headers:**
+
 ```
 Authorization: Bearer <jwt-token>
 ```
 
 **Request Body:**
+
 ```json
 {
   "userId": "user-uuid",
@@ -458,6 +502,7 @@ Authorization: Bearer <jwt-token>
 ```
 
 **Response:**
+
 ```json
 {
   "message": "Patient record created successfully",
@@ -476,16 +521,19 @@ Authorization: Bearer <jwt-token>
 ```
 
 ### Update Patient Record
+
 **PUT** `/patients/:id`
 
 Update specific patient record.
 
 **Headers:**
+
 ```
 Authorization: Bearer <jwt-token>
 ```
 
 **Request Body:**
+
 ```json
 {
   "bloodType": "O+",
@@ -494,6 +542,7 @@ Authorization: Bearer <jwt-token>
 ```
 
 **Response:**
+
 ```json
 {
   "message": "Patient record updated successfully",
@@ -510,16 +559,19 @@ Authorization: Bearer <jwt-token>
 ```
 
 ### Delete Patient Record
+
 **DELETE** `/patients/:id`
 
 Delete patient record.
 
 **Headers:**
+
 ```
 Authorization: Bearer <jwt-token>
 ```
 
 **Response:**
+
 ```json
 {
   "message": "Patient record deleted successfully"
@@ -529,20 +581,24 @@ Authorization: Bearer <jwt-token>
 ## Lab Management Endpoints
 
 ### Get Lab Reports
+
 **GET** `/labs/reports/:userId?page=1&limit=20`
 
 Get paginated list of lab reports for a user.
 
 **Headers:**
+
 ```
 Authorization: Bearer <jwt-token>
 ```
 
 **Query Parameters:**
+
 - `page` (optional): Page number (default: 1)
 - `limit` (optional): Items per page (default: 20, max: 100)
 
 **Response:**
+
 ```json
 {
   "reports": [
@@ -572,20 +628,24 @@ Authorization: Bearer <jwt-token>
 ```
 
 ### Upload Lab Report
+
 **POST** `/labs/upload`
 
 Upload a new lab report for analysis.
 
 **Headers:**
+
 ```
 Authorization: Bearer <jwt-token>
 Content-Type: multipart/form-data
 ```
 
 **Form Data:**
+
 - `labReport`: File (PDF, JPEG, PNG)
 
 **Response:**
+
 ```json
 {
   "message": "Lab report uploaded successfully. Analysis in progress.",
@@ -602,16 +662,19 @@ Content-Type: multipart/form-data
 ```
 
 ### Get Lab Results
+
 **GET** `/labs/results/:reportId`
 
 Get lab results for a specific report.
 
 **Headers:**
+
 ```
 Authorization: Bearer <jwt-token>
 ```
 
 **Response:**
+
 ```json
 {
   "results": [
@@ -633,16 +696,19 @@ Authorization: Bearer <jwt-token>
 ```
 
 ### Add Lab Results Manually
+
 **POST** `/labs/results`
 
 Add lab results manually to a report.
 
 **Headers:**
+
 ```
 Authorization: Bearer <jwt-token>
 ```
 
 **Request Body:**
+
 ```json
 {
   "labReportId": "report-uuid",
@@ -658,6 +724,7 @@ Authorization: Bearer <jwt-token>
 ```
 
 **Response:**
+
 ```json
 {
   "message": "Lab result added successfully",
@@ -680,20 +747,24 @@ Authorization: Bearer <jwt-token>
 ## Medication Management Endpoints
 
 ### Get Medications
+
 **GET** `/medications/:userId?page=1&limit=20`
 
 Get paginated list of medications for a user.
 
 **Headers:**
+
 ```
 Authorization: Bearer <jwt-token>
 ```
 
 **Query Parameters:**
+
 - `page` (optional): Page number (default: 1)
 - `limit` (optional): Items per page (default: 20, max: 100)
 
 **Response:**
+
 ```json
 {
   "medications": [
@@ -726,16 +797,19 @@ Authorization: Bearer <jwt-token>
 ```
 
 ### Add Medication
+
 **POST** `/medications`
 
 Add a new medication for a user.
 
 **Headers:**
+
 ```
 Authorization: Bearer <jwt-token>
 ```
 
 **Request Body:**
+
 ```json
 {
   "userId": "user-uuid",
@@ -752,6 +826,7 @@ Authorization: Bearer <jwt-token>
 ```
 
 **Response:**
+
 ```json
 {
   "message": "Medication added successfully",
@@ -774,16 +849,19 @@ Authorization: Bearer <jwt-token>
 ```
 
 ### Update Medication
+
 **PUT** `/medications/:id`
 
 Update specific medication.
 
 **Headers:**
+
 ```
 Authorization: Bearer <jwt-token>
 ```
 
 **Request Body:**
+
 ```json
 {
   "dosage": "20mg",
@@ -792,6 +870,7 @@ Authorization: Bearer <jwt-token>
 ```
 
 **Response:**
+
 ```json
 {
   "message": "Medication updated successfully",
@@ -811,16 +890,19 @@ Authorization: Bearer <jwt-token>
 ```
 
 ### Delete Medication
+
 **DELETE** `/medications/:id`
 
 Delete medication.
 
 **Headers:**
+
 ```
 Authorization: Bearer <jwt-token>
 ```
 
 **Response:**
+
 ```json
 {
   "message": "Medication deleted successfully"
@@ -829,36 +911,39 @@ Authorization: Bearer <jwt-token>
 
 ## Error Codes
 
-| Code | Description |
-|------|-------------|
-| `TOKEN_MISSING` | Authorization token is required |
-| `TOKEN_INVALID` | Invalid or expired token |
-| `TOKEN_EXPIRED` | Token has expired |
-| `USER_INVALID` | User not found or inactive |
+| Code                       | Description                     |
+| -------------------------- | ------------------------------- |
+| `TOKEN_MISSING`            | Authorization token is required |
+| `TOKEN_INVALID`            | Invalid or expired token        |
+| `TOKEN_EXPIRED`            | Token has expired               |
+| `USER_INVALID`             | User not found or inactive      |
 | `INSUFFICIENT_PERMISSIONS` | User lacks required permissions |
-| `VALIDATION_ERROR` | Request validation failed |
-| `USER_EXISTS` | User already exists |
-| `USER_NOT_FOUND` | User not found |
-| `PATIENT_EXISTS` | Patient record already exists |
-| `PATIENT_NOT_FOUND` | Patient not found |
-| `REPORT_NOT_FOUND` | Lab report not found |
-| `MISSING_FIELDS` | Required fields are missing |
-| `RATE_LIMIT_EXCEEDED` | Too many requests |
-| `INTERNAL_ERROR` | Internal server error |
+| `VALIDATION_ERROR`         | Request validation failed       |
+| `USER_EXISTS`              | User already exists             |
+| `USER_NOT_FOUND`           | User not found                  |
+| `PATIENT_EXISTS`           | Patient record already exists   |
+| `PATIENT_NOT_FOUND`        | Patient not found               |
+| `REPORT_NOT_FOUND`         | Lab report not found            |
+| `MISSING_FIELDS`           | Required fields are missing     |
+| `RATE_LIMIT_EXCEEDED`      | Too many requests               |
+| `INTERNAL_ERROR`           | Internal server error           |
 
 ## Rate Limiting
 
 API requests are limited to:
+
 - 100 requests per 15 minutes per IP address
 - 1000 requests per hour per authenticated user
 
 ## Pagination
 
 All list endpoints support pagination with the following parameters:
+
 - `page`: Page number (default: 1)
 - `limit`: Items per page (default: 20, max: 100)
 
 Response includes pagination metadata:
+
 ```json
 {
   "pagination": {
@@ -875,6 +960,7 @@ Response includes pagination metadata:
 ## File Upload
 
 File uploads are supported for:
+
 - Lab reports (PDF, JPEG, PNG)
 - Maximum file size: 10MB
 - Files are stored securely and accessible via signed URLs

@@ -559,7 +559,11 @@ export function AdminDashboard() {
                   <Settings className="w-4 h-4 mr-2" />
                   System Configuration
                 </Button>
-                <Button variant="outline" className="w-full justify-start" asChild>
+                <Button
+                  variant="outline"
+                  className="w-full justify-start"
+                  asChild
+                >
                   <Link to="/algorithm-config">
                     <Dna className="w-4 h-4 mr-2" />
                     Health Score Algorithm

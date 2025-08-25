@@ -11,7 +11,12 @@ import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
 import { Textarea } from "../../components/ui/textarea";
 import { Progress } from "../../components/ui/progress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../../components/ui/tabs";
 import {
   Select,
   SelectContent,
@@ -60,29 +65,29 @@ const carePlanStats = [
     value: "67",
     change: "+8 this month",
     icon: ClipboardList,
-    color: "#8b5cf6"
+    color: "#8b5cf6",
   },
   {
     title: "Goals Achieved",
     value: "234",
     change: "This quarter",
     icon: Target,
-    color: "#10b981"
+    color: "#10b981",
   },
   {
     title: "Avg. Plan Duration",
     value: "45 days",
     change: "Typical completion",
     icon: Timer,
-    color: "#3b82f6"
+    color: "#3b82f6",
   },
   {
     title: "Patient Adherence",
     value: "87%",
     change: "+5% improvement",
     icon: TrendingUp,
-    color: "#f59e0b"
-  }
+    color: "#f59e0b",
+  },
 ];
 
 const activeCarePlans = [
@@ -98,29 +103,49 @@ const activeCarePlans = [
     targetDate: "2024-04-15",
     provider: "Dr. Smith",
     goals: [
-      { id: 1, text: "Maintain HbA1c below 7%", status: "in-progress", progress: 80 },
+      {
+        id: 1,
+        text: "Maintain HbA1c below 7%",
+        status: "in-progress",
+        progress: 80,
+      },
       { id: 2, text: "Lose 10 pounds", status: "completed", progress: 100 },
-      { id: 3, text: "Exercise 150 min/week", status: "in-progress", progress: 65 }
+      {
+        id: 3,
+        text: "Exercise 150 min/week",
+        status: "in-progress",
+        progress: 65,
+      },
     ],
-    priority: "high"
+    priority: "high",
   },
   {
-    id: "CP002", 
+    id: "CP002",
     patientName: "Michael Brown",
     patientId: "PAT002",
     planTitle: "Hypertension Control Plan",
     condition: "Hypertension",
     status: "active",
     progress: 60,
-    startDate: "2024-02-01", 
+    startDate: "2024-02-01",
     targetDate: "2024-05-01",
     provider: "Dr. Johnson",
     goals: [
       { id: 1, text: "BP below 130/80", status: "in-progress", progress: 70 },
-      { id: 2, text: "Reduce sodium intake", status: "in-progress", progress: 55 },
-      { id: 3, text: "Daily medication compliance", status: "completed", progress: 100 }
+      {
+        id: 2,
+        text: "Reduce sodium intake",
+        status: "in-progress",
+        progress: 55,
+      },
+      {
+        id: 3,
+        text: "Daily medication compliance",
+        status: "completed",
+        progress: 100,
+      },
     ],
-    priority: "medium"
+    priority: "medium",
   },
   {
     id: "CP003",
@@ -135,14 +160,24 @@ const activeCarePlans = [
     provider: "Dr. Wilson",
     goals: [
       { id: 1, text: "Lose 25 pounds", status: "in-progress", progress: 40 },
-      { id: 2, text: "Meal prep 5 days/week", status: "in-progress", progress: 60 },
-      { id: 3, text: "Join fitness program", status: "completed", progress: 100 }
+      {
+        id: 2,
+        text: "Meal prep 5 days/week",
+        status: "in-progress",
+        progress: 60,
+      },
+      {
+        id: 3,
+        text: "Join fitness program",
+        status: "completed",
+        progress: 100,
+      },
     ],
-    priority: "medium"
+    priority: "medium",
   },
   {
     id: "CP004",
-    patientName: "Robert Taylor", 
+    patientName: "Robert Taylor",
     patientId: "PAT004",
     planTitle: "Post-Surgery Recovery Plan",
     condition: "Post-operative",
@@ -152,21 +187,61 @@ const activeCarePlans = [
     targetDate: "2024-03-10",
     provider: "Dr. Davis",
     goals: [
-      { id: 1, text: "Complete physical therapy", status: "in-progress", progress: 85 },
+      {
+        id: 1,
+        text: "Complete physical therapy",
+        status: "in-progress",
+        progress: 85,
+      },
       { id: 2, text: "Pain management", status: "completed", progress: 100 },
-      { id: 3, text: "Return to normal activities", status: "in-progress", progress: 75 }
+      {
+        id: 3,
+        text: "Return to normal activities",
+        status: "in-progress",
+        progress: 75,
+      },
     ],
-    priority: "high"
-  }
+    priority: "high",
+  },
 ];
 
 const planTemplates = [
-  { id: "template1", name: "Diabetes Management", category: "Chronic Care", uses: 156 },
-  { id: "template2", name: "Hypertension Control", category: "Chronic Care", uses: 142 },
-  { id: "template3", name: "Weight Management", category: "Lifestyle", uses: 98 },
-  { id: "template4", name: "Post-Surgery Recovery", category: "Recovery", uses: 76 },
-  { id: "template5", name: "Mental Health Support", category: "Behavioral", uses: 64 },
-  { id: "template6", name: "Cardiac Rehabilitation", category: "Rehabilitation", uses: 45 }
+  {
+    id: "template1",
+    name: "Diabetes Management",
+    category: "Chronic Care",
+    uses: 156,
+  },
+  {
+    id: "template2",
+    name: "Hypertension Control",
+    category: "Chronic Care",
+    uses: 142,
+  },
+  {
+    id: "template3",
+    name: "Weight Management",
+    category: "Lifestyle",
+    uses: 98,
+  },
+  {
+    id: "template4",
+    name: "Post-Surgery Recovery",
+    category: "Recovery",
+    uses: 76,
+  },
+  {
+    id: "template5",
+    name: "Mental Health Support",
+    category: "Behavioral",
+    uses: 64,
+  },
+  {
+    id: "template6",
+    name: "Cardiac Rehabilitation",
+    category: "Rehabilitation",
+    uses: 45,
+  },
 ];
 
 export function CarePlans() {
@@ -176,46 +251,60 @@ export function CarePlans() {
   const [showNewPlan, setShowNewPlan] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState("");
 
-  const filteredPlans = activeCarePlans.filter(plan => {
-    const matchesSearch = plan.patientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         plan.planTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         plan.condition.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === "all" || plan.status === statusFilter;
+  const filteredPlans = activeCarePlans.filter((plan) => {
+    const matchesSearch =
+      plan.patientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      plan.planTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      plan.condition.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus =
+      statusFilter === "all" || plan.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
   const getStatusBadgeColor = (status: string) => {
     switch (status) {
-      case "active": return "bg-green-100 text-green-800";
-      case "completed": return "bg-blue-100 text-blue-800";
-      case "on-hold": return "bg-yellow-100 text-yellow-800";
-      case "cancelled": return "bg-red-100 text-red-800";
-      default: return "bg-gray-100 text-gray-600";
+      case "active":
+        return "bg-green-100 text-green-800";
+      case "completed":
+        return "bg-blue-100 text-blue-800";
+      case "on-hold":
+        return "bg-yellow-100 text-yellow-800";
+      case "cancelled":
+        return "bg-red-100 text-red-800";
+      default:
+        return "bg-gray-100 text-gray-600";
     }
   };
 
   const getPriorityBadgeColor = (priority: string) => {
     switch (priority) {
-      case "high": return "bg-red-100 text-red-800";
-      case "medium": return "bg-yellow-100 text-yellow-800";
-      case "low": return "bg-green-100 text-green-800";
-      default: return "bg-gray-100 text-gray-600";
+      case "high":
+        return "bg-red-100 text-red-800";
+      case "medium":
+        return "bg-yellow-100 text-yellow-800";
+      case "low":
+        return "bg-green-100 text-green-800";
+      default:
+        return "bg-gray-100 text-gray-600";
     }
   };
 
   const getGoalStatusIcon = (status: string) => {
     switch (status) {
-      case "completed": return <CheckCircle className="w-4 h-4 text-green-600" />;
-      case "in-progress": return <Clock className="w-4 h-4 text-blue-600" />;
-      case "not-started": return <AlertTriangle className="w-4 h-4 text-gray-400" />;
-      default: return <Clock className="w-4 h-4 text-gray-400" />;
+      case "completed":
+        return <CheckCircle className="w-4 h-4 text-green-600" />;
+      case "in-progress":
+        return <Clock className="w-4 h-4 text-blue-600" />;
+      case "not-started":
+        return <AlertTriangle className="w-4 h-4 text-gray-400" />;
+      default:
+        return <Clock className="w-4 h-4 text-gray-400" />;
     }
   };
 
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-4 py-6 space-y-6">
-        
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
@@ -223,9 +312,11 @@ export function CarePlans() {
               <ClipboardList className="w-8 h-8 text-primary" />
               Care Plans
             </h1>
-            <p className="text-muted-foreground">Personalized care plan management and goal tracking</p>
+            <p className="text-muted-foreground">
+              Personalized care plan management and goal tracking
+            </p>
           </div>
-          
+
           <Dialog open={showNewPlan} onOpenChange={setShowNewPlan}>
             <DialogTrigger asChild>
               <Button className="gap-2">
@@ -248,7 +339,10 @@ export function CarePlans() {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="planTemplate">Care Plan Template</Label>
-                    <Select value={selectedTemplate} onValueChange={setSelectedTemplate}>
+                    <Select
+                      value={selectedTemplate}
+                      onValueChange={setSelectedTemplate}
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="Select template" />
                       </SelectTrigger>
@@ -264,7 +358,10 @@ export function CarePlans() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="planTitle">Plan Title</Label>
-                  <Input id="planTitle" placeholder="Enter care plan title..." />
+                  <Input
+                    id="planTitle"
+                    placeholder="Enter care plan title..."
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="condition">Primary Condition</Label>
@@ -300,9 +397,15 @@ export function CarePlans() {
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
-                      <p className="text-2xl font-bold text-foreground">{stat.value}</p>
-                      <p className="text-xs text-muted-foreground">{stat.change}</p>
+                      <p className="text-sm font-medium text-muted-foreground">
+                        {stat.title}
+                      </p>
+                      <p className="text-2xl font-bold text-foreground">
+                        {stat.value}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {stat.change}
+                      </p>
                     </div>
                     <Icon className="w-8 h-8" style={{ color: stat.color }} />
                   </div>
@@ -312,7 +415,11 @@ export function CarePlans() {
           })}
         </div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="space-y-6"
+        >
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="active-plans">Active Care Plans</TabsTrigger>
             <TabsTrigger value="templates">Plan Templates</TabsTrigger>
@@ -334,7 +441,10 @@ export function CarePlans() {
                     />
                   </div>
                   <div className="flex gap-2">
-                    <Select value={statusFilter} onValueChange={setStatusFilter}>
+                    <Select
+                      value={statusFilter}
+                      onValueChange={setStatusFilter}
+                    >
                       <SelectTrigger className="w-32">
                         <SelectValue />
                       </SelectTrigger>
@@ -353,14 +463,19 @@ export function CarePlans() {
             {/* Care Plans List */}
             <div className="space-y-6">
               {filteredPlans.map((plan) => (
-                <Card key={plan.id} className="hover:shadow-lg transition-all duration-300">
+                <Card
+                  key={plan.id}
+                  className="hover:shadow-lg transition-all duration-300"
+                >
                   <CardContent className="p-6">
                     <div className="space-y-4">
                       {/* Plan Header */}
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4">
                           <div>
-                            <h3 className="font-semibold text-lg">{plan.planTitle}</h3>
+                            <h3 className="font-semibold text-lg">
+                              {plan.planTitle}
+                            </h3>
                             <p className="text-sm text-muted-foreground">
                               {plan.patientName} • {plan.condition}
                             </p>
@@ -368,11 +483,13 @@ export function CarePlans() {
                           <Badge className={getStatusBadgeColor(plan.status)}>
                             {plan.status}
                           </Badge>
-                          <Badge className={getPriorityBadgeColor(plan.priority)}>
+                          <Badge
+                            className={getPriorityBadgeColor(plan.priority)}
+                          >
                             {plan.priority} priority
                           </Badge>
                         </div>
-                        
+
                         <div className="flex gap-2">
                           <Button size="sm" variant="outline" className="gap-2">
                             <Eye className="w-4 h-4" />
@@ -398,15 +515,21 @@ export function CarePlans() {
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                         <div>
                           <span className="font-medium">Provider:</span>
-                          <p className="text-muted-foreground">{plan.provider}</p>
+                          <p className="text-muted-foreground">
+                            {plan.provider}
+                          </p>
                         </div>
                         <div>
                           <span className="font-medium">Start Date:</span>
-                          <p className="text-muted-foreground">{plan.startDate}</p>
+                          <p className="text-muted-foreground">
+                            {plan.startDate}
+                          </p>
                         </div>
                         <div>
                           <span className="font-medium">Target Date:</span>
-                          <p className="text-muted-foreground">{plan.targetDate}</p>
+                          <p className="text-muted-foreground">
+                            {plan.targetDate}
+                          </p>
                         </div>
                       </div>
 
@@ -415,14 +538,24 @@ export function CarePlans() {
                         <h4 className="font-medium text-sm">Care Goals</h4>
                         <div className="space-y-2">
                           {plan.goals.map((goal) => (
-                            <div key={goal.id} className="flex items-center gap-3 p-3 border rounded-lg">
+                            <div
+                              key={goal.id}
+                              className="flex items-center gap-3 p-3 border rounded-lg"
+                            >
                               {getGoalStatusIcon(goal.status)}
                               <div className="flex-1">
                                 <div className="flex items-center justify-between mb-1">
-                                  <span className="text-sm font-medium">{goal.text}</span>
-                                  <span className="text-xs text-muted-foreground">{goal.progress}%</span>
+                                  <span className="text-sm font-medium">
+                                    {goal.text}
+                                  </span>
+                                  <span className="text-xs text-muted-foreground">
+                                    {goal.progress}%
+                                  </span>
                                 </div>
-                                <Progress value={goal.progress} className="h-1" />
+                                <Progress
+                                  value={goal.progress}
+                                  className="h-1"
+                                />
                               </div>
                             </div>
                           ))}
@@ -446,7 +579,10 @@ export function CarePlans() {
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {planTemplates.map((template) => (
-                    <Card key={template.id} className="hover:shadow-md transition-all duration-200 cursor-pointer">
+                    <Card
+                      key={template.id}
+                      className="hover:shadow-md transition-all duration-200 cursor-pointer"
+                    >
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between mb-2">
                           <h4 className="font-medium">{template.name}</h4>
@@ -456,7 +592,11 @@ export function CarePlans() {
                           Used {template.uses} times
                         </p>
                         <div className="flex gap-2">
-                          <Button size="sm" variant="outline" className="flex-1">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="flex-1"
+                          >
                             <Eye className="w-3 h-3 mr-1" />
                             Preview
                           </Button>
@@ -489,19 +629,19 @@ export function CarePlans() {
                       <span className="font-medium">92%</span>
                     </div>
                     <Progress value={92} className="h-2" />
-                    
+
                     <div className="flex justify-between items-center">
                       <span className="text-sm">Hypertension Control</span>
                       <span className="font-medium">87%</span>
                     </div>
                     <Progress value={87} className="h-2" />
-                    
+
                     <div className="flex justify-between items-center">
                       <span className="text-sm">Weight Management</span>
                       <span className="font-medium">78%</span>
                     </div>
                     <Progress value={78} className="h-2" />
-                    
+
                     <div className="flex justify-between items-center">
                       <span className="text-sm">Post-Surgery Recovery</span>
                       <span className="font-medium">95%</span>
@@ -521,13 +661,19 @@ export function CarePlans() {
                 <CardContent>
                   <div className="space-y-4">
                     <div className="text-center">
-                      <div className="text-3xl font-bold text-green-600 mb-1">87%</div>
-                      <p className="text-sm text-muted-foreground">Average Goal Completion</p>
+                      <div className="text-3xl font-bold text-green-600 mb-1">
+                        87%
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        Average Goal Completion
+                      </p>
                     </div>
-                    
+
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
-                        <span className="text-sm">Goals Completed This Month</span>
+                        <span className="text-sm">
+                          Goals Completed This Month
+                        </span>
                         <span className="font-medium">234</span>
                       </div>
                       <div className="flex justify-between items-center">

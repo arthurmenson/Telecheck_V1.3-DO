@@ -1,29 +1,30 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { 
-  PatientService, 
-  Patient, 
-  CreatePatientRequest, 
-  UpdatePatientRequest, 
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  PatientService,
+  Patient,
+  CreatePatientRequest,
+  UpdatePatientRequest,
   PatientSearchFilters,
   PaginatedPatients,
   PatientStats,
   Appointment,
-  VitalSigns
-} from '../../services/patient.service';
-import { useToast } from '../use-toast';
+  VitalSigns,
+} from "../../services/patient.service";
+import { useToast } from "../use-toast";
 
 // Query Keys
 export const patientKeys = {
-  all: ['patients'] as const,
-  lists: () => [...patientKeys.all, 'list'] as const,
-  list: (filters: PatientSearchFilters, page: number, limit: number) => 
+  all: ["patients"] as const,
+  lists: () => [...patientKeys.all, "list"] as const,
+  list: (filters: PatientSearchFilters, page: number, limit: number) =>
     [...patientKeys.lists(), { filters, page, limit }] as const,
-  details: () => [...patientKeys.all, 'detail'] as const,
+  details: () => [...patientKeys.all, "detail"] as const,
   detail: (id: string) => [...patientKeys.details(), id] as const,
-  stats: () => [...patientKeys.all, 'stats'] as const,
-  appointments: (patientId: string) => [...patientKeys.detail(patientId), 'appointments'] as const,
-  vitals: (patientId: string, limit: number, offset: number) => 
-    [...patientKeys.detail(patientId), 'vitals', { limit, offset }] as const,
+  stats: () => [...patientKeys.all, "stats"] as const,
+  appointments: (patientId: string) =>
+    [...patientKeys.detail(patientId), "appointments"] as const,
+  vitals: (patientId: string, limit: number, offset: number) =>
+    [...patientKeys.detail(patientId), "vitals", { limit, offset }] as const,
 };
 
 // Get Patient Statistics
@@ -39,7 +40,7 @@ export function usePatientStats() {
       inactive_patients: 0,
       new_this_month: 0,
       pediatric_patients: 0,
-      senior_patients: 0
+      senior_patients: 0,
     },
     refetchOnWindowFocus: false,
   });
@@ -49,7 +50,7 @@ export function usePatientStats() {
 export function useSearchPatients(
   filters: PatientSearchFilters = {},
   page: number = 1,
-  limit: number = 20
+  limit: number = 20,
 ) {
   return useQuery({
     queryKey: patientKeys.list(filters, page, limit),
@@ -62,7 +63,7 @@ export function useSearchPatients(
       total: 0,
       page: page,
       limit: limit,
-      totalPages: 0
+      totalPages: 0,
     },
     refetchOnWindowFocus: false,
   });
@@ -72,7 +73,7 @@ export function useSearchPatients(
 export function usePatients(
   page: number = 1,
   limit: number = 20,
-  status: 'active' | 'inactive' | 'archived' = 'active'
+  status: "active" | "inactive" | "archived" = "active",
 ) {
   return useQuery({
     queryKey: patientKeys.list({ status }, page, limit),
@@ -85,7 +86,7 @@ export function usePatients(
       total: 0,
       page: page,
       limit: limit,
-      totalPages: 0
+      totalPages: 0,
     },
     refetchOnWindowFocus: false,
   });
@@ -107,7 +108,10 @@ export function usePatient(patientId: string, enabled: boolean = true) {
 }
 
 // Get Patient Appointments
-export function usePatientAppointments(patientId: string, enabled: boolean = true) {
+export function usePatientAppointments(
+  patientId: string,
+  enabled: boolean = true,
+) {
   return useQuery({
     queryKey: patientKeys.appointments(patientId),
     queryFn: () => PatientService.getPatientAppointments(patientId),
@@ -126,7 +130,7 @@ export function usePatientVitals(
   patientId: string,
   limit: number = 20,
   offset: number = 0,
-  enabled: boolean = true
+  enabled: boolean = true,
 ) {
   return useQuery({
     queryKey: patientKeys.vitals(patientId, limit, offset),
@@ -147,16 +151,16 @@ export function useCreatePatient() {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: (patientData: CreatePatientRequest) => 
+    mutationFn: (patientData: CreatePatientRequest) =>
       PatientService.createPatient(patientData),
     onSuccess: (newPatient: Patient) => {
       // Invalidate and refetch patient lists
       queryClient.invalidateQueries({ queryKey: patientKeys.lists() });
       queryClient.invalidateQueries({ queryKey: patientKeys.stats() });
-      
+
       // Add the new patient to cache
       queryClient.setQueryData(patientKeys.detail(newPatient.id), newPatient);
-      
+
       toast({
         title: "Success",
         description: "Patient created successfully",
@@ -178,15 +182,23 @@ export function useUpdatePatient() {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: ({ patientId, updateData }: { patientId: string; updateData: UpdatePatientRequest }) =>
-      PatientService.updatePatient(patientId, updateData),
+    mutationFn: ({
+      patientId,
+      updateData,
+    }: {
+      patientId: string;
+      updateData: UpdatePatientRequest;
+    }) => PatientService.updatePatient(patientId, updateData),
     onSuccess: (updatedPatient: Patient) => {
       // Update the specific patient in cache
-      queryClient.setQueryData(patientKeys.detail(updatedPatient.id), updatedPatient);
-      
+      queryClient.setQueryData(
+        patientKeys.detail(updatedPatient.id),
+        updatedPatient,
+      );
+
       // Invalidate lists to ensure they're refreshed
       queryClient.invalidateQueries({ queryKey: patientKeys.lists() });
-      
+
       toast({
         title: "Success",
         description: "Patient updated successfully",
@@ -212,11 +224,11 @@ export function useArchivePatient() {
     onSuccess: (_, patientId) => {
       // Remove from cache or update status
       queryClient.removeQueries({ queryKey: patientKeys.detail(patientId) });
-      
+
       // Invalidate lists and stats
       queryClient.invalidateQueries({ queryKey: patientKeys.lists() });
       queryClient.invalidateQueries({ queryKey: patientKeys.stats() });
-      
+
       toast({
         title: "Success",
         description: "Patient archived successfully",
@@ -237,10 +249,11 @@ export function useDebouncedPatientSearch(
   initialFilters: PatientSearchFilters = {},
   page: number = 1,
   limit: number = 20,
-  debounceMs: number = 300
+  debounceMs: number = 300,
 ) {
   const [filters, setFilters] = React.useState(initialFilters);
-  const [debouncedFilters, setDebouncedFilters] = React.useState(initialFilters);
+  const [debouncedFilters, setDebouncedFilters] =
+    React.useState(initialFilters);
 
   React.useEffect(() => {
     const timer = setTimeout(() => {
@@ -271,17 +284,19 @@ export function useOptimisticPatientUpdate() {
         (oldData: Patient | undefined) => {
           if (!oldData) return oldData;
           return { ...oldData, ...updateData };
-        }
+        },
       );
     },
-    [queryClient]
+    [queryClient],
   );
 
   const revertOptimisticUpdate = React.useCallback(
     (patientId: string) => {
-      queryClient.invalidateQueries({ queryKey: patientKeys.detail(patientId) });
+      queryClient.invalidateQueries({
+        queryKey: patientKeys.detail(patientId),
+      });
     },
-    [queryClient]
+    [queryClient],
   );
 
   return { updatePatientOptimistically, revertOptimisticUpdate };
@@ -299,7 +314,7 @@ export function usePrefetchPatient() {
         staleTime: 5 * 60 * 1000,
       });
     },
-    [queryClient]
+    [queryClient],
   );
 }
 
@@ -312,13 +327,13 @@ export function useBulkPatientOperations() {
     async (patientIds: string[]) => {
       try {
         await Promise.all(
-          patientIds.map(id => PatientService.archivePatient(id))
+          patientIds.map((id) => PatientService.archivePatient(id)),
         );
-        
+
         // Invalidate affected queries
         queryClient.invalidateQueries({ queryKey: patientKeys.lists() });
         queryClient.invalidateQueries({ queryKey: patientKeys.stats() });
-        
+
         toast({
           title: "Success",
           description: `${patientIds.length} patients archived successfully`,
@@ -331,11 +346,11 @@ export function useBulkPatientOperations() {
         });
       }
     },
-    [queryClient, toast]
+    [queryClient, toast],
   );
 
   return { bulkArchive };
 }
 
 // React import for useCallback, useEffect, useState
-import React from 'react';
+import React from "react";

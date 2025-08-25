@@ -47,20 +47,26 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 
 // Chart Components
-const MiniLineChart = ({ data, color = "#6366f1", height = 60 }: {
-  data: number[],
-  color?: string,
-  height?: number
+const MiniLineChart = ({
+  data,
+  color = "#6366f1",
+  height = 60,
+}: {
+  data: number[];
+  color?: string;
+  height?: number;
 }) => {
   const max = Math.max(...data);
   const min = Math.min(...data);
   const range = max - min || 1;
 
-  const points = data.map((value, index) => {
-    const x = (index / (data.length - 1)) * 100;
-    const y = height - ((value - min) / range) * height;
-    return `${x},${y}`;
-  }).join(' ');
+  const points = data
+    .map((value, index) => {
+      const x = (index / (data.length - 1)) * 100;
+      const y = height - ((value - min) / range) * height;
+      return `${x},${y}`;
+    })
+    .join(" ");
 
   return (
     <div className="w-full h-16 relative">
@@ -73,13 +79,19 @@ const MiniLineChart = ({ data, color = "#6366f1", height = 60 }: {
           className="drop-shadow-sm"
         />
         <defs>
-          <linearGradient id={`gradient-${color.replace('#', '')}`} x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stopColor={color} stopOpacity="0.3"/>
-            <stop offset="100%" stopColor={color} stopOpacity="0.1"/>
+          <linearGradient
+            id={`gradient-${color.replace("#", "")}`}
+            x1="0%"
+            y1="0%"
+            x2="0%"
+            y2="100%"
+          >
+            <stop offset="0%" stopColor={color} stopOpacity="0.3" />
+            <stop offset="100%" stopColor={color} stopOpacity="0.1" />
           </linearGradient>
         </defs>
         <polygon
-          fill={`url(#gradient-${color.replace('#', '')})`}
+          fill={`url(#gradient-${color.replace("#", "")})`}
           points={`0,${height} ${points} 100,${height}`}
         />
       </svg>
@@ -88,7 +100,11 @@ const MiniLineChart = ({ data, color = "#6366f1", height = 60 }: {
 };
 
 // Doughnut Chart Component
-const DoughnutChart = ({ data, size = 80, strokeWidth = 8 }: {
+const DoughnutChart = ({
+  data,
+  size = 80,
+  strokeWidth = 8,
+}: {
   data: { label: string; value: number; color: string }[];
   size?: number;
   strokeWidth?: number;
@@ -114,7 +130,10 @@ const DoughnutChart = ({ data, size = 80, strokeWidth = 8 }: {
         {data.map((item, index) => {
           const percentage = (item.value / total) * 100;
           const strokeDasharray = `${(percentage / 100) * circumference} ${circumference}`;
-          const strokeDashoffset = -((accumulatedPercentage / 100) * circumference);
+          const strokeDashoffset = -(
+            (accumulatedPercentage / 100) *
+            circumference
+          );
 
           accumulatedPercentage += percentage;
 
@@ -150,7 +169,7 @@ const TimeSeriesChart = ({
   dates,
   color = "#6366f1",
   height = 120,
-  normalRange
+  normalRange,
 }: {
   data: number[];
   dates: string[];
@@ -176,7 +195,7 @@ const TimeSeriesChart = ({
 
   // Create smooth path using Bezier curves
   const createSmoothPath = (points: { x: number; y: number }[]) => {
-    if (points.length < 2) return '';
+    if (points.length < 2) return "";
 
     let path = `M ${points[0].x} ${points[0].y}`;
 
@@ -205,15 +224,32 @@ const TimeSeriesChart = ({
   };
 
   const smoothPath = createSmoothPath(points);
-  const pointsString = points.map(p => `${p.x},${p.y}`).join(' ');
+  const pointsString = points.map((p) => `${p.x},${p.y}`).join(" ");
 
   return (
     <div className="w-full relative" style={{ height: height + 40 }}>
-      <svg width="100%" height={height} className="absolute inset-0" viewBox={`0 0 100 ${height}`} preserveAspectRatio="none">
+      <svg
+        width="100%"
+        height={height}
+        className="absolute inset-0"
+        viewBox={`0 0 100 ${height}`}
+        preserveAspectRatio="none"
+      >
         {/* Grid lines */}
         <defs>
-          <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
-            <path d="M 20 0 L 0 0 0 20" fill="none" stroke="currentColor" strokeWidth="0.5" opacity="0.1"/>
+          <pattern
+            id="grid"
+            width="20"
+            height="20"
+            patternUnits="userSpaceOnUse"
+          >
+            <path
+              d="M 20 0 L 0 0 0 20"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="0.5"
+              opacity="0.1"
+            />
           </pattern>
         </defs>
         <rect width="100%" height="100%" fill="url(#grid)" />
@@ -222,7 +258,11 @@ const TimeSeriesChart = ({
         {normalRange && (
           <rect
             x={paddingLeft}
-            y={paddingY + chartHeight - ((normalRange.max - min) / range) * chartHeight}
+            y={
+              paddingY +
+              chartHeight -
+              ((normalRange.max - min) / range) * chartHeight
+            }
             width={chartWidth}
             height={((normalRange.max - normalRange.min) / range) * chartHeight}
             fill="#10b981"
@@ -236,16 +276,22 @@ const TimeSeriesChart = ({
 
         {/* Gradient fill */}
         <defs>
-          <linearGradient id={`timeseriesGradient-${color.replace('#', '')}`} x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stopColor={color} stopOpacity="0.4"/>
-            <stop offset="100%" stopColor={color} stopOpacity="0.1"/>
+          <linearGradient
+            id={`timeseriesGradient-${color.replace("#", "")}`}
+            x1="0%"
+            y1="0%"
+            x2="0%"
+            y2="100%"
+          >
+            <stop offset="0%" stopColor={color} stopOpacity="0.4" />
+            <stop offset="100%" stopColor={color} stopOpacity="0.1" />
           </linearGradient>
         </defs>
 
         {/* Area under smooth curve */}
         <path
           d={`${smoothPath} L ${points[points.length - 1].x} ${height - paddingY} L ${points[0].x} ${height - paddingY} Z`}
-          fill={`url(#timeseriesGradient-${color.replace('#', '')})`}
+          fill={`url(#timeseriesGradient-${color.replace("#", "")})`}
         />
 
         {/* Smooth thin line */}
@@ -311,7 +357,12 @@ const TimeSeriesChart = ({
       {/* Date labels */}
       <div className="flex justify-between text-xs text-muted-foreground mt-2 px-2">
         {dates.map((date, index) => (
-          <span key={index} className={index === dates.length - 1 ? "font-medium text-foreground" : ""}>
+          <span
+            key={index}
+            className={
+              index === dates.length - 1 ? "font-medium text-foreground" : ""
+            }
+          >
             {date}
           </span>
         ))}
@@ -332,16 +383,16 @@ const TimeSeriesChart = ({
   );
 };
 
-const CircularProgress = ({ 
-  value, 
-  size = 80, 
-  strokeWidth = 8, 
-  color = "#6366f1" 
-}: { 
-  value: number; 
-  size?: number; 
-  strokeWidth?: number; 
-  color?: string; 
+const CircularProgress = ({
+  value,
+  size = 80,
+  strokeWidth = 8,
+  color = "#6366f1",
+}: {
+  value: number;
+  size?: number;
+  strokeWidth?: number;
+  color?: string;
 }) => {
   const radius = (size - strokeWidth) / 2;
   const circumference = radius * 2 * Math.PI;
@@ -388,7 +439,7 @@ const MetricWidget = ({
   icon: Icon,
   chart,
   color = "#6366f1",
-  doughnutData
+  doughnutData,
 }: {
   title: string;
   value: string;
@@ -402,13 +453,13 @@ const MetricWidget = ({
   const changeColors = {
     up: "text-green-600",
     down: "text-red-600",
-    neutral: "text-blue-600"
+    neutral: "text-blue-600",
   };
 
   const changeIcons = {
     up: <ArrowUp className="w-3 h-3" />,
     down: <ArrowDown className="w-3 h-3" />,
-    neutral: <Clock className="w-3 h-3" />
+    neutral: <Clock className="w-3 h-3" />,
   };
 
   return (
@@ -423,11 +474,15 @@ const MetricWidget = ({
               <Icon className="w-5 h-5" style={{ color }} />
             </div>
             <div>
-              <p className="text-sm font-medium text-muted-foreground">{title}</p>
+              <p className="text-sm font-medium text-muted-foreground">
+                {title}
+              </p>
               <p className="text-2xl font-bold">{value}</p>
             </div>
           </div>
-          <div className={`flex items-center gap-1 ${changeColors[changeType]}`}>
+          <div
+            className={`flex items-center gap-1 ${changeColors[changeType]}`}
+          >
             {changeIcons[changeType]}
             <span className="text-sm font-medium">{change}</span>
           </div>
@@ -442,13 +497,18 @@ const MetricWidget = ({
             <div className="flex-1 ml-4">
               <div className="space-y-1">
                 {doughnutData.map((item, index) => (
-                  <div key={index} className="flex items-center justify-between text-xs">
+                  <div
+                    key={index}
+                    className="flex items-center justify-between text-xs"
+                  >
                     <div className="flex items-center gap-2">
                       <div
                         className="w-2 h-2 rounded-full"
                         style={{ backgroundColor: item.color }}
                       />
-                      <span className="text-muted-foreground">{item.label}</span>
+                      <span className="text-muted-foreground">
+                        {item.label}
+                      </span>
                     </div>
                     <span className="font-medium">{item.value}</span>
                   </div>
@@ -473,7 +533,7 @@ const LabResultCard = ({
   range,
   normalRange,
   aiInsight,
-  flaggedResults
+  flaggedResults,
 }: {
   name: string;
   values: number[];
@@ -488,7 +548,12 @@ const LabResultCard = ({
   flaggedResults: number;
 }) => {
   const [labDateFilter, setLabDateFilter] = useState("30days");
-  const statusColor = status === "High" ? "text-red-600" : status === "Low" ? "text-blue-600" : "text-green-600";
+  const statusColor =
+    status === "High"
+      ? "text-red-600"
+      : status === "Low"
+        ? "text-blue-600"
+        : "text-green-600";
 
   return (
     <Card className="hover:shadow-lg transition-all duration-300">
@@ -531,13 +596,21 @@ const LabResultCard = ({
               </div>
 
               {/* Upload Button */}
-              <Button size="sm" variant="outline" className="h-7 px-2 text-xs gap-1">
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-7 px-2 text-xs gap-1"
+              >
                 <Upload className="w-3 h-3" />
                 Upload
               </Button>
 
               {/* Scan Button */}
-              <Button size="sm" variant="outline" className="h-7 px-2 text-xs gap-1">
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-7 px-2 text-xs gap-1"
+              >
                 <Camera className="w-3 h-3" />
                 Scan
               </Button>
@@ -571,17 +644,25 @@ const LabResultCard = ({
               <div className="flex justify-between items-center mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
                 <div className="text-center">
                   <p className="text-xs text-muted-foreground">Previous</p>
-                  <p className="text-sm font-medium">{values[values.length - 2]} {unit}</p>
-                  <p className="text-xs text-muted-foreground">{dates ? dates[dates.length - 2] : 'Last'}</p>
+                  <p className="text-sm font-medium">
+                    {values[values.length - 2]} {unit}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {dates ? dates[dates.length - 2] : "Last"}
+                  </p>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-0.5 bg-gray-300"></div>
-                  <ArrowUp className={`w-4 h-4 ${values[values.length - 1] > values[values.length - 2] ? 'text-red-500' : 'text-green-500'}`} />
+                  <ArrowUp
+                    className={`w-4 h-4 ${values[values.length - 1] > values[values.length - 2] ? "text-red-500" : "text-green-500"}`}
+                  />
                   <div className="w-4 h-0.5 bg-gray-300"></div>
                 </div>
                 <div className="text-center">
                   <p className="text-xs text-muted-foreground">Current</p>
-                  <p className="text-sm font-bold">{mostRecent} {unit}</p>
+                  <p className="text-sm font-bold">
+                    {mostRecent} {unit}
+                  </p>
                   <p className="text-xs text-muted-foreground">{date}</p>
                 </div>
               </div>
@@ -592,7 +673,9 @@ const LabResultCard = ({
           <div className="flex justify-between items-end mb-3">
             <div>
               <p className="text-xs text-muted-foreground">Most recent</p>
-              <p className="text-lg font-bold">{mostRecent} {unit}</p>
+              <p className="text-lg font-bold">
+                {mostRecent} {unit}
+              </p>
               <p className="text-xs text-muted-foreground">Most recent</p>
             </div>
             <div className="text-right">
@@ -638,7 +721,7 @@ export function Dashboard() {
   const medicationsData = [
     { label: "On Schedule", value: 5, color: "#10b981" },
     { label: "Delayed", value: 2, color: "#f59e0b" },
-    { label: "Missed", value: 1, color: "#ef4444" }
+    { label: "Missed", value: 1, color: "#ef4444" },
   ];
 
   // Health metrics data
@@ -650,7 +733,7 @@ export function Dashboard() {
       changeType: "up" as const,
       icon: Heart,
       chart: [82, 84, 83, 85, 87, 85, 88],
-      color: "#10b981"
+      color: "#10b981",
     },
     {
       title: "Medications",
@@ -660,8 +743,8 @@ export function Dashboard() {
       icon: Pill,
       chart: null,
       color: "#8b5cf6",
-      doughnutData: medicationsData
-    }
+      doughnutData: medicationsData,
+    },
   ];
 
   // Lab results data for specialized cards
@@ -669,7 +752,15 @@ export function Dashboard() {
     {
       name: "Creatinine",
       values: [1.3, 1.5, 1.4, 1.6, 1.7, 1.5, 1.6],
-      dates: ["May 10", "May 17", "May 24", "May 31", "Jun 07", "Jun 14", "Jun 20"],
+      dates: [
+        "May 10",
+        "May 17",
+        "May 24",
+        "May 31",
+        "Jun 07",
+        "Jun 14",
+        "Jun 20",
+      ],
       unit: "mg/dL",
       mostRecent: "1.6",
       date: "Jun 20",
@@ -677,24 +768,120 @@ export function Dashboard() {
       range: "0.6-1.2",
       normalRange: { min: 0.6, max: 1.2 },
       aiInsight: "Your BUN/creatinine ratio suggests mild dehydration.",
-      flaggedResults: 2
-    }
+      flaggedResults: 2,
+    },
   ];
 
   // All lab results with flagged status
   const allLabResults = [
-    { name: "Creatinine", value: "1.6 mg/dL", status: "high", trend: "up", flagged: true, lastDate: "Jun 20", priority: "high" },
-    { name: "Total Cholesterol", value: "245 mg/dL", status: "high", trend: "up", flagged: true, lastDate: "Jun 18", priority: "medium" },
-    { name: "HDL", value: "38 mg/dL", status: "low", trend: "down", flagged: true, lastDate: "Jun 18", priority: "medium" },
-    { name: "LDL", value: "165 mg/dL", status: "high", trend: "up", flagged: true, lastDate: "Jun 18", priority: "high" },
-    { name: "Triglycerides", value: "210 mg/dL", status: "high", trend: "up", flagged: true, lastDate: "Jun 18", priority: "medium" },
-    { name: "Glucose", value: "110 mg/dL", status: "borderline", trend: "up", flagged: true, lastDate: "Jun 15", priority: "low" },
-    { name: "HbA1c", value: "6.8%", status: "borderline", trend: "up", flagged: true, lastDate: "Jun 10", priority: "medium" },
-    { name: "BUN", value: "28 mg/dL", status: "high", trend: "up", flagged: true, lastDate: "Jun 20", priority: "medium" },
-    { name: "Vitamin D", value: "45 ng/mL", status: "normal", trend: "neutral", flagged: false, lastDate: "Jun 15", priority: "low" },
-    { name: "TSH", value: "2.1 mIU/L", status: "normal", trend: "neutral", flagged: false, lastDate: "Jun 10", priority: "low" },
-    { name: "Hemoglobin", value: "13.8 g/dL", status: "normal", trend: "neutral", flagged: false, lastDate: "Jun 12", priority: "low" },
-    { name: "Platelets", value: "250 K/μL", status: "normal", trend: "neutral", flagged: false, lastDate: "Jun 12", priority: "low" }
+    {
+      name: "Creatinine",
+      value: "1.6 mg/dL",
+      status: "high",
+      trend: "up",
+      flagged: true,
+      lastDate: "Jun 20",
+      priority: "high",
+    },
+    {
+      name: "Total Cholesterol",
+      value: "245 mg/dL",
+      status: "high",
+      trend: "up",
+      flagged: true,
+      lastDate: "Jun 18",
+      priority: "medium",
+    },
+    {
+      name: "HDL",
+      value: "38 mg/dL",
+      status: "low",
+      trend: "down",
+      flagged: true,
+      lastDate: "Jun 18",
+      priority: "medium",
+    },
+    {
+      name: "LDL",
+      value: "165 mg/dL",
+      status: "high",
+      trend: "up",
+      flagged: true,
+      lastDate: "Jun 18",
+      priority: "high",
+    },
+    {
+      name: "Triglycerides",
+      value: "210 mg/dL",
+      status: "high",
+      trend: "up",
+      flagged: true,
+      lastDate: "Jun 18",
+      priority: "medium",
+    },
+    {
+      name: "Glucose",
+      value: "110 mg/dL",
+      status: "borderline",
+      trend: "up",
+      flagged: true,
+      lastDate: "Jun 15",
+      priority: "low",
+    },
+    {
+      name: "HbA1c",
+      value: "6.8%",
+      status: "borderline",
+      trend: "up",
+      flagged: true,
+      lastDate: "Jun 10",
+      priority: "medium",
+    },
+    {
+      name: "BUN",
+      value: "28 mg/dL",
+      status: "high",
+      trend: "up",
+      flagged: true,
+      lastDate: "Jun 20",
+      priority: "medium",
+    },
+    {
+      name: "Vitamin D",
+      value: "45 ng/mL",
+      status: "normal",
+      trend: "neutral",
+      flagged: false,
+      lastDate: "Jun 15",
+      priority: "low",
+    },
+    {
+      name: "TSH",
+      value: "2.1 mIU/L",
+      status: "normal",
+      trend: "neutral",
+      flagged: false,
+      lastDate: "Jun 10",
+      priority: "low",
+    },
+    {
+      name: "Hemoglobin",
+      value: "13.8 g/dL",
+      status: "normal",
+      trend: "neutral",
+      flagged: false,
+      lastDate: "Jun 12",
+      priority: "low",
+    },
+    {
+      name: "Platelets",
+      value: "250 K/μL",
+      status: "normal",
+      trend: "neutral",
+      flagged: false,
+      lastDate: "Jun 12",
+      priority: "low",
+    },
   ];
 
   // Goals data
@@ -702,15 +889,25 @@ export function Dashboard() {
     { label: "Steps", current: 7250, target: 10000, color: "#6366f1" },
     { label: "Water", current: 6, target: 8, color: "#06b6d4" },
     { label: "Sleep", current: 7.5, target: 8, color: "#8b5cf6" },
-    { label: "Exercise", current: 3, target: 5, color: "#10b981" }
+    { label: "Exercise", current: 3, target: 5, color: "#10b981" },
   ];
 
   // Recent lab results
   const labResults = [
-    { name: "Total Cholesterol", value: "245 mg/dL", status: "high", trend: "up" },
+    {
+      name: "Total Cholesterol",
+      value: "245 mg/dL",
+      status: "high",
+      trend: "up",
+    },
     { name: "HDL", value: "38 mg/dL", status: "low", trend: "down" },
     { name: "Glucose", value: "110 mg/dL", status: "borderline", trend: "up" },
-    { name: "Vitamin D", value: "45 ng/mL", status: "normal", trend: "neutral" }
+    {
+      name: "Vitamin D",
+      value: "45 ng/mL",
+      status: "normal",
+      trend: "neutral",
+    },
   ];
 
   // AI Insights
@@ -718,21 +915,24 @@ export function Dashboard() {
     {
       type: "alert",
       title: "Cholesterol Management",
-      message: "Your cholesterol levels show an upward trend. Consider scheduling a consultation.",
-      confidence: 95
+      message:
+        "Your cholesterol levels show an upward trend. Consider scheduling a consultation.",
+      confidence: 95,
     },
     {
       type: "tip",
-      title: "Sleep Optimization", 
-      message: "Your sleep pattern analysis suggests 7.5-8 hours works best for your recovery.",
-      confidence: 88
+      title: "Sleep Optimization",
+      message:
+        "Your sleep pattern analysis suggests 7.5-8 hours works best for your recovery.",
+      confidence: 88,
     },
     {
       type: "success",
       title: "Activity Progress",
-      message: "Great job! You've been consistently active for 22 days straight.",
-      confidence: 100
-    }
+      message:
+        "Great job! You've been consistently active for 22 days straight.",
+      confidence: 100,
+    },
   ];
 
   const handleAiSubmit = (e: React.FormEvent) => {
@@ -749,7 +949,6 @@ export function Dashboard() {
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-4 py-6 space-y-6">
-        
         {/* Header with Controls */}
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div>
@@ -763,7 +962,7 @@ export function Dashboard() {
               </p>
               <div className="flex items-center gap-2">
                 <Filter className="w-4 h-4 text-muted-foreground" />
-                <select 
+                <select
                   value={dateFilter}
                   onChange={(e) => setDateFilter(e.target.value)}
                   className="text-sm border rounded px-3 py-1.5 bg-background"
@@ -776,7 +975,7 @@ export function Dashboard() {
               </div>
             </div>
           </div>
-          
+
           <div className="flex gap-3">
             <Button
               variant="outline"
@@ -802,7 +1001,9 @@ export function Dashboard() {
               <CardTitle className="text-lg flex items-center gap-2">
                 <Brain className="w-5 h-5 text-primary" />
                 AI Health Assistant
-                <Badge variant="secondary" className="ml-auto">Online</Badge>
+                <Badge variant="secondary" className="ml-auto">
+                  Online
+                </Badge>
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -850,10 +1051,8 @@ export function Dashboard() {
 
         {/* Main Dashboard Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          
           {/* Health Score & Goals */}
           <div className="lg:col-span-2 space-y-6">
-            
             {/* Health Score Visualization */}
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
@@ -862,21 +1061,28 @@ export function Dashboard() {
                   AI-Powered Health Score Analysis
                 </CardTitle>
                 <div className="flex items-center gap-2">
-                  <Badge className="bg-green-100 text-green-700">Excellent</Badge>
-                  <Badge variant="outline" className="text-xs">Algorithm v2.1</Badge>
+                  <Badge className="bg-green-100 text-green-700">
+                    Excellent
+                  </Badge>
+                  <Badge variant="outline" className="text-xs">
+                    Algorithm v2.1
+                  </Badge>
                 </div>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
                   {/* Main Score Circle */}
                   <div className="text-center">
                     <CircularProgress value={85} color="#10b981" size={120} />
                     <div className="mt-4 space-y-2">
-                      <p className="text-sm text-muted-foreground">Overall Health Score</p>
+                      <p className="text-sm text-muted-foreground">
+                        Overall Health Score
+                      </p>
                       <div className="flex items-center justify-center gap-2 text-sm">
                         <TrendingUp className="w-4 h-4 text-green-500" />
-                        <span className="text-green-600 font-medium">+3 points this week</span>
+                        <span className="text-green-600 font-medium">
+                          +3 points this week
+                        </span>
                       </div>
                       <p className="text-xs text-muted-foreground">
                         Based on genomic, lab, and lifestyle factors
@@ -886,17 +1092,25 @@ export function Dashboard() {
 
                   {/* Algorithm Component Breakdown */}
                   <div className="space-y-4">
-                    <h4 className="font-medium text-sm text-muted-foreground mb-3">ALGORITHM COMPONENTS</h4>
+                    <h4 className="font-medium text-sm text-muted-foreground mb-3">
+                      ALGORITHM COMPONENTS
+                    </h4>
 
                     {/* Genomic Factors */}
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <Dna className="w-3 h-3 text-purple-500" />
-                          <span className="text-sm font-medium">Genomic Factors</span>
-                          <Badge variant="outline" className="text-xs">25%</Badge>
+                          <span className="text-sm font-medium">
+                            Genomic Factors
+                          </span>
+                          <Badge variant="outline" className="text-xs">
+                            25%
+                          </Badge>
                         </div>
-                        <span className="text-sm font-bold text-orange-600">72</span>
+                        <span className="text-sm font-bold text-orange-600">
+                          72
+                        </span>
                       </div>
                       <Progress value={72} className="h-2" />
                       <div className="text-xs text-muted-foreground pl-5">
@@ -909,10 +1123,16 @@ export function Dashboard() {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <TestTube className="w-3 h-3 text-blue-500" />
-                          <span className="text-sm font-medium">Lab Results</span>
-                          <Badge variant="outline" className="text-xs">30%</Badge>
+                          <span className="text-sm font-medium">
+                            Lab Results
+                          </span>
+                          <Badge variant="outline" className="text-xs">
+                            30%
+                          </Badge>
                         </div>
-                        <span className="text-sm font-bold text-orange-600">78</span>
+                        <span className="text-sm font-bold text-orange-600">
+                          78
+                        </span>
                       </div>
                       <Progress value={78} className="h-2" />
                       <div className="text-xs text-muted-foreground pl-5">
@@ -925,10 +1145,16 @@ export function Dashboard() {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <Heart className="w-3 h-3 text-red-500" />
-                          <span className="text-sm font-medium">Vital Signs</span>
-                          <Badge variant="outline" className="text-xs">20%</Badge>
+                          <span className="text-sm font-medium">
+                            Vital Signs
+                          </span>
+                          <Badge variant="outline" className="text-xs">
+                            20%
+                          </Badge>
                         </div>
-                        <span className="text-sm font-bold text-green-600">92</span>
+                        <span className="text-sm font-bold text-green-600">
+                          92
+                        </span>
                       </div>
                       <Progress value={92} className="h-2" />
                       <div className="text-xs text-muted-foreground pl-5">
@@ -942,9 +1168,13 @@ export function Dashboard() {
                         <div className="flex items-center gap-2">
                           <Activity className="w-3 h-3 text-green-500" />
                           <span className="text-sm font-medium">Lifestyle</span>
-                          <Badge variant="outline" className="text-xs">15%</Badge>
+                          <Badge variant="outline" className="text-xs">
+                            15%
+                          </Badge>
                         </div>
-                        <span className="text-sm font-bold text-green-600">95</span>
+                        <span className="text-sm font-bold text-green-600">
+                          95
+                        </span>
                       </div>
                       <Progress value={95} className="h-2" />
                       <div className="text-xs text-muted-foreground pl-5">
@@ -957,10 +1187,16 @@ export function Dashboard() {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <Pill className="w-3 h-3 text-purple-500" />
-                          <span className="text-sm font-medium">Medications</span>
-                          <Badge variant="outline" className="text-xs">10%</Badge>
+                          <span className="text-sm font-medium">
+                            Medications
+                          </span>
+                          <Badge variant="outline" className="text-xs">
+                            10%
+                          </Badge>
                         </div>
-                        <span className="text-sm font-bold text-green-600">88</span>
+                        <span className="text-sm font-bold text-green-600">
+                          88
+                        </span>
                       </div>
                       <Progress value={88} className="h-2" />
                       <div className="text-xs text-muted-foreground pl-5">
@@ -975,7 +1211,9 @@ export function Dashboard() {
                   <div className="flex items-center gap-2 mb-3">
                     <Brain className="w-4 h-4 text-blue-500" />
                     <h4 className="font-medium text-sm">AI Health Insights</h4>
-                    <Badge variant="secondary" className="text-xs">95% Confidence</Badge>
+                    <Badge variant="secondary" className="text-xs">
+                      95% Confidence
+                    </Badge>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -988,8 +1226,9 @@ export function Dashboard() {
                         </span>
                       </div>
                       <p className="text-xs text-orange-700 dark:text-orange-300">
-                        Your APOE ε4 variant increases cardiovascular disease risk.
-                        Enhanced monitoring and preventive care recommended.
+                        Your APOE ε4 variant increases cardiovascular disease
+                        risk. Enhanced monitoring and preventive care
+                        recommended.
                       </p>
                     </div>
 
@@ -1018,7 +1257,8 @@ export function Dashboard() {
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-xs">
                       <div className="text-blue-700 dark:text-blue-300">
-                        • Schedule cardiology consultation for genetic risk assessment
+                        • Schedule cardiology consultation for genetic risk
+                        assessment
                       </div>
                       <div className="text-blue-700 dark:text-blue-300">
                         • Consider statin optimization based on genetic profile
@@ -1043,7 +1283,10 @@ export function Dashboard() {
               <CardContent>
                 <div className="grid grid-cols-2 gap-6">
                   {todaysGoals.map((goal, idx) => {
-                    const percentage = Math.min((goal.current / goal.target) * 100, 100);
+                    const percentage = Math.min(
+                      (goal.current / goal.target) * 100,
+                      100,
+                    );
                     return (
                       <div key={idx} className="space-y-3">
                         <div className="flex items-center justify-between">
@@ -1053,19 +1296,23 @@ export function Dashboard() {
                           </span>
                         </div>
                         <div className="relative">
-                          <Progress 
-                            value={percentage} 
+                          <Progress
+                            value={percentage}
                             className="h-3"
-                            style={{ 
-                              '--progress-foreground': goal.color 
-                            } as React.CSSProperties}
+                            style={
+                              {
+                                "--progress-foreground": goal.color,
+                              } as React.CSSProperties
+                            }
                           />
                           {percentage >= 100 && (
                             <CheckCircle className="absolute -right-1 -top-1 w-5 h-5 text-green-500 bg-background rounded-full" />
                           )}
                         </div>
                         <div className="text-xs text-muted-foreground">
-                          {percentage >= 100 ? "Goal achieved!" : `${Math.round(percentage)}% complete`}
+                          {percentage >= 100
+                            ? "Goal achieved!"
+                            : `${Math.round(percentage)}% complete`}
                         </div>
                       </div>
                     );
@@ -1077,7 +1324,6 @@ export function Dashboard() {
 
           {/* Sidebar - Labs & Insights */}
           <div className="space-y-6">
-            
             {/* Enhanced Lab Results with Flagged Selection */}
             <Card>
               <CardHeader className="flex flex-col space-y-3">
@@ -1098,21 +1344,28 @@ export function Dashboard() {
                 <div className="flex items-center gap-2">
                   <div className="flex items-center gap-1">
                     <Filter className="w-3 h-3 text-muted-foreground" />
-                    <span className="text-xs text-muted-foreground">Filter:</span>
+                    <span className="text-xs text-muted-foreground">
+                      Filter:
+                    </span>
                   </div>
                   <div className="flex gap-1">
                     {["all", "flagged", "high", "medium"].map((filter) => (
                       <Button
                         key={filter}
-                        variant={labResultsFilter === filter ? "default" : "outline"}
+                        variant={
+                          labResultsFilter === filter ? "default" : "outline"
+                        }
                         size="sm"
                         className="text-xs h-6 px-2"
                         onClick={() => setLabResultsFilter(filter)}
                       >
                         {filter === "all" && "All"}
-                        {filter === "flagged" && `Flagged (${allLabResults.filter(r => r.flagged).length})`}
-                        {filter === "high" && `High (${allLabResults.filter(r => r.priority === "high").length})`}
-                        {filter === "medium" && `Medium (${allLabResults.filter(r => r.priority === "medium").length})`}
+                        {filter === "flagged" &&
+                          `Flagged (${allLabResults.filter((r) => r.flagged).length})`}
+                        {filter === "high" &&
+                          `High (${allLabResults.filter((r) => r.priority === "high").length})`}
+                        {filter === "medium" &&
+                          `Medium (${allLabResults.filter((r) => r.priority === "medium").length})`}
                       </Button>
                     ))}
                   </div>
@@ -1125,11 +1378,15 @@ export function Dashboard() {
                     let filteredResults = allLabResults;
 
                     if (labResultsFilter === "flagged") {
-                      filteredResults = allLabResults.filter(r => r.flagged);
+                      filteredResults = allLabResults.filter((r) => r.flagged);
                     } else if (labResultsFilter === "high") {
-                      filteredResults = allLabResults.filter(r => r.priority === "high");
+                      filteredResults = allLabResults.filter(
+                        (r) => r.priority === "high",
+                      );
                     } else if (labResultsFilter === "medium") {
-                      filteredResults = allLabResults.filter(r => r.priority === "medium");
+                      filteredResults = allLabResults.filter(
+                        (r) => r.priority === "medium",
+                      );
                     }
 
                     const displayResults = filteredResults.slice(0, 6); // Show max 6 results
@@ -1137,34 +1394,40 @@ export function Dashboard() {
                     const statusColors = {
                       high: "text-red-600 bg-red-50 border-red-200",
                       low: "text-blue-600 bg-blue-50 border-blue-200",
-                      borderline: "text-orange-600 bg-orange-50 border-orange-200",
-                      normal: "text-green-600 bg-green-50 border-green-200"
+                      borderline:
+                        "text-orange-600 bg-orange-50 border-orange-200",
+                      normal: "text-green-600 bg-green-50 border-green-200",
                     };
 
                     const priorityColors = {
                       high: "border-l-red-500",
                       medium: "border-l-orange-500",
-                      low: "border-l-green-500"
+                      low: "border-l-green-500",
                     };
 
                     const trendIcons = {
                       up: <TrendingUp className="w-3 h-3" />,
                       down: <TrendingDown className="w-3 h-3" />,
-                      neutral: <Activity className="w-3 h-3" />
+                      neutral: <Activity className="w-3 h-3" />,
                     };
 
                     return displayResults.map((result, idx) => (
                       <div
                         key={idx}
                         className={`flex items-center justify-between p-3 rounded-lg border-l-4 transition-all hover:shadow-sm ${
-                          result.flagged ? 'bg-red-50/50 border border-red-100' : 'bg-muted/30 border border-border/50'
+                          result.flagged
+                            ? "bg-red-50/50 border border-red-100"
+                            : "bg-muted/30 border border-border/50"
                         } ${priorityColors[result.priority]}`}
                       >
                         <div className="flex-1">
                           <div className="flex items-center gap-2">
                             <p className="text-sm font-medium">{result.name}</p>
                             {result.flagged && (
-                              <Badge variant="destructive" className="text-xs px-1 py-0">
+                              <Badge
+                                variant="destructive"
+                                className="text-xs px-1 py-0"
+                              >
                                 <AlertTriangle className="w-2 h-2 mr-1" />
                                 Flagged
                               </Badge>
@@ -1172,23 +1435,35 @@ export function Dashboard() {
                             <Badge
                               variant="outline"
                               className={`text-xs px-1 py-0 ${
-                                result.priority === 'high' ? 'border-red-300 text-red-700' :
-                                result.priority === 'medium' ? 'border-orange-300 text-orange-700' :
-                                'border-green-300 text-green-700'
+                                result.priority === "high"
+                                  ? "border-red-300 text-red-700"
+                                  : result.priority === "medium"
+                                    ? "border-orange-300 text-orange-700"
+                                    : "border-green-300 text-green-700"
                               }`}
                             >
                               {result.priority}
                             </Badge>
                           </div>
                           <div className="flex items-center gap-2 mt-1">
-                            <p className="text-xs text-muted-foreground">{result.value}</p>
-                            <span className="text-xs text-muted-foreground">•</span>
-                            <p className="text-xs text-muted-foreground">{result.lastDate}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {result.value}
+                            </p>
+                            <span className="text-xs text-muted-foreground">
+                              •
+                            </span>
+                            <p className="text-xs text-muted-foreground">
+                              {result.lastDate}
+                            </p>
                           </div>
                         </div>
-                        <div className={`flex items-center gap-1 ${statusColors[result.status].split(' ')[0]} px-2 py-1 rounded-md ${statusColors[result.status]}`}>
+                        <div
+                          className={`flex items-center gap-1 ${statusColors[result.status].split(" ")[0]} px-2 py-1 rounded-md ${statusColors[result.status]}`}
+                        >
                           {trendIcons[result.trend]}
-                          <span className="text-xs font-medium uppercase">{result.status}</span>
+                          <span className="text-xs font-medium uppercase">
+                            {result.status}
+                          </span>
                         </div>
                       </div>
                     ));
@@ -1198,15 +1473,24 @@ export function Dashboard() {
                   <div className="mt-4 pt-3 border-t border-border/50">
                     <div className="grid grid-cols-3 gap-2 text-xs text-center">
                       <div className="p-2 bg-red-50 rounded-lg">
-                        <div className="font-bold text-red-600">{allLabResults.filter(r => r.flagged).length}</div>
+                        <div className="font-bold text-red-600">
+                          {allLabResults.filter((r) => r.flagged).length}
+                        </div>
                         <div className="text-red-600/70">Flagged</div>
                       </div>
                       <div className="p-2 bg-orange-50 rounded-lg">
-                        <div className="font-bold text-orange-600">{allLabResults.filter(r => r.priority === "high").length}</div>
+                        <div className="font-bold text-orange-600">
+                          {
+                            allLabResults.filter((r) => r.priority === "high")
+                              .length
+                          }
+                        </div>
                         <div className="text-orange-600/70">High Priority</div>
                       </div>
                       <div className="p-2 bg-green-50 rounded-lg">
-                        <div className="font-bold text-green-600">{allLabResults.filter(r => !r.flagged).length}</div>
+                        <div className="font-bold text-green-600">
+                          {allLabResults.filter((r) => !r.flagged).length}
+                        </div>
                         <div className="text-green-600/70">Normal</div>
                       </div>
                     </div>
@@ -1229,25 +1513,37 @@ export function Dashboard() {
                     const typeColors = {
                       alert: "border-red-200 bg-red-50 dark:bg-red-900/20",
                       tip: "border-blue-200 bg-blue-50 dark:bg-blue-900/20",
-                      success: "border-green-200 bg-green-50 dark:bg-green-900/20"
+                      success:
+                        "border-green-200 bg-green-50 dark:bg-green-900/20",
                     };
 
                     const typeIcons = {
                       alert: <AlertTriangle className="w-4 h-4 text-red-600" />,
                       tip: <Info className="w-4 h-4 text-blue-600" />,
-                      success: <CheckCircle className="w-4 h-4 text-green-600" />
+                      success: (
+                        <CheckCircle className="w-4 h-4 text-green-600" />
+                      ),
                     };
 
                     return (
-                      <div key={idx} className={`p-3 rounded-lg border ${typeColors[insight.type]}`}>
+                      <div
+                        key={idx}
+                        className={`p-3 rounded-lg border ${typeColors[insight.type]}`}
+                      >
                         <div className="flex items-start gap-2">
                           {typeIcons[insight.type]}
                           <div className="flex-1">
-                            <h4 className="font-medium text-sm mb-1">{insight.title}</h4>
-                            <p className="text-xs text-muted-foreground mb-2">{insight.message}</p>
+                            <h4 className="font-medium text-sm mb-1">
+                              {insight.title}
+                            </h4>
+                            <p className="text-xs text-muted-foreground mb-2">
+                              {insight.message}
+                            </p>
                             <div className="flex items-center gap-1">
                               <Zap className="w-3 h-3 text-purple-500" />
-                              <span className="text-xs text-purple-600">{insight.confidence}% confidence</span>
+                              <span className="text-xs text-purple-600">
+                                {insight.confidence}% confidence
+                              </span>
                             </div>
                           </div>
                         </div>
@@ -1270,25 +1566,41 @@ export function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <Button variant="outline" className="h-16 flex flex-col gap-2" asChild>
+              <Button
+                variant="outline"
+                className="h-16 flex flex-col gap-2"
+                asChild
+              >
                 <Link to="/labs/upload">
                   <TestTube className="w-5 h-5" />
                   <span className="text-sm">Upload Labs</span>
                 </Link>
               </Button>
-              <Button variant="outline" className="h-16 flex flex-col gap-2" asChild>
+              <Button
+                variant="outline"
+                className="h-16 flex flex-col gap-2"
+                asChild
+              >
                 <Link to="/medications">
                   <Pill className="w-5 h-5" />
                   <span className="text-sm">Medications</span>
                 </Link>
               </Button>
-              <Button variant="outline" className="h-16 flex flex-col gap-2" asChild>
+              <Button
+                variant="outline"
+                className="h-16 flex flex-col gap-2"
+                asChild
+              >
                 <Link to="/trends">
                   <LineChart className="w-5 h-5" />
                   <span className="text-sm">View Trends</span>
                 </Link>
               </Button>
-              <Button variant="outline" className="h-16 flex flex-col gap-2" asChild>
+              <Button
+                variant="outline"
+                className="h-16 flex flex-col gap-2"
+                asChild
+              >
                 <Link to="/ai-insights">
                   <Brain className="w-5 h-5" />
                   <span className="text-sm">AI Analysis</span>

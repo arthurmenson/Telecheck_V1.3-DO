@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Badge } from './ui/badge';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
-import { Progress } from './ui/progress';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import React, { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Badge } from "./ui/badge";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { Progress } from "./ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import {
   Leaf,
   Pill,
@@ -40,8 +40,8 @@ import {
   Globe,
   BookOpen,
   Lightbulb,
-  Smartphone
-} from 'lucide-react';
+  Smartphone,
+} from "lucide-react";
 
 interface EnhancedHerbalMedicine {
   id: string;
@@ -61,7 +61,7 @@ interface EnhancedHerbalMedicine {
   modernUses: string[];
   clinicalTrials: {
     count: number;
-    quality: 'high' | 'moderate' | 'low';
+    quality: "high" | "moderate" | "low";
     lastUpdated: string;
   };
   dosage: {
@@ -70,11 +70,16 @@ interface EnhancedHerbalMedicine {
     maximum: string;
     forms: string[];
   };
-  safetyProfile: 'safe' | 'caution' | 'warning' | 'contraindicated';
-  evidenceLevel: 'high' | 'moderate' | 'low' | 'traditional' | 'insufficient';
+  safetyProfile: "safe" | "caution" | "warning" | "contraindicated";
+  evidenceLevel: "high" | "moderate" | "low" | "traditional" | "insufficient";
   contraindications: string[];
-  pregnancySafety: 'safe' | 'likely_safe' | 'possibly_unsafe' | 'unsafe' | 'unknown';
-  pediatricSafety: 'safe' | 'caution' | 'not_recommended';
+  pregnancySafety:
+    | "safe"
+    | "likely_safe"
+    | "possibly_unsafe"
+    | "unsafe"
+    | "unknown";
+  pediatricSafety: "safe" | "caution" | "not_recommended";
   geriatricConsiderations: string[];
   sideEffects: {
     common: string[];
@@ -94,14 +99,14 @@ interface AdvancedDrugInteraction {
   herbal: string;
   drug: string;
   drugClass: string;
-  severity: 'severe' | 'major' | 'moderate' | 'minor';
+  severity: "severe" | "major" | "moderate" | "minor";
   mechanism: string;
   clinicalEffect: string;
   timeToOnset: string;
   duration: string;
   recommendation: string;
   monitoring: string[];
-  evidenceLevel: 'strong' | 'moderate' | 'weak' | 'theoretical';
+  evidenceLevel: "strong" | "moderate" | "weak" | "theoretical";
   references: {
     pmid: string;
     journal: string;
@@ -114,290 +119,371 @@ interface AdvancedDrugInteraction {
 }
 
 export function AdvancedHerbalInteractions() {
-  const [activeTab, setActiveTab] = useState('ai-scanner');
-  const [currentMedications, setCurrentMedications] = useState<string[]>(['Warfarin', 'Atorvastatin', 'Metformin']);
-  const [currentHerbals, setCurrentHerbals] = useState<string[]>(['Turmeric', 'Garlic']);
+  const [activeTab, setActiveTab] = useState("ai-scanner");
+  const [currentMedications, setCurrentMedications] = useState<string[]>([
+    "Warfarin",
+    "Atorvastatin",
+    "Metformin",
+  ]);
+  const [currentHerbals, setCurrentHerbals] = useState<string[]>([
+    "Turmeric",
+    "Garlic",
+  ]);
   const [aiAnalysis, setAiAnalysis] = useState<any>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   const enhancedHerbalDatabase: EnhancedHerbalMedicine[] = [
     {
-      id: 'turmeric-enhanced',
-      name: 'Turmeric',
-      scientificName: 'Curcuma longa',
-      commonNames: ['Golden Spice', 'Indian Saffron', 'Haldi', 'Curcumin'],
-      category: 'Anti-inflammatory',
-      subcategory: 'Polyphenol',
-      region: ['India', 'Southeast Asia', 'Middle East'],
+      id: "turmeric-enhanced",
+      name: "Turmeric",
+      scientificName: "Curcuma longa",
+      commonNames: ["Golden Spice", "Indian Saffron", "Haldi", "Curcumin"],
+      category: "Anti-inflammatory",
+      subcategory: "Polyphenol",
+      region: ["India", "Southeast Asia", "Middle East"],
       activeCompounds: [
         {
-          name: 'Curcumin',
-          concentration: '2-8%',
-          bioavailability: 'Low (enhanced with piperine)',
-          halfLife: '6-7 hours'
+          name: "Curcumin",
+          concentration: "2-8%",
+          bioavailability: "Low (enhanced with piperine)",
+          halfLife: "6-7 hours",
         },
         {
-          name: 'Demethoxycurcumin',
-          concentration: '1-3%',
-          bioavailability: 'Low',
-          halfLife: '4-6 hours'
-        }
+          name: "Demethoxycurcumin",
+          concentration: "1-3%",
+          bioavailability: "Low",
+          halfLife: "4-6 hours",
+        },
       ],
-      traditionalUses: ['Joint pain', 'Digestive issues', 'Wound healing', 'Liver health'],
-      modernUses: ['Inflammation reduction', 'Antioxidant support', 'Cognitive health', 'Cancer prevention'],
+      traditionalUses: [
+        "Joint pain",
+        "Digestive issues",
+        "Wound healing",
+        "Liver health",
+      ],
+      modernUses: [
+        "Inflammation reduction",
+        "Antioxidant support",
+        "Cognitive health",
+        "Cancer prevention",
+      ],
       clinicalTrials: {
         count: 847,
-        quality: 'high',
-        lastUpdated: '2024-01-15'
+        quality: "high",
+        lastUpdated: "2024-01-15",
       },
       dosage: {
-        standard: '500-1000mg daily',
-        therapeutic: '1000-1500mg daily',
-        maximum: '3000mg daily',
-        forms: ['Capsules', 'Powder', 'Extract', 'Tea']
+        standard: "500-1000mg daily",
+        therapeutic: "1000-1500mg daily",
+        maximum: "3000mg daily",
+        forms: ["Capsules", "Powder", "Extract", "Tea"],
       },
-      safetyProfile: 'caution',
-      evidenceLevel: 'high',
+      safetyProfile: "caution",
+      evidenceLevel: "high",
       contraindications: [
-        'Active bleeding',
-        'Gallstones',
-        'Bile duct obstruction',
-        'Iron deficiency anemia'
+        "Active bleeding",
+        "Gallstones",
+        "Bile duct obstruction",
+        "Iron deficiency anemia",
       ],
-      pregnancySafety: 'possibly_unsafe',
-      pediatricSafety: 'caution',
-      geriatricConsiderations: ['Increased bleeding risk', 'Drug absorption changes'],
+      pregnancySafety: "possibly_unsafe",
+      pediatricSafety: "caution",
+      geriatricConsiderations: [
+        "Increased bleeding risk",
+        "Drug absorption changes",
+      ],
       sideEffects: {
-        common: ['Stomach upset', 'Nausea', 'Diarrhea'],
-        rare: ['Allergic reactions', 'Iron deficiency'],
-        severe: ['Severe bleeding', 'Liver toxicity (high doses)']
+        common: ["Stomach upset", "Nausea", "Diarrhea"],
+        rare: ["Allergic reactions", "Iron deficiency"],
+        severe: ["Severe bleeding", "Liver toxicity (high doses)"],
       },
       drugInteractions: {
-        cyp450Effects: ['CYP3A4 inhibition', 'CYP2C9 inhibition'],
+        cyp450Effects: ["CYP3A4 inhibition", "CYP2C9 inhibition"],
         proteinBinding: true,
-        renalExcretion: false
+        renalExcretion: false,
       },
-      monitoringParameters: ['Bleeding time', 'Iron levels', 'Liver enzymes']
+      monitoringParameters: ["Bleeding time", "Iron levels", "Liver enzymes"],
     },
     {
-      id: 'st-johns-wort',
+      id: "st-johns-wort",
       name: "St. John's Wort",
-      scientificName: 'Hypericum perforatum',
-      commonNames: ['Hypericum', 'Goatweed', 'Klamath Weed'],
-      category: 'Mood Support',
-      subcategory: 'Neurotransmitter Modulator',
-      region: ['Europe', 'North America', 'Asia'],
+      scientificName: "Hypericum perforatum",
+      commonNames: ["Hypericum", "Goatweed", "Klamath Weed"],
+      category: "Mood Support",
+      subcategory: "Neurotransmitter Modulator",
+      region: ["Europe", "North America", "Asia"],
       activeCompounds: [
         {
-          name: 'Hypericin',
-          concentration: '0.1-0.15%',
-          bioavailability: 'Moderate',
-          halfLife: '24-48 hours'
+          name: "Hypericin",
+          concentration: "0.1-0.15%",
+          bioavailability: "Moderate",
+          halfLife: "24-48 hours",
         },
         {
-          name: 'Hyperforin',
-          concentration: '2-4.5%',
-          bioavailability: 'High',
-          halfLife: '9 hours'
-        }
+          name: "Hyperforin",
+          concentration: "2-4.5%",
+          bioavailability: "High",
+          halfLife: "9 hours",
+        },
       ],
-      traditionalUses: ['Depression', 'Anxiety', 'Wound healing', 'Nerve pain'],
-      modernUses: ['Mild to moderate depression', 'Seasonal affective disorder', 'Anxiety'],
+      traditionalUses: ["Depression", "Anxiety", "Wound healing", "Nerve pain"],
+      modernUses: [
+        "Mild to moderate depression",
+        "Seasonal affective disorder",
+        "Anxiety",
+      ],
       clinicalTrials: {
         count: 234,
-        quality: 'high',
-        lastUpdated: '2024-01-10'
+        quality: "high",
+        lastUpdated: "2024-01-10",
       },
       dosage: {
-        standard: '300mg 3x daily',
-        therapeutic: '900-1800mg daily',
-        maximum: '1800mg daily',
-        forms: ['Tablets', 'Capsules', 'Liquid extract', 'Tea']
+        standard: "300mg 3x daily",
+        therapeutic: "900-1800mg daily",
+        maximum: "1800mg daily",
+        forms: ["Tablets", "Capsules", "Liquid extract", "Tea"],
       },
-      safetyProfile: 'warning',
-      evidenceLevel: 'high',
+      safetyProfile: "warning",
+      evidenceLevel: "high",
       contraindications: [
-        'Pregnancy',
-        'Breastfeeding',
-        'Bipolar disorder',
-        'Schizophrenia',
-        'Severe depression with suicidal ideation'
+        "Pregnancy",
+        "Breastfeeding",
+        "Bipolar disorder",
+        "Schizophrenia",
+        "Severe depression with suicidal ideation",
       ],
-      pregnancySafety: 'unsafe',
-      pediatricSafety: 'not_recommended',
-      geriatricConsiderations: ['Photosensitivity', 'Drug interaction risks'],
+      pregnancySafety: "unsafe",
+      pediatricSafety: "not_recommended",
+      geriatricConsiderations: ["Photosensitivity", "Drug interaction risks"],
       sideEffects: {
-        common: ['Photosensitivity', 'GI upset', 'Fatigue', 'Restlessness'],
-        rare: ['Mania induction', 'Serotonin syndrome'],
-        severe: ['Severe drug interactions', 'Organ rejection (transplant patients)']
+        common: ["Photosensitivity", "GI upset", "Fatigue", "Restlessness"],
+        rare: ["Mania induction", "Serotonin syndrome"],
+        severe: [
+          "Severe drug interactions",
+          "Organ rejection (transplant patients)",
+        ],
       },
       drugInteractions: {
-        cyp450Effects: ['Strong CYP3A4 induction', 'CYP2C9 induction', 'CYP1A2 induction'],
+        cyp450Effects: [
+          "Strong CYP3A4 induction",
+          "CYP2C9 induction",
+          "CYP1A2 induction",
+        ],
         proteinBinding: false,
-        renalExcretion: true
+        renalExcretion: true,
       },
-      monitoringParameters: ['Drug levels of co-medications', 'Mood assessment', 'Photosensitivity']
+      monitoringParameters: [
+        "Drug levels of co-medications",
+        "Mood assessment",
+        "Photosensitivity",
+      ],
     },
     {
-      id: 'ginger',
-      name: 'Ginger',
-      scientificName: 'Zingiber officinale',
-      commonNames: ['Common Ginger', 'Canton Ginger', 'Cochin Ginger'],
-      category: 'Digestive Health',
-      subcategory: 'Anti-emetic',
-      region: ['Asia', 'India', 'China', 'Global cultivation'],
+      id: "ginger",
+      name: "Ginger",
+      scientificName: "Zingiber officinale",
+      commonNames: ["Common Ginger", "Canton Ginger", "Cochin Ginger"],
+      category: "Digestive Health",
+      subcategory: "Anti-emetic",
+      region: ["Asia", "India", "China", "Global cultivation"],
       activeCompounds: [
         {
-          name: 'Gingerol',
-          concentration: '1-3%',
-          bioavailability: 'Moderate',
-          halfLife: '2-4 hours'
+          name: "Gingerol",
+          concentration: "1-3%",
+          bioavailability: "Moderate",
+          halfLife: "2-4 hours",
         },
         {
-          name: 'Shogaol',
-          concentration: '0.1-0.2%',
-          bioavailability: 'High',
-          halfLife: '1-2 hours'
-        }
+          name: "Shogaol",
+          concentration: "0.1-0.2%",
+          bioavailability: "High",
+          halfLife: "1-2 hours",
+        },
       ],
-      traditionalUses: ['Nausea', 'Motion sickness', 'Digestive issues', 'Cold symptoms'],
-      modernUses: ['Chemotherapy-induced nausea', 'Pregnancy nausea', 'Osteoarthritis'],
+      traditionalUses: [
+        "Nausea",
+        "Motion sickness",
+        "Digestive issues",
+        "Cold symptoms",
+      ],
+      modernUses: [
+        "Chemotherapy-induced nausea",
+        "Pregnancy nausea",
+        "Osteoarthritis",
+      ],
       clinicalTrials: {
         count: 312,
-        quality: 'high',
-        lastUpdated: '2024-01-12'
+        quality: "high",
+        lastUpdated: "2024-01-12",
       },
       dosage: {
-        standard: '250-1000mg daily',
-        therapeutic: '1000-1500mg daily',
-        maximum: '4000mg daily',
-        forms: ['Capsules', 'Fresh root', 'Powder', 'Tea', 'Extract']
+        standard: "250-1000mg daily",
+        therapeutic: "1000-1500mg daily",
+        maximum: "4000mg daily",
+        forms: ["Capsules", "Fresh root", "Powder", "Tea", "Extract"],
       },
-      safetyProfile: 'safe',
-      evidenceLevel: 'high',
-      contraindications: ['Active bleeding disorders', 'Gallstones'],
-      pregnancySafety: 'likely_safe',
-      pediatricSafety: 'safe',
-      geriatricConsiderations: ['Monitor anticoagulant effects'],
+      safetyProfile: "safe",
+      evidenceLevel: "high",
+      contraindications: ["Active bleeding disorders", "Gallstones"],
+      pregnancySafety: "likely_safe",
+      pediatricSafety: "safe",
+      geriatricConsiderations: ["Monitor anticoagulant effects"],
       sideEffects: {
-        common: ['Heartburn', 'Diarrhea', 'Mouth irritation'],
-        rare: ['Bleeding', 'Arrhythmias (high doses)'],
-        severe: ['Severe bleeding (with anticoagulants)']
+        common: ["Heartburn", "Diarrhea", "Mouth irritation"],
+        rare: ["Bleeding", "Arrhythmias (high doses)"],
+        severe: ["Severe bleeding (with anticoagulants)"],
       },
       drugInteractions: {
-        cyp450Effects: ['Mild CYP2C9 inhibition'],
+        cyp450Effects: ["Mild CYP2C9 inhibition"],
         proteinBinding: false,
-        renalExcretion: true
+        renalExcretion: true,
       },
-      monitoringParameters: ['Bleeding parameters', 'Blood pressure', 'Blood sugar']
-    }
+      monitoringParameters: [
+        "Bleeding parameters",
+        "Blood pressure",
+        "Blood sugar",
+      ],
+    },
   ];
 
   const advancedInteractions: AdvancedDrugInteraction[] = [
     {
-      herbal: 'Turmeric',
-      drug: 'Warfarin',
-      drugClass: 'Anticoagulant',
-      severity: 'severe',
-      mechanism: 'Additive antiplatelet effects via COX-1 inhibition and vitamin K interference',
-      clinicalEffect: 'Significantly increased bleeding risk with potential for severe hemorrhage',
-      timeToOnset: '1-7 days',
-      duration: '3-7 days after discontinuation',
-      recommendation: 'Avoid combination. If necessary, reduce warfarin dose by 25-50% and monitor INR weekly',
-      monitoring: ['INR', 'PT/PTT', 'Signs of bleeding', 'Platelet count'],
-      evidenceLevel: 'strong',
+      herbal: "Turmeric",
+      drug: "Warfarin",
+      drugClass: "Anticoagulant",
+      severity: "severe",
+      mechanism:
+        "Additive antiplatelet effects via COX-1 inhibition and vitamin K interference",
+      clinicalEffect:
+        "Significantly increased bleeding risk with potential for severe hemorrhage",
+      timeToOnset: "1-7 days",
+      duration: "3-7 days after discontinuation",
+      recommendation:
+        "Avoid combination. If necessary, reduce warfarin dose by 25-50% and monitor INR weekly",
+      monitoring: ["INR", "PT/PTT", "Signs of bleeding", "Platelet count"],
+      evidenceLevel: "strong",
       references: [
         {
-          pmid: '15772298',
-          journal: 'Thrombosis and Haemostasis',
-          year: '2010',
-          studyType: 'Case-control study'
-        }
+          pmid: "15772298",
+          journal: "Thrombosis and Haemostasis",
+          year: "2010",
+          studyType: "Case-control study",
+        },
       ],
       aiConfidence: 95,
       riskScore: 8.5,
-      patientFactors: ['Age >65', 'History of bleeding', 'Concurrent antiplatelet therapy']
+      patientFactors: [
+        "Age >65",
+        "History of bleeding",
+        "Concurrent antiplatelet therapy",
+      ],
     },
     {
       herbal: "St. John's Wort",
-      drug: 'Sertraline',
-      drugClass: 'SSRI Antidepressant',
-      severity: 'severe',
-      mechanism: 'Serotonin reuptake inhibition leading to excessive serotonergic activity',
-      clinicalEffect: 'Serotonin syndrome with potential for life-threatening complications',
-      timeToOnset: '2-24 hours',
-      duration: '24-72 hours',
-      recommendation: 'Contraindicated. Discontinue St. Johns Wort 2 weeks before starting SSRI',
-      monitoring: ['Mental status', 'Vital signs', 'Neuromuscular symptoms', 'Temperature'],
-      evidenceLevel: 'strong',
+      drug: "Sertraline",
+      drugClass: "SSRI Antidepressant",
+      severity: "severe",
+      mechanism:
+        "Serotonin reuptake inhibition leading to excessive serotonergic activity",
+      clinicalEffect:
+        "Serotonin syndrome with potential for life-threatening complications",
+      timeToOnset: "2-24 hours",
+      duration: "24-72 hours",
+      recommendation:
+        "Contraindicated. Discontinue St. Johns Wort 2 weeks before starting SSRI",
+      monitoring: [
+        "Mental status",
+        "Vital signs",
+        "Neuromuscular symptoms",
+        "Temperature",
+      ],
+      evidenceLevel: "strong",
       references: [
         {
-          pmid: '12725416',
-          journal: 'Clinical Pharmacology & Therapeutics',
-          year: '2003',
-          studyType: 'Randomized controlled trial'
-        }
+          pmid: "12725416",
+          journal: "Clinical Pharmacology & Therapeutics",
+          year: "2003",
+          studyType: "Randomized controlled trial",
+        },
       ],
       aiConfidence: 98,
       riskScore: 9.2,
-      patientFactors: ['Concurrent use of other serotonergic drugs', 'Kidney/liver impairment']
-    }
+      patientFactors: [
+        "Concurrent use of other serotonergic drugs",
+        "Kidney/liver impairment",
+      ],
+    },
   ];
 
   const runAIAnalysis = async () => {
     setIsAnalyzing(true);
     // Simulate AI analysis
-    await new Promise(resolve => setTimeout(resolve, 3000));
-    
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+
     const analysis = {
-      overallRisk: 'HIGH',
+      overallRisk: "HIGH",
       riskScore: 8.7,
       criticalInteractions: 2,
       moderateInteractions: 1,
       recommendations: [
-        'Immediately consult healthcare provider about Turmeric + Warfarin interaction',
-        'Consider INR monitoring every 3-5 days for next 2 weeks',
-        'Potential 40% warfarin dose reduction needed',
-        'Monitor for signs of bleeding (bruising, unusual bleeding, black stools)'
+        "Immediately consult healthcare provider about Turmeric + Warfarin interaction",
+        "Consider INR monitoring every 3-5 days for next 2 weeks",
+        "Potential 40% warfarin dose reduction needed",
+        "Monitor for signs of bleeding (bruising, unusual bleeding, black stools)",
       ],
       aiInsights: [
-        'Patient age >65 increases bleeding risk by 2.3x',
-        'Concurrent use of 3+ medications increases interaction complexity',
-        'Genetic CYP2C9 variant status would improve precision (consider PGx testing)'
+        "Patient age >65 increases bleeding risk by 2.3x",
+        "Concurrent use of 3+ medications increases interaction complexity",
+        "Genetic CYP2C9 variant status would improve precision (consider PGx testing)",
       ],
       alternatives: [
         {
-          herb: 'Turmeric',
-          alternatives: ['Boswellia', 'Omega-3 fatty acids', 'Tart cherry extract'],
-          reason: 'Anti-inflammatory effects without anticoagulant properties'
-        }
+          herb: "Turmeric",
+          alternatives: [
+            "Boswellia",
+            "Omega-3 fatty acids",
+            "Tart cherry extract",
+          ],
+          reason: "Anti-inflammatory effects without anticoagulant properties",
+        },
       ],
       monitoringPlan: {
-        immediate: ['Check INR within 24-48 hours', 'Review all supplements with provider'],
-        shortTerm: ['Weekly INR for 2 weeks', 'Daily bleeding assessment'],
-        longTerm: ['Monthly comprehensive medication review', 'Quarterly herbal safety assessment']
-      }
+        immediate: [
+          "Check INR within 24-48 hours",
+          "Review all supplements with provider",
+        ],
+        shortTerm: ["Weekly INR for 2 weeks", "Daily bleeding assessment"],
+        longTerm: [
+          "Monthly comprehensive medication review",
+          "Quarterly herbal safety assessment",
+        ],
+      },
     };
-    
+
     setAiAnalysis(analysis);
     setIsAnalyzing(false);
   };
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
-      case 'severe': return 'bg-red-100 text-red-800 border-red-200';
-      case 'major': return 'bg-orange-100 text-orange-800 border-orange-200';
-      case 'moderate': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'minor': return 'bg-blue-100 text-blue-800 border-blue-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+      case "severe":
+        return "bg-red-100 text-red-800 border-red-200";
+      case "major":
+        return "bg-orange-100 text-orange-800 border-orange-200";
+      case "moderate":
+        return "bg-yellow-100 text-yellow-800 border-yellow-200";
+      case "minor":
+        return "bg-blue-100 text-blue-800 border-blue-200";
+      default:
+        return "bg-gray-100 text-gray-800 border-gray-200";
     }
   };
 
   const getRiskColor = (score: number) => {
-    if (score >= 8) return 'text-red-600';
-    if (score >= 6) return 'text-orange-600';
-    if (score >= 4) return 'text-yellow-600';
-    return 'text-green-600';
+    if (score >= 8) return "text-red-600";
+    if (score >= 6) return "text-orange-600";
+    if (score >= 4) return "text-yellow-600";
+    return "text-green-600";
   };
 
   return (
@@ -424,7 +510,8 @@ export function AdvancedHerbalInteractions() {
                   </Badge>
                 </CardTitle>
                 <p className="text-muted-foreground mt-1">
-                  Advanced machine learning for herbal-drug interaction detection with personalized risk assessment
+                  Advanced machine learning for herbal-drug interaction
+                  detection with personalized risk assessment
                 </p>
               </div>
             </div>
@@ -433,7 +520,9 @@ export function AdvancedHerbalInteractions() {
                 <div className="text-2xl font-bold text-purple-600">
                   {enhancedHerbalDatabase.length + 247}
                 </div>
-                <div className="text-sm text-muted-foreground">Herbs in Database</div>
+                <div className="text-sm text-muted-foreground">
+                  Herbs in Database
+                </div>
                 <div className="text-xs text-blue-600 mt-1">✨ AI-Enhanced</div>
               </div>
             </div>
@@ -441,7 +530,11 @@ export function AdvancedHerbalInteractions() {
         </CardHeader>
       </Card>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+      <Tabs
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className="space-y-6"
+      >
         <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="ai-scanner">AI Scanner</TabsTrigger>
           <TabsTrigger value="interactions">Interactions</TabsTrigger>
@@ -466,7 +559,10 @@ export function AdvancedHerbalInteractions() {
                     <h4 className="font-semibold mb-2">Current Medications</h4>
                     <div className="space-y-2">
                       {currentMedications.map((med, idx) => (
-                        <div key={idx} className="flex items-center gap-2 p-2 bg-blue-50 rounded-lg">
+                        <div
+                          key={idx}
+                          className="flex items-center gap-2 p-2 bg-blue-50 rounded-lg"
+                        >
                           <Pill className="w-4 h-4 text-blue-600" />
                           <span className="text-sm">{med}</span>
                         </div>
@@ -474,10 +570,15 @@ export function AdvancedHerbalInteractions() {
                     </div>
                   </div>
                   <div>
-                    <h4 className="font-semibold mb-2">Current Herbal Supplements</h4>
+                    <h4 className="font-semibold mb-2">
+                      Current Herbal Supplements
+                    </h4>
                     <div className="space-y-2">
                       {currentHerbals.map((herb, idx) => (
-                        <div key={idx} className="flex items-center gap-2 p-2 bg-green-50 rounded-lg">
+                        <div
+                          key={idx}
+                          className="flex items-center gap-2 p-2 bg-green-50 rounded-lg"
+                        >
                           <Leaf className="w-4 h-4 text-green-600" />
                           <span className="text-sm">{herb}</span>
                         </div>
@@ -486,7 +587,7 @@ export function AdvancedHerbalInteractions() {
                   </div>
                 </div>
 
-                <Button 
+                <Button
                   onClick={runAIAnalysis}
                   disabled={isAnalyzing}
                   className="w-full bg-gradient-to-r from-purple-500 to-blue-500 text-white"
@@ -522,22 +623,30 @@ export function AdvancedHerbalInteractions() {
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="text-center">
-                      <div className={`text-3xl font-bold ${getRiskColor(aiAnalysis.riskScore)}`}>
+                      <div
+                        className={`text-3xl font-bold ${getRiskColor(aiAnalysis.riskScore)}`}
+                      >
                         {aiAnalysis.riskScore}/10
                       </div>
-                      <div className="text-sm text-muted-foreground">Overall Risk Score</div>
+                      <div className="text-sm text-muted-foreground">
+                        Overall Risk Score
+                      </div>
                     </div>
                     <div className="text-center">
                       <div className="text-3xl font-bold text-red-600">
                         {aiAnalysis.criticalInteractions}
                       </div>
-                      <div className="text-sm text-muted-foreground">Critical Interactions</div>
+                      <div className="text-sm text-muted-foreground">
+                        Critical Interactions
+                      </div>
                     </div>
                     <div className="text-center">
                       <div className="text-3xl font-bold text-orange-600">
                         {aiAnalysis.moderateInteractions}
                       </div>
-                      <div className="text-sm text-muted-foreground">Moderate Interactions</div>
+                      <div className="text-sm text-muted-foreground">
+                        Moderate Interactions
+                      </div>
                     </div>
                   </div>
                 </CardContent>
@@ -553,12 +662,17 @@ export function AdvancedHerbalInteractions() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {aiAnalysis.recommendations.map((rec: string, idx: number) => (
-                      <div key={idx} className="flex items-start gap-3 p-3 bg-yellow-50 rounded-lg">
-                        <AlertCircle className="w-4 h-4 text-yellow-600 mt-0.5 flex-shrink-0" />
-                        <span className="text-sm">{rec}</span>
-                      </div>
-                    ))}
+                    {aiAnalysis.recommendations.map(
+                      (rec: string, idx: number) => (
+                        <div
+                          key={idx}
+                          className="flex items-start gap-3 p-3 bg-yellow-50 rounded-lg"
+                        >
+                          <AlertCircle className="w-4 h-4 text-yellow-600 mt-0.5 flex-shrink-0" />
+                          <span className="text-sm">{rec}</span>
+                        </div>
+                      ),
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -573,12 +687,17 @@ export function AdvancedHerbalInteractions() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {aiAnalysis.aiInsights.map((insight: string, idx: number) => (
-                      <div key={idx} className="flex items-start gap-3 p-3 bg-purple-50 rounded-lg">
-                        <Sparkles className="w-4 h-4 text-purple-600 mt-0.5 flex-shrink-0" />
-                        <span className="text-sm">{insight}</span>
-                      </div>
-                    ))}
+                    {aiAnalysis.aiInsights.map(
+                      (insight: string, idx: number) => (
+                        <div
+                          key={idx}
+                          className="flex items-start gap-3 p-3 bg-purple-50 rounded-lg"
+                        >
+                          <Sparkles className="w-4 h-4 text-purple-600 mt-0.5 flex-shrink-0" />
+                          <span className="text-sm">{insight}</span>
+                        </div>
+                      ),
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -594,36 +713,48 @@ export function AdvancedHerbalInteractions() {
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div>
-                      <h4 className="font-semibold text-red-600 mb-2">Immediate (24-48h)</h4>
+                      <h4 className="font-semibold text-red-600 mb-2">
+                        Immediate (24-48h)
+                      </h4>
                       <ul className="space-y-1 text-sm">
-                        {aiAnalysis.monitoringPlan.immediate.map((item: string, idx: number) => (
-                          <li key={idx} className="flex items-start gap-2">
-                            <div className="w-1 h-1 bg-red-500 rounded-full mt-2 flex-shrink-0" />
-                            {item}
-                          </li>
-                        ))}
+                        {aiAnalysis.monitoringPlan.immediate.map(
+                          (item: string, idx: number) => (
+                            <li key={idx} className="flex items-start gap-2">
+                              <div className="w-1 h-1 bg-red-500 rounded-full mt-2 flex-shrink-0" />
+                              {item}
+                            </li>
+                          ),
+                        )}
                       </ul>
                     </div>
                     <div>
-                      <h4 className="font-semibold text-orange-600 mb-2">Short-term (2 weeks)</h4>
+                      <h4 className="font-semibold text-orange-600 mb-2">
+                        Short-term (2 weeks)
+                      </h4>
                       <ul className="space-y-1 text-sm">
-                        {aiAnalysis.monitoringPlan.shortTerm.map((item: string, idx: number) => (
-                          <li key={idx} className="flex items-start gap-2">
-                            <div className="w-1 h-1 bg-orange-500 rounded-full mt-2 flex-shrink-0" />
-                            {item}
-                          </li>
-                        ))}
+                        {aiAnalysis.monitoringPlan.shortTerm.map(
+                          (item: string, idx: number) => (
+                            <li key={idx} className="flex items-start gap-2">
+                              <div className="w-1 h-1 bg-orange-500 rounded-full mt-2 flex-shrink-0" />
+                              {item}
+                            </li>
+                          ),
+                        )}
                       </ul>
                     </div>
                     <div>
-                      <h4 className="font-semibold text-blue-600 mb-2">Long-term (Monthly)</h4>
+                      <h4 className="font-semibold text-blue-600 mb-2">
+                        Long-term (Monthly)
+                      </h4>
                       <ul className="space-y-1 text-sm">
-                        {aiAnalysis.monitoringPlan.longTerm.map((item: string, idx: number) => (
-                          <li key={idx} className="flex items-start gap-2">
-                            <div className="w-1 h-1 bg-blue-500 rounded-full mt-2 flex-shrink-0" />
-                            {item}
-                          </li>
-                        ))}
+                        {aiAnalysis.monitoringPlan.longTerm.map(
+                          (item: string, idx: number) => (
+                            <li key={idx} className="flex items-start gap-2">
+                              <div className="w-1 h-1 bg-blue-500 rounded-full mt-2 flex-shrink-0" />
+                              {item}
+                            </li>
+                          ),
+                        )}
                       </ul>
                     </div>
                   </div>
@@ -655,34 +786,55 @@ export function AdvancedHerbalInteractions() {
                 <CardContent>
                   <div className="space-y-4">
                     <div>
-                      <h4 className="font-semibold text-sm mb-1">Clinical Effect:</h4>
-                      <p className="text-sm text-gray-700">{interaction.clinicalEffect}</p>
+                      <h4 className="font-semibold text-sm mb-1">
+                        Clinical Effect:
+                      </h4>
+                      <p className="text-sm text-gray-700">
+                        {interaction.clinicalEffect}
+                      </p>
                     </div>
-                    
+
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
                         <h4 className="font-semibold mb-1">Onset:</h4>
-                        <p className="text-gray-600">{interaction.timeToOnset}</p>
+                        <p className="text-gray-600">
+                          {interaction.timeToOnset}
+                        </p>
                       </div>
                       <div>
                         <h4 className="font-semibold mb-1">AI Confidence:</h4>
                         <div className="flex items-center gap-2">
-                          <Progress value={interaction.aiConfidence} className="h-2" />
-                          <span className="text-xs">{interaction.aiConfidence}%</span>
+                          <Progress
+                            value={interaction.aiConfidence}
+                            className="h-2"
+                          />
+                          <span className="text-xs">
+                            {interaction.aiConfidence}%
+                          </span>
                         </div>
                       </div>
                     </div>
 
                     <div className="bg-white p-3 rounded-lg">
-                      <h4 className="font-semibold text-sm mb-1">AI Recommendation:</h4>
-                      <p className="text-sm text-gray-700">{interaction.recommendation}</p>
+                      <h4 className="font-semibold text-sm mb-1">
+                        AI Recommendation:
+                      </h4>
+                      <p className="text-sm text-gray-700">
+                        {interaction.recommendation}
+                      </p>
                     </div>
 
                     <div>
-                      <h4 className="font-semibold text-sm mb-2">Required Monitoring:</h4>
+                      <h4 className="font-semibold text-sm mb-2">
+                        Required Monitoring:
+                      </h4>
                       <div className="flex flex-wrap gap-1">
                         {interaction.monitoring.map((param, paramIdx) => (
-                          <Badge key={paramIdx} variant="outline" className="text-xs">
+                          <Badge
+                            key={paramIdx}
+                            variant="outline"
+                            className="text-xs"
+                          >
                             {param}
                           </Badge>
                         ))}
@@ -690,7 +842,14 @@ export function AdvancedHerbalInteractions() {
                     </div>
 
                     <div className="flex items-center justify-between text-xs text-gray-600">
-                      <span>Risk Score: <span className={`font-bold ${getRiskColor(interaction.riskScore)}`}>{interaction.riskScore}/10</span></span>
+                      <span>
+                        Risk Score:{" "}
+                        <span
+                          className={`font-bold ${getRiskColor(interaction.riskScore)}`}
+                        >
+                          {interaction.riskScore}/10
+                        </span>
+                      </span>
                       <span>Evidence: {interaction.evidenceLevel}</span>
                     </div>
                   </div>
@@ -709,13 +868,19 @@ export function AdvancedHerbalInteractions() {
                   <div className="flex items-start justify-between">
                     <div>
                       <CardTitle className="text-lg">{herb.name}</CardTitle>
-                      <p className="text-sm italic text-muted-foreground">{herb.scientificName}</p>
+                      <p className="text-sm italic text-muted-foreground">
+                        {herb.scientificName}
+                      </p>
                       <div className="flex items-center gap-2 mt-2">
-                        <Badge className={`text-xs ${
-                          herb.safetyProfile === 'safe' ? 'bg-green-100 text-green-800' :
-                          herb.safetyProfile === 'caution' ? 'bg-yellow-100 text-yellow-800' :
-                          'bg-red-100 text-red-800'
-                        }`}>
+                        <Badge
+                          className={`text-xs ${
+                            herb.safetyProfile === "safe"
+                              ? "bg-green-100 text-green-800"
+                              : herb.safetyProfile === "caution"
+                                ? "bg-yellow-100 text-yellow-800"
+                                : "bg-red-100 text-red-800"
+                          }`}
+                        >
                           {herb.safetyProfile}
                         </Badge>
                         <Badge variant="outline" className="text-xs">
@@ -729,45 +894,63 @@ export function AdvancedHerbalInteractions() {
                 <CardContent>
                   <div className="space-y-3">
                     <div>
-                      <h4 className="font-semibold text-sm mb-1">Active Compounds:</h4>
+                      <h4 className="font-semibold text-sm mb-1">
+                        Active Compounds:
+                      </h4>
                       <div className="space-y-1">
-                        {herb.activeCompounds.slice(0, 2).map((compound, idx) => (
-                          <div key={idx} className="text-xs bg-blue-50 p-2 rounded">
-                            <div className="font-medium">{compound.name}</div>
-                            <div className="text-gray-600">
-                              {compound.concentration} • {compound.bioavailability}
+                        {herb.activeCompounds
+                          .slice(0, 2)
+                          .map((compound, idx) => (
+                            <div
+                              key={idx}
+                              className="text-xs bg-blue-50 p-2 rounded"
+                            >
+                              <div className="font-medium">{compound.name}</div>
+                              <div className="text-gray-600">
+                                {compound.concentration} •{" "}
+                                {compound.bioavailability}
+                              </div>
                             </div>
-                          </div>
-                        ))}
+                          ))}
                       </div>
                     </div>
 
                     <div>
-                      <h4 className="font-semibold text-sm mb-1">Safety Profile:</h4>
+                      <h4 className="font-semibold text-sm mb-1">
+                        Safety Profile:
+                      </h4>
                       <div className="grid grid-cols-2 gap-2 text-xs">
                         <div>
                           <span className="font-medium">Pregnancy:</span>
                           <Badge variant="outline" className="ml-1 text-xs">
-                            {herb.pregnancySafety.replace('_', ' ')}
+                            {herb.pregnancySafety.replace("_", " ")}
                           </Badge>
                         </div>
                         <div>
                           <span className="font-medium">Pediatric:</span>
                           <Badge variant="outline" className="ml-1 text-xs">
-                            {herb.pediatricSafety.replace('_', ' ')}
+                            {herb.pediatricSafety.replace("_", " ")}
                           </Badge>
                         </div>
                       </div>
                     </div>
 
                     <div>
-                      <h4 className="font-semibold text-sm mb-1">Monitoring Required:</h4>
+                      <h4 className="font-semibold text-sm mb-1">
+                        Monitoring Required:
+                      </h4>
                       <div className="flex flex-wrap gap-1">
-                        {herb.monitoringParameters.slice(0, 3).map((param, idx) => (
-                          <Badge key={idx} variant="secondary" className="text-xs">
-                            {param}
-                          </Badge>
-                        ))}
+                        {herb.monitoringParameters
+                          .slice(0, 3)
+                          .map((param, idx) => (
+                            <Badge
+                              key={idx}
+                              variant="secondary"
+                              className="text-xs"
+                            >
+                              {param}
+                            </Badge>
+                          ))}
                       </div>
                     </div>
                   </div>
@@ -789,8 +972,12 @@ export function AdvancedHerbalInteractions() {
             <CardContent>
               <div className="text-center py-8 text-muted-foreground">
                 <Activity className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                <h3 className="text-lg font-semibold mb-2">Continuous Monitoring Active</h3>
-                <p className="text-sm">AI-powered real-time surveillance of herbal-drug interactions</p>
+                <h3 className="text-lg font-semibold mb-2">
+                  Continuous Monitoring Active
+                </h3>
+                <p className="text-sm">
+                  AI-powered real-time surveillance of herbal-drug interactions
+                </p>
               </div>
             </CardContent>
           </Card>
@@ -808,8 +995,13 @@ export function AdvancedHerbalInteractions() {
             <CardContent>
               <div className="text-center py-8 text-muted-foreground">
                 <BookOpen className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                <h3 className="text-lg font-semibold mb-2">Research Database</h3>
-                <p className="text-sm">Access to latest clinical studies and evidence-based recommendations</p>
+                <h3 className="text-lg font-semibold mb-2">
+                  Research Database
+                </h3>
+                <p className="text-sm">
+                  Access to latest clinical studies and evidence-based
+                  recommendations
+                </p>
               </div>
             </CardContent>
           </Card>

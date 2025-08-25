@@ -11,7 +11,12 @@ import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { Textarea } from "../components/ui/textarea";
 import { Progress } from "../components/ui/progress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../components/ui/tabs";
 import {
   Select,
   SelectContent,
@@ -77,7 +82,11 @@ import {
   Mail,
   Circle,
 } from "lucide-react";
-import { usePatient, usePatientAppointments, usePatientVitals } from "../hooks/api/usePatients";
+import {
+  usePatient,
+  usePatientAppointments,
+  usePatientVitals,
+} from "../hooks/api/usePatients";
 import { PatientService } from "../services/patient.service";
 import { useNavigate } from "react-router-dom";
 
@@ -92,41 +101,44 @@ const mockMedicalHistory = [
     date: "2024-02-10",
     type: "diagnosis",
     title: "Type 2 Diabetes Mellitus",
-    description: "Initial diagnosis based on elevated HbA1c levels and symptoms",
+    description:
+      "Initial diagnosis based on elevated HbA1c levels and symptoms",
     provider: "Dr. Sarah Johnson",
     severity: "moderate",
-    status: "active"
+    status: "active",
   },
   {
-    id: "2", 
+    id: "2",
     date: "2024-01-15",
     type: "procedure",
     title: "Annual Physical Examination",
     description: "Comprehensive physical examination with routine screenings",
     provider: "Dr. Sarah Johnson",
     severity: "routine",
-    status: "completed"
+    status: "completed",
   },
   {
     id: "3",
     date: "2023-12-20",
     type: "lab",
     title: "Comprehensive Metabolic Panel",
-    description: "Glucose: 145 mg/dL (elevated), Creatinine: 1.0 mg/dL (normal)",
+    description:
+      "Glucose: 145 mg/dL (elevated), Creatinine: 1.0 mg/dL (normal)",
     provider: "Quest Diagnostics",
     severity: "abnormal",
-    status: "completed"
+    status: "completed",
   },
   {
     id: "4",
     date: "2023-11-30",
     type: "medication",
     title: "Metformin 500mg",
-    description: "Started on Metformin 500mg twice daily for diabetes management",
+    description:
+      "Started on Metformin 500mg twice daily for diabetes management",
     provider: "Dr. Sarah Johnson",
     severity: "routine",
-    status: "active"
-  }
+    status: "active",
+  },
 ];
 
 const mockConditions = [
@@ -137,16 +149,17 @@ const mockConditions = [
     dateOnset: "2024-02-10",
     status: "active",
     severity: "moderate",
-    notes: "Well-controlled with Metformin. Patient shows good adherence to medication and lifestyle modifications."
+    notes:
+      "Well-controlled with Metformin. Patient shows good adherence to medication and lifestyle modifications.",
   },
   {
     id: "2",
-    name: "Essential Hypertension", 
+    name: "Essential Hypertension",
     icd10: "I10",
     dateOnset: "2023-08-15",
     status: "active",
     severity: "mild",
-    notes: "Controlled with lifestyle modifications. Monitor closely."
+    notes: "Controlled with lifestyle modifications. Monitor closely.",
   },
   {
     id: "3",
@@ -155,8 +168,9 @@ const mockConditions = [
     dateOnset: "2020-04-01",
     status: "active",
     severity: "mild",
-    notes: "Seasonal symptoms in spring and fall. Managed with antihistamines as needed."
-  }
+    notes:
+      "Seasonal symptoms in spring and fall. Managed with antihistamines as needed.",
+  },
 ];
 
 const mockMedications = [
@@ -171,34 +185,34 @@ const mockMedications = [
     prescriber: "Dr. Sarah Johnson",
     indication: "Type 2 Diabetes",
     status: "active",
-    notes: "Take with meals to reduce GI upset"
+    notes: "Take with meals to reduce GI upset",
   },
   {
     id: "2",
     name: "Lisinopril",
-    dosage: "10mg", 
+    dosage: "10mg",
     frequency: "Once daily",
     route: "Oral",
     startDate: "2023-08-15",
     endDate: null,
-    prescriber: "Dr. Sarah Johnson", 
+    prescriber: "Dr. Sarah Johnson",
     indication: "Hypertension",
     status: "active",
-    notes: "Monitor blood pressure regularly"
+    notes: "Monitor blood pressure regularly",
   },
   {
     id: "3",
     name: "Loratadine",
     dosage: "10mg",
     frequency: "As needed",
-    route: "Oral", 
+    route: "Oral",
     startDate: "2023-04-01",
     endDate: null,
     prescriber: "Dr. Sarah Johnson",
     indication: "Allergic Rhinitis",
     status: "active",
-    notes: "For seasonal allergies"
-  }
+    notes: "For seasonal allergies",
+  },
 ];
 
 const mockLabResults = [
@@ -210,17 +224,17 @@ const mockLabResults = [
     reference: "< 7.0%",
     status: "high",
     orderedBy: "Dr. Sarah Johnson",
-    labName: "Quest Diagnostics"
+    labName: "Quest Diagnostics",
   },
   {
     id: "2",
-    date: "2024-02-01", 
+    date: "2024-02-01",
     testName: "Fasting Glucose",
     result: "145 mg/dL",
     reference: "70-100 mg/dL",
     status: "high",
     orderedBy: "Dr. Sarah Johnson",
-    labName: "Quest Diagnostics"
+    labName: "Quest Diagnostics",
   },
   {
     id: "3",
@@ -230,7 +244,7 @@ const mockLabResults = [
     reference: "< 200 mg/dL",
     status: "normal",
     orderedBy: "Dr. Sarah Johnson",
-    labName: "Quest Diagnostics"
+    labName: "Quest Diagnostics",
   },
   {
     id: "4",
@@ -240,8 +254,8 @@ const mockLabResults = [
     reference: "< 120/80 mmHg",
     status: "high",
     orderedBy: "Dr. Sarah Johnson",
-    labName: "In-office"
-  }
+    labName: "In-office",
+  },
 ];
 
 const mockDocuments = [
@@ -252,7 +266,7 @@ const mockDocuments = [
     date: "2024-02-10",
     provider: "Dr. Sarah Johnson",
     size: "2.4 MB",
-    format: "PDF"
+    format: "PDF",
   },
   {
     id: "2",
@@ -261,7 +275,7 @@ const mockDocuments = [
     date: "2024-02-01",
     provider: "Quest Diagnostics",
     size: "1.8 MB",
-    format: "PDF"
+    format: "PDF",
   },
   {
     id: "3",
@@ -270,7 +284,7 @@ const mockDocuments = [
     date: "2024-01-15",
     provider: "Radiology Associates",
     size: "5.2 MB",
-    format: "DICOM"
+    format: "DICOM",
   },
   {
     id: "4",
@@ -279,8 +293,8 @@ const mockDocuments = [
     date: "2024-01-01",
     provider: "Patient Upload",
     size: "0.8 MB",
-    format: "JPG"
-  }
+    format: "JPG",
+  },
 ];
 
 export function PatientRecords({ patientId }: PatientRecordsProps) {
@@ -292,9 +306,15 @@ export function PatientRecords({ patientId }: PatientRecordsProps) {
   // Hooks - load dependencies sequentially to reduce API load
   const { data: patient, isLoading: patientLoading } = usePatient(patientId);
   // Only load appointments and vitals if we have a valid patient
-  const hasValidPatient = patient && !('_error' in patient);
-  const { data: appointments, isLoading: appointmentsLoading } = usePatientAppointments(patientId, hasValidPatient);
-  const { data: vitals, isLoading: vitalsLoading } = usePatientVitals(patientId, 20, 0, hasValidPatient);
+  const hasValidPatient = patient && !("_error" in patient);
+  const { data: appointments, isLoading: appointmentsLoading } =
+    usePatientAppointments(patientId, hasValidPatient);
+  const { data: vitals, isLoading: vitalsLoading } = usePatientVitals(
+    patientId,
+    20,
+    0,
+    hasValidPatient,
+  );
 
   if (patientLoading) {
     return (
@@ -305,19 +325,18 @@ export function PatientRecords({ patientId }: PatientRecordsProps) {
   }
 
   // Check if patient data has an error (fallback data with _error field)
-  const hasPatientError = patient && '_error' in patient;
+  const hasPatientError = patient && "_error" in patient;
 
   if (!patient || hasPatientError) {
     return (
       <div className="min-h-screen bg-background">
         <div className="max-w-7xl mx-auto px-4 py-6 space-y-6">
-
           {/* Breadcrumb Navigation */}
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => navigate('/ehr/intake')}
+              onClick={() => navigate("/ehr/intake")}
               className="gap-2 px-2"
             >
               <ChevronLeft className="w-4 h-4" />
@@ -335,11 +354,15 @@ export function PatientRecords({ patientId }: PatientRecordsProps) {
               <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <AlertTriangle className="w-8 h-8 text-orange-600" />
               </div>
-              <h2 className="text-xl font-semibold mb-2">Patient Record Not Found</h2>
+              <h2 className="text-xl font-semibold mb-2">
+                Patient Record Not Found
+              </h2>
               <p className="text-muted-foreground mb-4">
-                The patient record for ID <code className="bg-muted px-2 py-1 rounded">{patientId}</code> could not be found.
+                The patient record for ID{" "}
+                <code className="bg-muted px-2 py-1 rounded">{patientId}</code>{" "}
+                could not be found.
               </p>
-              {hasPatientError && patient && '_error' in patient && (
+              {hasPatientError && patient && "_error" in patient && (
                 <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
                   <p className="text-sm text-red-800">
                     <strong>Error:</strong> {(patient as any)._error}
@@ -350,19 +373,28 @@ export function PatientRecords({ patientId }: PatientRecordsProps) {
                 <div className="flex items-start gap-3">
                   <AlertTriangle className="w-5 h-5 text-blue-600 mt-0.5" />
                   <div className="text-left">
-                    <h4 className="font-medium text-blue-900 mb-1">Possible Reasons:</h4>
+                    <h4 className="font-medium text-blue-900 mb-1">
+                      Possible Reasons:
+                    </h4>
                     <ul className="text-sm text-blue-800 space-y-1">
-                      <li>• This may be an intake ID that hasn't been converted to a patient record yet</li>
-                      <li>• The patient may not have completed the intake process</li>
+                      <li>
+                        • This may be an intake ID that hasn't been converted to
+                        a patient record yet
+                      </li>
+                      <li>
+                        • The patient may not have completed the intake process
+                      </li>
                       <li>• The patient ID format may be invalid</li>
-                      <li>• You may not have permission to view this patient</li>
+                      <li>
+                        • You may not have permission to view this patient
+                      </li>
                     </ul>
                   </div>
                 </div>
               </div>
               <div className="flex gap-3 justify-center">
                 <Button
-                  onClick={() => navigate('/ehr/intake')}
+                  onClick={() => navigate("/ehr/intake")}
                   className="gap-2"
                 >
                   <ChevronLeft className="w-4 h-4" />
@@ -370,7 +402,7 @@ export function PatientRecords({ patientId }: PatientRecordsProps) {
                 </Button>
                 <Button
                   variant="outline"
-                  onClick={() => navigate('/patient-registry')}
+                  onClick={() => navigate("/patient-registry")}
                   className="gap-2"
                 >
                   <Search className="w-4 h-4" />
@@ -391,7 +423,7 @@ export function PatientRecords({ patientId }: PatientRecordsProps) {
       completed: "bg-blue-100 text-blue-800",
       high: "bg-red-100 text-red-800",
       normal: "bg-green-100 text-green-800",
-      abnormal: "bg-yellow-100 text-yellow-800"
+      abnormal: "bg-yellow-100 text-yellow-800",
     };
     return colors[status as keyof typeof colors] || "bg-gray-100 text-gray-800";
   };
@@ -414,13 +446,12 @@ export function PatientRecords({ patientId }: PatientRecordsProps) {
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-4 py-6 space-y-6">
-
         {/* Breadcrumb Navigation */}
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => navigate('/ehr/intake')}
+            onClick={() => navigate("/ehr/intake")}
             className="gap-2 px-2"
           >
             <ChevronLeft className="w-4 h-4" />
@@ -428,7 +459,10 @@ export function PatientRecords({ patientId }: PatientRecordsProps) {
           </Button>
           <span>/</span>
           <span className="text-foreground font-medium">
-            Patient Records - {patient ? PatientService.formatPatientName(patient) : `ID: ${patientId}`}
+            Patient Records -{" "}
+            {patient
+              ? PatientService.formatPatientName(patient)
+              : `ID: ${patientId}`}
           </span>
         </div>
 
@@ -459,12 +493,13 @@ export function PatientRecords({ patientId }: PatientRecordsProps) {
                     </div>
                     <div className="flex items-center gap-1">
                       <Phone className="w-4 h-4" />
-                      {patient.phone && PatientService.formatPhoneNumber(patient.phone)}
+                      {patient.phone &&
+                        PatientService.formatPhoneNumber(patient.phone)}
                     </div>
                   </div>
                 </div>
               </div>
-              
+
               <div className="flex gap-2">
                 <Button variant="outline" size="sm">
                   <Share className="w-4 h-4 mr-2" />
@@ -483,7 +518,11 @@ export function PatientRecords({ patientId }: PatientRecordsProps) {
           </CardContent>
         </Card>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="space-y-6"
+        >
           <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="history">Medical History</TabsTrigger>
@@ -507,7 +546,10 @@ export function PatientRecords({ patientId }: PatientRecordsProps) {
                   <CardContent>
                     <div className="space-y-4">
                       {mockMedicalHistory.slice(0, 3).map((item) => (
-                        <div key={item.id} className="flex items-start gap-3 p-3 border rounded-lg">
+                        <div
+                          key={item.id}
+                          className="flex items-start gap-3 p-3 border rounded-lg"
+                        >
                           {getSeverityIcon(item.severity)}
                           <div className="flex-1">
                             <div className="flex items-center justify-between mb-1">
@@ -520,7 +562,9 @@ export function PatientRecords({ patientId }: PatientRecordsProps) {
                               {item.description}
                             </p>
                             <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                              <span>{new Date(item.date).toLocaleDateString()}</span>
+                              <span>
+                                {new Date(item.date).toLocaleDateString()}
+                              </span>
                               <span>{item.provider}</span>
                             </div>
                           </div>
@@ -540,19 +584,29 @@ export function PatientRecords({ patientId }: PatientRecordsProps) {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
-                      {mockConditions.filter(c => c.status === 'active').map((condition) => (
-                        <div key={condition.id} className="flex items-center justify-between p-3 border rounded-lg">
-                          <div>
-                            <h4 className="font-medium">{condition.name}</h4>
-                            <p className="text-sm text-muted-foreground">
-                              ICD-10: {condition.icd10} • Since {new Date(condition.dateOnset).toLocaleDateString()}
-                            </p>
+                      {mockConditions
+                        .filter((c) => c.status === "active")
+                        .map((condition) => (
+                          <div
+                            key={condition.id}
+                            className="flex items-center justify-between p-3 border rounded-lg"
+                          >
+                            <div>
+                              <h4 className="font-medium">{condition.name}</h4>
+                              <p className="text-sm text-muted-foreground">
+                                ICD-10: {condition.icd10} • Since{" "}
+                                {new Date(
+                                  condition.dateOnset,
+                                ).toLocaleDateString()}
+                              </p>
+                            </div>
+                            <Badge
+                              className={getStatusBadge(condition.severity)}
+                            >
+                              {condition.severity}
+                            </Badge>
                           </div>
-                          <Badge className={getStatusBadge(condition.severity)}>
-                            {condition.severity}
-                          </Badge>
-                        </div>
-                      ))}
+                        ))}
                     </div>
                   </CardContent>
                 </Card>
@@ -569,17 +623,22 @@ export function PatientRecords({ patientId }: PatientRecordsProps) {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
-                      {mockMedications.filter(m => m.status === 'active').map((medication) => (
-                        <div key={medication.id} className="p-3 border rounded-lg">
-                          <h4 className="font-medium">{medication.name}</h4>
-                          <p className="text-sm text-muted-foreground">
-                            {medication.dosage} {medication.frequency}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {medication.indication}
-                          </p>
-                        </div>
-                      ))}
+                      {mockMedications
+                        .filter((m) => m.status === "active")
+                        .map((medication) => (
+                          <div
+                            key={medication.id}
+                            className="p-3 border rounded-lg"
+                          >
+                            <h4 className="font-medium">{medication.name}</h4>
+                            <p className="text-sm text-muted-foreground">
+                              {medication.dosage} {medication.frequency}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {medication.indication}
+                            </p>
+                          </div>
+                        ))}
                     </div>
                   </CardContent>
                 </Card>
@@ -596,8 +655,13 @@ export function PatientRecords({ patientId }: PatientRecordsProps) {
                       {mockLabResults.slice(0, 3).map((lab) => (
                         <div key={lab.id} className="p-3 border rounded-lg">
                           <div className="flex items-center justify-between mb-1">
-                            <h4 className="font-medium text-sm">{lab.testName}</h4>
-                            <Badge className={getStatusBadge(lab.status)} variant="outline">
+                            <h4 className="font-medium text-sm">
+                              {lab.testName}
+                            </h4>
+                            <Badge
+                              className={getStatusBadge(lab.status)}
+                              variant="outline"
+                            >
                               {lab.status}
                             </Badge>
                           </div>
@@ -622,12 +686,19 @@ export function PatientRecords({ patientId }: PatientRecordsProps) {
                     <div className="space-y-2">
                       {patient.allergies && patient.allergies.length > 0 ? (
                         patient.allergies.map((allergy, index) => (
-                          <div key={index} className="p-2 bg-red-50 border border-red-200 rounded">
-                            <span className="text-sm font-medium text-red-800">{allergy}</span>
+                          <div
+                            key={index}
+                            className="p-2 bg-red-50 border border-red-200 rounded"
+                          >
+                            <span className="text-sm font-medium text-red-800">
+                              {allergy}
+                            </span>
                           </div>
                         ))
                       ) : (
-                        <p className="text-sm text-muted-foreground">No known allergies</p>
+                        <p className="text-sm text-muted-foreground">
+                          No known allergies
+                        </p>
                       )}
                     </div>
                   </CardContent>
@@ -673,10 +744,18 @@ export function PatientRecords({ patientId }: PatientRecordsProps) {
                       )}
                       <div className="flex items-start gap-4">
                         <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-                          {item.type === 'diagnosis' && <Stethoscope className="w-5 h-5 text-primary" />}
-                          {item.type === 'procedure' && <Activity className="w-5 h-5 text-primary" />}
-                          {item.type === 'lab' && <TestTube2 className="w-5 h-5 text-primary" />}
-                          {item.type === 'medication' && <Pill className="w-5 h-5 text-primary" />}
+                          {item.type === "diagnosis" && (
+                            <Stethoscope className="w-5 h-5 text-primary" />
+                          )}
+                          {item.type === "procedure" && (
+                            <Activity className="w-5 h-5 text-primary" />
+                          )}
+                          {item.type === "lab" && (
+                            <TestTube2 className="w-5 h-5 text-primary" />
+                          )}
+                          {item.type === "medication" && (
+                            <Pill className="w-5 h-5 text-primary" />
+                          )}
                         </div>
                         <div className="flex-1 p-4 border rounded-lg">
                           <div className="flex items-center justify-between mb-2">
@@ -688,9 +767,13 @@ export function PatientRecords({ patientId }: PatientRecordsProps) {
                               </Badge>
                             </div>
                           </div>
-                          <p className="text-muted-foreground mb-3">{item.description}</p>
+                          <p className="text-muted-foreground mb-3">
+                            {item.description}
+                          </p>
                           <div className="flex items-center justify-between text-sm text-muted-foreground">
-                            <span>{new Date(item.date).toLocaleDateString()}</span>
+                            <span>
+                              {new Date(item.date).toLocaleDateString()}
+                            </span>
                             <span>{item.provider}</span>
                           </div>
                         </div>
@@ -724,20 +807,35 @@ export function PatientRecords({ patientId }: PatientRecordsProps) {
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
                             <div className="flex items-center gap-3 mb-2">
-                              <h3 className="font-semibold">{condition.name}</h3>
-                              <Badge className={getStatusBadge(condition.status)}>
+                              <h3 className="font-semibold">
+                                {condition.name}
+                              </h3>
+                              <Badge
+                                className={getStatusBadge(condition.status)}
+                              >
                                 {condition.status}
                               </Badge>
-                              <Badge className={getStatusBadge(condition.severity)} variant="outline">
+                              <Badge
+                                className={getStatusBadge(condition.severity)}
+                                variant="outline"
+                              >
                                 {condition.severity}
                               </Badge>
                             </div>
                             <div className="grid grid-cols-2 gap-4 text-sm text-muted-foreground mb-3">
                               <div>
-                                <span className="font-medium">ICD-10 Code:</span> {condition.icd10}
+                                <span className="font-medium">
+                                  ICD-10 Code:
+                                </span>{" "}
+                                {condition.icd10}
                               </div>
                               <div>
-                                <span className="font-medium">Date of Onset:</span> {new Date(condition.dateOnset).toLocaleDateString()}
+                                <span className="font-medium">
+                                  Date of Onset:
+                                </span>{" "}
+                                {new Date(
+                                  condition.dateOnset,
+                                ).toLocaleDateString()}
                               </div>
                             </div>
                             <p className="text-sm">{condition.notes}</p>
@@ -789,7 +887,9 @@ export function PatientRecords({ patientId }: PatientRecordsProps) {
                   <TableBody>
                     {mockMedications.map((medication) => (
                       <TableRow key={medication.id}>
-                        <TableCell className="font-medium">{medication.name}</TableCell>
+                        <TableCell className="font-medium">
+                          {medication.name}
+                        </TableCell>
                         <TableCell>{medication.dosage}</TableCell>
                         <TableCell>{medication.frequency}</TableCell>
                         <TableCell>{medication.indication}</TableCell>
@@ -847,7 +947,9 @@ export function PatientRecords({ patientId }: PatientRecordsProps) {
                   <TableBody>
                     {mockLabResults.map((lab) => (
                       <TableRow key={lab.id}>
-                        <TableCell className="font-medium">{lab.testName}</TableCell>
+                        <TableCell className="font-medium">
+                          {lab.testName}
+                        </TableCell>
                         <TableCell>{lab.result}</TableCell>
                         <TableCell>{lab.reference}</TableCell>
                         <TableCell>
@@ -855,7 +957,9 @@ export function PatientRecords({ patientId }: PatientRecordsProps) {
                             {lab.status}
                           </Badge>
                         </TableCell>
-                        <TableCell>{new Date(lab.date).toLocaleDateString()}</TableCell>
+                        <TableCell>
+                          {new Date(lab.date).toLocaleDateString()}
+                        </TableCell>
                         <TableCell>{lab.orderedBy}</TableCell>
                         <TableCell>
                           <div className="flex gap-1">
@@ -892,31 +996,54 @@ export function PatientRecords({ patientId }: PatientRecordsProps) {
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {mockDocuments.map((document) => (
-                    <Card key={document.id} className="hover:shadow-md transition-shadow">
+                    <Card
+                      key={document.id}
+                      className="hover:shadow-md transition-shadow"
+                    >
                       <CardContent className="p-4">
                         <div className="flex items-start gap-3">
                           <div className="w-10 h-10 bg-primary/10 rounded flex items-center justify-center">
-                            {document.format === 'PDF' && <FileText className="w-5 h-5 text-primary" />}
-                            {document.format === 'JPG' && <FileImage className="w-5 h-5 text-primary" />}
-                            {document.format === 'DICOM' && <Image className="w-5 h-5 text-primary" />}
+                            {document.format === "PDF" && (
+                              <FileText className="w-5 h-5 text-primary" />
+                            )}
+                            {document.format === "JPG" && (
+                              <FileImage className="w-5 h-5 text-primary" />
+                            )}
+                            {document.format === "DICOM" && (
+                              <Image className="w-5 h-5 text-primary" />
+                            )}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <h4 className="font-medium text-sm truncate">{document.name}</h4>
-                            <p className="text-xs text-muted-foreground">{document.type}</p>
+                            <h4 className="font-medium text-sm truncate">
+                              {document.name}
+                            </h4>
+                            <p className="text-xs text-muted-foreground">
+                              {document.type}
+                            </p>
                             <div className="flex items-center justify-between mt-2">
                               <span className="text-xs text-muted-foreground">
                                 {new Date(document.date).toLocaleDateString()}
                               </span>
-                              <span className="text-xs text-muted-foreground">{document.size}</span>
+                              <span className="text-xs text-muted-foreground">
+                                {document.size}
+                              </span>
                             </div>
                           </div>
                         </div>
                         <div className="flex gap-1 mt-3">
-                          <Button variant="outline" size="sm" className="flex-1">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="flex-1"
+                          >
                             <Eye className="w-3 h-3 mr-1" />
                             View
                           </Button>
-                          <Button variant="outline" size="sm" className="flex-1">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="flex-1"
+                          >
                             <Download className="w-3 h-3 mr-1" />
                             Download
                           </Button>
@@ -943,7 +1070,7 @@ export function PatientRecords({ patientId }: PatientRecordsProps) {
               <Button
                 variant="outline"
                 className="h-20 flex flex-col gap-2"
-                onClick={() => setSelectedRecordType('condition')}
+                onClick={() => setSelectedRecordType("condition")}
               >
                 <Heart className="w-6 h-6" />
                 <span>Condition</span>
@@ -951,7 +1078,7 @@ export function PatientRecords({ patientId }: PatientRecordsProps) {
               <Button
                 variant="outline"
                 className="h-20 flex flex-col gap-2"
-                onClick={() => setSelectedRecordType('medication')}
+                onClick={() => setSelectedRecordType("medication")}
               >
                 <Pill className="w-6 h-6" />
                 <span>Medication</span>
@@ -959,7 +1086,7 @@ export function PatientRecords({ patientId }: PatientRecordsProps) {
               <Button
                 variant="outline"
                 className="h-20 flex flex-col gap-2"
-                onClick={() => setSelectedRecordType('lab')}
+                onClick={() => setSelectedRecordType("lab")}
               >
                 <TestTube2 className="w-6 h-6" />
                 <span>Lab Result</span>
@@ -967,7 +1094,7 @@ export function PatientRecords({ patientId }: PatientRecordsProps) {
               <Button
                 variant="outline"
                 className="h-20 flex flex-col gap-2"
-                onClick={() => setSelectedRecordType('document')}
+                onClick={() => setSelectedRecordType("document")}
               >
                 <FileText className="w-6 h-6" />
                 <span>Document</span>

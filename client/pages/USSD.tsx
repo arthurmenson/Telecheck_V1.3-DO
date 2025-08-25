@@ -1,5 +1,5 @@
-import React from 'react';
-import { USSDManagement } from '../components/USSDManagement';
+import React from "react";
+import { USSDManagement } from "../components/USSDManagement";
 
 export function USSD() {
   return (

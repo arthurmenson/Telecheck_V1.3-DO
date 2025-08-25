@@ -53,10 +53,10 @@ const recentTranscriptions = [
     status: "completed",
     confidence: 96,
     type: "Office Visit",
-    specialty: "Internal Medicine"
+    specialty: "Internal Medicine",
   },
   {
-    id: "TR002", 
+    id: "TR002",
     patientName: "Michael Chen",
     provider: "Dr. Williams",
     date: "2024-02-15",
@@ -65,20 +65,20 @@ const recentTranscriptions = [
     status: "in-progress",
     confidence: 94,
     type: "Follow-up",
-    specialty: "Cardiology"
+    specialty: "Cardiology",
   },
   {
     id: "TR003",
     patientName: "Emily Rodriguez",
     provider: "Dr. Johnson",
     date: "2024-02-15",
-    time: "3:45 PM", 
+    time: "3:45 PM",
     duration: "15:12",
     status: "review",
     confidence: 98,
     type: "Consultation",
-    specialty: "Dermatology"
-  }
+    specialty: "Dermatology",
+  },
 ];
 
 const scribeStats = [
@@ -87,29 +87,29 @@ const scribeStats = [
     value: "24",
     change: "+18% vs yesterday",
     icon: Mic,
-    color: "#10b981"
+    color: "#10b981",
   },
   {
     title: "Avg. Accuracy",
     value: "96.5%",
     change: "+2.1% this week",
     icon: Brain,
-    color: "#3b82f6"
+    color: "#3b82f6",
   },
   {
     title: "Time Saved",
     value: "4.2 hrs",
     change: "Per provider today",
     icon: Clock,
-    color: "#f59e0b"
+    color: "#f59e0b",
   },
   {
     title: "Auto-Generated Notes",
     value: "156",
     change: "+23 completed",
     icon: FileText,
-    color: "#ef4444"
-  }
+    color: "#ef4444",
+  },
 ];
 
 export function AIScribe() {
@@ -124,7 +124,7 @@ export function AIScribe() {
     let interval: NodeJS.Timeout;
     if (isRecording && !isPaused) {
       interval = setInterval(() => {
-        setRecordingTime(prev => prev + 1);
+        setRecordingTime((prev) => prev + 1);
       }, 1000);
     }
     return () => clearInterval(interval);
@@ -133,7 +133,7 @@ export function AIScribe() {
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
   const startRecording = () => {
@@ -152,14 +152,15 @@ export function AIScribe() {
     setIsPaused(false);
     // Simulate AI processing
     setTimeout(() => {
-      setCurrentTranscript("Patient presents with chief complaint of chest pain that started this morning. Pain is described as sharp, 7/10 intensity, located in the center of the chest. No radiation to arms or jaw. Associated with shortness of breath but no nausea or diaphoresis. No recent trauma or exertional triggers noted...");
+      setCurrentTranscript(
+        "Patient presents with chief complaint of chest pain that started this morning. Pain is described as sharp, 7/10 intensity, located in the center of the chest. No radiation to arms or jaw. Associated with shortness of breath but no nausea or diaphoresis. No recent trauma or exertional triggers noted...",
+      );
     }, 2000);
   };
 
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-4 py-6 space-y-6">
-        
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -181,10 +182,12 @@ export function AIScribe() {
                   variant="info"
                 />
               </h1>
-              <p className="text-muted-foreground">Automated medical documentation with AI transcription</p>
+              <p className="text-muted-foreground">
+                Automated medical documentation with AI transcription
+              </p>
             </div>
           </div>
-          
+
           <div className="flex gap-2">
             <Button variant="outline" className="gap-2">
               <Settings className="w-4 h-4" />
@@ -206,9 +209,15 @@ export function AIScribe() {
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
-                      <p className="text-2xl font-bold text-foreground">{stat.value}</p>
-                      <p className="text-xs text-muted-foreground">{stat.change}</p>
+                      <p className="text-sm font-medium text-muted-foreground">
+                        {stat.title}
+                      </p>
+                      <p className="text-2xl font-bold text-foreground">
+                        {stat.value}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {stat.change}
+                      </p>
                     </div>
                     <Icon className="w-8 h-8" style={{ color: stat.color }} />
                   </div>
@@ -219,7 +228,6 @@ export function AIScribe() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          
           {/* Live Recording Panel */}
           <Card>
             <CardHeader>
@@ -234,18 +242,18 @@ export function AIScribe() {
                     "Medical terminology understanding",
                     "Real-time confidence scoring",
                     "Pause/resume recording controls",
-                    "Auto-punctuation and formatting"
+                    "Auto-punctuation and formatting",
                   ]}
                   benefits={[
                     "Instant transcription feedback",
                     "No post-processing delays",
                     "Hands-free documentation",
-                    "HIPAA-compliant processing"
+                    "HIPAA-compliant processing",
                   ]}
                   examples={[
                     "Record patient consultations in real-time",
                     "Get immediate feedback on transcription quality",
-                    "Pause recording for sensitive discussions"
+                    "Pause recording for sensitive discussions",
                   ]}
                   category="Voice Technology"
                   complexity="Beginner"
@@ -255,15 +263,16 @@ export function AIScribe() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              
               {/* Recording Controls */}
               <div className="text-center space-y-4">
                 <div className="flex items-center justify-center">
-                  <div className={`w-32 h-32 rounded-full flex items-center justify-center border-4 transition-all ${
-                    isRecording 
-                      ? 'border-red-500 bg-red-50 dark:bg-red-900/20' 
-                      : 'border-gray-300 bg-gray-50 dark:bg-gray-800'
-                  }`}>
+                  <div
+                    className={`w-32 h-32 rounded-full flex items-center justify-center border-4 transition-all ${
+                      isRecording
+                        ? "border-red-500 bg-red-50 dark:bg-red-900/20"
+                        : "border-gray-300 bg-gray-50 dark:bg-gray-800"
+                    }`}
+                  >
                     {isRecording ? (
                       <div className="text-center">
                         <Mic className="w-8 h-8 text-red-500 mx-auto mb-2" />
@@ -279,21 +288,28 @@ export function AIScribe() {
 
                 <div className="flex items-center justify-center gap-3">
                   {!isRecording ? (
-                    <Button onClick={startRecording} className="gap-2 bg-red-600 hover:bg-red-700">
+                    <Button
+                      onClick={startRecording}
+                      className="gap-2 bg-red-600 hover:bg-red-700"
+                    >
                       <Mic className="w-4 h-4" />
                       Start Recording
                     </Button>
                   ) : (
                     <>
-                      <Button 
-                        onClick={pauseRecording} 
+                      <Button
+                        onClick={pauseRecording}
                         variant="outline"
                         className="gap-2"
                       >
-                        {isPaused ? <Play className="w-4 h-4" /> : <Pause className="w-4 h-4" />}
-                        {isPaused ? 'Resume' : 'Pause'}
+                        {isPaused ? (
+                          <Play className="w-4 h-4" />
+                        ) : (
+                          <Pause className="w-4 h-4" />
+                        )}
+                        {isPaused ? "Resume" : "Pause"}
                       </Button>
-                      <Button 
+                      <Button
                         onClick={stopRecording}
                         variant="destructive"
                         className="gap-2"
@@ -308,7 +324,7 @@ export function AIScribe() {
                 {isRecording && (
                   <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
                     <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                    {isPaused ? 'Recording Paused' : 'Recording in Progress'}
+                    {isPaused ? "Recording Paused" : "Recording in Progress"}
                   </div>
                 )}
               </div>
@@ -329,15 +345,19 @@ export function AIScribe() {
                         </Badge>
                         <Badge variant="outline">Auto-formatted</Badge>
                       </div>
-                      <p className="text-sm leading-relaxed">{currentTranscript}</p>
+                      <p className="text-sm leading-relaxed">
+                        {currentTranscript}
+                      </p>
                     </div>
                   ) : (
                     <p className="text-muted-foreground text-center">
-                      {isRecording ? 'Listening for speech...' : 'Start recording to see live transcription'}
+                      {isRecording
+                        ? "Listening for speech..."
+                        : "Start recording to see live transcription"}
                     </p>
                   )}
                 </div>
-                
+
                 {currentTranscript && (
                   <div className="flex gap-2">
                     <Button variant="outline" size="sm" className="gap-1">
@@ -372,50 +392,64 @@ export function AIScribe() {
                     "ICD-10 code suggestions",
                     "Drug interaction detection",
                     "Follow-up task creation",
-                    "Clinical decision support"
+                    "Clinical decision support",
                   ]}
                   benefits={[
                     "Reduce documentation time by 75%",
                     "Improve coding accuracy",
                     "Enhance patient safety",
-                    "Standardize note formats"
+                    "Standardize note formats",
                   ]}
                   examples={[
                     "Convert conversations into structured SOAP notes",
                     "Automatically suggest appropriate billing codes",
-                    "Flag potential drug interactions mentioned"
+                    "Flag potential drug interactions mentioned",
                   ]}
                   category="Medical AI"
                   complexity="Advanced"
                   estimatedTime="Automatic processing"
                   prerequisites={[
                     "Completed transcription",
-                    "Medical context understanding"
+                    "Medical context understanding",
                   ]}
                   size="sm"
                 />
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              
               {/* AI Features */}
               <div className="grid grid-cols-2 gap-4">
                 {[
-                  { title: "Auto SOAP Notes", icon: FileText, status: "active" },
+                  {
+                    title: "Auto SOAP Notes",
+                    icon: FileText,
+                    status: "active",
+                  },
                   { title: "ICD-10 Coding", icon: BarChart3, status: "active" },
-                  { title: "Drug Interactions", icon: AlertTriangle, status: "active" },
-                  { title: "Follow-up Tasks", icon: CheckCircle, status: "active" }
+                  {
+                    title: "Drug Interactions",
+                    icon: AlertTriangle,
+                    status: "active",
+                  },
+                  {
+                    title: "Follow-up Tasks",
+                    icon: CheckCircle,
+                    status: "active",
+                  },
                 ].map((feature, idx) => {
                   const Icon = feature.icon;
                   return (
-                    <div key={idx} className="p-3 border rounded-lg text-center">
+                    <div
+                      key={idx}
+                      className="p-3 border rounded-lg text-center"
+                    >
                       <Icon className="w-6 h-6 mx-auto mb-2 text-primary" />
                       <h5 className="text-sm font-medium">{feature.title}</h5>
-                      <Badge 
+                      <Badge
                         className={`text-xs mt-1 ${
-                          feature.status === 'active' 
-                            ? 'bg-green-100 text-green-700' 
-                            : 'bg-gray-100 text-gray-700'
+                          feature.status === "active"
+                            ? "bg-green-100 text-green-700"
+                            : "bg-gray-100 text-gray-700"
                         }`}
                       >
                         {feature.status}
@@ -430,25 +464,44 @@ export function AIScribe() {
                 <h4 className="font-medium">Processing Queue</h4>
                 <div className="space-y-2">
                   {[
-                    { patient: "Sarah J.", status: "Generating SOAP note", progress: 85 },
-                    { patient: "Michael C.", status: "Extracting diagnoses", progress: 60 },
-                    { patient: "Emily R.", status: "Coding procedures", progress: 30 }
+                    {
+                      patient: "Sarah J.",
+                      status: "Generating SOAP note",
+                      progress: 85,
+                    },
+                    {
+                      patient: "Michael C.",
+                      status: "Extracting diagnoses",
+                      progress: 60,
+                    },
+                    {
+                      patient: "Emily R.",
+                      status: "Coding procedures",
+                      progress: 30,
+                    },
                   ].map((item, idx) => (
-                    <div key={idx} className="flex items-center justify-between p-3 bg-muted/30 rounded">
+                    <div
+                      key={idx}
+                      className="flex items-center justify-between p-3 bg-muted/30 rounded"
+                    >
                       <div>
                         <p className="text-sm font-medium">{item.patient}</p>
-                        <p className="text-xs text-muted-foreground">{item.status}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {item.status}
+                        </p>
                       </div>
                       <div className="text-right">
                         <div className="w-16 mb-1">
                           <div className="w-full bg-gray-200 rounded-full h-1.5">
-                            <div 
+                            <div
                               className="bg-primary h-1.5 rounded-full transition-all duration-300"
                               style={{ width: `${item.progress}%` }}
                             ></div>
                           </div>
                         </div>
-                        <p className="text-xs text-muted-foreground">{item.progress}%</p>
+                        <p className="text-xs text-muted-foreground">
+                          {item.progress}%
+                        </p>
                       </div>
                     </div>
                   ))}
@@ -459,15 +512,27 @@ export function AIScribe() {
               <div className="space-y-2">
                 <h4 className="font-medium">Quick Actions</h4>
                 <div className="grid grid-cols-1 gap-2">
-                  <Button variant="outline" size="sm" className="justify-start gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="justify-start gap-2"
+                  >
                     <Upload className="w-4 h-4" />
                     Upload Audio File
                   </Button>
-                  <Button variant="outline" size="sm" className="justify-start gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="justify-start gap-2"
+                  >
                     <Settings className="w-4 h-4" />
                     Configure Templates
                   </Button>
-                  <Button variant="outline" size="sm" className="justify-start gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="justify-start gap-2"
+                  >
                     <Download className="w-4 h-4" />
                     Export Training Data
                   </Button>
@@ -497,51 +562,64 @@ export function AIScribe() {
           <CardContent>
             <div className="space-y-4">
               {recentTranscriptions.map((transcription) => (
-                <div key={transcription.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50">
+                <div
+                  key={transcription.id}
+                  className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50"
+                >
                   <div className="flex items-center gap-4">
                     <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
                       <Mic className="w-5 h-5 text-primary" />
                     </div>
                     <div>
-                      <h4 className="font-medium">{transcription.patientName}</h4>
+                      <h4 className="font-medium">
+                        {transcription.patientName}
+                      </h4>
                       <p className="text-sm text-muted-foreground">
                         {transcription.provider} • {transcription.specialty}
                       </p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center gap-6">
                     <div className="text-center">
                       <p className="text-sm text-muted-foreground">Type</p>
                       <p className="font-medium">{transcription.type}</p>
                     </div>
-                    
+
                     <div className="text-center">
                       <p className="text-sm text-muted-foreground">Duration</p>
                       <p className="font-medium">{transcription.duration}</p>
                     </div>
-                    
+
                     <div className="text-center">
-                      <p className="text-sm text-muted-foreground">Confidence</p>
+                      <p className="text-sm text-muted-foreground">
+                        Confidence
+                      </p>
                       <div className="flex items-center gap-1">
                         <div className="w-12 h-1.5 bg-gray-200 rounded-full">
-                          <div 
+                          <div
                             className="h-1.5 bg-green-500 rounded-full"
                             style={{ width: `${transcription.confidence}%` }}
                           ></div>
                         </div>
-                        <span className="text-sm font-medium">{transcription.confidence}%</span>
+                        <span className="text-sm font-medium">
+                          {transcription.confidence}%
+                        </span>
                       </div>
                     </div>
-                    
-                    <Badge className={
-                      transcription.status === 'completed' ? 'bg-green-100 text-green-700' :
-                      transcription.status === 'in-progress' ? 'bg-blue-100 text-blue-700' :
-                      'bg-yellow-100 text-yellow-700'
-                    }>
-                      {transcription.status.replace('-', ' ')}
+
+                    <Badge
+                      className={
+                        transcription.status === "completed"
+                          ? "bg-green-100 text-green-700"
+                          : transcription.status === "in-progress"
+                            ? "bg-blue-100 text-blue-700"
+                            : "bg-yellow-100 text-yellow-700"
+                      }
+                    >
+                      {transcription.status.replace("-", " ")}
                     </Badge>
-                    
+
                     <div className="flex gap-1">
                       <Button variant="outline" size="sm">
                         <Eye className="w-4 h-4" />

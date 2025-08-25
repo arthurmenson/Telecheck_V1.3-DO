@@ -53,29 +53,29 @@ const portalStats = [
     value: "1,247",
     change: "+12% this month",
     icon: Users,
-    color: "#10b981"
+    color: "#10b981",
   },
   {
     title: "Portal Adoption Rate",
     value: "89%",
     change: "+5% this quarter",
     icon: Smartphone,
-    color: "#3b82f6"
+    color: "#3b82f6",
   },
   {
     title: "Avg. Session Time",
     value: "8.5 min",
     change: "+2.1 min engagement",
     icon: Clock,
-    color: "#f59e0b"
+    color: "#f59e0b",
   },
   {
     title: "Patient Satisfaction",
     value: "4.7/5",
     change: "+0.3 improvement",
     icon: Star,
-    color: "#ef4444"
-  }
+    color: "#ef4444",
+  },
 ];
 
 const portalFeatures = [
@@ -88,7 +88,7 @@ const portalFeatures = [
         icon: FileText,
         users: 1189,
         satisfaction: 4.8,
-        status: "active"
+        status: "active",
       },
       {
         title: "Lab Results Portal",
@@ -96,17 +96,18 @@ const portalFeatures = [
         icon: TestTube,
         users: 956,
         satisfaction: 4.6,
-        status: "active"
+        status: "active",
       },
       {
         title: "Medication Management",
-        description: "Current medications, refill requests, and adherence tracking",
+        description:
+          "Current medications, refill requests, and adherence tracking",
         icon: Pill,
         users: 834,
         satisfaction: 4.5,
-        status: "active"
-      }
-    ]
+        status: "active",
+      },
+    ],
   },
   {
     category: "Appointments & Communication",
@@ -117,7 +118,7 @@ const portalFeatures = [
         icon: Calendar,
         users: 1098,
         satisfaction: 4.7,
-        status: "active"
+        status: "active",
       },
       {
         title: "Secure Messaging",
@@ -125,7 +126,7 @@ const portalFeatures = [
         icon: MessageCircle,
         users: 876,
         satisfaction: 4.4,
-        status: "active"
+        status: "active",
       },
       {
         title: "Video Consultations",
@@ -133,9 +134,9 @@ const portalFeatures = [
         icon: Video,
         users: 567,
         satisfaction: 4.8,
-        status: "active"
-      }
-    ]
+        status: "active",
+      },
+    ],
   },
   {
     category: "Billing & Insurance",
@@ -146,7 +147,7 @@ const portalFeatures = [
         icon: CreditCard,
         users: 923,
         satisfaction: 4.3,
-        status: "active"
+        status: "active",
       },
       {
         title: "Insurance Management",
@@ -154,7 +155,7 @@ const portalFeatures = [
         icon: Shield,
         users: 712,
         satisfaction: 4.2,
-        status: "active"
+        status: "active",
       },
       {
         title: "Cost Transparency",
@@ -162,9 +163,9 @@ const portalFeatures = [
         icon: BarChart3,
         users: 445,
         satisfaction: 4.6,
-        status: "beta"
-      }
-    ]
+        status: "beta",
+      },
+    ],
   },
   {
     category: "Health & Wellness",
@@ -175,7 +176,7 @@ const portalFeatures = [
         icon: Activity,
         users: 678,
         satisfaction: 4.5,
-        status: "active"
+        status: "active",
       },
       {
         title: "Care Plan Management",
@@ -183,7 +184,7 @@ const portalFeatures = [
         icon: Target,
         users: 523,
         satisfaction: 4.7,
-        status: "active"
+        status: "active",
       },
       {
         title: "Health Education",
@@ -191,10 +192,10 @@ const portalFeatures = [
         icon: BookOpen,
         users: 789,
         satisfaction: 4.4,
-        status: "active"
-      }
-    ]
-  }
+        status: "active",
+      },
+    ],
+  },
 ];
 
 const recentActivity = [
@@ -202,48 +203,48 @@ const recentActivity = [
     action: "Lab results viewed",
     patient: "Anonymous",
     time: "2 minutes ago",
-    details: "CBC with differential"
+    details: "CBC with differential",
   },
   {
     action: "Appointment scheduled",
-    patient: "Anonymous", 
+    patient: "Anonymous",
     time: "5 minutes ago",
-    details: "Annual physical - Dr. Smith"
+    details: "Annual physical - Dr. Smith",
   },
   {
     action: "Message sent",
     patient: "Anonymous",
-    time: "8 minutes ago", 
-    details: "Question about medication"
+    time: "8 minutes ago",
+    details: "Question about medication",
   },
   {
     action: "Bill payment",
     patient: "Anonymous",
     time: "12 minutes ago",
-    details: "$125.00 - Office visit"
+    details: "$125.00 - Office visit",
   },
   {
     action: "Health data logged",
     patient: "Anonymous",
     time: "18 minutes ago",
-    details: "Blood pressure reading"
-  }
+    details: "Blood pressure reading",
+  },
 ];
 
 export function PatientPortal() {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
 
-  const categories = ["all", ...new Set(portalFeatures.map(f => f.category))];
+  const categories = ["all", ...new Set(portalFeatures.map((f) => f.category))];
 
-  const filteredFeatures = portalFeatures.filter(featureGroup => 
-    selectedCategory === "all" || featureGroup.category === selectedCategory
+  const filteredFeatures = portalFeatures.filter(
+    (featureGroup) =>
+      selectedCategory === "all" || featureGroup.category === selectedCategory,
   );
 
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-4 py-6 space-y-6">
-        
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -258,10 +259,12 @@ export function PatientPortal() {
                 <Globe className="w-8 h-8 text-primary" />
                 Patient Portal Management
               </h1>
-              <p className="text-muted-foreground">Comprehensive patient self-service portal administration</p>
+              <p className="text-muted-foreground">
+                Comprehensive patient self-service portal administration
+              </p>
             </div>
           </div>
-          
+
           <div className="flex gap-2">
             <Button variant="outline" className="gap-2">
               <Settings className="w-4 h-4" />
@@ -283,9 +286,15 @@ export function PatientPortal() {
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
-                      <p className="text-2xl font-bold text-foreground">{stat.value}</p>
-                      <p className="text-xs text-muted-foreground">{stat.change}</p>
+                      <p className="text-sm font-medium text-muted-foreground">
+                        {stat.title}
+                      </p>
+                      <p className="text-2xl font-bold text-foreground">
+                        {stat.value}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {stat.change}
+                      </p>
                     </div>
                     <Icon className="w-8 h-8" style={{ color: stat.color }} />
                   </div>
@@ -296,10 +305,8 @@ export function PatientPortal() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          
           {/* Portal Features */}
           <div className="lg:col-span-2 space-y-6">
-            
             {/* Search and Filter */}
             <Card>
               <CardContent className="p-4">
@@ -317,7 +324,9 @@ export function PatientPortal() {
                     {categories.map((category) => (
                       <Button
                         key={category}
-                        variant={selectedCategory === category ? "default" : "outline"}
+                        variant={
+                          selectedCategory === category ? "default" : "outline"
+                        }
                         size="sm"
                         onClick={() => setSelectedCategory(category)}
                         className="capitalize"
@@ -336,7 +345,9 @@ export function PatientPortal() {
                 <CardHeader>
                   <CardTitle className="flex items-center justify-between">
                     <span>{featureGroup.category}</span>
-                    <Badge variant="outline">{featureGroup.features.length} features</Badge>
+                    <Badge variant="outline">
+                      {featureGroup.features.length} features
+                    </Badge>
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -344,48 +355,75 @@ export function PatientPortal() {
                     {featureGroup.features.map((feature, idx) => {
                       const Icon = feature.icon;
                       return (
-                        <div key={idx} className="flex items-start gap-4 p-4 border rounded-lg hover:bg-muted/50">
-                          <div 
+                        <div
+                          key={idx}
+                          className="flex items-start gap-4 p-4 border rounded-lg hover:bg-muted/50"
+                        >
+                          <div
                             className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0"
-                            style={{ backgroundColor: `${feature.status === 'active' ? '#10b981' : '#f59e0b'}15` }}
+                            style={{
+                              backgroundColor: `${feature.status === "active" ? "#10b981" : "#f59e0b"}15`,
+                            }}
                           >
-                            <Icon className="w-6 h-6" style={{ 
-                              color: feature.status === 'active' ? '#10b981' : '#f59e0b' 
-                            }} />
+                            <Icon
+                              className="w-6 h-6"
+                              style={{
+                                color:
+                                  feature.status === "active"
+                                    ? "#10b981"
+                                    : "#f59e0b",
+                              }}
+                            />
                           </div>
-                          
+
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-1">
                               <h4 className="font-medium">{feature.title}</h4>
-                              <Badge className={
-                                feature.status === 'active' 
-                                  ? 'bg-green-100 text-green-700' 
-                                  : 'bg-yellow-100 text-yellow-700'
-                              }>
+                              <Badge
+                                className={
+                                  feature.status === "active"
+                                    ? "bg-green-100 text-green-700"
+                                    : "bg-yellow-100 text-yellow-700"
+                                }
+                              >
                                 {feature.status}
                               </Badge>
                             </div>
-                            <p className="text-sm text-muted-foreground mb-3">{feature.description}</p>
-                            
+                            <p className="text-sm text-muted-foreground mb-3">
+                              {feature.description}
+                            </p>
+
                             <div className="grid grid-cols-3 gap-4 text-sm">
                               <div>
-                                <p className="text-muted-foreground">Active Users</p>
-                                <p className="font-medium">{feature.users.toLocaleString()}</p>
+                                <p className="text-muted-foreground">
+                                  Active Users
+                                </p>
+                                <p className="font-medium">
+                                  {feature.users.toLocaleString()}
+                                </p>
                               </div>
                               <div>
-                                <p className="text-muted-foreground">Satisfaction</p>
+                                <p className="text-muted-foreground">
+                                  Satisfaction
+                                </p>
                                 <div className="flex items-center gap-1">
                                   <Star className="w-3 h-3 text-yellow-500 fill-current" />
-                                  <span className="font-medium">{feature.satisfaction}</span>
+                                  <span className="font-medium">
+                                    {feature.satisfaction}
+                                  </span>
                                 </div>
                               </div>
                               <div>
-                                <p className="text-muted-foreground">Adoption Rate</p>
-                                <p className="font-medium">{Math.round((feature.users / 1247) * 100)}%</p>
+                                <p className="text-muted-foreground">
+                                  Adoption Rate
+                                </p>
+                                <p className="font-medium">
+                                  {Math.round((feature.users / 1247) * 100)}%
+                                </p>
                               </div>
                             </div>
                           </div>
-                          
+
                           <div className="flex flex-col gap-2">
                             <Button variant="outline" size="sm">
                               <Eye className="w-4 h-4 mr-2" />
@@ -407,7 +445,6 @@ export function PatientPortal() {
 
           {/* Sidebar */}
           <div className="space-y-6">
-            
             {/* Portal Access Methods */}
             <Card>
               <CardHeader>
@@ -418,17 +455,26 @@ export function PatientPortal() {
                   {[
                     { method: "Web Portal", users: "78%", icon: Globe },
                     { method: "Mobile App", users: "65%", icon: Smartphone },
-                    { method: "SMS Notifications", users: "42%", icon: MessageCircle },
-                    { method: "Email Alerts", users: "89%", icon: Mail }
+                    {
+                      method: "SMS Notifications",
+                      users: "42%",
+                      icon: MessageCircle,
+                    },
+                    { method: "Email Alerts", users: "89%", icon: Mail },
                   ].map((access, idx) => {
                     const Icon = access.icon;
                     return (
-                      <div key={idx} className="flex items-center justify-between">
+                      <div
+                        key={idx}
+                        className="flex items-center justify-between"
+                      >
                         <div className="flex items-center gap-2">
                           <Icon className="w-4 h-4 text-primary" />
                           <span className="text-sm">{access.method}</span>
                         </div>
-                        <span className="text-sm font-medium">{access.users}</span>
+                        <span className="text-sm font-medium">
+                          {access.users}
+                        </span>
                       </div>
                     );
                   })}
@@ -451,8 +497,12 @@ export function PatientPortal() {
                       <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
                       <div className="flex-1">
                         <p className="font-medium">{activity.action}</p>
-                        <p className="text-muted-foreground text-xs">{activity.details}</p>
-                        <p className="text-muted-foreground text-xs">{activity.time}</p>
+                        <p className="text-muted-foreground text-xs">
+                          {activity.details}
+                        </p>
+                        <p className="text-muted-foreground text-xs">
+                          {activity.time}
+                        </p>
                       </div>
                     </div>
                   ))}
@@ -471,9 +521,11 @@ export function PatientPortal() {
               <CardContent>
                 <div className="text-center mb-4">
                   <div className="text-4xl font-bold text-green-600">92</div>
-                  <p className="text-sm text-muted-foreground">Excellent Performance</p>
+                  <p className="text-sm text-muted-foreground">
+                    Excellent Performance
+                  </p>
                 </div>
-                
+
                 <div className="space-y-3">
                   <div>
                     <div className="flex justify-between text-sm mb-1">
@@ -507,19 +559,35 @@ export function PatientPortal() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  <Button variant="outline" size="sm" className="w-full justify-start gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full justify-start gap-2"
+                  >
                     <Plus className="w-4 h-4" />
                     Create Announcement
                   </Button>
-                  <Button variant="outline" size="sm" className="w-full justify-start gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full justify-start gap-2"
+                  >
                     <Settings className="w-4 h-4" />
                     Portal Configuration
                   </Button>
-                  <Button variant="outline" size="sm" className="w-full justify-start gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full justify-start gap-2"
+                  >
                     <BarChart3 className="w-4 h-4" />
                     Usage Analytics
                   </Button>
-                  <Button variant="outline" size="sm" className="w-full justify-start gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full justify-start gap-2"
+                  >
                     <HelpCircle className="w-4 h-4" />
                     Support Center
                   </Button>
@@ -540,17 +608,42 @@ export function PatientPortal() {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
               {[
-                { title: "HIPAA Compliance", status: "Certified", icon: Shield, color: "#10b981" },
-                { title: "Data Encryption", status: "256-bit AES", icon: Lock, color: "#3b82f6" },
-                { title: "Access Controls", status: "MFA Enabled", icon: User, color: "#f59e0b" },
-                { title: "Audit Logging", status: "Complete", icon: FileText, color: "#ef4444" }
+                {
+                  title: "HIPAA Compliance",
+                  status: "Certified",
+                  icon: Shield,
+                  color: "#10b981",
+                },
+                {
+                  title: "Data Encryption",
+                  status: "256-bit AES",
+                  icon: Lock,
+                  color: "#3b82f6",
+                },
+                {
+                  title: "Access Controls",
+                  status: "MFA Enabled",
+                  icon: User,
+                  color: "#f59e0b",
+                },
+                {
+                  title: "Audit Logging",
+                  status: "Complete",
+                  icon: FileText,
+                  color: "#ef4444",
+                },
               ].map((item, idx) => {
                 const Icon = item.icon;
                 return (
                   <div key={idx} className="text-center">
-                    <Icon className="w-8 h-8 mx-auto mb-2" style={{ color: item.color }} />
+                    <Icon
+                      className="w-8 h-8 mx-auto mb-2"
+                      style={{ color: item.color }}
+                    />
                     <h4 className="font-medium">{item.title}</h4>
-                    <p className="text-sm text-muted-foreground">{item.status}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {item.status}
+                    </p>
                   </div>
                 );
               })}
