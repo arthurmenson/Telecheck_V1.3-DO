@@ -21,7 +21,7 @@ process.env.TEST_DB_PASSWORD = "password";
 process.env.TEST_REDIS_URL = "redis://localhost:6379/1";
 
 // Mock localStorage for client tests
-if (typeof global.localStorage === 'undefined') {
+if (typeof global.localStorage === "undefined") {
   const mockLocalStorage = {
     getItem: vi.fn(),
     setItem: vi.fn(),
@@ -30,18 +30,19 @@ if (typeof global.localStorage === 'undefined') {
     key: vi.fn(),
     length: 0,
   };
-  
-  Object.defineProperty(global, 'localStorage', {
+
+  Object.defineProperty(global, "localStorage", {
     value: mockLocalStorage,
-    writable: true
+    writable: true,
   });
 }
 
 // Check if we're running server tests (tests that need database)
-const isServerTest = process.argv.some(arg => 
-  arg.includes('server') || 
-  arg.includes('tests/') ||
-  arg.includes('auth.test.ts')
+const isServerTest = process.argv.some(
+  (arg) =>
+    arg.includes("server") ||
+    arg.includes("tests/") ||
+    arg.includes("auth.test.ts"),
 );
 
 // Global test setup
@@ -52,7 +53,10 @@ beforeAll(async () => {
       await setupTestDatabase();
       await setupTestRedis();
     } catch (error) {
-      console.warn("⚠️ Database setup failed, tests may not work properly:", error.message);
+      console.warn(
+        "⚠️ Database setup failed, tests may not work properly:",
+        error.message,
+      );
     }
   }
 });
@@ -81,9 +85,12 @@ beforeEach(async () => {
       console.warn("⚠️ Data cleanup failed:", error.message);
     }
   }
-  
+
   // Clear localStorage mock for each test
-  if (global.localStorage && typeof global.localStorage.getItem === 'function') {
+  if (
+    global.localStorage &&
+    typeof global.localStorage.getItem === "function"
+  ) {
     const mockStorage = global.localStorage as any;
     if (mockStorage.getItem.mockClear) mockStorage.getItem.mockClear();
     if (mockStorage.setItem.mockClear) mockStorage.setItem.mockClear();

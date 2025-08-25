@@ -21,11 +21,7 @@ export default defineConfig({
     testTimeout: 10000,
     hookTimeout: 10000,
     // Exclude server modules from client tests
-    exclude: [
-      "**/node_modules/**",
-      "**/dist/**",
-      "**/build/**",
-    ],
+    exclude: ["**/node_modules/**", "**/dist/**", "**/build/**"],
   },
   resolve: {
     alias: {
