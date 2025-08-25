@@ -1,6 +1,16 @@
 import React, { useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
-import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../components/ui/tabs";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
 import { Badge } from "../components/ui/badge";
 import { HeartPulse, Users, Globe, Settings } from "lucide-react";
 
@@ -19,35 +29,34 @@ export function Administration() {
       label: "Programs",
       icon: HeartPulse,
       component: Programs,
-      description: "Manage patient programs"
+      description: "Manage patient programs",
     },
     {
       id: "providers",
       label: "Multi-Provider",
       icon: Users,
       component: Providers,
-      description: "Provider network management"
+      description: "Provider network management",
     },
     {
       id: "portal",
       label: "Patient Portal",
       icon: Globe,
       component: PatientPortal,
-      description: "Patient portal configuration"
+      description: "Patient portal configuration",
     },
     {
       id: "settings",
       label: "Settings",
       icon: Settings,
       component: AdminSettings,
-      description: "System administration"
-    }
+      description: "System administration",
+    },
   ];
 
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-full mx-auto p-6 space-y-6">
-        
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
@@ -70,23 +79,29 @@ export function Administration() {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
             return (
-              <Card 
+              <Card
                 key={tab.id}
                 className={`cursor-pointer transition-all duration-200 hover:shadow-md ${
-                  isActive ? 'ring-2 ring-primary' : ''
+                  isActive ? "ring-2 ring-primary" : ""
                 }`}
                 onClick={() => setActiveTab(tab.id)}
               >
                 <CardContent className="p-4">
                   <div className="flex items-center space-x-3">
-                    <div className={`p-2 rounded-lg ${
-                      isActive ? 'bg-primary text-white' : 'bg-primary/10 text-primary'
-                    }`}>
+                    <div
+                      className={`p-2 rounded-lg ${
+                        isActive
+                          ? "bg-primary text-white"
+                          : "bg-primary/10 text-primary"
+                      }`}
+                    >
                       <Icon className="w-5 h-5" />
                     </div>
                     <div>
                       <h3 className="font-medium text-sm">{tab.label}</h3>
-                      <p className="text-xs text-muted-foreground">{tab.description}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {tab.description}
+                      </p>
                     </div>
                   </div>
                 </CardContent>
@@ -96,14 +111,18 @@ export function Administration() {
         </div>
 
         {/* Tabbed Content */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="space-y-6"
+        >
           <TabsList className="grid w-full grid-cols-4">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               return (
-                <TabsTrigger 
-                  key={tab.id} 
-                  value={tab.id} 
+                <TabsTrigger
+                  key={tab.id}
+                  value={tab.id}
                   className="flex items-center gap-2 text-sm"
                 >
                   <Icon className="w-4 h-4" />

@@ -517,7 +517,9 @@ const App = () => (
                 <Route
                   path="/settings"
                   element={
-                    <ProtectedRoute allowedRoles={["doctor", "nurse", "caregiver"]}>
+                    <ProtectedRoute
+                      allowedRoles={["doctor", "nurse", "caregiver"]}
+                    >
                       <Layout>
                         <DoctorSettings />
                       </Layout>
@@ -559,7 +561,15 @@ const App = () => (
                 <Route
                   path="/diabetes-rpm-dashboard"
                   element={
-                    <ProtectedRoute allowedRoles={["patient", "caregiver", "admin", "doctor", "nurse"]}>
+                    <ProtectedRoute
+                      allowedRoles={[
+                        "patient",
+                        "caregiver",
+                        "admin",
+                        "doctor",
+                        "nurse",
+                      ]}
+                    >
                       <Layout>
                         <DiabetesRPMDashboard />
                       </Layout>
@@ -569,7 +579,15 @@ const App = () => (
                 <Route
                   path="/patient-rpm"
                   element={
-                    <ProtectedRoute allowedRoles={["patient", "caregiver", "admin", "doctor", "nurse"]}>
+                    <ProtectedRoute
+                      allowedRoles={[
+                        "patient",
+                        "caregiver",
+                        "admin",
+                        "doctor",
+                        "nurse",
+                      ]}
+                    >
                       <Layout>
                         <PatientRPMDashboard />
                       </Layout>
@@ -599,7 +617,15 @@ const App = () => (
                 <Route
                   path="/vital-submission"
                   element={
-                    <ProtectedRoute allowedRoles={["patient", "caregiver", "admin", "doctor", "nurse"]}>
+                    <ProtectedRoute
+                      allowedRoles={[
+                        "patient",
+                        "caregiver",
+                        "admin",
+                        "doctor",
+                        "nurse",
+                      ]}
+                    >
                       <Layout>
                         <VitalSubmission />
                       </Layout>
@@ -755,7 +781,9 @@ const App = () => (
                 <Route
                   path="/patient-records/:patientId"
                   element={
-                    <ProtectedRoute allowedRoles={["admin", "doctor", "nurse", "patient"]}>
+                    <ProtectedRoute
+                      allowedRoles={["admin", "doctor", "nurse", "patient"]}
+                    >
                       <Layout>
                         <PatientRecordsWrapper />
                       </Layout>
@@ -765,7 +793,9 @@ const App = () => (
                 <Route
                   path="/patient-care-coordination/:patientId?"
                   element={
-                    <ProtectedRoute allowedRoles={["admin", "doctor", "nurse", "caregiver"]}>
+                    <ProtectedRoute
+                      allowedRoles={["admin", "doctor", "nurse", "caregiver"]}
+                    >
                       <Layout>
                         <PatientCareCoordination />
                       </Layout>
@@ -775,7 +805,15 @@ const App = () => (
                 <Route
                   path="/patient-communication/:patientId?"
                   element={
-                    <ProtectedRoute allowedRoles={["admin", "doctor", "nurse", "patient", "caregiver"]}>
+                    <ProtectedRoute
+                      allowedRoles={[
+                        "admin",
+                        "doctor",
+                        "nurse",
+                        "patient",
+                        "caregiver",
+                      ]}
+                    >
                       <Layout>
                         <PatientCommunication />
                       </Layout>
