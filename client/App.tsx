@@ -41,7 +41,7 @@ import { PatientPortal } from "./pages/ehr/PatientPortal";
 import { Providers } from "./pages/ehr/Providers";
 import { Programs } from "./pages/ehr/Programs";
 import { Affiliate } from "./pages/ehr/Affiliate";
-import { AdminSettings } from "./pages/AdminSettings";
+import AdminSettings from "./pages/AdminSettings";
 import { DoctorSettings } from "./pages/DoctorSettings";
 import { PatientConsultation } from "./pages/PatientConsultation";
 import { ClinicalCharting } from "./pages/ehr/ClinicalCharting";
