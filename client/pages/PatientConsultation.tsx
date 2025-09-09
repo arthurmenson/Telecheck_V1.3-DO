@@ -10,7 +10,12 @@ import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Textarea } from "../components/ui/textarea";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../components/ui/tabs";
 import {
   Dialog,
   DialogContent,
@@ -114,8 +119,8 @@ export function PatientConsultation() {
       temperature: 98.6,
       weight: 165,
       height: "5'6\"",
-      oxygenSaturation: 98
-    }
+      oxygenSaturation: 98,
+    },
   });
 
   const startConsultation = () => {
@@ -142,7 +147,7 @@ export function PatientConsultation() {
       dosage: "",
       frequency: "",
       duration: "",
-      instructions: ""
+      instructions: "",
     };
     setPrescriptions([...prescriptions, newPrescription]);
   };
@@ -150,11 +155,14 @@ export function PatientConsultation() {
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-4 py-6 space-y-6">
-        
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Button variant="outline" size="sm" onClick={() => navigate("/doctor-dashboard")}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate("/doctor-dashboard")}
+            >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Dashboard
             </Button>
@@ -168,10 +176,13 @@ export function PatientConsultation() {
               </p>
             </div>
           </div>
-          
+
           <div className="flex gap-3">
             {!isConsultationStarted ? (
-              <Button onClick={startConsultation} className="bg-green-600 hover:bg-green-700">
+              <Button
+                onClick={startConsultation}
+                className="bg-green-600 hover:bg-green-700"
+              >
                 <Video className="w-4 h-4 mr-2" />
                 Start Consultation
               </Button>
@@ -207,17 +218,25 @@ export function PatientConsultation() {
                   <div className="flex items-center gap-4 text-sm text-muted-foreground">
                     <span>{patientData.age} years old</span>
                     <span>{patientData.gender}</span>
-                    <span>DOB: {new Date(patientData.dateOfBirth).toLocaleDateString()}</span>
+                    <span>
+                      DOB:{" "}
+                      {new Date(patientData.dateOfBirth).toLocaleDateString()}
+                    </span>
                   </div>
-                  <Badge variant="outline" className="mt-1">{patientData.insuranceProvider}</Badge>
+                  <Badge variant="outline" className="mt-1">
+                    {patientData.insuranceProvider}
+                  </Badge>
                 </div>
               </div>
-              
+
               <div className="text-right">
-                <div className="text-sm text-muted-foreground mb-1">Chief Complaint</div>
+                <div className="text-sm text-muted-foreground mb-1">
+                  Chief Complaint
+                </div>
                 <div className="font-medium">{patientData.chiefComplaint}</div>
                 <div className="text-sm text-muted-foreground mt-2">
-                  Last Visit: {new Date(patientData.lastVisit).toLocaleDateString()}
+                  Last Visit:{" "}
+                  {new Date(patientData.lastVisit).toLocaleDateString()}
                 </div>
               </div>
             </div>
@@ -226,10 +245,8 @@ export function PatientConsultation() {
 
         {/* Main Content */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          
           {/* Left Sidebar - Patient Info */}
           <div className="lg:col-span-1 space-y-4">
-            
             {/* Vital Signs */}
             <Card>
               <CardHeader>
@@ -242,27 +259,39 @@ export function PatientConsultation() {
                 <div className="grid grid-cols-2 gap-2 text-sm">
                   <div>
                     <span className="text-muted-foreground">BP:</span>
-                    <div className="font-medium">{patientData.vitalSigns.bloodPressure}</div>
+                    <div className="font-medium">
+                      {patientData.vitalSigns.bloodPressure}
+                    </div>
                   </div>
                   <div>
                     <span className="text-muted-foreground">HR:</span>
-                    <div className="font-medium">{patientData.vitalSigns.heartRate} bpm</div>
+                    <div className="font-medium">
+                      {patientData.vitalSigns.heartRate} bpm
+                    </div>
                   </div>
                   <div>
                     <span className="text-muted-foreground">Temp:</span>
-                    <div className="font-medium">{patientData.vitalSigns.temperature}°F</div>
+                    <div className="font-medium">
+                      {patientData.vitalSigns.temperature}°F
+                    </div>
                   </div>
                   <div>
                     <span className="text-muted-foreground">O2 Sat:</span>
-                    <div className="font-medium">{patientData.vitalSigns.oxygenSaturation}%</div>
+                    <div className="font-medium">
+                      {patientData.vitalSigns.oxygenSaturation}%
+                    </div>
                   </div>
                   <div>
                     <span className="text-muted-foreground">Weight:</span>
-                    <div className="font-medium">{patientData.vitalSigns.weight} lbs</div>
+                    <div className="font-medium">
+                      {patientData.vitalSigns.weight} lbs
+                    </div>
                   </div>
                   <div>
                     <span className="text-muted-foreground">Height:</span>
-                    <div className="font-medium">{patientData.vitalSigns.height}</div>
+                    <div className="font-medium">
+                      {patientData.vitalSigns.height}
+                    </div>
                   </div>
                 </div>
                 <Button variant="outline" size="sm" className="w-full">
@@ -283,7 +312,11 @@ export function PatientConsultation() {
               <CardContent>
                 <div className="space-y-1">
                   {patientData.allergies.map((allergy, index) => (
-                    <Badge key={index} variant="destructive" className="text-xs">
+                    <Badge
+                      key={index}
+                      variant="destructive"
+                      className="text-xs"
+                    >
                       {allergy}
                     </Badge>
                   ))}
@@ -302,7 +335,10 @@ export function PatientConsultation() {
               <CardContent>
                 <div className="space-y-2">
                   {patientData.medications.map((medication, index) => (
-                    <div key={index} className="text-sm p-2 bg-muted/30 rounded">
+                    <div
+                      key={index}
+                      className="text-sm p-2 bg-muted/30 rounded"
+                    >
                       {medication}
                     </div>
                   ))}
@@ -332,7 +368,11 @@ export function PatientConsultation() {
 
           {/* Main Content Area */}
           <div className="lg:col-span-3">
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+            <Tabs
+              value={activeTab}
+              onValueChange={setActiveTab}
+              className="space-y-4"
+            >
               <TabsList>
                 <TabsTrigger value="overview">Overview</TabsTrigger>
                 <TabsTrigger value="consultation">Consultation</TabsTrigger>
@@ -346,19 +386,31 @@ export function PatientConsultation() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <Card>
                     <CardHeader>
-                      <CardTitle className="text-lg">Appointment Details</CardTitle>
+                      <CardTitle className="text-lg">
+                        Appointment Details
+                      </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-3">
                       <div>
-                        <span className="text-sm text-muted-foreground">Type:</span>
-                        <div className="font-medium">{patientData.appointmentType}</div>
+                        <span className="text-sm text-muted-foreground">
+                          Type:
+                        </span>
+                        <div className="font-medium">
+                          {patientData.appointmentType}
+                        </div>
                       </div>
                       <div>
-                        <span className="text-sm text-muted-foreground">Chief Complaint:</span>
-                        <div className="font-medium">{patientData.chiefComplaint}</div>
+                        <span className="text-sm text-muted-foreground">
+                          Chief Complaint:
+                        </span>
+                        <div className="font-medium">
+                          {patientData.chiefComplaint}
+                        </div>
                       </div>
                       <div>
-                        <span className="text-sm text-muted-foreground">Scheduled:</span>
+                        <span className="text-sm text-muted-foreground">
+                          Scheduled:
+                        </span>
                         <div className="font-medium">Today, 10:30 AM</div>
                       </div>
                     </CardContent>
@@ -366,20 +418,30 @@ export function PatientConsultation() {
 
                   <Card>
                     <CardHeader>
-                      <CardTitle className="text-lg">Contact Information</CardTitle>
+                      <CardTitle className="text-lg">
+                        Contact Information
+                      </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-3">
                       <div>
-                        <span className="text-sm text-muted-foreground">Phone:</span>
+                        <span className="text-sm text-muted-foreground">
+                          Phone:
+                        </span>
                         <div className="font-medium">{patientData.phone}</div>
                       </div>
                       <div>
-                        <span className="text-sm text-muted-foreground">Email:</span>
+                        <span className="text-sm text-muted-foreground">
+                          Email:
+                        </span>
                         <div className="font-medium">{patientData.email}</div>
                       </div>
                       <div>
-                        <span className="text-sm text-muted-foreground">Emergency Contact:</span>
-                        <div className="font-medium text-sm">{patientData.emergencyContact}</div>
+                        <span className="text-sm text-muted-foreground">
+                          Emergency Contact:
+                        </span>
+                        <div className="font-medium text-sm">
+                          {patientData.emergencyContact}
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
@@ -423,11 +485,12 @@ export function PatientConsultation() {
                                   AI Scribe Available
                                 </div>
                                 <div className="text-sm text-blue-600 dark:text-blue-300">
-                                  Click to start recording and automatic note-taking
+                                  Click to start recording and automatic
+                                  note-taking
                                 </div>
                               </div>
                             </div>
-                            <Button 
+                            <Button
                               onClick={() => setIsScribeExpanded(true)}
                               className="bg-blue-600 hover:bg-blue-700"
                             >
@@ -463,11 +526,17 @@ export function PatientConsultation() {
                   <Card>
                     <CardContent className="p-8 text-center">
                       <Video className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-                      <h3 className="text-lg font-semibold mb-2">Ready to Start Consultation</h3>
+                      <h3 className="text-lg font-semibold mb-2">
+                        Ready to Start Consultation
+                      </h3>
                       <p className="text-muted-foreground mb-4">
-                        Click "Start Consultation" to begin your session with {patientData.name}
+                        Click "Start Consultation" to begin your session with{" "}
+                        {patientData.name}
                       </p>
-                      <Button onClick={startConsultation} className="bg-green-600 hover:bg-green-700">
+                      <Button
+                        onClick={startConsultation}
+                        className="bg-green-600 hover:bg-green-700"
+                      >
                         <Video className="w-4 h-4 mr-2" />
                         Start Consultation
                       </Button>
@@ -490,7 +559,7 @@ export function PatientConsultation() {
                           "SOAP note format",
                           "Auto-save functionality",
                           "AI assistance available",
-                          "Template integration"
+                          "Template integration",
                         ]}
                         size="sm"
                       />
@@ -536,19 +605,25 @@ export function PatientConsultation() {
                     {prescriptions.length === 0 ? (
                       <div className="text-center py-8 text-muted-foreground">
                         <Pill className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                        <p>No prescriptions yet. Click "Add Prescription" to get started.</p>
+                        <p>
+                          No prescriptions yet. Click "Add Prescription" to get
+                          started.
+                        </p>
                       </div>
                     ) : (
                       <div className="space-y-4">
                         {prescriptions.map((prescription, index) => (
-                          <div key={prescription.id} className="p-4 border rounded-lg">
+                          <div
+                            key={prescription.id}
+                            className="p-4 border rounded-lg"
+                          >
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                               <Input placeholder="Medication name" />
                               <Input placeholder="Dosage" />
                               <Input placeholder="Frequency" />
                               <Input placeholder="Duration" />
                             </div>
-                            <Textarea 
+                            <Textarea
                               placeholder="Special instructions"
                               className="mt-3"
                               rows={2}
@@ -573,7 +648,10 @@ export function PatientConsultation() {
                   <CardContent>
                     <div className="text-center py-8 text-muted-foreground">
                       <TestTube className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                      <p>No lab orders yet. Add orders as needed during the consultation.</p>
+                      <p>
+                        No lab orders yet. Add orders as needed during the
+                        consultation.
+                      </p>
                     </div>
                   </CardContent>
                 </Card>

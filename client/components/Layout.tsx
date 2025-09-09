@@ -94,9 +94,21 @@ export function Layout({ children }: LayoutProps) {
         icon: Stethoscope,
         items: [
           { name: "EHR Overview", href: "/ehr", icon: Cloud },
-          { name: "Patient Management", href: "/patient-management", icon: Users },
-          { name: "Clinical Operations", href: "/clinical-operations", icon: Stethoscope },
-          { name: "Remote Monitoring", href: "/remote-monitoring", icon: Activity },
+          {
+            name: "Patient Management",
+            href: "/patient-management",
+            icon: Users,
+          },
+          {
+            name: "Clinical Operations",
+            href: "/clinical-operations",
+            icon: Stethoscope,
+          },
+          {
+            name: "Remote Monitoring",
+            href: "/remote-monitoring",
+            icon: Activity,
+          },
           { name: "Administration", href: "/administration", icon: Settings },
           {
             name: "Practice Management",
@@ -203,9 +215,21 @@ export function Layout({ children }: LayoutProps) {
             icon: Stethoscope,
           },
           { name: "EHR Overview", href: "/ehr", icon: Cloud },
-          { name: "Patient Management", href: "/patient-management", icon: Users },
-          { name: "Clinical Operations", href: "/clinical-operations", icon: Stethoscope },
-          { name: "Remote Monitoring", href: "/remote-monitoring", icon: Activity },
+          {
+            name: "Patient Management",
+            href: "/patient-management",
+            icon: Users,
+          },
+          {
+            name: "Clinical Operations",
+            href: "/clinical-operations",
+            icon: Stethoscope,
+          },
+          {
+            name: "Remote Monitoring",
+            href: "/remote-monitoring",
+            icon: Activity,
+          },
           { name: "Administration", href: "/administration", icon: Settings },
           { name: "AI Chat", href: "/chat", icon: MessageCircle },
         ];
@@ -234,9 +258,21 @@ export function Layout({ children }: LayoutProps) {
             href: "/nurse-dashboard",
             icon: HeartPulse,
           },
-          { name: "Patient Management", href: "/patient-management", icon: Users },
-          { name: "Clinical Operations", href: "/clinical-operations", icon: Stethoscope },
-          { name: "Remote Monitoring", href: "/remote-monitoring", icon: Activity },
+          {
+            name: "Patient Management",
+            href: "/patient-management",
+            icon: Users,
+          },
+          {
+            name: "Clinical Operations",
+            href: "/clinical-operations",
+            icon: Stethoscope,
+          },
+          {
+            name: "Remote Monitoring",
+            href: "/remote-monitoring",
+            icon: Activity,
+          },
           { name: "Administration", href: "/administration", icon: Settings },
           { name: "AI Chat", href: "/chat", icon: MessageCircle },
         ];
@@ -247,8 +283,16 @@ export function Layout({ children }: LayoutProps) {
             href: "/caregiver-dashboard",
             icon: Heart,
           },
-          { name: "Remote Monitoring", href: "/remote-monitoring", icon: Activity },
-          { name: "Patient Communication", href: "/patient-communication", icon: MessageCircle },
+          {
+            name: "Remote Monitoring",
+            href: "/remote-monitoring",
+            icon: Activity,
+          },
+          {
+            name: "Patient Communication",
+            href: "/patient-communication",
+            icon: MessageCircle,
+          },
           { name: "Patient Schedule", href: "/schedule", icon: Calendar },
           { name: "AI Chat", href: "/chat", icon: MessageCircle },
         ];
@@ -356,7 +400,9 @@ export function Layout({ children }: LayoutProps) {
             // Handle grouped items
             if (item.isGroup) {
               const GroupIcon = item.icon;
-              const isExpanded = expandedGroups.includes(item.name.toLowerCase().replace(' ', '-'));
+              const isExpanded = expandedGroups.includes(
+                item.name.toLowerCase().replace(" ", "-"),
+              );
               const hasActiveItem = item.items?.some((subItem: any) =>
                 isActiveRoute(subItem.href),
               );
@@ -365,7 +411,9 @@ export function Layout({ children }: LayoutProps) {
                 <div key={item.name} className="space-y-1">
                   {/* Group Header */}
                   <button
-                    onClick={() => toggleGroup(item.name.toLowerCase().replace(' ', '-'))}
+                    onClick={() =>
+                      toggleGroup(item.name.toLowerCase().replace(" ", "-"))
+                    }
                     className={`w-full group flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 hover-lift ${
                       hasActiveItem
                         ? "bg-gradient-to-r from-primary/20 to-primary/10 text-primary border border-primary/20"
@@ -466,7 +514,7 @@ export function Layout({ children }: LayoutProps) {
               {/* Quick Actions */}
               <div className="space-y-2">
                 {/* Show settings based on user role */}
-                {user.role === 'admin' && (
+                {user.role === "admin" && (
                   <Button
                     variant="ghost"
                     size="sm"
@@ -479,7 +527,9 @@ export function Layout({ children }: LayoutProps) {
                     </Link>
                   </Button>
                 )}
-                {(user.role === 'doctor' || user.role === 'nurse' || user.role === 'caregiver') && (
+                {(user.role === "doctor" ||
+                  user.role === "nurse" ||
+                  user.role === "caregiver") && (
                   <Button
                     variant="ghost"
                     size="sm"
@@ -766,7 +816,7 @@ export function Layout({ children }: LayoutProps) {
                     {/* Quick Actions in Mobile */}
                     <div className="space-y-2 mb-3">
                       {/* Show settings based on user role */}
-                      {user.role === 'admin' && (
+                      {user.role === "admin" && (
                         <Button
                           variant="ghost"
                           size="sm"
@@ -782,7 +832,9 @@ export function Layout({ children }: LayoutProps) {
                           </Link>
                         </Button>
                       )}
-                      {(user.role === 'doctor' || user.role === 'nurse' || user.role === 'caregiver') && (
+                      {(user.role === "doctor" ||
+                        user.role === "nurse" ||
+                        user.role === "caregiver") && (
                         <Button
                           variant="ghost"
                           size="sm"

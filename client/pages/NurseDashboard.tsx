@@ -1,5 +1,11 @@
 import React from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -24,13 +30,18 @@ export function NurseDashboard() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Nurse Dashboard</h1>
+          <h1 className="text-3xl font-bold text-foreground">
+            Nurse Dashboard
+          </h1>
           <p className="text-muted-foreground">
             Welcome back, Nurse Jennifer Smith
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+          <Badge
+            variant="outline"
+            className="bg-green-50 text-green-700 border-green-200"
+          >
             <UserCheck className="w-4 h-4 mr-1" />
             On Duty
           </Badge>
@@ -45,7 +56,9 @@ export function NurseDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Assigned Patients</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Assigned Patients
+            </CardTitle>
             <Users className="h-4 w-4 text-blue-600" />
           </CardHeader>
           <CardContent>
@@ -56,18 +69,24 @@ export function NurseDashboard() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Critical Alerts</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Critical Alerts
+            </CardTitle>
             <AlertTriangle className="h-4 w-4 text-red-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-red-600">3</div>
-            <p className="text-xs text-muted-foreground">Immediate attention needed</p>
+            <p className="text-xs text-muted-foreground">
+              Immediate attention needed
+            </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Tasks Complete</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Tasks Complete
+            </CardTitle>
             <CheckCircle2 className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
@@ -132,9 +151,7 @@ export function NurseDashboard() {
                 <div className="flex items-center gap-3">
                   <div
                     className={`w-3 h-3 rounded-full ${
-                      alert.severity === "high"
-                        ? "bg-red-500"
-                        : "bg-yellow-500"
+                      alert.severity === "high" ? "bg-red-500" : "bg-yellow-500"
                     }`}
                   />
                   <div>
@@ -162,9 +179,7 @@ export function NurseDashboard() {
               <Calendar className="w-5 h-5 text-blue-600" />
               Today's Schedule
             </CardTitle>
-            <CardDescription>
-              Upcoming patient care activities
-            </CardDescription>
+            <CardDescription>Upcoming patient care activities</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {[
@@ -204,7 +219,9 @@ export function NurseDashboard() {
                 className="flex items-center justify-between p-3 border rounded-lg"
               >
                 <div className="flex items-center gap-3">
-                  <div className="text-sm font-medium w-16">{appointment.time}</div>
+                  <div className="text-sm font-medium w-16">
+                    {appointment.time}
+                  </div>
                   <div>
                     <p className="font-medium">{appointment.patient}</p>
                     <p className="text-sm text-muted-foreground">
@@ -233,17 +250,29 @@ export function NurseDashboard() {
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
             {[
               { name: "Patient Care", href: "/ehr/intake", icon: Users },
-              { name: "RPM Center", href: "/rpm-command-center", icon: Activity },
+              {
+                name: "RPM Center",
+                href: "/rpm-command-center",
+                icon: Activity,
+              },
               { name: "CCM Workflow", href: "/ccm-workflow", icon: HeartPulse },
-              { name: "Vital Entry", href: "/vital-submission", icon: Activity },
+              {
+                name: "Vital Entry",
+                href: "/vital-submission",
+                icon: Activity,
+              },
               { name: "Messages", href: "/ehr/messaging", icon: MessageCircle },
-              { name: "Clinical Tools", href: "/ehr/clinical-tools", icon: Stethoscope },
+              {
+                name: "Clinical Tools",
+                href: "/ehr/clinical-tools",
+                icon: Stethoscope,
+              },
             ].map((action, index) => (
               <Button
                 key={index}
                 variant="outline"
                 className="h-20 flex flex-col items-center gap-2"
-                onClick={() => window.location.href = action.href}
+                onClick={() => (window.location.href = action.href)}
               >
                 <action.icon className="w-6 h-6" />
                 <span className="text-xs">{action.name}</span>

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useToast } from '../hooks/use-toast';
+import { useToast } from "../hooks/use-toast";
 import {
   Card,
   CardContent,
@@ -12,7 +12,12 @@ import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { Textarea } from "../components/ui/textarea";
 import { Switch } from "../components/ui/switch";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../components/ui/tabs";
 import {
   Select,
   SelectContent,
@@ -55,15 +60,15 @@ export function DoctorSettings() {
 
   const [settings, setSettings] = useState({
     // Profile Settings
-    firstName: user?.name?.split(' ')[0] || "Dr. Sarah",
-    lastName: user?.name?.split(' ')[1] || "Wilson",
+    firstName: user?.name?.split(" ")[0] || "Dr. Sarah",
+    lastName: user?.name?.split(" ")[1] || "Wilson",
     email: user?.email || "doctor@telecheck.com",
     phone: "+1 (555) 123-4567",
     license: user?.license || "MD-123456",
     specialization: user?.specialization || "Internal Medicine",
     bio: "Experienced internal medicine physician with expertise in chronic disease management and preventive care.",
     profileImage: user?.avatar || "",
-    
+
     // Notification Preferences
     emailNotifications: true,
     smsNotifications: true,
@@ -72,25 +77,25 @@ export function DoctorSettings() {
     appointmentReminders: true,
     labResultNotifications: true,
     emergencyAlerts: true,
-    
+
     // Practice Preferences
     defaultAppointmentDuration: 30,
     workingHoursStart: "08:00",
     workingHoursEnd: "17:00",
     timezone: "America/New_York",
     preferredLanguage: "English",
-    
+
     // Display & Interface
     theme: "system",
     dateFormat: "MM/dd/yyyy",
     timeFormat: "12-hour",
     dashboardLayout: "default",
-    
+
     // Security
     sessionTimeout: 30,
     twoFactorEnabled: false,
     requirePasswordChange: false,
-    
+
     // Communication
     enablePatientMessaging: true,
     autoReplyEnabled: false,
@@ -99,19 +104,19 @@ export function DoctorSettings() {
   });
 
   const handleSettingChange = (key: string, value: any) => {
-    setSettings(prev => ({
+    setSettings((prev) => ({
       ...prev,
-      [key]: value
+      [key]: value,
     }));
   };
 
   const handleSaveSettings = async () => {
     setIsLoading(true);
-    
+
     try {
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
       toast({
         title: "Settings Saved",
         description: "Your preferences have been updated successfully.",
@@ -130,10 +135,10 @@ export function DoctorSettings() {
 
   const handleTestNotification = async () => {
     setIsLoading(true);
-    
+
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
       toast({
         title: "Test Notification Sent",
         description: "Check your devices for the test notification.",
@@ -152,7 +157,6 @@ export function DoctorSettings() {
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-4xl mx-auto px-4 py-6 space-y-6">
-        
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
@@ -160,7 +164,9 @@ export function DoctorSettings() {
               <Settings className="w-8 h-8 text-primary" />
               Settings
             </h1>
-            <p className="text-muted-foreground">Manage your profile and preferences</p>
+            <p className="text-muted-foreground">
+              Manage your profile and preferences
+            </p>
           </div>
           <Button onClick={handleSaveSettings} disabled={isLoading}>
             {isLoading ? (
@@ -173,7 +179,11 @@ export function DoctorSettings() {
         </div>
 
         {/* Settings Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="space-y-6"
+        >
           <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="profile">Profile</TabsTrigger>
             <TabsTrigger value="notifications">Notifications</TabsTrigger>
@@ -191,14 +201,17 @@ export function DoctorSettings() {
                     <User className="w-5 h-5" />
                     Personal Information
                   </CardTitle>
-                  <CardDescription>Update your personal and professional details</CardDescription>
+                  <CardDescription>
+                    Update your personal and professional details
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex items-center gap-4">
                     <Avatar className="w-20 h-20">
                       <AvatarImage src={settings.profileImage} />
                       <AvatarFallback className="bg-primary text-white text-lg">
-                        {settings.firstName.charAt(0)}{settings.lastName.charAt(0)}
+                        {settings.firstName.charAt(0)}
+                        {settings.lastName.charAt(0)}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex-1">
@@ -217,7 +230,9 @@ export function DoctorSettings() {
                       <Input
                         id="firstName"
                         value={settings.firstName}
-                        onChange={(e) => handleSettingChange("firstName", e.target.value)}
+                        onChange={(e) =>
+                          handleSettingChange("firstName", e.target.value)
+                        }
                       />
                     </div>
                     <div className="space-y-2">
@@ -225,7 +240,9 @@ export function DoctorSettings() {
                       <Input
                         id="lastName"
                         value={settings.lastName}
-                        onChange={(e) => handleSettingChange("lastName", e.target.value)}
+                        onChange={(e) =>
+                          handleSettingChange("lastName", e.target.value)
+                        }
                       />
                     </div>
                   </div>
@@ -236,7 +253,9 @@ export function DoctorSettings() {
                       id="email"
                       type="email"
                       value={settings.email}
-                      onChange={(e) => handleSettingChange("email", e.target.value)}
+                      onChange={(e) =>
+                        handleSettingChange("email", e.target.value)
+                      }
                     />
                   </div>
 
@@ -245,7 +264,9 @@ export function DoctorSettings() {
                     <Input
                       id="phone"
                       value={settings.phone}
-                      onChange={(e) => handleSettingChange("phone", e.target.value)}
+                      onChange={(e) =>
+                        handleSettingChange("phone", e.target.value)
+                      }
                     />
                   </div>
 
@@ -254,7 +275,9 @@ export function DoctorSettings() {
                     <Textarea
                       id="bio"
                       value={settings.bio}
-                      onChange={(e) => handleSettingChange("bio", e.target.value)}
+                      onChange={(e) =>
+                        handleSettingChange("bio", e.target.value)
+                      }
                       rows={3}
                       placeholder="Brief description of your practice and expertise..."
                     />
@@ -268,7 +291,9 @@ export function DoctorSettings() {
                     <Stethoscope className="w-5 h-5" />
                     Professional Information
                   </CardTitle>
-                  <CardDescription>Medical license and specialization details</CardDescription>
+                  <CardDescription>
+                    Medical license and specialization details
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
@@ -276,34 +301,56 @@ export function DoctorSettings() {
                     <Input
                       id="license"
                       value={settings.license}
-                      onChange={(e) => handleSettingChange("license", e.target.value)}
+                      onChange={(e) =>
+                        handleSettingChange("license", e.target.value)
+                      }
                     />
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="specialization">Specialization</Label>
-                    <Select value={settings.specialization} onValueChange={(value) => handleSettingChange("specialization", value)}>
+                    <Select
+                      value={settings.specialization}
+                      onValueChange={(value) =>
+                        handleSettingChange("specialization", value)
+                      }
+                    >
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Internal Medicine">Internal Medicine</SelectItem>
-                        <SelectItem value="Family Medicine">Family Medicine</SelectItem>
+                        <SelectItem value="Internal Medicine">
+                          Internal Medicine
+                        </SelectItem>
+                        <SelectItem value="Family Medicine">
+                          Family Medicine
+                        </SelectItem>
                         <SelectItem value="Cardiology">Cardiology</SelectItem>
-                        <SelectItem value="Endocrinology">Endocrinology</SelectItem>
+                        <SelectItem value="Endocrinology">
+                          Endocrinology
+                        </SelectItem>
                         <SelectItem value="Neurology">Neurology</SelectItem>
                         <SelectItem value="Dermatology">Dermatology</SelectItem>
                         <SelectItem value="Orthopedics">Orthopedics</SelectItem>
                         <SelectItem value="Psychiatry">Psychiatry</SelectItem>
-                        <SelectItem value="Emergency Medicine">Emergency Medicine</SelectItem>
+                        <SelectItem value="Emergency Medicine">
+                          Emergency Medicine
+                        </SelectItem>
                         <SelectItem value="Other">Other</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="preferredLanguage">Preferred Language</Label>
-                    <Select value={settings.preferredLanguage} onValueChange={(value) => handleSettingChange("preferredLanguage", value)}>
+                    <Label htmlFor="preferredLanguage">
+                      Preferred Language
+                    </Label>
+                    <Select
+                      value={settings.preferredLanguage}
+                      onValueChange={(value) =>
+                        handleSettingChange("preferredLanguage", value)
+                      }
+                    >
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
@@ -319,17 +366,34 @@ export function DoctorSettings() {
 
                   <div className="space-y-2">
                     <Label htmlFor="timezone">Timezone</Label>
-                    <Select value={settings.timezone} onValueChange={(value) => handleSettingChange("timezone", value)}>
+                    <Select
+                      value={settings.timezone}
+                      onValueChange={(value) =>
+                        handleSettingChange("timezone", value)
+                      }
+                    >
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="America/New_York">Eastern Time</SelectItem>
-                        <SelectItem value="America/Chicago">Central Time</SelectItem>
-                        <SelectItem value="America/Denver">Mountain Time</SelectItem>
-                        <SelectItem value="America/Los_Angeles">Pacific Time</SelectItem>
-                        <SelectItem value="America/Anchorage">Alaska Time</SelectItem>
-                        <SelectItem value="Pacific/Honolulu">Hawaii Time</SelectItem>
+                        <SelectItem value="America/New_York">
+                          Eastern Time
+                        </SelectItem>
+                        <SelectItem value="America/Chicago">
+                          Central Time
+                        </SelectItem>
+                        <SelectItem value="America/Denver">
+                          Mountain Time
+                        </SelectItem>
+                        <SelectItem value="America/Los_Angeles">
+                          Pacific Time
+                        </SelectItem>
+                        <SelectItem value="America/Anchorage">
+                          Alaska Time
+                        </SelectItem>
+                        <SelectItem value="Pacific/Honolulu">
+                          Hawaii Time
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -347,48 +411,72 @@ export function DoctorSettings() {
                     <Bell className="w-5 h-5" />
                     Notification Preferences
                   </CardTitle>
-                  <CardDescription>Choose how you want to receive notifications</CardDescription>
+                  <CardDescription>
+                    Choose how you want to receive notifications
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <div>
-                        <Label htmlFor="emailNotifications">Email Notifications</Label>
-                        <p className="text-sm text-muted-foreground">Receive notifications via email</p>
+                        <Label htmlFor="emailNotifications">
+                          Email Notifications
+                        </Label>
+                        <p className="text-sm text-muted-foreground">
+                          Receive notifications via email
+                        </p>
                       </div>
                       <Switch
                         id="emailNotifications"
                         checked={settings.emailNotifications}
-                        onCheckedChange={(checked) => handleSettingChange("emailNotifications", checked)}
+                        onCheckedChange={(checked) =>
+                          handleSettingChange("emailNotifications", checked)
+                        }
                       />
                     </div>
 
                     <div className="flex items-center justify-between">
                       <div>
-                        <Label htmlFor="smsNotifications">SMS Notifications</Label>
-                        <p className="text-sm text-muted-foreground">Receive urgent alerts via text</p>
+                        <Label htmlFor="smsNotifications">
+                          SMS Notifications
+                        </Label>
+                        <p className="text-sm text-muted-foreground">
+                          Receive urgent alerts via text
+                        </p>
                       </div>
                       <Switch
                         id="smsNotifications"
                         checked={settings.smsNotifications}
-                        onCheckedChange={(checked) => handleSettingChange("smsNotifications", checked)}
+                        onCheckedChange={(checked) =>
+                          handleSettingChange("smsNotifications", checked)
+                        }
                       />
                     </div>
 
                     <div className="flex items-center justify-between">
                       <div>
-                        <Label htmlFor="pushNotifications">Push Notifications</Label>
-                        <p className="text-sm text-muted-foreground">Browser and app notifications</p>
+                        <Label htmlFor="pushNotifications">
+                          Push Notifications
+                        </Label>
+                        <p className="text-sm text-muted-foreground">
+                          Browser and app notifications
+                        </p>
                       </div>
                       <Switch
                         id="pushNotifications"
                         checked={settings.pushNotifications}
-                        onCheckedChange={(checked) => handleSettingChange("pushNotifications", checked)}
+                        onCheckedChange={(checked) =>
+                          handleSettingChange("pushNotifications", checked)
+                        }
                       />
                     </div>
                   </div>
 
-                  <Button onClick={handleTestNotification} variant="outline" className="w-full">
+                  <Button
+                    onClick={handleTestNotification}
+                    variant="outline"
+                    className="w-full"
+                  >
                     <Volume2 className="w-4 h-4 mr-2" />
                     Send Test Notification
                   </Button>
@@ -401,55 +489,81 @@ export function DoctorSettings() {
                     <MessageSquare className="w-5 h-5" />
                     Alert Types
                   </CardTitle>
-                  <CardDescription>Customize which alerts you receive</CardDescription>
+                  <CardDescription>
+                    Customize which alerts you receive
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <div>
-                        <Label htmlFor="patientAlerts">Patient Critical Alerts</Label>
-                        <p className="text-sm text-muted-foreground">Abnormal vitals and emergency alerts</p>
+                        <Label htmlFor="patientAlerts">
+                          Patient Critical Alerts
+                        </Label>
+                        <p className="text-sm text-muted-foreground">
+                          Abnormal vitals and emergency alerts
+                        </p>
                       </div>
                       <Switch
                         id="patientAlerts"
                         checked={settings.patientAlerts}
-                        onCheckedChange={(checked) => handleSettingChange("patientAlerts", checked)}
+                        onCheckedChange={(checked) =>
+                          handleSettingChange("patientAlerts", checked)
+                        }
                       />
                     </div>
 
                     <div className="flex items-center justify-between">
                       <div>
-                        <Label htmlFor="appointmentReminders">Appointment Reminders</Label>
-                        <p className="text-sm text-muted-foreground">Upcoming appointments and changes</p>
+                        <Label htmlFor="appointmentReminders">
+                          Appointment Reminders
+                        </Label>
+                        <p className="text-sm text-muted-foreground">
+                          Upcoming appointments and changes
+                        </p>
                       </div>
                       <Switch
                         id="appointmentReminders"
                         checked={settings.appointmentReminders}
-                        onCheckedChange={(checked) => handleSettingChange("appointmentReminders", checked)}
+                        onCheckedChange={(checked) =>
+                          handleSettingChange("appointmentReminders", checked)
+                        }
                       />
                     </div>
 
                     <div className="flex items-center justify-between">
                       <div>
-                        <Label htmlFor="labResultNotifications">Lab Results</Label>
-                        <p className="text-sm text-muted-foreground">New lab results available</p>
+                        <Label htmlFor="labResultNotifications">
+                          Lab Results
+                        </Label>
+                        <p className="text-sm text-muted-foreground">
+                          New lab results available
+                        </p>
                       </div>
                       <Switch
                         id="labResultNotifications"
                         checked={settings.labResultNotifications}
-                        onCheckedChange={(checked) => handleSettingChange("labResultNotifications", checked)}
+                        onCheckedChange={(checked) =>
+                          handleSettingChange("labResultNotifications", checked)
+                        }
                       />
                     </div>
 
                     <div className="flex items-center justify-between">
                       <div>
-                        <Label htmlFor="emergencyAlerts">Emergency Alerts</Label>
-                        <p className="text-sm text-muted-foreground">System-wide emergency notifications</p>
+                        <Label htmlFor="emergencyAlerts">
+                          Emergency Alerts
+                        </Label>
+                        <p className="text-sm text-muted-foreground">
+                          System-wide emergency notifications
+                        </p>
                       </div>
                       <Switch
                         id="emergencyAlerts"
                         checked={settings.emergencyAlerts}
-                        onCheckedChange={(checked) => handleSettingChange("emergencyAlerts", checked)}
+                        onCheckedChange={(checked) =>
+                          handleSettingChange("emergencyAlerts", checked)
+                        }
                       />
                     </div>
                   </div>
@@ -462,7 +576,12 @@ export function DoctorSettings() {
                         <Input
                           type="time"
                           value={settings.quietHoursStart}
-                          onChange={(e) => handleSettingChange("quietHoursStart", e.target.value)}
+                          onChange={(e) =>
+                            handleSettingChange(
+                              "quietHoursStart",
+                              e.target.value,
+                            )
+                          }
                         />
                       </div>
                       <div className="space-y-1">
@@ -470,11 +589,16 @@ export function DoctorSettings() {
                         <Input
                           type="time"
                           value={settings.quietHoursEnd}
-                          onChange={(e) => handleSettingChange("quietHoursEnd", e.target.value)}
+                          onChange={(e) =>
+                            handleSettingChange("quietHoursEnd", e.target.value)
+                          }
                         />
                       </div>
                     </div>
-                    <p className="text-xs text-muted-foreground">Non-critical notifications will be silenced during these hours</p>
+                    <p className="text-xs text-muted-foreground">
+                      Non-critical notifications will be silenced during these
+                      hours
+                    </p>
                   </div>
                 </CardContent>
               </Card>
@@ -490,12 +614,24 @@ export function DoctorSettings() {
                     <Calendar className="w-5 h-5" />
                     Schedule Preferences
                   </CardTitle>
-                  <CardDescription>Configure your default scheduling preferences</CardDescription>
+                  <CardDescription>
+                    Configure your default scheduling preferences
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="defaultDuration">Default Appointment Duration (minutes)</Label>
-                    <Select value={settings.defaultAppointmentDuration.toString()} onValueChange={(value) => handleSettingChange("defaultAppointmentDuration", parseInt(value))}>
+                    <Label htmlFor="defaultDuration">
+                      Default Appointment Duration (minutes)
+                    </Label>
+                    <Select
+                      value={settings.defaultAppointmentDuration.toString()}
+                      onValueChange={(value) =>
+                        handleSettingChange(
+                          "defaultAppointmentDuration",
+                          parseInt(value),
+                        )
+                      }
+                    >
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
@@ -517,7 +653,12 @@ export function DoctorSettings() {
                         <Input
                           type="time"
                           value={settings.workingHoursStart}
-                          onChange={(e) => handleSettingChange("workingHoursStart", e.target.value)}
+                          onChange={(e) =>
+                            handleSettingChange(
+                              "workingHoursStart",
+                              e.target.value,
+                            )
+                          }
                         />
                       </div>
                       <div className="space-y-1">
@@ -525,7 +666,12 @@ export function DoctorSettings() {
                         <Input
                           type="time"
                           value={settings.workingHoursEnd}
-                          onChange={(e) => handleSettingChange("workingHoursEnd", e.target.value)}
+                          onChange={(e) =>
+                            handleSettingChange(
+                              "workingHoursEnd",
+                              e.target.value,
+                            )
+                          }
                         />
                       </div>
                     </div>
@@ -539,30 +685,44 @@ export function DoctorSettings() {
                     <MessageSquare className="w-5 h-5" />
                     Communication Settings
                   </CardTitle>
-                  <CardDescription>Manage patient communication preferences</CardDescription>
+                  <CardDescription>
+                    Manage patient communication preferences
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <Label htmlFor="enablePatientMessaging">Patient Messaging</Label>
-                      <p className="text-sm text-muted-foreground">Allow patients to send you messages</p>
+                      <Label htmlFor="enablePatientMessaging">
+                        Patient Messaging
+                      </Label>
+                      <p className="text-sm text-muted-foreground">
+                        Allow patients to send you messages
+                      </p>
                     </div>
                     <Switch
                       id="enablePatientMessaging"
                       checked={settings.enablePatientMessaging}
-                      onCheckedChange={(checked) => handleSettingChange("enablePatientMessaging", checked)}
+                      onCheckedChange={(checked) =>
+                        handleSettingChange("enablePatientMessaging", checked)
+                      }
                     />
                   </div>
 
                   <div className="flex items-center justify-between">
                     <div>
-                      <Label htmlFor="autoReplyEnabled">Auto-Reply Messages</Label>
-                      <p className="text-sm text-muted-foreground">Automatic acknowledgment of patient messages</p>
+                      <Label htmlFor="autoReplyEnabled">
+                        Auto-Reply Messages
+                      </Label>
+                      <p className="text-sm text-muted-foreground">
+                        Automatic acknowledgment of patient messages
+                      </p>
                     </div>
                     <Switch
                       id="autoReplyEnabled"
                       checked={settings.autoReplyEnabled}
-                      onCheckedChange={(checked) => handleSettingChange("autoReplyEnabled", checked)}
+                      onCheckedChange={(checked) =>
+                        handleSettingChange("autoReplyEnabled", checked)
+                      }
                     />
                   </div>
                 </CardContent>
@@ -579,12 +739,19 @@ export function DoctorSettings() {
                     <Monitor className="w-5 h-5" />
                     Display Preferences
                   </CardTitle>
-                  <CardDescription>Customize the appearance and layout</CardDescription>
+                  <CardDescription>
+                    Customize the appearance and layout
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="theme">Theme</Label>
-                    <Select value={settings.theme} onValueChange={(value) => handleSettingChange("theme", value)}>
+                    <Select
+                      value={settings.theme}
+                      onValueChange={(value) =>
+                        handleSettingChange("theme", value)
+                      }
+                    >
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
@@ -598,7 +765,12 @@ export function DoctorSettings() {
 
                   <div className="space-y-2">
                     <Label htmlFor="dateFormat">Date Format</Label>
-                    <Select value={settings.dateFormat} onValueChange={(value) => handleSettingChange("dateFormat", value)}>
+                    <Select
+                      value={settings.dateFormat}
+                      onValueChange={(value) =>
+                        handleSettingChange("dateFormat", value)
+                      }
+                    >
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
@@ -612,7 +784,12 @@ export function DoctorSettings() {
 
                   <div className="space-y-2">
                     <Label htmlFor="timeFormat">Time Format</Label>
-                    <Select value={settings.timeFormat} onValueChange={(value) => handleSettingChange("timeFormat", value)}>
+                    <Select
+                      value={settings.timeFormat}
+                      onValueChange={(value) =>
+                        handleSettingChange("timeFormat", value)
+                      }
+                    >
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
@@ -625,7 +802,12 @@ export function DoctorSettings() {
 
                   <div className="space-y-2">
                     <Label htmlFor="dashboardLayout">Dashboard Layout</Label>
-                    <Select value={settings.dashboardLayout} onValueChange={(value) => handleSettingChange("dashboardLayout", value)}>
+                    <Select
+                      value={settings.dashboardLayout}
+                      onValueChange={(value) =>
+                        handleSettingChange("dashboardLayout", value)
+                      }
+                    >
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
@@ -650,7 +832,9 @@ export function DoctorSettings() {
                     <Shield className="w-5 h-5" />
                     Account Security
                   </CardTitle>
-                  <CardDescription>Manage your account security settings</CardDescription>
+                  <CardDescription>
+                    Manage your account security settings
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
@@ -666,7 +850,11 @@ export function DoctorSettings() {
                         size="icon"
                         onClick={() => setShowPassword(!showPassword)}
                       >
-                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        {showPassword ? (
+                          <EyeOff className="w-4 h-4" />
+                        ) : (
+                          <Eye className="w-4 h-4" />
+                        )}
                       </Button>
                     </div>
                   </div>
@@ -681,7 +869,9 @@ export function DoctorSettings() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="confirmPassword">Confirm New Password</Label>
+                    <Label htmlFor="confirmPassword">
+                      Confirm New Password
+                    </Label>
                     <Input
                       id="confirmPassword"
                       type="password"
@@ -702,24 +892,39 @@ export function DoctorSettings() {
                     <Key className="w-5 h-5" />
                     Advanced Security
                   </CardTitle>
-                  <CardDescription>Additional security measures</CardDescription>
+                  <CardDescription>
+                    Additional security measures
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <Label htmlFor="twoFactorEnabled">Two-Factor Authentication</Label>
-                      <p className="text-sm text-muted-foreground">Add an extra layer of security</p>
+                      <Label htmlFor="twoFactorEnabled">
+                        Two-Factor Authentication
+                      </Label>
+                      <p className="text-sm text-muted-foreground">
+                        Add an extra layer of security
+                      </p>
                     </div>
                     <Switch
                       id="twoFactorEnabled"
                       checked={settings.twoFactorEnabled}
-                      onCheckedChange={(checked) => handleSettingChange("twoFactorEnabled", checked)}
+                      onCheckedChange={(checked) =>
+                        handleSettingChange("twoFactorEnabled", checked)
+                      }
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="sessionTimeout">Session Timeout (minutes)</Label>
-                    <Select value={settings.sessionTimeout.toString()} onValueChange={(value) => handleSettingChange("sessionTimeout", parseInt(value))}>
+                    <Label htmlFor="sessionTimeout">
+                      Session Timeout (minutes)
+                    </Label>
+                    <Select
+                      value={settings.sessionTimeout.toString()}
+                      onValueChange={(value) =>
+                        handleSettingChange("sessionTimeout", parseInt(value))
+                      }
+                    >
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
@@ -735,7 +940,9 @@ export function DoctorSettings() {
                   <div className="bg-green-50 border border-green-200 rounded-lg p-3">
                     <div className="flex items-center gap-2 text-green-800">
                       <CheckCircle className="w-4 h-4" />
-                      <span className="text-sm font-medium">Security Status: Good</span>
+                      <span className="text-sm font-medium">
+                        Security Status: Good
+                      </span>
                     </div>
                     <p className="text-xs text-green-700 mt-1">
                       Your account meets security requirements.

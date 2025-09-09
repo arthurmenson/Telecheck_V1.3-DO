@@ -14,7 +14,13 @@ import { Alert, AlertDescription } from "./ui/alert";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
 import { Switch } from "./ui/switch";
 import {
   DollarSign,
@@ -60,7 +66,7 @@ import {
   Building,
   UserCheck,
   ClipboardList,
-  Database
+  Database,
 } from "lucide-react";
 
 interface CMSBillingCode {
@@ -99,7 +105,14 @@ interface BillingSession {
 
 interface BillingActivity {
   id: string;
-  type: "device_setup" | "data_review" | "patient_contact" | "care_plan" | "medication_review" | "education" | "coordination";
+  type:
+    | "device_setup"
+    | "data_review"
+    | "patient_contact"
+    | "care_plan"
+    | "medication_review"
+    | "education"
+    | "coordination";
   description: string;
   startTime: string;
   endTime: string;
@@ -132,67 +145,114 @@ const cmsBillingCodes: CMSBillingCode[] = [
     description: "RPM device setup and patient education",
     category: "RPM",
     minMinutes: 16,
-    reimbursementRate: 62.50,
+    reimbursementRate: 62.5,
     requirements: ["Initial setup", "Patient education", "Technical training"],
     frequency: "per_service",
-    eligibilityRequirements: ["Medicare Part B", "Chronic condition", "Device prescription"],
-    documentationRequired: ["Device type", "Setup time", "Education provided", "Patient consent"]
+    eligibilityRequirements: [
+      "Medicare Part B",
+      "Chronic condition",
+      "Device prescription",
+    ],
+    documentationRequired: [
+      "Device type",
+      "Setup time",
+      "Education provided",
+      "Patient consent",
+    ],
   },
   {
     code: "99454",
     description: "RPM device supply and data transmission",
     category: "RPM",
     minMinutes: 0,
-    reimbursementRate: 54.20,
-    requirements: ["30-day device supply", "Daily data transmission", "16+ days of data"],
+    reimbursementRate: 54.2,
+    requirements: [
+      "30-day device supply",
+      "Daily data transmission",
+      "16+ days of data",
+    ],
     frequency: "monthly",
     eligibilityRequirements: ["Active RPM enrollment", "Daily device usage"],
-    documentationRequired: ["Device usage logs", "Data transmission records", "Days of valid data"]
+    documentationRequired: [
+      "Device usage logs",
+      "Data transmission records",
+      "Days of valid data",
+    ],
   },
   {
     code: "99457",
     description: "RPM treatment management services; first 20 minutes",
     category: "RPM",
     minMinutes: 20,
-    reimbursementRate: 51.80,
-    requirements: ["Clinical staff time", "Treatment management", "Communication with patient"],
+    reimbursementRate: 51.8,
+    requirements: [
+      "Clinical staff time",
+      "Treatment management",
+      "Communication with patient",
+    ],
     frequency: "monthly",
     eligibilityRequirements: ["Minimum 20 minutes", "Licensed clinical staff"],
-    documentationRequired: ["Time logs", "Clinical activities", "Patient interactions", "Care plan updates"]
+    documentationRequired: [
+      "Time logs",
+      "Clinical activities",
+      "Patient interactions",
+      "Care plan updates",
+    ],
   },
   {
     code: "99458",
-    description: "RPM treatment management services; each additional 20 minutes",
+    description:
+      "RPM treatment management services; each additional 20 minutes",
     category: "RPM",
     minMinutes: 20,
-    reimbursementRate: 41.20,
-    requirements: ["Additional clinical time", "Extended patient care", "Complex case management"],
+    reimbursementRate: 41.2,
+    requirements: [
+      "Additional clinical time",
+      "Extended patient care",
+      "Complex case management",
+    ],
     frequency: "monthly",
     eligibilityRequirements: ["Primary 99457 billed", "Additional 20+ minutes"],
-    documentationRequired: ["Extended time justification", "Additional activities", "Clinical complexity"]
+    documentationRequired: [
+      "Extended time justification",
+      "Additional activities",
+      "Clinical complexity",
+    ],
   },
   {
     code: "99490",
     description: "CCM services; first 20 minutes",
     category: "CCM",
     minMinutes: 20,
-    reimbursementRate: 68.40,
+    reimbursementRate: 68.4,
     requirements: ["Care coordination", "24/7 access", "Care plan management"],
     frequency: "monthly",
-    eligibilityRequirements: ["2+ chronic conditions", "Care plan on file", "Patient consent"],
-    documentationRequired: ["Care plan", "Communication log", "Coordination activities", "Time tracking"]
+    eligibilityRequirements: [
+      "2+ chronic conditions",
+      "Care plan on file",
+      "Patient consent",
+    ],
+    documentationRequired: [
+      "Care plan",
+      "Communication log",
+      "Coordination activities",
+      "Time tracking",
+    ],
   },
   {
     code: "99491",
     description: "CCM services; each additional 20 minutes",
     category: "CCM",
     minMinutes: 20,
-    reimbursementRate: 59.30,
+    reimbursementRate: 59.3,
     requirements: ["Extended care coordination", "Complex case management"],
     frequency: "monthly",
     eligibilityRequirements: ["Primary 99490 billed", "Additional 20+ minutes"],
-    documentationRequired: ["Additional time justification", "Complex care activities"]
-  }
+    documentationRequired: [
+      "Additional time justification",
+      "Complex care activities",
+    ],
+  },
 ];
 
 const mockBillingSessions: BillingSession[] = [
@@ -215,8 +275,9 @@ const mockBillingSessions: BillingSession[] = [
         startTime: "2024-01-15T09:00:00",
         endTime: "2024-01-15T09:12:00",
         minutes: 12,
-        documentation: "Reviewed 7 days of CGM data, identified post-meal spikes",
-        billable: true
+        documentation:
+          "Reviewed 7 days of CGM data, identified post-meal spikes",
+        billable: true,
       },
       {
         id: "act_002",
@@ -226,7 +287,7 @@ const mockBillingSessions: BillingSession[] = [
         endTime: "2024-01-15T09:28:00",
         minutes: 16,
         documentation: "Discussed meal timing and carb counting strategies",
-        billable: true
+        billable: true,
       },
       {
         id: "act_003",
@@ -235,15 +296,17 @@ const mockBillingSessions: BillingSession[] = [
         startTime: "2024-01-15T09:28:00",
         endTime: "2024-01-15T09:35:00",
         minutes: 7,
-        documentation: "Adjusted target glucose ranges, updated medication timing",
-        billable: true
-      }
+        documentation:
+          "Adjusted target glucose ranges, updated medication timing",
+        billable: true,
+      },
     ],
-    notes: "Patient showing improvement in post-meal glucose control. Continue current monitoring frequency.",
+    notes:
+      "Patient showing improvement in post-meal glucose control. Continue current monitoring frequency.",
     createdDate: "2024-01-15T09:00:00",
     submissionDate: "2024-01-16T10:00:00",
-    amount: 51.80,
-    reimbursementAmount: 51.80
+    amount: 51.8,
+    reimbursementAmount: 51.8,
   },
   {
     id: "session_002",
@@ -265,7 +328,7 @@ const mockBillingSessions: BillingSession[] = [
         endTime: "2024-01-15T14:15:00",
         minutes: 15,
         documentation: "Reviewed diabetes and hypertension management goals",
-        billable: true
+        billable: true,
       },
       {
         id: "act_005",
@@ -274,8 +337,9 @@ const mockBillingSessions: BillingSession[] = [
         startTime: "2024-01-15T14:15:00",
         endTime: "2024-01-15T14:25:00",
         minutes: 10,
-        documentation: "Scheduled nephrology appointment, shared recent lab results",
-        billable: true
+        documentation:
+          "Scheduled nephrology appointment, shared recent lab results",
+        billable: true,
       },
       {
         id: "act_006",
@@ -285,49 +349,57 @@ const mockBillingSessions: BillingSession[] = [
         endTime: "2024-01-15T14:32:00",
         minutes: 7,
         documentation: "Discussed importance of ACE inhibitor compliance",
-        billable: true
-      }
+        billable: true,
+      },
     ],
-    notes: "CCM coordination successful. Patient scheduled for nephrology follow-up.",
+    notes:
+      "CCM coordination successful. Patient scheduled for nephrology follow-up.",
     createdDate: "2024-01-15T14:00:00",
     submissionDate: "2024-01-16T11:00:00",
-    amount: 68.40
-  }
+    amount: 68.4,
+  },
 ];
 
 const monthlyReport: MonthlyBillingReport = {
   month: "January 2024",
   totalSessions: 156,
   totalMinutes: 3420,
-  totalRevenue: 9856.80,
-  reimbursementReceived: 9234.50,
+  totalRevenue: 9856.8,
+  reimbursementReceived: 9234.5,
   pendingClaims: 12,
   deniedClaims: 3,
   complianceRate: 96.2,
   codeBreakdown: {
-    "99453": { count: 28, minutes: 448, revenue: 1750.00 },
-    "99454": { count: 89, minutes: 0, revenue: 4823.80 },
-    "99457": { count: 67, minutes: 1675, revenue: 3470.60 },
-    "99458": { count: 15, minutes: 300, revenue: 618.00 },
-    "99490": { count: 45, minutes: 997, revenue: 3078.00 },
-    "99491": { count: 8, minutes: 160, revenue: 474.40 }
-  }
+    "99453": { count: 28, minutes: 448, revenue: 1750.0 },
+    "99454": { count: 89, minutes: 0, revenue: 4823.8 },
+    "99457": { count: 67, minutes: 1675, revenue: 3470.6 },
+    "99458": { count: 15, minutes: 300, revenue: 618.0 },
+    "99490": { count: 45, minutes: 997, revenue: 3078.0 },
+    "99491": { count: 8, minutes: 160, revenue: 474.4 },
+  },
 };
 
 export function RPMBillingIntegration() {
   const [activeTab, setActiveTab] = useState("overview");
-  const [billingSessions, setBillingSessions] = useState<BillingSession[]>(mockBillingSessions);
-  const [activeSession, setActiveSession] = useState<BillingSession | null>(null);
+  const [billingSessions, setBillingSessions] =
+    useState<BillingSession[]>(mockBillingSessions);
+  const [activeSession, setActiveSession] = useState<BillingSession | null>(
+    null,
+  );
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [currentTimer, setCurrentTimer] = useState(0);
   const [filterStatus, setFilterStatus] = useState("all");
 
   const totalPendingRevenue = billingSessions
-    .filter(s => s.status === "submitted" || s.status === "completed")
+    .filter((s) => s.status === "submitted" || s.status === "completed")
     .reduce((sum, s) => sum + s.amount, 0);
 
-  const completedSessions = billingSessions.filter(s => s.status === "completed" || s.status === "paid").length;
-  const avgSessionMinutes = billingSessions.reduce((sum, s) => sum + s.totalMinutes, 0) / billingSessions.length;
+  const completedSessions = billingSessions.filter(
+    (s) => s.status === "completed" || s.status === "paid",
+  ).length;
+  const avgSessionMinutes =
+    billingSessions.reduce((sum, s) => sum + s.totalMinutes, 0) /
+    billingSessions.length;
 
   const startBillingSession = (patientId: string, code: string) => {
     const newSession: BillingSession = {
@@ -343,7 +415,8 @@ export function RPMBillingIntegration() {
       activities: [],
       notes: "",
       createdDate: new Date().toISOString(),
-      amount: cmsBillingCodes.find(c => c.code === code)?.reimbursementRate || 0
+      amount:
+        cmsBillingCodes.find((c) => c.code === code)?.reimbursementRate || 0,
     };
 
     setBillingSessions([...billingSessions, newSession]);
@@ -352,27 +425,37 @@ export function RPMBillingIntegration() {
     setCurrentTimer(0);
   };
 
-  const addActivity = (sessionId: string, activity: Omit<BillingActivity, 'id'>) => {
+  const addActivity = (
+    sessionId: string,
+    activity: Omit<BillingActivity, "id">,
+  ) => {
     const activityWithId = { ...activity, id: `act_${Date.now()}` };
-    setBillingSessions(billingSessions.map(session => 
-      session.id === sessionId 
-        ? { ...session, activities: [...session.activities, activityWithId] }
-        : session
-    ));
+    setBillingSessions(
+      billingSessions.map((session) =>
+        session.id === sessionId
+          ? { ...session, activities: [...session.activities, activityWithId] }
+          : session,
+      ),
+    );
   };
 
   const completeSession = (sessionId: string, notes: string) => {
-    setBillingSessions(billingSessions.map(session => 
-      session.id === sessionId 
-        ? { 
-          ...session, 
-          status: "completed",
-          endTime: new Date().toISOString(),
-          totalMinutes: session.activities.reduce((sum, a) => sum + a.minutes, 0),
-          notes 
-        }
-        : session
-    ));
+    setBillingSessions(
+      billingSessions.map((session) =>
+        session.id === sessionId
+          ? {
+              ...session,
+              status: "completed",
+              endTime: new Date().toISOString(),
+              totalMinutes: session.activities.reduce(
+                (sum, a) => sum + a.minutes,
+                0,
+              ),
+              notes,
+            }
+          : session,
+      ),
+    );
     setActiveSession(null);
     setIsTimerRunning(false);
     setCurrentTimer(0);
@@ -380,18 +463,24 @@ export function RPMBillingIntegration() {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case "in_progress": return { color: "secondary", text: "In Progress" };
-      case "completed": return { color: "default", text: "Completed" };
-      case "submitted": return { color: "warning", text: "Submitted" };
-      case "paid": return { color: "success", text: "Paid" };
-      case "denied": return { color: "destructive", text: "Denied" };
-      default: return { color: "secondary", text: "Unknown" };
+      case "in_progress":
+        return { color: "secondary", text: "In Progress" };
+      case "completed":
+        return { color: "default", text: "Completed" };
+      case "submitted":
+        return { color: "warning", text: "Submitted" };
+      case "paid":
+        return { color: "success", text: "Paid" };
+      case "denied":
+        return { color: "destructive", text: "Denied" };
+      default:
+        return { color: "secondary", text: "Unknown" };
     }
   };
 
   const calculateComplianceRate = () => {
-    const compliantSessions = billingSessions.filter(session => {
-      const code = cmsBillingCodes.find(c => c.code === session.code);
+    const compliantSessions = billingSessions.filter((session) => {
+      const code = cmsBillingCodes.find((c) => c.code === session.code);
       return code && session.totalMinutes >= code.minMinutes;
     }).length;
     return ((compliantSessions / billingSessions.length) * 100).toFixed(1);
@@ -401,7 +490,7 @@ export function RPMBillingIntegration() {
     let interval: NodeJS.Timeout;
     if (isTimerRunning) {
       interval = setInterval(() => {
-        setCurrentTimer(prev => prev + 1);
+        setCurrentTimer((prev) => prev + 1);
       }, 1000);
     }
     return () => clearInterval(interval);
@@ -421,8 +510,8 @@ export function RPMBillingIntegration() {
         </div>
         <div className="flex items-center space-x-2">
           <Badge variant="outline" className="flex items-center gap-2">
-            <DollarSign className="w-4 h-4" />
-            ${totalPendingRevenue.toLocaleString()} Pending
+            <DollarSign className="w-4 h-4" />$
+            {totalPendingRevenue.toLocaleString()} Pending
           </Badge>
           <Button>
             <Plus className="w-4 h-4 mr-2" />
@@ -438,16 +527,27 @@ export function RPMBillingIntegration() {
           <AlertDescription className="text-blue-800 dark:text-blue-200">
             <div className="flex items-center justify-between">
               <span>
-                <strong>Active Session:</strong> {activeSession.code} - {activeSession.patientName}
+                <strong>Active Session:</strong> {activeSession.code} -{" "}
+                {activeSession.patientName}
               </span>
               <div className="flex items-center space-x-4">
                 <span className="font-mono text-lg">
-                  {Math.floor(currentTimer / 60)}:{(currentTimer % 60).toString().padStart(2, '0')}
+                  {Math.floor(currentTimer / 60)}:
+                  {(currentTimer % 60).toString().padStart(2, "0")}
                 </span>
-                <Button size="sm" onClick={() => setIsTimerRunning(!isTimerRunning)}>
+                <Button
+                  size="sm"
+                  onClick={() => setIsTimerRunning(!isTimerRunning)}
+                >
                   {isTimerRunning ? "Pause" : "Resume"}
                 </Button>
-                <Button size="sm" variant="outline" onClick={() => completeSession(activeSession.id, "Session completed")}>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() =>
+                    completeSession(activeSession.id, "Session completed")
+                  }
+                >
                   Complete
                 </Button>
               </div>
@@ -462,9 +562,15 @@ export function RPMBillingIntegration() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Total Sessions</p>
-                <div className="text-2xl font-bold">{billingSessions.length}</div>
-                <p className="text-sm text-green-600">+{completedSessions} completed</p>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Total Sessions
+                </p>
+                <div className="text-2xl font-bold">
+                  {billingSessions.length}
+                </div>
+                <p className="text-sm text-green-600">
+                  +{completedSessions} completed
+                </p>
               </div>
               <FileText className="h-8 w-8 text-blue-500" />
             </div>
@@ -475,9 +581,15 @@ export function RPMBillingIntegration() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Pending Revenue</p>
-                <div className="text-2xl font-bold">${totalPendingRevenue.toLocaleString()}</div>
-                <p className="text-sm text-muted-foreground">Awaiting reimbursement</p>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Pending Revenue
+                </p>
+                <div className="text-2xl font-bold">
+                  ${totalPendingRevenue.toLocaleString()}
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Awaiting reimbursement
+                </p>
               </div>
               <CreditCard className="h-8 w-8 text-green-500" />
             </div>
@@ -488,8 +600,12 @@ export function RPMBillingIntegration() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Avg Minutes</p>
-                <div className="text-2xl font-bold">{Math.round(avgSessionMinutes)}</div>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Avg Minutes
+                </p>
+                <div className="text-2xl font-bold">
+                  {Math.round(avgSessionMinutes)}
+                </div>
                 <p className="text-sm text-blue-600">Per session</p>
               </div>
               <Clock className="h-8 w-8 text-purple-500" />
@@ -501,9 +617,15 @@ export function RPMBillingIntegration() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Compliance</p>
-                <div className="text-2xl font-bold text-green-600">{calculateComplianceRate()}%</div>
-                <p className="text-sm text-muted-foreground">CMS requirements</p>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Compliance
+                </p>
+                <div className="text-2xl font-bold text-green-600">
+                  {calculateComplianceRate()}%
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  CMS requirements
+                </p>
               </div>
               <Shield className="h-8 w-8 text-green-500" />
             </div>
@@ -512,7 +634,11 @@ export function RPMBillingIntegration() {
       </div>
 
       {/* Main Content */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+      <Tabs
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className="space-y-4"
+      >
         <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="sessions">Sessions</TabsTrigger>
@@ -527,46 +653,69 @@ export function RPMBillingIntegration() {
             <Card>
               <CardHeader>
                 <CardTitle>Monthly Revenue Breakdown</CardTitle>
-                <CardDescription>Billing performance by CMS code</CardDescription>
+                <CardDescription>
+                  Billing performance by CMS code
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                {Object.entries(monthlyReport.codeBreakdown).map(([code, data]) => {
-                  const codeInfo = cmsBillingCodes.find(c => c.code === code);
-                  return (
-                    <div key={code} className="flex items-center justify-between p-3 border rounded">
-                      <div>
-                        <h4 className="font-medium">{code}</h4>
-                        <p className="text-sm text-muted-foreground">
-                          {codeInfo?.description}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <div className="font-medium">${data.revenue.toLocaleString()}</div>
-                        <div className="text-sm text-muted-foreground">
-                          {data.count} sessions • {data.minutes} min
+                {Object.entries(monthlyReport.codeBreakdown).map(
+                  ([code, data]) => {
+                    const codeInfo = cmsBillingCodes.find(
+                      (c) => c.code === code,
+                    );
+                    return (
+                      <div
+                        key={code}
+                        className="flex items-center justify-between p-3 border rounded"
+                      >
+                        <div>
+                          <h4 className="font-medium">{code}</h4>
+                          <p className="text-sm text-muted-foreground">
+                            {codeInfo?.description}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <div className="font-medium">
+                            ${data.revenue.toLocaleString()}
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            {data.count} sessions • {data.minutes} min
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  },
+                )}
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader>
                 <CardTitle>Recent Billing Activity</CardTitle>
-                <CardDescription>Latest sessions and status updates</CardDescription>
+                <CardDescription>
+                  Latest sessions and status updates
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
                 {billingSessions.slice(0, 5).map((session) => (
-                  <div key={session.id} className="flex items-center justify-between p-3 border rounded">
+                  <div
+                    key={session.id}
+                    className="flex items-center justify-between p-3 border rounded"
+                  >
                     <div className="flex items-center space-x-3">
-                      <div className={`w-3 h-3 rounded-full ${
-                        session.status === "paid" ? "bg-green-500" :
-                        session.status === "submitted" ? "bg-blue-500" :
-                        session.status === "completed" ? "bg-yellow-500" :
-                        session.status === "denied" ? "bg-red-500" : "bg-gray-500"
-                      }`} />
+                      <div
+                        className={`w-3 h-3 rounded-full ${
+                          session.status === "paid"
+                            ? "bg-green-500"
+                            : session.status === "submitted"
+                              ? "bg-blue-500"
+                              : session.status === "completed"
+                                ? "bg-yellow-500"
+                                : session.status === "denied"
+                                  ? "bg-red-500"
+                                  : "bg-gray-500"
+                        }`}
+                      />
                       <div>
                         <h5 className="font-medium">{session.patientName}</h5>
                         <p className="text-sm text-muted-foreground">
@@ -575,7 +724,9 @@ export function RPMBillingIntegration() {
                       </div>
                     </div>
                     <div className="text-right">
-                      <Badge variant={getStatusBadge(session.status).color as any}>
+                      <Badge
+                        variant={getStatusBadge(session.status).color as any}
+                      >
                         {getStatusBadge(session.status).text}
                       </Badge>
                       <div className="text-sm font-medium mt-1">
@@ -594,11 +745,18 @@ export function RPMBillingIntegration() {
                 <CardTitle>Quick Actions</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
-                <Button className="w-full justify-start" onClick={() => startBillingSession("new_patient", "99457")}>
+                <Button
+                  className="w-full justify-start"
+                  onClick={() => startBillingSession("new_patient", "99457")}
+                >
                   <Timer className="w-4 h-4 mr-2" />
                   Start RPM Session
                 </Button>
-                <Button variant="outline" className="w-full justify-start" onClick={() => startBillingSession("new_patient", "99490")}>
+                <Button
+                  variant="outline"
+                  className="w-full justify-start"
+                  onClick={() => startBillingSession("new_patient", "99490")}
+                >
                   <Clock className="w-4 h-4 mr-2" />
                   Start CCM Session
                 </Button>
@@ -695,18 +853,28 @@ export function RPMBillingIntegration() {
 
           <div className="space-y-3">
             {billingSessions
-              .filter(session => filterStatus === "all" || session.status === filterStatus)
+              .filter(
+                (session) =>
+                  filterStatus === "all" || session.status === filterStatus,
+              )
               .map((session) => (
                 <Card key={session.id}>
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center space-x-4">
-                        <div className={`w-4 h-4 rounded-full ${
-                          session.status === "paid" ? "bg-green-500" :
-                          session.status === "submitted" ? "bg-blue-500" :
-                          session.status === "completed" ? "bg-yellow-500" :
-                          session.status === "denied" ? "bg-red-500" : "bg-gray-500"
-                        }`} />
+                        <div
+                          className={`w-4 h-4 rounded-full ${
+                            session.status === "paid"
+                              ? "bg-green-500"
+                              : session.status === "submitted"
+                                ? "bg-blue-500"
+                                : session.status === "completed"
+                                  ? "bg-yellow-500"
+                                  : session.status === "denied"
+                                    ? "bg-red-500"
+                                    : "bg-gray-500"
+                          }`}
+                        />
                         <div>
                           <h4 className="font-medium">{session.patientName}</h4>
                           <p className="text-sm text-muted-foreground">
@@ -715,7 +883,9 @@ export function RPMBillingIntegration() {
                         </div>
                       </div>
                       <div className="text-right">
-                        <Badge variant={getStatusBadge(session.status).color as any}>
+                        <Badge
+                          variant={getStatusBadge(session.status).color as any}
+                        >
                           {getStatusBadge(session.status).text}
                         </Badge>
                         <div className="text-sm font-medium mt-1">
@@ -731,7 +901,9 @@ export function RPMBillingIntegration() {
                       </div>
                       <div>
                         <span className="text-muted-foreground">Duration:</span>
-                        <p className="font-medium">{session.totalMinutes} minutes</p>
+                        <p className="font-medium">
+                          {session.totalMinutes} minutes
+                        </p>
                       </div>
                       <div>
                         <span className="text-muted-foreground">Date:</span>
@@ -740,8 +912,12 @@ export function RPMBillingIntegration() {
                         </p>
                       </div>
                       <div>
-                        <span className="text-muted-foreground">Activities:</span>
-                        <p className="font-medium">{session.activities.length}</p>
+                        <span className="text-muted-foreground">
+                          Activities:
+                        </span>
+                        <p className="font-medium">
+                          {session.activities.length}
+                        </p>
                       </div>
                     </div>
 
@@ -750,11 +926,18 @@ export function RPMBillingIntegration() {
                         <h5 className="font-medium mb-2">Activities:</h5>
                         <div className="space-y-1">
                           {session.activities.map((activity) => (
-                            <div key={activity.id} className="flex justify-between items-center text-sm p-2 bg-gray-50 dark:bg-gray-800 rounded">
+                            <div
+                              key={activity.id}
+                              className="flex justify-between items-center text-sm p-2 bg-gray-50 dark:bg-gray-800 rounded"
+                            >
                               <span>{activity.description}</span>
                               <div className="flex items-center space-x-2">
                                 <span>{activity.minutes} min</span>
-                                {activity.billable && <Badge variant="outline" className="text-xs">Billable</Badge>}
+                                {activity.billable && (
+                                  <Badge variant="outline" className="text-xs">
+                                    Billable
+                                  </Badge>
+                                )}
                               </div>
                             </div>
                           ))}
@@ -765,7 +948,9 @@ export function RPMBillingIntegration() {
                     {session.notes && (
                       <div className="mb-4">
                         <h5 className="font-medium mb-1">Notes:</h5>
-                        <p className="text-sm text-muted-foreground">{session.notes}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {session.notes}
+                        </p>
                       </div>
                     )}
 
@@ -801,7 +986,9 @@ export function RPMBillingIntegration() {
           <Card>
             <CardHeader>
               <CardTitle>CMS Billing Codes Reference</CardTitle>
-              <CardDescription>Current reimbursement rates and requirements</CardDescription>
+              <CardDescription>
+                Current reimbursement rates and requirements
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -811,17 +998,25 @@ export function RPMBillingIntegration() {
                       <div>
                         <div className="flex items-center space-x-2 mb-1">
                           <h4 className="font-medium text-lg">{code.code}</h4>
-                          <Badge variant={code.category === "RPM" ? "default" : "secondary"}>
+                          <Badge
+                            variant={
+                              code.category === "RPM" ? "default" : "secondary"
+                            }
+                          >
                             {code.category}
                           </Badge>
                         </div>
-                        <p className="text-sm text-muted-foreground mb-2">{code.description}</p>
+                        <p className="text-sm text-muted-foreground mb-2">
+                          {code.description}
+                        </p>
                       </div>
                       <div className="text-right">
                         <div className="text-lg font-bold text-green-600">
                           ${code.reimbursementRate.toFixed(2)}
                         </div>
-                        <div className="text-sm text-muted-foreground">{code.frequency}</div>
+                        <div className="text-sm text-muted-foreground">
+                          {code.frequency}
+                        </div>
                       </div>
                     </div>
 
@@ -830,7 +1025,10 @@ export function RPMBillingIntegration() {
                         <h5 className="font-medium mb-2">Requirements:</h5>
                         <ul className="text-sm space-y-1">
                           {code.requirements.map((req, idx) => (
-                            <li key={idx} className="flex items-center space-x-2">
+                            <li
+                              key={idx}
+                              className="flex items-center space-x-2"
+                            >
                               <CheckCircle className="w-3 h-3 text-green-600" />
                               <span>{req}</span>
                             </li>
@@ -838,10 +1036,15 @@ export function RPMBillingIntegration() {
                         </ul>
                       </div>
                       <div>
-                        <h5 className="font-medium mb-2">Documentation Required:</h5>
+                        <h5 className="font-medium mb-2">
+                          Documentation Required:
+                        </h5>
                         <ul className="text-sm space-y-1">
                           {code.documentationRequired.map((doc, idx) => (
-                            <li key={idx} className="flex items-center space-x-2">
+                            <li
+                              key={idx}
+                              className="flex items-center space-x-2"
+                            >
                               <FileText className="w-3 h-3 text-blue-600" />
                               <span>{doc}</span>
                             </li>
@@ -877,29 +1080,43 @@ export function RPMBillingIntegration() {
           <Card>
             <CardHeader>
               <CardTitle>Monthly Billing Report</CardTitle>
-              <CardDescription>{monthlyReport.month} performance summary</CardDescription>
+              <CardDescription>
+                {monthlyReport.month} performance summary
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div className="text-center p-4 border rounded">
-                  <div className="text-2xl font-bold">{monthlyReport.totalSessions}</div>
-                  <div className="text-sm text-muted-foreground">Total Sessions</div>
+                  <div className="text-2xl font-bold">
+                    {monthlyReport.totalSessions}
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    Total Sessions
+                  </div>
                 </div>
                 <div className="text-center p-4 border rounded">
-                  <div className="text-2xl font-bold">{monthlyReport.totalMinutes.toLocaleString()}</div>
-                  <div className="text-sm text-muted-foreground">Total Minutes</div>
+                  <div className="text-2xl font-bold">
+                    {monthlyReport.totalMinutes.toLocaleString()}
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    Total Minutes
+                  </div>
                 </div>
                 <div className="text-center p-4 border rounded">
                   <div className="text-2xl font-bold text-green-600">
                     ${monthlyReport.totalRevenue.toLocaleString()}
                   </div>
-                  <div className="text-sm text-muted-foreground">Total Revenue</div>
+                  <div className="text-sm text-muted-foreground">
+                    Total Revenue
+                  </div>
                 </div>
                 <div className="text-center p-4 border rounded">
                   <div className="text-2xl font-bold text-blue-600">
                     {monthlyReport.complianceRate}%
                   </div>
-                  <div className="text-sm text-muted-foreground">Compliance Rate</div>
+                  <div className="text-sm text-muted-foreground">
+                    Compliance Rate
+                  </div>
                 </div>
               </div>
 
@@ -909,15 +1126,22 @@ export function RPMBillingIntegration() {
                   <div className="space-y-2">
                     <div className="flex justify-between items-center">
                       <span className="text-sm">Submitted Claims</span>
-                      <span className="font-medium">{monthlyReport.totalSessions - monthlyReport.pendingClaims}</span>
+                      <span className="font-medium">
+                        {monthlyReport.totalSessions -
+                          monthlyReport.pendingClaims}
+                      </span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-sm">Pending Claims</span>
-                      <span className="font-medium text-yellow-600">{monthlyReport.pendingClaims}</span>
+                      <span className="font-medium text-yellow-600">
+                        {monthlyReport.pendingClaims}
+                      </span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-sm">Denied Claims</span>
-                      <span className="font-medium text-red-600">{monthlyReport.deniedClaims}</span>
+                      <span className="font-medium text-red-600">
+                        {monthlyReport.deniedClaims}
+                      </span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-sm">Reimbursement Received</span>
@@ -932,13 +1156,18 @@ export function RPMBillingIntegration() {
                   <h4 className="font-medium mb-3">Top Billing Codes</h4>
                   <div className="space-y-2">
                     {Object.entries(monthlyReport.codeBreakdown)
-                      .sort(([,a], [,b]) => b.revenue - a.revenue)
+                      .sort(([, a], [, b]) => b.revenue - a.revenue)
                       .slice(0, 4)
                       .map(([code, data]) => (
-                        <div key={code} className="flex justify-between items-center">
+                        <div
+                          key={code}
+                          className="flex justify-between items-center"
+                        >
                           <span className="text-sm">{code}</span>
                           <div className="text-right">
-                            <span className="font-medium">${data.revenue.toLocaleString()}</span>
+                            <span className="font-medium">
+                              ${data.revenue.toLocaleString()}
+                            </span>
                             <span className="text-xs text-muted-foreground ml-2">
                               ({data.count} sessions)
                             </span>
@@ -972,16 +1201,22 @@ export function RPMBillingIntegration() {
             <Card>
               <CardHeader>
                 <CardTitle>CMS Compliance Checklist</CardTitle>
-                <CardDescription>Ensure all requirements are met</CardDescription>
+                <CardDescription>
+                  Ensure all requirements are met
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm">Provider enrolled in Medicare</span>
+                    <span className="text-sm">
+                      Provider enrolled in Medicare
+                    </span>
                     <CheckCircle className="w-5 h-5 text-green-600" />
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm">Patient has qualifying chronic condition</span>
+                    <span className="text-sm">
+                      Patient has qualifying chronic condition
+                    </span>
                     <CheckCircle className="w-5 h-5 text-green-600" />
                   </div>
                   <div className="flex items-center justify-between">
@@ -997,7 +1232,9 @@ export function RPMBillingIntegration() {
                     <CheckCircle className="w-5 h-5 text-green-600" />
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm">Minimum time requirements met</span>
+                    <span className="text-sm">
+                      Minimum time requirements met
+                    </span>
                     <AlertTriangle className="w-5 h-5 text-yellow-600" />
                   </div>
                 </div>
@@ -1007,7 +1244,9 @@ export function RPMBillingIntegration() {
             <Card>
               <CardHeader>
                 <CardTitle>Documentation Requirements</CardTitle>
-                <CardDescription>Required documentation for billing compliance</CardDescription>
+                <CardDescription>
+                  Required documentation for billing compliance
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-3">
@@ -1016,11 +1255,15 @@ export function RPMBillingIntegration() {
                     <Badge variant="default">Complete</Badge>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm">Clinical activity documentation</span>
+                    <span className="text-sm">
+                      Clinical activity documentation
+                    </span>
                     <Badge variant="default">Complete</Badge>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm">Patient communication records</span>
+                    <span className="text-sm">
+                      Patient communication records
+                    </span>
                     <Badge variant="default">Complete</Badge>
                   </div>
                   <div className="flex items-center justify-between">
@@ -1043,22 +1286,32 @@ export function RPMBillingIntegration() {
           <Card>
             <CardHeader>
               <CardTitle>Audit Trail</CardTitle>
-              <CardDescription>Compliance monitoring and audit readiness</CardDescription>
+              <CardDescription>
+                Compliance monitoring and audit readiness
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="text-center p-4 border rounded">
-                    <div className="text-2xl font-bold text-green-600">98.5%</div>
-                    <div className="text-sm text-muted-foreground">Documentation Compliance</div>
+                    <div className="text-2xl font-bold text-green-600">
+                      98.5%
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      Documentation Compliance
+                    </div>
                   </div>
                   <div className="text-center p-4 border rounded">
                     <div className="text-2xl font-bold text-blue-600">156</div>
-                    <div className="text-sm text-muted-foreground">Audit Records</div>
+                    <div className="text-sm text-muted-foreground">
+                      Audit Records
+                    </div>
                   </div>
                   <div className="text-center p-4 border rounded">
                     <div className="text-2xl font-bold text-purple-600">0</div>
-                    <div className="text-sm text-muted-foreground">Compliance Violations</div>
+                    <div className="text-sm text-muted-foreground">
+                      Compliance Violations
+                    </div>
                   </div>
                 </div>
 
@@ -1076,7 +1329,9 @@ export function RPMBillingIntegration() {
             <Card>
               <CardHeader>
                 <CardTitle>Billing Configuration</CardTitle>
-                <CardDescription>Configure billing parameters and automation</CardDescription>
+                <CardDescription>
+                  Configure billing parameters and automation
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-3">
@@ -1118,7 +1373,9 @@ export function RPMBillingIntegration() {
             <Card>
               <CardHeader>
                 <CardTitle>Provider Information</CardTitle>
-                <CardDescription>Update provider details for billing</CardDescription>
+                <CardDescription>
+                  Update provider details for billing
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
@@ -1135,7 +1392,10 @@ export function RPMBillingIntegration() {
                 </div>
                 <div>
                   <Label htmlFor="billingAddress">Billing Address</Label>
-                  <Textarea id="billingAddress" placeholder="Enter billing address..." />
+                  <Textarea
+                    id="billingAddress"
+                    placeholder="Enter billing address..."
+                  />
                 </div>
               </CardContent>
             </Card>
@@ -1146,14 +1406,23 @@ export function RPMBillingIntegration() {
   );
 }
 
-function Label({ children, className, htmlFor, ...props }: { 
-  children: React.ReactNode; 
-  className?: string; 
+function Label({
+  children,
+  className,
+  htmlFor,
+  ...props
+}: {
+  children: React.ReactNode;
+  className?: string;
   htmlFor?: string;
   [key: string]: any;
 }) {
   return (
-    <label htmlFor={htmlFor} className={`text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 ${className}`} {...props}>
+    <label
+      htmlFor={htmlFor}
+      className={`text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 ${className}`}
+      {...props}
+    >
       {children}
     </label>
   );

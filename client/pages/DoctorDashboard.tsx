@@ -440,7 +440,11 @@ export function DoctorDashboard() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <Button variant="outline" className="w-full justify-start" asChild>
+                <Button
+                  variant="outline"
+                  className="w-full justify-start"
+                  asChild
+                >
                   <Link to="/ehr/ai-scribe">
                     <Brain className="w-4 h-4 mr-2" />
                     AI Medical Scribe

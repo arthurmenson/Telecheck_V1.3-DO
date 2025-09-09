@@ -12,7 +12,12 @@ import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { Textarea } from "../components/ui/textarea";
 import { Progress } from "../components/ui/progress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../components/ui/tabs";
 import {
   Select,
   SelectContent,
@@ -105,21 +110,21 @@ import {
   Save,
   RotateCcw,
 } from "lucide-react";
-import { 
-  usePatients, 
-  useSearchPatients, 
+import {
+  usePatients,
+  useSearchPatients,
   usePatientStats,
   useCreatePatient,
   useUpdatePatient,
   useArchivePatient,
-  useDebouncedPatientSearch
+  useDebouncedPatientSearch,
 } from "../hooks/api/usePatients";
-import { 
-  PatientService, 
-  Patient, 
-  CreatePatientRequest, 
+import {
+  PatientService,
+  Patient,
+  CreatePatientRequest,
   UpdatePatientRequest,
-  PatientSearchFilters 
+  PatientSearchFilters,
 } from "../services/patient.service";
 import { useToast } from "../hooks/use-toast";
 
@@ -134,7 +139,7 @@ interface BulkAction {
 
 interface SortConfig {
   key: keyof Patient | string;
-  direction: 'asc' | 'desc';
+  direction: "asc" | "desc";
 }
 
 interface AnalyticsData {
@@ -165,10 +170,17 @@ export function PatientRegistry() {
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
   const [showArchiveDialog, setShowArchiveDialog] = useState(false);
-  const [patientToArchive, setPatientToArchive] = useState<Patient | null>(null);
+  const [patientToArchive, setPatientToArchive] = useState<Patient | null>(
+    null,
+  );
   const [showFilters, setShowFilters] = useState(false);
-  const [selectedPatients, setSelectedPatients] = useState<Set<string>>(new Set());
-  const [sortConfig, setSortConfig] = useState<SortConfig>({ key: 'lastName', direction: 'asc' });
+  const [selectedPatients, setSelectedPatients] = useState<Set<string>>(
+    new Set(),
+  );
+  const [sortConfig, setSortConfig] = useState<SortConfig>({
+    key: "lastName",
+    direction: "asc",
+  });
   const [showBulkActions, setShowBulkActions] = useState(false);
   const [showExportDialog, setShowExportDialog] = useState(false);
   const [showImportDialog, setShowImportDialog] = useState(false);
@@ -178,18 +190,18 @@ export function PatientRegistry() {
 
   // Search and filter state
   const [searchFilters, setSearchFilters] = useState<PatientSearchFilters>({
-    status: 'active'
+    status: "active",
   });
 
   // Hooks
   const { data: patientStats, isLoading: statsLoading } = usePatientStats();
-  const { 
-    data: searchResults, 
-    isLoading: searchLoading, 
+  const {
+    data: searchResults,
+    isLoading: searchLoading,
     error: searchError,
     filters,
     setFilters,
-    isSearching
+    isSearching,
   } = useDebouncedPatientSearch(searchFilters, page, pageSize);
 
   const createPatientMutation = useCreatePatient();
@@ -198,16 +210,16 @@ export function PatientRegistry() {
 
   // Form state
   const [createForm, setCreateForm] = useState<CreatePatientRequest>({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    dateOfBirth: '',
-    gender: '',
-    address: '',
-    city: '',
-    state: '',
-    zipCode: '',
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    dateOfBirth: "",
+    gender: "",
+    address: "",
+    city: "",
+    state: "",
+    zipCode: "",
     allergies: [],
     emergencyContacts: {},
     insuranceInfo: {},
@@ -216,157 +228,175 @@ export function PatientRegistry() {
   const [editForm, setEditForm] = useState<UpdatePatientRequest>({});
 
   // Enhanced analytics data (mock for demonstration)
-  const analyticsData: AnalyticsData = useMemo(() => ({
-    totalPatients: patientStats?.total_patients || 0,
-    activePatients: patientStats?.active_patients || 0,
-    newPatientsThisMonth: patientStats?.new_this_month || 0,
-    averageAge: 42.5,
-    genderDistribution: {
-      male: Math.floor((patientStats?.total_patients || 0) * 0.45),
-      female: Math.floor((patientStats?.total_patients || 0) * 0.52),
-      other: Math.floor((patientStats?.total_patients || 0) * 0.03),
-    },
-    insuranceDistribution: {
-      'Blue Cross Blue Shield': 45,
-      'Medicare': 38,
-      'Aetna': 32,
-      'Cigna': 28,
-      'United Healthcare': 25,
-      'Kaiser Permanente': 18,
-      'Other': 62,
-    },
-    appointmentMetrics: {
-      scheduled: 156,
-      completed: 234,
-      cancelled: 23,
-      noShow: 12,
-    },
-    revenueMetrics: {
-      totalRevenue: 2456780,
-      monthlyRevenue: 187650,
-      avgRevenuePerPatient: 9890,
-    },
-  }), [patientStats]);
+  const analyticsData: AnalyticsData = useMemo(
+    () => ({
+      totalPatients: patientStats?.total_patients || 0,
+      activePatients: patientStats?.active_patients || 0,
+      newPatientsThisMonth: patientStats?.new_this_month || 0,
+      averageAge: 42.5,
+      genderDistribution: {
+        male: Math.floor((patientStats?.total_patients || 0) * 0.45),
+        female: Math.floor((patientStats?.total_patients || 0) * 0.52),
+        other: Math.floor((patientStats?.total_patients || 0) * 0.03),
+      },
+      insuranceDistribution: {
+        "Blue Cross Blue Shield": 45,
+        Medicare: 38,
+        Aetna: 32,
+        Cigna: 28,
+        "United Healthcare": 25,
+        "Kaiser Permanente": 18,
+        Other: 62,
+      },
+      appointmentMetrics: {
+        scheduled: 156,
+        completed: 234,
+        cancelled: 23,
+        noShow: 12,
+      },
+      revenueMetrics: {
+        totalRevenue: 2456780,
+        monthlyRevenue: 187650,
+        avgRevenuePerPatient: 9890,
+      },
+    }),
+    [patientStats],
+  );
 
   // Bulk actions configuration
   const bulkActions: BulkAction[] = [
     {
-      id: 'export',
-      label: 'Export Selected',
+      id: "export",
+      label: "Export Selected",
       icon: <Download className="w-4 h-4" />,
-      variant: 'outline',
+      variant: "outline",
     },
     {
-      id: 'archive',
-      label: 'Archive Selected',
+      id: "archive",
+      label: "Archive Selected",
       icon: <Archive className="w-4 h-4" />,
-      variant: 'outline',
+      variant: "outline",
       requiresConfirmation: true,
     },
     {
-      id: 'delete',
-      label: 'Delete Selected',
+      id: "delete",
+      label: "Delete Selected",
       icon: <Trash2 className="w-4 h-4" />,
-      variant: 'destructive',
+      variant: "destructive",
       requiresConfirmation: true,
     },
   ];
 
   // Helper functions
-  const updateFilters = useCallback((newFilters: Partial<PatientSearchFilters>) => {
-    setSearchFilters(prev => ({ ...prev, ...newFilters }));
-    setFilters(prev => ({ ...prev, ...newFilters }));
-  }, [setFilters]);
+  const updateFilters = useCallback(
+    (newFilters: Partial<PatientSearchFilters>) => {
+      setSearchFilters((prev) => ({ ...prev, ...newFilters }));
+      setFilters((prev) => ({ ...prev, ...newFilters }));
+    },
+    [setFilters],
+  );
 
   const handleSort = useCallback((key: keyof Patient | string) => {
-    setSortConfig(prev => ({
+    setSortConfig((prev) => ({
       key,
-      direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc'
+      direction: prev.key === key && prev.direction === "asc" ? "desc" : "asc",
     }));
   }, []);
 
-  const handleSelectPatient = useCallback((patientId: string, selected: boolean) => {
-    setSelectedPatients(prev => {
-      const newSet = new Set(prev);
-      if (selected) {
-        newSet.add(patientId);
+  const handleSelectPatient = useCallback(
+    (patientId: string, selected: boolean) => {
+      setSelectedPatients((prev) => {
+        const newSet = new Set(prev);
+        if (selected) {
+          newSet.add(patientId);
+        } else {
+          newSet.delete(patientId);
+        }
+        return newSet;
+      });
+    },
+    [],
+  );
+
+  const handleSelectAll = useCallback(
+    (selected: boolean) => {
+      if (selected && searchResults?.patients) {
+        setSelectedPatients(new Set(searchResults.patients.map((p) => p.id)));
       } else {
-        newSet.delete(patientId);
+        setSelectedPatients(new Set());
       }
-      return newSet;
-    });
-  }, []);
+    },
+    [searchResults],
+  );
 
-  const handleSelectAll = useCallback((selected: boolean) => {
-    if (selected && searchResults?.patients) {
-      setSelectedPatients(new Set(searchResults.patients.map(p => p.id)));
-    } else {
-      setSelectedPatients(new Set());
-    }
-  }, [searchResults]);
-
-  const handleBulkAction = useCallback(async (actionId: string) => {
-    const selectedCount = selectedPatients.size;
-    if (selectedCount === 0) {
-      toast({
-        title: "No patients selected",
-        description: "Please select patients to perform bulk actions",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    try {
-      switch (actionId) {
-        case 'export':
-          // Export selected patients
-          const exportData = searchResults?.patients?.filter(p => selectedPatients.has(p.id));
-          const csvContent = PatientService.exportToCsv(exportData || []);
-          const blob = new Blob([csvContent], { type: 'text/csv' });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = `patients-export-${new Date().toISOString().split('T')[0]}.csv`;
-          a.click();
-          URL.revokeObjectURL(url);
-          
-          toast({
-            title: "Export successful",
-            description: `Exported ${selectedCount} patients to CSV`,
-          });
-          break;
-
-        case 'archive':
-          // Archive selected patients
-          for (const patientId of selectedPatients) {
-            await archivePatientMutation.mutateAsync(patientId);
-          }
-          
-          toast({
-            title: "Patients archived",
-            description: `Successfully archived ${selectedCount} patients`,
-          });
-          break;
-
-        case 'delete':
-          // Delete selected patients (implementation would depend on backend)
-          toast({
-            title: "Feature not implemented",
-            description: "Patient deletion requires additional confirmation workflow",
-            variant: "destructive"
-          });
-          break;
+  const handleBulkAction = useCallback(
+    async (actionId: string) => {
+      const selectedCount = selectedPatients.size;
+      if (selectedCount === 0) {
+        toast({
+          title: "No patients selected",
+          description: "Please select patients to perform bulk actions",
+          variant: "destructive",
+        });
+        return;
       }
-      
-      setSelectedPatients(new Set());
-    } catch (error: any) {
-      toast({
-        title: "Bulk action failed",
-        description: error.message || "Failed to perform bulk action",
-        variant: "destructive"
-      });
-    }
-  }, [selectedPatients, searchResults, archivePatientMutation, toast]);
+
+      try {
+        switch (actionId) {
+          case "export":
+            // Export selected patients
+            const exportData = searchResults?.patients?.filter((p) =>
+              selectedPatients.has(p.id),
+            );
+            const csvContent = PatientService.exportToCsv(exportData || []);
+            const blob = new Blob([csvContent], { type: "text/csv" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `patients-export-${new Date().toISOString().split("T")[0]}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+
+            toast({
+              title: "Export successful",
+              description: `Exported ${selectedCount} patients to CSV`,
+            });
+            break;
+
+          case "archive":
+            // Archive selected patients
+            for (const patientId of selectedPatients) {
+              await archivePatientMutation.mutateAsync(patientId);
+            }
+
+            toast({
+              title: "Patients archived",
+              description: `Successfully archived ${selectedCount} patients`,
+            });
+            break;
+
+          case "delete":
+            // Delete selected patients (implementation would depend on backend)
+            toast({
+              title: "Feature not implemented",
+              description:
+                "Patient deletion requires additional confirmation workflow",
+              variant: "destructive",
+            });
+            break;
+        }
+
+        setSelectedPatients(new Set());
+      } catch (error: any) {
+        toast({
+          title: "Bulk action failed",
+          description: error.message || "Failed to perform bulk action",
+          variant: "destructive",
+        });
+      }
+    },
+    [selectedPatients, searchResults, archivePatientMutation, toast],
+  );
 
   // Form handlers
   const handleCreatePatient = async () => {
@@ -374,16 +404,16 @@ export function PatientRegistry() {
       await createPatientMutation.mutateAsync(createForm);
       setShowCreateDialog(false);
       setCreateForm({
-        firstName: '',
-        lastName: '',
-        email: '',
-        phone: '',
-        dateOfBirth: '',
-        gender: '',
-        address: '',
-        city: '',
-        state: '',
-        zipCode: '',
+        firstName: "",
+        lastName: "",
+        email: "",
+        phone: "",
+        dateOfBirth: "",
+        gender: "",
+        address: "",
+        city: "",
+        state: "",
+        zipCode: "",
         allergies: [],
         emergencyContacts: {},
         insuranceInfo: {},
@@ -396,18 +426,18 @@ export function PatientRegistry() {
       toast({
         title: "Failed to create patient",
         description: error.message || "Please try again",
-        variant: "destructive"
+        variant: "destructive",
       });
     }
   };
 
   const handleEditPatient = async () => {
     if (!selectedPatient?.id) return;
-    
+
     try {
       await updatePatientMutation.mutateAsync({
         id: selectedPatient.id,
-        data: editForm
+        data: editForm,
       });
       setShowEditDialog(false);
       setEditForm({});
@@ -420,14 +450,14 @@ export function PatientRegistry() {
       toast({
         title: "Failed to update patient",
         description: error.message || "Please try again",
-        variant: "destructive"
+        variant: "destructive",
       });
     }
   };
 
   const handleArchivePatient = async () => {
     if (!patientToArchive?.id) return;
-    
+
     try {
       await archivePatientMutation.mutateAsync(patientToArchive.id);
       setShowArchiveDialog(false);
@@ -440,7 +470,7 @@ export function PatientRegistry() {
       toast({
         title: "Failed to archive patient",
         description: error.message || "Please try again",
-        variant: "destructive"
+        variant: "destructive",
       });
     }
   };
@@ -455,55 +485,55 @@ export function PatientRegistry() {
         value: patientStats.total_patients.toLocaleString(),
         change: "+12% from last month",
         icon: Users,
-        color: "text-blue-600"
+        color: "text-blue-600",
       },
       {
         title: "Active Patients",
         value: patientStats.active_patients.toLocaleString(),
         change: "+8% from last month",
         icon: UserCheck,
-        color: "text-green-600"
+        color: "text-green-600",
       },
       {
         title: "New This Month",
         value: patientStats.new_this_month.toLocaleString(),
         change: "+23% from last month",
         icon: TrendingUp,
-        color: "text-purple-600"
+        color: "text-purple-600",
       },
       {
         title: "Pediatric Patients",
         value: patientStats.pediatric_patients.toLocaleString(),
         change: "15% of total",
         icon: Heart,
-        color: "text-pink-600"
+        color: "text-pink-600",
       },
       {
         title: "Senior Patients",
         value: patientStats.senior_patients.toLocaleString(),
         change: "27% of total",
         icon: Activity,
-        color: "text-orange-600"
+        color: "text-orange-600",
       },
       {
         title: "Average Age",
         value: "42.5 years",
         change: "Median: 39 years",
         icon: Calendar,
-        color: "text-indigo-600"
-      }
+        color: "text-indigo-600",
+      },
     ];
   }, [patientStats]);
 
   // Sort patients
   const sortedPatients = useMemo(() => {
     if (!searchResults?.patients) return [];
-    
+
     return [...searchResults.patients].sort((a, b) => {
-      const aValue = a[sortConfig.key as keyof Patient] || '';
-      const bValue = b[sortConfig.key as keyof Patient] || '';
-      
-      if (sortConfig.direction === 'asc') {
+      const aValue = a[sortConfig.key as keyof Patient] || "";
+      const bValue = b[sortConfig.key as keyof Patient] || "";
+
+      if (sortConfig.direction === "asc") {
         return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
       } else {
         return aValue > bValue ? -1 : aValue < bValue ? 1 : 0;
@@ -511,17 +541,25 @@ export function PatientRegistry() {
     });
   }, [searchResults?.patients, sortConfig]);
 
-  const SortableHeader = ({ children, sortKey }: { children: React.ReactNode; sortKey: string }) => (
-    <TableHead 
+  const SortableHeader = ({
+    children,
+    sortKey,
+  }: {
+    children: React.ReactNode;
+    sortKey: string;
+  }) => (
+    <TableHead
       className="cursor-pointer hover:bg-muted/50 transition-colors"
       onClick={() => handleSort(sortKey)}
     >
       <div className="flex items-center gap-2">
         {children}
         {sortConfig.key === sortKey ? (
-          sortConfig.direction === 'asc' ? 
-            <SortAsc className="w-4 h-4" /> : 
+          sortConfig.direction === "asc" ? (
+            <SortAsc className="w-4 h-4" />
+          ) : (
             <SortDesc className="w-4 h-4" />
+          )
         ) : (
           <ChevronsUpDown className="w-4 h-4 opacity-50" />
         )}
@@ -539,7 +577,9 @@ export function PatientRegistry() {
               <Users className="w-8 h-8 text-primary" />
               Patient Registry
             </h1>
-            <p className="text-muted-foreground">Comprehensive patient management and analytics</p>
+            <p className="text-muted-foreground">
+              Comprehensive patient management and analytics
+            </p>
           </div>
 
           <div className="flex gap-2">
@@ -575,9 +615,15 @@ export function PatientRegistry() {
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
-                      <p className="text-2xl font-bold text-foreground">{stat.value}</p>
-                      <p className="text-xs text-muted-foreground mt-1">{stat.change}</p>
+                      <p className="text-sm font-medium text-muted-foreground">
+                        {stat.title}
+                      </p>
+                      <p className="text-2xl font-bold text-foreground">
+                        {stat.value}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {stat.change}
+                      </p>
                     </div>
                     <Icon className={`w-8 h-8 ${stat.color}`} />
                   </div>
@@ -588,7 +634,11 @@ export function PatientRegistry() {
         </div>
 
         {/* Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="space-y-6"
+        >
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="registry">Patient Registry</TabsTrigger>
             <TabsTrigger value="analytics">Analytics & Reports</TabsTrigger>
@@ -608,8 +658,10 @@ export function PatientRegistry() {
                       <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                       <Input
                         placeholder="Search patients by name, email, phone, or MRN..."
-                        value={filters.query || ''}
-                        onChange={(e) => updateFilters({ query: e.target.value })}
+                        value={filters.query || ""}
+                        onChange={(e) =>
+                          updateFilters({ query: e.target.value })
+                        }
                         className="pl-10"
                       />
                     </div>
@@ -637,8 +689,10 @@ export function PatientRegistry() {
                       <div>
                         <Label>Status</Label>
                         <Select
-                          value={filters.status || 'active'}
-                          onValueChange={(value) => updateFilters({ status: value as any })}
+                          value={filters.status || "active"}
+                          onValueChange={(value) =>
+                            updateFilters({ status: value as any })
+                          }
                         >
                           <SelectTrigger>
                             <SelectValue />
@@ -650,12 +704,14 @@ export function PatientRegistry() {
                           </SelectContent>
                         </Select>
                       </div>
-                      
+
                       <div>
                         <Label>Gender</Label>
                         <Select
-                          value={filters.gender || ''}
-                          onValueChange={(value) => updateFilters({ gender: value })}
+                          value={filters.gender || ""}
+                          onValueChange={(value) =>
+                            updateFilters({ gender: value })
+                          }
                         >
                           <SelectTrigger>
                             <SelectValue placeholder="All genders" />
@@ -675,14 +731,22 @@ export function PatientRegistry() {
                           <Input
                             placeholder="Min"
                             type="number"
-                            value={filters.ageMin || ''}
-                            onChange={(e) => updateFilters({ ageMin: parseInt(e.target.value) || undefined })}
+                            value={filters.ageMin || ""}
+                            onChange={(e) =>
+                              updateFilters({
+                                ageMin: parseInt(e.target.value) || undefined,
+                              })
+                            }
                           />
                           <Input
                             placeholder="Max"
                             type="number"
-                            value={filters.ageMax || ''}
-                            onChange={(e) => updateFilters({ ageMax: parseInt(e.target.value) || undefined })}
+                            value={filters.ageMax || ""}
+                            onChange={(e) =>
+                              updateFilters({
+                                ageMax: parseInt(e.target.value) || undefined,
+                              })
+                            }
                           />
                         </div>
                       </div>
@@ -705,18 +769,22 @@ export function PatientRegistry() {
                     <div className="flex items-center gap-4 p-4 bg-muted/50 rounded-lg border">
                       <div className="flex items-center gap-2">
                         <Checkbox
-                          checked={selectedPatients.size === searchResults?.patients?.length}
+                          checked={
+                            selectedPatients.size ===
+                            searchResults?.patients?.length
+                          }
                           onCheckedChange={handleSelectAll}
                         />
                         <span className="text-sm font-medium">
-                          {selectedPatients.size} of {searchResults?.patients?.length || 0} selected
+                          {selectedPatients.size} of{" "}
+                          {searchResults?.patients?.length || 0} selected
                         </span>
                       </div>
                       <div className="flex gap-2">
-                        {bulkActions.map(action => (
+                        {bulkActions.map((action) => (
                           <Button
                             key={action.id}
-                            variant={action.variant || 'default'}
+                            variant={action.variant || "default"}
                             size="sm"
                             onClick={() => handleBulkAction(action.id)}
                             className="gap-2"
@@ -755,7 +823,11 @@ export function PatientRegistry() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => setPage(Math.min(searchResults?.totalPages || 1, page + 1))}
+                      onClick={() =>
+                        setPage(
+                          Math.min(searchResults?.totalPages || 1, page + 1),
+                        )
+                      }
                       disabled={page >= (searchResults?.totalPages || 1)}
                     >
                       <ChevronRight className="w-4 h-4" />
@@ -775,16 +847,30 @@ export function PatientRegistry() {
                         <TableRow>
                           <TableHead className="w-12">
                             <Checkbox
-                              checked={selectedPatients.size === searchResults?.patients?.length && searchResults?.patients?.length > 0}
+                              checked={
+                                selectedPatients.size ===
+                                  searchResults?.patients?.length &&
+                                searchResults?.patients?.length > 0
+                              }
                               onCheckedChange={handleSelectAll}
                             />
                           </TableHead>
                           <SortableHeader sortKey="mrn">MRN</SortableHeader>
-                          <SortableHeader sortKey="lastName">Name</SortableHeader>
-                          <SortableHeader sortKey="email">Contact</SortableHeader>
-                          <SortableHeader sortKey="dateOfBirth">Age</SortableHeader>
-                          <SortableHeader sortKey="gender">Gender</SortableHeader>
-                          <SortableHeader sortKey="status">Status</SortableHeader>
+                          <SortableHeader sortKey="lastName">
+                            Name
+                          </SortableHeader>
+                          <SortableHeader sortKey="email">
+                            Contact
+                          </SortableHeader>
+                          <SortableHeader sortKey="dateOfBirth">
+                            Age
+                          </SortableHeader>
+                          <SortableHeader sortKey="gender">
+                            Gender
+                          </SortableHeader>
+                          <SortableHeader sortKey="status">
+                            Status
+                          </SortableHeader>
                           <TableHead>Provider</TableHead>
                           <TableHead>Last Visit</TableHead>
                           <TableHead className="w-12">Actions</TableHead>
@@ -792,11 +878,19 @@ export function PatientRegistry() {
                       </TableHeader>
                       <TableBody>
                         {sortedPatients.map((patient) => (
-                          <TableRow key={patient.id} className="hover:bg-muted/50">
+                          <TableRow
+                            key={patient.id}
+                            className="hover:bg-muted/50"
+                          >
                             <TableCell>
                               <Checkbox
                                 checked={selectedPatients.has(patient.id)}
-                                onCheckedChange={(checked) => handleSelectPatient(patient.id, checked as boolean)}
+                                onCheckedChange={(checked) =>
+                                  handleSelectPatient(
+                                    patient.id,
+                                    checked as boolean,
+                                  )
+                                }
                               />
                             </TableCell>
                             <TableCell className="font-mono text-sm">
@@ -828,20 +922,32 @@ export function PatientRegistry() {
                             </TableCell>
                             <TableCell>
                               <div className="flex flex-col">
-                                <span>{PatientService.calculateAge(patient.dateOfBirth)} years</span>
+                                <span>
+                                  {PatientService.calculateAge(
+                                    patient.dateOfBirth,
+                                  )}{" "}
+                                  years
+                                </span>
                                 <span className="text-sm text-muted-foreground">
-                                  DOB: {new Date(patient.dateOfBirth).toLocaleDateString()}
+                                  DOB:{" "}
+                                  {new Date(
+                                    patient.dateOfBirth,
+                                  ).toLocaleDateString()}
                                 </span>
                               </div>
                             </TableCell>
                             <TableCell>
                               <Badge variant="outline" className="capitalize">
-                                {patient.gender || 'Not specified'}
+                                {patient.gender || "Not specified"}
                               </Badge>
                             </TableCell>
                             <TableCell>
-                              <Badge 
-                                variant={patient.status === 'active' ? 'default' : 'secondary'}
+                              <Badge
+                                variant={
+                                  patient.status === "active"
+                                    ? "default"
+                                    : "secondary"
+                                }
                                 className="capitalize"
                               >
                                 {patient.status}
@@ -849,15 +955,16 @@ export function PatientRegistry() {
                             </TableCell>
                             <TableCell>
                               <div className="text-sm">
-                                {patient.providerName || 'Not assigned'}
+                                {patient.providerName || "Not assigned"}
                               </div>
                             </TableCell>
                             <TableCell>
                               <div className="text-sm">
-                                {patient.lastAppointment ? 
-                                  new Date(patient.lastAppointment).toLocaleDateString() : 
-                                  'No visits'
-                                }
+                                {patient.lastAppointment
+                                  ? new Date(
+                                      patient.lastAppointment,
+                                    ).toLocaleDateString()
+                                  : "No visits"}
                               </div>
                             </TableCell>
                             <TableCell>
@@ -868,14 +975,16 @@ export function PatientRegistry() {
                                   </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
-                                  <DropdownMenuItem 
-                                    onClick={() => navigate(`/patient-records/${patient.id}`)}
+                                  <DropdownMenuItem
+                                    onClick={() =>
+                                      navigate(`/patient-records/${patient.id}`)
+                                    }
                                     className="gap-2"
                                   >
                                     <Eye className="w-4 h-4" />
                                     View Details
                                   </DropdownMenuItem>
-                                  <DropdownMenuItem 
+                                  <DropdownMenuItem
                                     onClick={() => {
                                       setSelectedPatient(patient);
                                       setEditForm({
@@ -935,21 +1044,48 @@ export function PatientRegistry() {
                       <div className="space-y-2">
                         <div className="flex items-center justify-between">
                           <span className="text-sm">Male</span>
-                          <span className="text-sm font-medium">{analyticsData.genderDistribution.male}</span>
+                          <span className="text-sm font-medium">
+                            {analyticsData.genderDistribution.male}
+                          </span>
                         </div>
-                        <Progress value={(analyticsData.genderDistribution.male / analyticsData.totalPatients) * 100} className="h-2" />
-                        
+                        <Progress
+                          value={
+                            (analyticsData.genderDistribution.male /
+                              analyticsData.totalPatients) *
+                            100
+                          }
+                          className="h-2"
+                        />
+
                         <div className="flex items-center justify-between">
                           <span className="text-sm">Female</span>
-                          <span className="text-sm font-medium">{analyticsData.genderDistribution.female}</span>
+                          <span className="text-sm font-medium">
+                            {analyticsData.genderDistribution.female}
+                          </span>
                         </div>
-                        <Progress value={(analyticsData.genderDistribution.female / analyticsData.totalPatients) * 100} className="h-2" />
-                        
+                        <Progress
+                          value={
+                            (analyticsData.genderDistribution.female /
+                              analyticsData.totalPatients) *
+                            100
+                          }
+                          className="h-2"
+                        />
+
                         <div className="flex items-center justify-between">
                           <span className="text-sm">Other</span>
-                          <span className="text-sm font-medium">{analyticsData.genderDistribution.other}</span>
+                          <span className="text-sm font-medium">
+                            {analyticsData.genderDistribution.other}
+                          </span>
                         </div>
-                        <Progress value={(analyticsData.genderDistribution.other / analyticsData.totalPatients) * 100} className="h-2" />
+                        <Progress
+                          value={
+                            (analyticsData.genderDistribution.other /
+                              analyticsData.totalPatients) *
+                            100
+                          }
+                          className="h-2"
+                        />
                       </div>
                     </div>
                   </div>
@@ -966,20 +1102,27 @@ export function PatientRegistry() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {Object.entries(analyticsData.insuranceDistribution).map(([provider, count]) => (
-                      <div key={provider} className="flex items-center justify-between">
-                        <span className="text-sm">{provider}</span>
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium">{count}</span>
-                          <div className="w-16 h-2 bg-muted rounded-full overflow-hidden">
-                            <div 
-                              className="h-full bg-primary transition-all duration-300"
-                              style={{ width: `${(count / Math.max(...Object.values(analyticsData.insuranceDistribution))) * 100}%` }}
-                            />
+                    {Object.entries(analyticsData.insuranceDistribution).map(
+                      ([provider, count]) => (
+                        <div
+                          key={provider}
+                          className="flex items-center justify-between"
+                        >
+                          <span className="text-sm">{provider}</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-medium">{count}</span>
+                            <div className="w-16 h-2 bg-muted rounded-full overflow-hidden">
+                              <div
+                                className="h-full bg-primary transition-all duration-300"
+                                style={{
+                                  width: `${(count / Math.max(...Object.values(analyticsData.insuranceDistribution))) * 100}%`,
+                                }}
+                              />
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      ),
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -1035,19 +1178,22 @@ export function PatientRegistry() {
                     <div className="flex items-center justify-between">
                       <span className="text-sm">Total Revenue</span>
                       <span className="text-lg font-bold text-green-600">
-                        ${analyticsData.revenueMetrics.totalRevenue.toLocaleString()}
+                        $
+                        {analyticsData.revenueMetrics.totalRevenue.toLocaleString()}
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm">Monthly Revenue</span>
                       <span className="text-lg font-medium">
-                        ${analyticsData.revenueMetrics.monthlyRevenue.toLocaleString()}
+                        $
+                        {analyticsData.revenueMetrics.monthlyRevenue.toLocaleString()}
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm">Avg. per Patient</span>
                       <span className="text-lg font-medium">
-                        ${analyticsData.revenueMetrics.avgRevenuePerPatient.toLocaleString()}
+                        $
+                        {analyticsData.revenueMetrics.avgRevenuePerPatient.toLocaleString()}
                       </span>
                     </div>
                   </div>
@@ -1065,19 +1211,27 @@ export function PatientRegistry() {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <Button variant="outline" className="justify-start gap-2 h-auto p-4">
+                  <Button
+                    variant="outline"
+                    className="justify-start gap-2 h-auto p-4"
+                  >
                     <div className="flex flex-col items-start gap-1">
                       <div className="flex items-center gap-2">
                         <FileText className="w-4 h-4" />
-                        <span className="font-medium">Patient Demographics</span>
+                        <span className="font-medium">
+                          Patient Demographics
+                        </span>
                       </div>
                       <span className="text-xs text-muted-foreground">
                         Age, gender, location analysis
                       </span>
                     </div>
                   </Button>
-                  
-                  <Button variant="outline" className="justify-start gap-2 h-auto p-4">
+
+                  <Button
+                    variant="outline"
+                    className="justify-start gap-2 h-auto p-4"
+                  >
                     <div className="flex flex-col items-start gap-1">
                       <div className="flex items-center gap-2">
                         <CalendarDays className="w-4 h-4" />
@@ -1088,8 +1242,11 @@ export function PatientRegistry() {
                       </span>
                     </div>
                   </Button>
-                  
-                  <Button variant="outline" className="justify-start gap-2 h-auto p-4">
+
+                  <Button
+                    variant="outline"
+                    className="justify-start gap-2 h-auto p-4"
+                  >
                     <div className="flex flex-col items-start gap-1">
                       <div className="flex items-center gap-2">
                         <DollarSign className="w-4 h-4" />
@@ -1130,7 +1287,7 @@ export function PatientRegistry() {
                       </Button>
                     </div>
                   </div>
-                  
+
                   <div className="space-y-2">
                     <h4 className="font-medium">Backup & Restore</h4>
                     <div className="flex gap-2">
@@ -1159,22 +1316,28 @@ export function PatientRegistry() {
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <span className="text-sm">Database Status</span>
-                      <Badge variant="default" className="bg-green-600">Healthy</Badge>
+                      <Badge variant="default" className="bg-green-600">
+                        Healthy
+                      </Badge>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm">API Status</span>
-                      <Badge variant="default" className="bg-green-600">Online</Badge>
+                      <Badge variant="default" className="bg-green-600">
+                        Online
+                      </Badge>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm">Last Backup</span>
-                      <span className="text-sm text-muted-foreground">2 hours ago</span>
+                      <span className="text-sm text-muted-foreground">
+                        2 hours ago
+                      </span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm">Storage Used</span>
                       <span className="text-sm">2.3 GB / 10 GB</span>
                     </div>
                   </div>
-                  
+
                   <Progress value={23} className="h-2" />
                 </CardContent>
               </Card>
@@ -1190,23 +1353,55 @@ export function PatientRegistry() {
                 <CardContent>
                   <div className="space-y-3">
                     {[
-                      { action: 'Patient Created', user: 'Dr. Sarah Wilson', target: 'Sarah Johnson', time: '2 hours ago' },
-                      { action: 'Patient Updated', user: 'Nurse Williams', target: 'Michael Chen', time: '4 hours ago' },
-                      { action: 'Patient Archived', user: 'Admin User', target: 'Robert Davis', time: '1 day ago' },
-                      { action: 'Bulk Export', user: 'Dr. Johnson', target: '25 patients', time: '2 days ago' },
-                      { action: 'Patient Created', user: 'Dr. Martinez', target: 'Emily Rodriguez', time: '3 days ago' },
+                      {
+                        action: "Patient Created",
+                        user: "Dr. Sarah Wilson",
+                        target: "Sarah Johnson",
+                        time: "2 hours ago",
+                      },
+                      {
+                        action: "Patient Updated",
+                        user: "Nurse Williams",
+                        target: "Michael Chen",
+                        time: "4 hours ago",
+                      },
+                      {
+                        action: "Patient Archived",
+                        user: "Admin User",
+                        target: "Robert Davis",
+                        time: "1 day ago",
+                      },
+                      {
+                        action: "Bulk Export",
+                        user: "Dr. Johnson",
+                        target: "25 patients",
+                        time: "2 days ago",
+                      },
+                      {
+                        action: "Patient Created",
+                        user: "Dr. Martinez",
+                        target: "Emily Rodriguez",
+                        time: "3 days ago",
+                      },
                     ].map((log, idx) => (
-                      <div key={idx} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+                      <div
+                        key={idx}
+                        className="flex items-center justify-between p-3 bg-muted/30 rounded-lg"
+                      >
                         <div className="flex items-center gap-3">
                           <div className="w-2 h-2 bg-primary rounded-full" />
                           <div>
-                            <div className="text-sm font-medium">{log.action}</div>
+                            <div className="text-sm font-medium">
+                              {log.action}
+                            </div>
                             <div className="text-xs text-muted-foreground">
                               {log.user} • {log.target}
                             </div>
                           </div>
                         </div>
-                        <div className="text-xs text-muted-foreground">{log.time}</div>
+                        <div className="text-xs text-muted-foreground">
+                          {log.time}
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -1229,7 +1424,10 @@ export function PatientRegistry() {
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
                     <Label>Default Page Size</Label>
-                    <Select value={pageSize.toString()} onValueChange={(value) => setPageSize(parseInt(value))}>
+                    <Select
+                      value={pageSize.toString()}
+                      onValueChange={(value) => setPageSize(parseInt(value))}
+                    >
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
@@ -1251,7 +1449,9 @@ export function PatientRegistry() {
                       <SelectContent>
                         <SelectItem value="active">Active Patients</SelectItem>
                         <SelectItem value="all">All Patients</SelectItem>
-                        <SelectItem value="inactive">Inactive Patients</SelectItem>
+                        <SelectItem value="inactive">
+                          Inactive Patients
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -1270,23 +1470,29 @@ export function PatientRegistry() {
                   <div className="flex items-center justify-between">
                     <div>
                       <div className="font-medium">New Patient Alerts</div>
-                      <div className="text-sm text-muted-foreground">Get notified when new patients register</div>
+                      <div className="text-sm text-muted-foreground">
+                        Get notified when new patients register
+                      </div>
                     </div>
                     <Checkbox defaultChecked />
                   </div>
-                  
+
                   <div className="flex items-center justify-between">
                     <div>
                       <div className="font-medium">Appointment Reminders</div>
-                      <div className="text-sm text-muted-foreground">Send appointment reminders to patients</div>
+                      <div className="text-sm text-muted-foreground">
+                        Send appointment reminders to patients
+                      </div>
                     </div>
                     <Checkbox defaultChecked />
                   </div>
-                  
+
                   <div className="flex items-center justify-between">
                     <div>
                       <div className="font-medium">Data Export Alerts</div>
-                      <div className="text-sm text-muted-foreground">Notify when data exports are complete</div>
+                      <div className="text-sm text-muted-foreground">
+                        Notify when data exports are complete
+                      </div>
                     </div>
                     <Checkbox />
                   </div>
@@ -1320,15 +1526,21 @@ export function PatientRegistry() {
                   <div className="flex items-center justify-between">
                     <div>
                       <div className="font-medium">Enable Audit Logging</div>
-                      <div className="text-sm text-muted-foreground">Track all patient data access</div>
+                      <div className="text-sm text-muted-foreground">
+                        Track all patient data access
+                      </div>
                     </div>
                     <Checkbox defaultChecked />
                   </div>
-                  
+
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="font-medium">Require 2FA for Bulk Actions</div>
-                      <div className="text-sm text-muted-foreground">Additional security for sensitive operations</div>
+                      <div className="font-medium">
+                        Require 2FA for Bulk Actions
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        Additional security for sensitive operations
+                      </div>
                     </div>
                     <Checkbox defaultChecked />
                   </div>
@@ -1347,25 +1559,35 @@ export function PatientRegistry() {
                   <div className="flex items-center justify-between">
                     <div>
                       <div className="font-medium">EHR System</div>
-                      <div className="text-sm text-muted-foreground">Epic MyChart Integration</div>
+                      <div className="text-sm text-muted-foreground">
+                        Epic MyChart Integration
+                      </div>
                     </div>
-                    <Badge variant="default" className="bg-green-600">Connected</Badge>
+                    <Badge variant="default" className="bg-green-600">
+                      Connected
+                    </Badge>
                   </div>
-                  
+
                   <div className="flex items-center justify-between">
                     <div>
                       <div className="font-medium">Lab System</div>
-                      <div className="text-sm text-muted-foreground">LabCorp Integration</div>
+                      <div className="text-sm text-muted-foreground">
+                        LabCorp Integration
+                      </div>
                     </div>
                     <Badge variant="secondary">Disconnected</Badge>
                   </div>
-                  
+
                   <div className="flex items-center justify-between">
                     <div>
                       <div className="font-medium">Billing System</div>
-                      <div className="text-sm text-muted-foreground">NextGen Integration</div>
+                      <div className="text-sm text-muted-foreground">
+                        NextGen Integration
+                      </div>
                     </div>
-                    <Badge variant="default" className="bg-green-600">Connected</Badge>
+                    <Badge variant="default" className="bg-green-600">
+                      Connected
+                    </Badge>
                   </div>
                 </CardContent>
               </Card>
@@ -1379,7 +1601,8 @@ export function PatientRegistry() {
             <DialogHeader>
               <DialogTitle>Add New Patient</DialogTitle>
               <DialogDescription>
-                Enter patient information to create a new record in the registry.
+                Enter patient information to create a new record in the
+                registry.
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
@@ -1390,7 +1613,12 @@ export function PatientRegistry() {
                   <Input
                     id="firstName"
                     value={createForm.firstName}
-                    onChange={(e) => setCreateForm({ ...createForm, firstName: e.target.value })}
+                    onChange={(e) =>
+                      setCreateForm({
+                        ...createForm,
+                        firstName: e.target.value,
+                      })
+                    }
                   />
                 </div>
                 <div>
@@ -1398,7 +1626,9 @@ export function PatientRegistry() {
                   <Input
                     id="lastName"
                     value={createForm.lastName}
-                    onChange={(e) => setCreateForm({ ...createForm, lastName: e.target.value })}
+                    onChange={(e) =>
+                      setCreateForm({ ...createForm, lastName: e.target.value })
+                    }
                   />
                 </div>
               </div>
@@ -1410,7 +1640,9 @@ export function PatientRegistry() {
                     id="email"
                     type="email"
                     value={createForm.email}
-                    onChange={(e) => setCreateForm({ ...createForm, email: e.target.value })}
+                    onChange={(e) =>
+                      setCreateForm({ ...createForm, email: e.target.value })
+                    }
                   />
                 </div>
                 <div>
@@ -1418,7 +1650,9 @@ export function PatientRegistry() {
                   <Input
                     id="phone"
                     value={createForm.phone}
-                    onChange={(e) => setCreateForm({ ...createForm, phone: e.target.value })}
+                    onChange={(e) =>
+                      setCreateForm({ ...createForm, phone: e.target.value })
+                    }
                   />
                 </div>
               </div>
@@ -1430,14 +1664,21 @@ export function PatientRegistry() {
                     id="dateOfBirth"
                     type="date"
                     value={createForm.dateOfBirth}
-                    onChange={(e) => setCreateForm({ ...createForm, dateOfBirth: e.target.value })}
+                    onChange={(e) =>
+                      setCreateForm({
+                        ...createForm,
+                        dateOfBirth: e.target.value,
+                      })
+                    }
                   />
                 </div>
                 <div>
                   <Label htmlFor="gender">Gender</Label>
                   <Select
                     value={createForm.gender}
-                    onValueChange={(value) => setCreateForm({ ...createForm, gender: value })}
+                    onValueChange={(value) =>
+                      setCreateForm({ ...createForm, gender: value })
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select gender" />
@@ -1446,7 +1687,9 @@ export function PatientRegistry() {
                       <SelectItem value="male">Male</SelectItem>
                       <SelectItem value="female">Female</SelectItem>
                       <SelectItem value="other">Other</SelectItem>
-                      <SelectItem value="prefer_not_to_say">Prefer not to say</SelectItem>
+                      <SelectItem value="prefer_not_to_say">
+                        Prefer not to say
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -1458,7 +1701,9 @@ export function PatientRegistry() {
                 <Input
                   id="address"
                   value={createForm.address}
-                  onChange={(e) => setCreateForm({ ...createForm, address: e.target.value })}
+                  onChange={(e) =>
+                    setCreateForm({ ...createForm, address: e.target.value })
+                  }
                 />
               </div>
 
@@ -1468,7 +1713,9 @@ export function PatientRegistry() {
                   <Input
                     id="city"
                     value={createForm.city}
-                    onChange={(e) => setCreateForm({ ...createForm, city: e.target.value })}
+                    onChange={(e) =>
+                      setCreateForm({ ...createForm, city: e.target.value })
+                    }
                   />
                 </div>
                 <div>
@@ -1476,7 +1723,9 @@ export function PatientRegistry() {
                   <Input
                     id="state"
                     value={createForm.state}
-                    onChange={(e) => setCreateForm({ ...createForm, state: e.target.value })}
+                    onChange={(e) =>
+                      setCreateForm({ ...createForm, state: e.target.value })
+                    }
                   />
                 </div>
                 <div>
@@ -1484,20 +1733,27 @@ export function PatientRegistry() {
                   <Input
                     id="zipCode"
                     value={createForm.zipCode}
-                    onChange={(e) => setCreateForm({ ...createForm, zipCode: e.target.value })}
+                    onChange={(e) =>
+                      setCreateForm({ ...createForm, zipCode: e.target.value })
+                    }
                   />
                 </div>
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
+              <Button
+                variant="outline"
+                onClick={() => setShowCreateDialog(false)}
+              >
                 Cancel
               </Button>
               <Button
                 onClick={handleCreatePatient}
                 disabled={createPatientMutation.isPending}
               >
-                {createPatientMutation.isPending ? 'Creating...' : 'Create Patient'}
+                {createPatientMutation.isPending
+                  ? "Creating..."
+                  : "Create Patient"}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -1508,9 +1764,7 @@ export function PatientRegistry() {
           <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle>Edit Patient</DialogTitle>
-              <DialogDescription>
-                Update patient information.
-              </DialogDescription>
+              <DialogDescription>Update patient information.</DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <div className="grid grid-cols-2 gap-4">
@@ -1518,16 +1772,20 @@ export function PatientRegistry() {
                   <Label htmlFor="editFirstName">First Name</Label>
                   <Input
                     id="editFirstName"
-                    value={editForm.firstName || ''}
-                    onChange={(e) => setEditForm({ ...editForm, firstName: e.target.value })}
+                    value={editForm.firstName || ""}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, firstName: e.target.value })
+                    }
                   />
                 </div>
                 <div>
                   <Label htmlFor="editLastName">Last Name</Label>
                   <Input
                     id="editLastName"
-                    value={editForm.lastName || ''}
-                    onChange={(e) => setEditForm({ ...editForm, lastName: e.target.value })}
+                    value={editForm.lastName || ""}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, lastName: e.target.value })
+                    }
                   />
                 </div>
               </div>
@@ -1538,16 +1796,20 @@ export function PatientRegistry() {
                   <Input
                     id="editEmail"
                     type="email"
-                    value={editForm.email || ''}
-                    onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                    value={editForm.email || ""}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, email: e.target.value })
+                    }
                   />
                 </div>
                 <div>
                   <Label htmlFor="editPhone">Phone</Label>
                   <Input
                     id="editPhone"
-                    value={editForm.phone || ''}
-                    onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
+                    value={editForm.phone || ""}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, phone: e.target.value })
+                    }
                   />
                 </div>
               </div>
@@ -1557,7 +1819,9 @@ export function PatientRegistry() {
                   <Label htmlFor="editStatus">Status</Label>
                   <Select
                     value={editForm.status}
-                    onValueChange={(value) => setEditForm({ ...editForm, status: value as any })}
+                    onValueChange={(value) =>
+                      setEditForm({ ...editForm, status: value as any })
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -1572,7 +1836,9 @@ export function PatientRegistry() {
                   <Label htmlFor="editGender">Gender</Label>
                   <Select
                     value={editForm.gender}
-                    onValueChange={(value) => setEditForm({ ...editForm, gender: value })}
+                    onValueChange={(value) =>
+                      setEditForm({ ...editForm, gender: value })
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -1581,35 +1847,46 @@ export function PatientRegistry() {
                       <SelectItem value="male">Male</SelectItem>
                       <SelectItem value="female">Female</SelectItem>
                       <SelectItem value="other">Other</SelectItem>
-                      <SelectItem value="prefer_not_to_say">Prefer not to say</SelectItem>
+                      <SelectItem value="prefer_not_to_say">
+                        Prefer not to say
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setShowEditDialog(false)}>
+              <Button
+                variant="outline"
+                onClick={() => setShowEditDialog(false)}
+              >
                 Cancel
               </Button>
               <Button
                 onClick={handleEditPatient}
                 disabled={updatePatientMutation.isPending}
               >
-                {updatePatientMutation.isPending ? 'Updating...' : 'Update Patient'}
+                {updatePatientMutation.isPending
+                  ? "Updating..."
+                  : "Update Patient"}
               </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
 
         {/* Archive Patient Dialog */}
-        <AlertDialog open={showArchiveDialog} onOpenChange={setShowArchiveDialog}>
+        <AlertDialog
+          open={showArchiveDialog}
+          onOpenChange={setShowArchiveDialog}
+        >
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>Archive Patient</AlertDialogTitle>
               <AlertDialogDescription>
-                Are you sure you want to archive{' '}
-                {patientToArchive && PatientService.formatPatientName(patientToArchive)}?
-                This action can be undone later.
+                Are you sure you want to archive{" "}
+                {patientToArchive &&
+                  PatientService.formatPatientName(patientToArchive)}
+                ? This action can be undone later.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
@@ -1618,7 +1895,9 @@ export function PatientRegistry() {
                 onClick={handleArchivePatient}
                 disabled={archivePatientMutation.isPending}
               >
-                {archivePatientMutation.isPending ? 'Archiving...' : 'Archive Patient'}
+                {archivePatientMutation.isPending
+                  ? "Archiving..."
+                  : "Archive Patient"}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>

@@ -27,15 +27,15 @@ import {
   Activity,
   BookOpen,
   Users,
-  Calendar
+  Calendar,
 } from "lucide-react";
 
 import {
   DynamicQuestionnaire as QuestionnaireType,
   QuestionnaireQuestion,
   EducationalInsert,
-  PrescriptionAI
-} from '../data/dynamicQuestionnaires';
+  PrescriptionAI,
+} from "../data/dynamicQuestionnaires";
 
 interface DynamicQuestionnaireProps {
   isOpen: boolean;
@@ -48,32 +48,34 @@ export function DynamicQuestionnaire({
   isOpen,
   onClose,
   questionnaire,
-  onComplete
+  onComplete,
 }: DynamicQuestionnaireProps) {
   const [currentStep, setCurrentStep] = useState(1);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [responses, setResponses] = useState<Record<string, any>>({});
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [showEducational, setShowEducational] = useState<EducationalInsert | null>(null);
+  const [showEducational, setShowEducational] =
+    useState<EducationalInsert | null>(null);
   const [result, setResult] = useState<any>(null);
 
   const currentQuestion = questionnaire.questions[currentQuestionIndex];
-  const progress = ((currentQuestionIndex + 1) / questionnaire.questions.length) * 100;
-  
+  const progress =
+    ((currentQuestionIndex + 1) / questionnaire.questions.length) * 100;
+
   // Check if current question should be shown based on conditional logic
   const shouldShowQuestion = (question: QuestionnaireQuestion): boolean => {
     if (!question.conditionalLogic) return true;
-    
+
     const { showIf, hideIf } = question.conditionalLogic;
-    
+
     if (showIf) {
       return responses[showIf.questionId] === showIf.value;
     }
-    
+
     if (hideIf) {
       return responses[hideIf.questionId] !== hideIf.value;
     }
-    
+
     return true;
   };
 
@@ -97,15 +99,15 @@ export function DynamicQuestionnaire({
   };
 
   const handleResponse = (questionId: string, value: any) => {
-    setResponses(prev => ({ ...prev, [questionId]: value }));
+    setResponses((prev) => ({ ...prev, [questionId]: value }));
   };
 
   const handleNext = () => {
     // Check for educational insert after this question
     const educationalInsert = questionnaire.educationalInserts.find(
-      insert => insert.afterQuestion === currentQuestion.id
+      (insert) => insert.afterQuestion === currentQuestion.id,
     );
-    
+
     if (educationalInsert) {
       setShowEducational(educationalInsert);
       return;
@@ -133,7 +135,10 @@ export function DynamicQuestionnaire({
     setIsAnalyzing(true);
 
     setTimeout(() => {
-      const recommendation = PrescriptionAI.generateRecommendation(responses, questionnaire);
+      const recommendation = PrescriptionAI.generateRecommendation(
+        responses,
+        questionnaire,
+      );
       setResult(recommendation);
       setIsAnalyzing(false);
       setCurrentStep(3);
@@ -142,30 +147,30 @@ export function DynamicQuestionnaire({
 
   const getCategoryIcon = (category: string) => {
     const iconMap: Record<string, any> = {
-      'Weight Management': Activity,
-      'Men\'s Health': Heart,
-      'Dermatology': Sparkles,
-      'Hair Restoration': Star
+      "Weight Management": Activity,
+      "Men's Health": Heart,
+      Dermatology: Sparkles,
+      "Hair Restoration": Star,
     };
     return iconMap[category] || Brain;
   };
 
   const getCategoryGradient = (category: string) => {
     const gradientMap: Record<string, string> = {
-      'Weight Management': 'from-green-500 to-emerald-600',
-      'Men\'s Health': 'from-blue-500 to-indigo-600',
-      'Dermatology': 'from-purple-500 to-pink-600',
-      'Hair Restoration': 'from-orange-500 to-red-600'
+      "Weight Management": "from-green-500 to-emerald-600",
+      "Men's Health": "from-blue-500 to-indigo-600",
+      Dermatology: "from-purple-500 to-pink-600",
+      "Hair Restoration": "from-orange-500 to-red-600",
     };
-    return gradientMap[category] || 'from-emerald-500 to-blue-600';
+    return gradientMap[category] || "from-emerald-500 to-blue-600";
   };
 
   const getEducationalIcon = (type: string) => {
     const iconMap: Record<string, any> = {
-      'fact': Lightbulb,
-      'statistic': TrendingUp,
-      'encouragement': Heart,
-      'education': BookOpen
+      fact: Lightbulb,
+      statistic: TrendingUp,
+      encouragement: Heart,
+      education: BookOpen,
     };
     return iconMap[type] || Info;
   };
@@ -182,17 +187,22 @@ export function DynamicQuestionnaire({
           <CardContent className="p-8">
             <div className="mb-6">
               <div className="flex items-center gap-3 mb-4">
-                <div className={`w-10 h-10 bg-gradient-to-r ${getCategoryGradient(questionnaire.category)} rounded-xl flex items-center justify-center`}>
+                <div
+                  className={`w-10 h-10 bg-gradient-to-r ${getCategoryGradient(questionnaire.category)} rounded-xl flex items-center justify-center`}
+                >
                   <span className="text-white font-bold text-lg">
                     {currentQuestionIndex + 1}
                   </span>
                 </div>
                 <div>
                   <Badge className="mb-2 bg-emerald-100 text-emerald-800 border-emerald-300">
-                    {currentQuestion.category.replace('_', ' ')}
+                    {currentQuestion.category.replace("_", " ")}
                   </Badge>
                   {currentQuestion.required && (
-                    <Badge variant="outline" className="ml-2 border-red-300 text-red-700">
+                    <Badge
+                      variant="outline"
+                      className="ml-2 border-red-300 text-red-700"
+                    >
                       Required
                     </Badge>
                   )}
@@ -223,15 +233,15 @@ export function DynamicQuestionnaire({
 
             {/* Question Input */}
             <div className="space-y-4">
-              {currentQuestion.type === 'multiple_choice' && (
+              {currentQuestion.type === "multiple_choice" && (
                 <div className="space-y-3">
                   {currentQuestion.options?.map((option, index) => (
                     <div
                       key={index}
                       className={`p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 hover:scale-[1.02] ${
                         responses[currentQuestion.id] === option
-                          ? `border-emerald-500 bg-gradient-to-r ${getCategoryGradient(questionnaire.category).replace('to-', 'to-').replace('from-', 'from-')}/10 shadow-lg`
-                          : 'border-gray-200 dark:border-gray-700 hover:border-emerald-300 bg-white dark:bg-gray-800'
+                          ? `border-emerald-500 bg-gradient-to-r ${getCategoryGradient(questionnaire.category).replace("to-", "to-").replace("from-", "from-")}/10 shadow-lg`
+                          : "border-gray-200 dark:border-gray-700 hover:border-emerald-300 bg-white dark:bg-gray-800"
                       }`}
                       onClick={() => handleResponse(currentQuestion.id, option)}
                     >
@@ -239,8 +249,8 @@ export function DynamicQuestionnaire({
                         <div
                           className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
                             responses[currentQuestion.id] === option
-                              ? 'border-emerald-500 bg-emerald-500'
-                              : 'border-gray-300'
+                              ? "border-emerald-500 bg-emerald-500"
+                              : "border-gray-300"
                           }`}
                         >
                           {responses[currentQuestion.id] === option && (
@@ -256,36 +266,45 @@ export function DynamicQuestionnaire({
                 </div>
               )}
 
-              {currentQuestion.type === 'checkbox' && (
+              {currentQuestion.type === "checkbox" && (
                 <div className="space-y-3">
                   {currentQuestion.options?.map((option, index) => (
                     <div
                       key={index}
                       className={`p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 hover:scale-[1.02] ${
-                        Array.isArray(responses[currentQuestion.id]) && responses[currentQuestion.id].includes(option)
+                        Array.isArray(responses[currentQuestion.id]) &&
+                        responses[currentQuestion.id].includes(option)
                           ? `border-emerald-500 bg-gradient-to-r ${getCategoryGradient(questionnaire.category)}/10 shadow-lg`
-                          : 'border-gray-200 dark:border-gray-700 hover:border-emerald-300 bg-white dark:bg-gray-800'
+                          : "border-gray-200 dark:border-gray-700 hover:border-emerald-300 bg-white dark:bg-gray-800"
                       }`}
                       onClick={() => {
                         const current = responses[currentQuestion.id] || [];
                         if (current.includes(option)) {
-                          handleResponse(currentQuestion.id, current.filter((item: string) => item !== option));
+                          handleResponse(
+                            currentQuestion.id,
+                            current.filter((item: string) => item !== option),
+                          );
                         } else {
-                          handleResponse(currentQuestion.id, [...current, option]);
+                          handleResponse(currentQuestion.id, [
+                            ...current,
+                            option,
+                          ]);
                         }
                       }}
                     >
                       <div className="flex items-center gap-4">
                         <div
                           className={`w-6 h-6 rounded border-2 flex items-center justify-center ${
-                            Array.isArray(responses[currentQuestion.id]) && responses[currentQuestion.id].includes(option)
-                              ? 'border-emerald-500 bg-emerald-500'
-                              : 'border-gray-300'
+                            Array.isArray(responses[currentQuestion.id]) &&
+                            responses[currentQuestion.id].includes(option)
+                              ? "border-emerald-500 bg-emerald-500"
+                              : "border-gray-300"
                           }`}
                         >
-                          {Array.isArray(responses[currentQuestion.id]) && responses[currentQuestion.id].includes(option) && (
-                            <CheckCircle className="w-4 h-4 text-white" />
-                          )}
+                          {Array.isArray(responses[currentQuestion.id]) &&
+                            responses[currentQuestion.id].includes(option) && (
+                              <CheckCircle className="w-4 h-4 text-white" />
+                            )}
                         </div>
                         <span className="text-gray-900 dark:text-white font-medium text-lg">
                           {option}
@@ -296,29 +315,37 @@ export function DynamicQuestionnaire({
                 </div>
               )}
 
-              {currentQuestion.type === 'boolean' && (
+              {currentQuestion.type === "boolean" && (
                 <div className="flex gap-6 justify-center">
                   <Button
-                    variant={responses[currentQuestion.id] === 'Yes' ? 'default' : 'outline'}
+                    variant={
+                      responses[currentQuestion.id] === "Yes"
+                        ? "default"
+                        : "outline"
+                    }
                     size="lg"
-                    onClick={() => handleResponse(currentQuestion.id, 'Yes')}
+                    onClick={() => handleResponse(currentQuestion.id, "Yes")}
                     className={`px-8 py-4 text-lg ${
-                      responses[currentQuestion.id] === 'Yes' 
+                      responses[currentQuestion.id] === "Yes"
                         ? `bg-gradient-to-r ${getCategoryGradient(questionnaire.category)} text-white border-0 shadow-lg`
-                        : 'border-2 border-gray-300 hover:border-emerald-400'
+                        : "border-2 border-gray-300 hover:border-emerald-400"
                     }`}
                   >
                     <ThumbsUp className="w-5 h-5 mr-2" />
                     Yes
                   </Button>
                   <Button
-                    variant={responses[currentQuestion.id] === 'No' ? 'default' : 'outline'}
+                    variant={
+                      responses[currentQuestion.id] === "No"
+                        ? "default"
+                        : "outline"
+                    }
                     size="lg"
-                    onClick={() => handleResponse(currentQuestion.id, 'No')}
+                    onClick={() => handleResponse(currentQuestion.id, "No")}
                     className={`px-8 py-4 text-lg ${
-                      responses[currentQuestion.id] === 'No' 
+                      responses[currentQuestion.id] === "No"
                         ? `bg-gradient-to-r ${getCategoryGradient(questionnaire.category)} text-white border-0 shadow-lg`
-                        : 'border-2 border-gray-300 hover:border-emerald-400'
+                        : "border-2 border-gray-300 hover:border-emerald-400"
                     }`}
                   >
                     <Shield className="w-5 h-5 mr-2" />
@@ -327,12 +354,17 @@ export function DynamicQuestionnaire({
                 </div>
               )}
 
-              {currentQuestion.type === 'number' && (
+              {currentQuestion.type === "number" && (
                 <div className="max-w-md mx-auto">
                   <Input
                     type="number"
-                    value={responses[currentQuestion.id] || ''}
-                    onChange={(e) => handleResponse(currentQuestion.id, parseFloat(e.target.value))}
+                    value={responses[currentQuestion.id] || ""}
+                    onChange={(e) =>
+                      handleResponse(
+                        currentQuestion.id,
+                        parseFloat(e.target.value),
+                      )
+                    }
                     placeholder="Enter your answer..."
                     className="text-lg p-4 text-center border-2 border-gray-300 focus:border-emerald-500 rounded-xl"
                     min={currentQuestion.validationRules?.min}
@@ -341,19 +373,25 @@ export function DynamicQuestionnaire({
                 </div>
               )}
 
-              {currentQuestion.type === 'scale' && (
+              {currentQuestion.type === "scale" && (
                 <div className="space-y-4">
                   <div className="flex justify-center gap-2">
-                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(rating => (
+                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((rating) => (
                       <Button
                         key={rating}
-                        variant={responses[currentQuestion.id] === rating ? 'default' : 'outline'}
+                        variant={
+                          responses[currentQuestion.id] === rating
+                            ? "default"
+                            : "outline"
+                        }
                         size="lg"
-                        onClick={() => handleResponse(currentQuestion.id, rating)}
+                        onClick={() =>
+                          handleResponse(currentQuestion.id, rating)
+                        }
                         className={`w-12 h-12 rounded-full ${
-                          responses[currentQuestion.id] === rating 
+                          responses[currentQuestion.id] === rating
                             ? `bg-gradient-to-r ${getCategoryGradient(questionnaire.category)} text-white border-0 shadow-lg`
-                            : 'border-2 border-gray-300 hover:border-emerald-400'
+                            : "border-2 border-gray-300 hover:border-emerald-400"
                         }`}
                       >
                         {rating}
@@ -383,14 +421,17 @@ export function DynamicQuestionnaire({
 
           <div className="text-center">
             <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">
-              Question {currentQuestionIndex + 1} of {questionnaire.questions.length}
+              Question {currentQuestionIndex + 1} of{" "}
+              {questionnaire.questions.length}
             </div>
             <Progress value={progress} className="w-48 h-2" />
           </div>
 
           <Button
             onClick={handleNext}
-            disabled={currentQuestion.required && !responses[currentQuestion.id]}
+            disabled={
+              currentQuestion.required && !responses[currentQuestion.id]
+            }
             className={`px-6 py-3 bg-gradient-to-r ${getCategoryGradient(questionnaire.category)} text-white border-0 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed`}
           >
             {currentQuestionIndex >= questionnaire.questions.length - 1 ? (
@@ -417,14 +458,17 @@ export function DynamicQuestionnaire({
 
     return (
       <div className="space-y-6">
-        <Card className={`border-2 ${showEducational.background} border-opacity-50`}>
+        <Card
+          className={`border-2 ${showEducational.background} border-opacity-50`}
+        >
           <CardContent className="p-8 text-center">
             <div className="mb-6">
               <div className="w-20 h-20 bg-white/80 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
                 <span className="text-4xl">{showEducational.icon}</span>
               </div>
               <Badge className="mb-4 text-lg px-4 py-2">
-                {showEducational.type.charAt(0).toUpperCase() + showEducational.type.slice(1)}
+                {showEducational.type.charAt(0).toUpperCase() +
+                  showEducational.type.slice(1)}
               </Badge>
               <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
                 {showEducational.title}
@@ -459,21 +503,27 @@ export function DynamicQuestionnaire({
     <div className="space-y-6">
       <Card className="border-2 border-emerald-200 dark:border-emerald-800">
         <CardContent className="p-8 text-center">
-          <div className={`w-24 h-24 bg-gradient-to-r ${getCategoryGradient(questionnaire.category)} rounded-full flex items-center justify-center mx-auto mb-6`}>
+          <div
+            className={`w-24 h-24 bg-gradient-to-r ${getCategoryGradient(questionnaire.category)} rounded-full flex items-center justify-center mx-auto mb-6`}
+          >
             <Brain className="w-12 h-12 text-white" />
           </div>
           <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
             AI Health Analysis in Progress
           </h3>
           <p className="text-lg text-gray-600 dark:text-gray-400 mb-8 max-w-2xl mx-auto">
-            Our advanced AI is analyzing your responses against clinical guidelines and safety protocols to provide personalized treatment recommendations.
+            Our advanced AI is analyzing your responses against clinical
+            guidelines and safety protocols to provide personalized treatment
+            recommendations.
           </p>
 
           {isAnalyzing && (
             <div className="space-y-6">
               <div className="flex items-center justify-center space-x-3 text-emerald-600">
                 <div className="animate-spin w-8 h-8 border-3 border-emerald-500 border-t-transparent rounded-full"></div>
-                <span className="text-lg font-medium">Processing your health profile...</span>
+                <span className="text-lg font-medium">
+                  Processing your health profile...
+                </span>
               </div>
               <Progress value={75} className="w-full h-3" />
               <div className="space-y-3 text-sm text-gray-600 dark:text-gray-400">
@@ -483,11 +533,15 @@ export function DynamicQuestionnaire({
                 </div>
                 <div className="flex items-center justify-center gap-2">
                   <Shield className="w-4 h-4" />
-                  <span>Checking safety contraindications and drug interactions...</span>
+                  <span>
+                    Checking safety contraindications and drug interactions...
+                  </span>
                 </div>
                 <div className="flex items-center justify-center gap-2">
                   <Target className="w-4 h-4" />
-                  <span>Calculating personalized treatment recommendations...</span>
+                  <span>
+                    Calculating personalized treatment recommendations...
+                  </span>
                 </div>
               </div>
             </div>
@@ -500,17 +554,23 @@ export function DynamicQuestionnaire({
   const renderResults = () => {
     if (!result) return null;
 
-    const isApproved = result.type === 'approved';
+    const isApproved = result.type === "approved";
     const IconComponent = getCategoryIcon(questionnaire.category);
 
     return (
       <div className="space-y-6">
-        <Card className={`border-2 ${isApproved ? 'border-emerald-500' : 'border-orange-500'}`}>
+        <Card
+          className={`border-2 ${isApproved ? "border-emerald-500" : "border-orange-500"}`}
+        >
           <CardContent className="p-8">
             <div className="text-center mb-8">
-              <div className={`w-20 h-20 bg-gradient-to-r ${
-                isApproved ? 'from-emerald-500 to-green-600' : 'from-orange-500 to-red-600'
-              } rounded-full flex items-center justify-center mx-auto mb-4`}>
+              <div
+                className={`w-20 h-20 bg-gradient-to-r ${
+                  isApproved
+                    ? "from-emerald-500 to-green-600"
+                    : "from-orange-500 to-red-600"
+                } rounded-full flex items-center justify-center mx-auto mb-4`}
+              >
                 {isApproved ? (
                   <CheckCircle className="w-10 h-10 text-white" />
                 ) : (
@@ -518,7 +578,9 @@ export function DynamicQuestionnaire({
                 )}
               </div>
               <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                {isApproved ? 'Treatment Approved!' : 'Consultation Recommended'}
+                {isApproved
+                  ? "Treatment Approved!"
+                  : "Consultation Recommended"}
               </h3>
               <p className="text-lg text-gray-600 dark:text-gray-400">
                 AI Confidence: {result.confidence}%
@@ -541,11 +603,14 @@ export function DynamicQuestionnaire({
                         <div className="flex items-center gap-4">
                           <Badge className="bg-emerald-100 text-emerald-800">
                             <Award className="w-3 h-3 mr-1" />
-                            Effectiveness: {result.primaryRecommendation.effectiveness}/10
+                            Effectiveness:{" "}
+                            {result.primaryRecommendation.effectiveness}/10
                           </Badge>
                           <Badge className="bg-blue-100 text-blue-800">
                             <Target className="w-3 h-3 mr-1" />
-                            AI Score: {result.primaryRecommendation.score?.toFixed(1) || 'N/A'}
+                            AI Score:{" "}
+                            {result.primaryRecommendation.score?.toFixed(1) ||
+                              "N/A"}
                           </Badge>
                         </div>
                       </div>
@@ -559,24 +624,37 @@ export function DynamicQuestionnaire({
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <h5 className="font-semibold text-gray-900 dark:text-white mb-2">Available Dosages:</h5>
+                        <h5 className="font-semibold text-gray-900 dark:text-white mb-2">
+                          Available Dosages:
+                        </h5>
                         <div className="flex flex-wrap gap-2">
-                          {result.primaryRecommendation.dosages.map((dosage: string, index: number) => (
-                            <Badge key={index} variant="outline">
-                              {dosage}
-                            </Badge>
-                          ))}
+                          {result.primaryRecommendation.dosages.map(
+                            (dosage: string, index: number) => (
+                              <Badge key={index} variant="outline">
+                                {dosage}
+                              </Badge>
+                            ),
+                          )}
                         </div>
                       </div>
                       <div>
-                        <h5 className="font-semibold text-gray-900 dark:text-white mb-2">Why This Medication:</h5>
+                        <h5 className="font-semibold text-gray-900 dark:text-white mb-2">
+                          Why This Medication:
+                        </h5>
                         <ul className="text-sm space-y-1">
-                          {result.reasoning?.slice(0, 3).map((reason: string, index: number) => (
-                            <li key={index} className="flex items-start gap-2">
-                              <CheckCircle className="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0" />
-                              <span className="text-gray-600 dark:text-gray-400">{reason}</span>
-                            </li>
-                          ))}
+                          {result.reasoning
+                            ?.slice(0, 3)
+                            .map((reason: string, index: number) => (
+                              <li
+                                key={index}
+                                className="flex items-start gap-2"
+                              >
+                                <CheckCircle className="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0" />
+                                <span className="text-gray-600 dark:text-gray-400">
+                                  {reason}
+                                </span>
+                              </li>
+                            ))}
                         </ul>
                       </div>
                     </div>
@@ -590,26 +668,28 @@ export function DynamicQuestionnaire({
                       Alternative Options
                     </h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {result.alternativeOptions.slice(0, 2).map((alt: any, index: number) => (
-                        <Card key={index} className="border border-gray-200">
-                          <CardContent className="p-4">
-                            <div className="flex justify-between items-start mb-2">
-                              <h5 className="font-semibold text-gray-900 dark:text-white">
-                                {alt.name}
-                              </h5>
-                              <span className="text-lg font-bold text-gray-600">
-                                ${alt.cost}
-                              </span>
-                            </div>
-                            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                              {alt.description}
-                            </p>
-                            <Badge className="bg-gray-100 text-gray-800">
-                              Score: {alt.score?.toFixed(1) || 'N/A'}
-                            </Badge>
-                          </CardContent>
-                        </Card>
-                      ))}
+                      {result.alternativeOptions
+                        .slice(0, 2)
+                        .map((alt: any, index: number) => (
+                          <Card key={index} className="border border-gray-200">
+                            <CardContent className="p-4">
+                              <div className="flex justify-between items-start mb-2">
+                                <h5 className="font-semibold text-gray-900 dark:text-white">
+                                  {alt.name}
+                                </h5>
+                                <span className="text-lg font-bold text-gray-600">
+                                  ${alt.cost}
+                                </span>
+                              </div>
+                              <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                                {alt.description}
+                              </p>
+                              <Badge className="bg-gray-100 text-gray-800">
+                                Score: {alt.score?.toFixed(1) || "N/A"}
+                              </Badge>
+                            </CardContent>
+                          </Card>
+                        ))}
                     </div>
                   </div>
                 )}
@@ -638,7 +718,9 @@ export function DynamicQuestionnaire({
               <Button
                 onClick={() => onComplete(result)}
                 className={`px-8 py-3 bg-gradient-to-r ${
-                  isApproved ? getCategoryGradient(questionnaire.category) : 'from-orange-500 to-red-500'
+                  isApproved
+                    ? getCategoryGradient(questionnaire.category)
+                    : "from-orange-500 to-red-500"
                 } text-white border-0 hover:shadow-lg`}
               >
                 {isApproved ? (
@@ -667,7 +749,9 @@ export function DynamicQuestionnaire({
       <DialogContent className="max-w-6xl max-h-[95vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-3xl font-bold flex items-center gap-3">
-            <div className={`w-12 h-12 bg-gradient-to-r ${getCategoryGradient(questionnaire.category)} rounded-xl flex items-center justify-center`}>
+            <div
+              className={`w-12 h-12 bg-gradient-to-r ${getCategoryGradient(questionnaire.category)} rounded-xl flex items-center justify-center`}
+            >
               <CategoryIcon className="w-6 h-6 text-white" />
             </div>
             <div>

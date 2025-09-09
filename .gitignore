@@ -32,3 +32,11 @@ dist-ssr
 
 # DigitalOcean deployment
 .do/
+
+# Terraform sensitive files
+terraform/*.tfstate
+terraform/*.tfstate.*
+terraform/terraform.tfvars
+terraform/tfplan
+terraform/.terraform/
+

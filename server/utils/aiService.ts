@@ -1,77 +1,93 @@
 // AI Service for medical analysis and chat
-import { LabResult, ChatMessage, HealthInsight } from '@shared/types';
+import { LabResult, ChatMessage, HealthInsight } from "@shared/types";
 
 export class AIService {
   // Simulate AI analysis of lab results
   static analyzeLabResults(results: LabResult[]): {
     summary: string;
-    insights: Omit<HealthInsight, 'id' | 'userId' | 'createdAt'>[];
-    overallRisk: 'low' | 'medium' | 'high';
+    insights: Omit<HealthInsight, "id" | "userId" | "createdAt">[];
+    overallRisk: "low" | "medium" | "high";
   } {
-    const abnormalResults = results.filter(r => r.status !== 'normal');
-    const criticalResults = results.filter(r => r.status === 'critical');
-    
-    let overallRisk: 'low' | 'medium' | 'high' = 'low';
+    const abnormalResults = results.filter((r) => r.status !== "normal");
+    const criticalResults = results.filter((r) => r.status === "critical");
+
+    let overallRisk: "low" | "medium" | "high" = "low";
     if (criticalResults.length > 0) {
-      overallRisk = 'high';
+      overallRisk = "high";
     } else if (abnormalResults.length > 1) {
-      overallRisk = 'medium';
+      overallRisk = "medium";
     }
 
-    const insights: Omit<HealthInsight, 'id' | 'userId' | 'createdAt'>[] = [];
+    const insights: Omit<HealthInsight, "id" | "userId" | "createdAt">[] = [];
 
     // Analyze cholesterol
-    const totalCholesterol = results.find(r => r.testName.toLowerCase().includes('total cholesterol'));
-    const ldlCholesterol = results.find(r => r.testName.toLowerCase().includes('ldl'));
-    const hdlCholesterol = results.find(r => r.testName.toLowerCase().includes('hdl'));
+    const totalCholesterol = results.find((r) =>
+      r.testName.toLowerCase().includes("total cholesterol"),
+    );
+    const ldlCholesterol = results.find((r) =>
+      r.testName.toLowerCase().includes("ldl"),
+    );
+    const hdlCholesterol = results.find((r) =>
+      r.testName.toLowerCase().includes("hdl"),
+    );
 
-    if (totalCholesterol && totalCholesterol.status !== 'normal') {
+    if (totalCholesterol && totalCholesterol.status !== "normal") {
       insights.push({
-        type: 'recommendation',
-        title: 'Cholesterol Management Needed',
+        type: "recommendation",
+        title: "Cholesterol Management Needed",
         description: `Your total cholesterol is ${totalCholesterol.value} ${totalCholesterol.unit}, which is ${totalCholesterol.status}. Consider dietary modifications and discuss with your healthcare provider.`,
-        priority: totalCholesterol.status === 'high' ? 'high' : 'medium',
-        category: 'Cardiovascular Health',
+        priority: totalCholesterol.status === "high" ? "high" : "medium",
+        category: "Cardiovascular Health",
         confidence: 88,
         actionRequired: true,
-        dismissed: false
+        dismissed: false,
       });
     }
 
-    if (ldlCholesterol && ldlCholesterol.status === 'high') {
+    if (ldlCholesterol && ldlCholesterol.status === "high") {
       insights.push({
-        type: 'alert',
-        title: 'Elevated LDL Cholesterol',
+        type: "alert",
+        title: "Elevated LDL Cholesterol",
         description: `Your LDL cholesterol at ${ldlCholesterol.value} ${ldlCholesterol.unit} increases cardiovascular risk. Statin therapy may be beneficial.`,
-        priority: 'high',
-        category: 'Cardiovascular Health',
+        priority: "high",
+        category: "Cardiovascular Health",
         confidence: 92,
         actionRequired: true,
-        dismissed: false
+        dismissed: false,
       });
     }
 
     // Analyze glucose
-    const glucose = results.find(r => r.testName.toLowerCase().includes('glucose'));
-    if (glucose && glucose.status === 'normal') {
+    const glucose = results.find((r) =>
+      r.testName.toLowerCase().includes("glucose"),
+    );
+    if (glucose && glucose.status === "normal") {
       insights.push({
-        type: 'insight',
-        title: 'Excellent Glucose Control',
+        type: "insight",
+        title: "Excellent Glucose Control",
         description: `Your glucose level of ${glucose.value} ${glucose.unit} indicates excellent metabolic health. Continue current lifestyle habits.`,
-        priority: 'low',
-        category: 'Metabolic Health',
+        priority: "low",
+        category: "Metabolic Health",
         confidence: 95,
         actionRequired: false,
-        dismissed: false
+        dismissed: false,
       });
     }
 
-    const summary = this.generateLabSummary(results, abnormalResults.length, overallRisk);
+    const summary = this.generateLabSummary(
+      results,
+      abnormalResults.length,
+      overallRisk,
+    );
 
     return { summary, insights, overallRisk };
   }
 
-  private static generateLabSummary(results: LabResult[], abnormalCount: number, risk: string): string {
+  private static generateLabSummary(
+    results: LabResult[],
+    abnormalCount: number,
+    risk: string,
+  ): string {
     const totalTests = results.length;
     const normalCount = totalTests - abnormalCount;
 
@@ -84,14 +100,14 @@ export class AIService {
     context: any,
     userLabResults: LabResult[],
     userMedications: any[],
-    conversationHistory: ChatMessage[]
+    conversationHistory: ChatMessage[],
   ): {
     response: string;
     confidence: number;
     suggestions: string[];
   } {
     const input = message.toLowerCase();
-    
+
     // Emergency detection
     if (this.detectEmergency(input)) {
       return {
@@ -100,23 +116,38 @@ export class AIService {
         suggestions: [
           "Call 911 now",
           "Find nearest ER",
-          "Connect with urgent care"
-        ]
+          "Connect with urgent care",
+        ],
       };
     }
 
     // Lab results analysis
-    if (context?.labs || input.includes('lab') || input.includes('test') || input.includes('blood')) {
+    if (
+      context?.labs ||
+      input.includes("lab") ||
+      input.includes("test") ||
+      input.includes("blood")
+    ) {
       return this.generateLabResponse(userLabResults, input);
     }
 
     // Medication analysis
-    if (context?.medications || input.includes('medication') || input.includes('drug') || input.includes('pill')) {
+    if (
+      context?.medications ||
+      input.includes("medication") ||
+      input.includes("drug") ||
+      input.includes("pill")
+    ) {
       return this.generateMedicationResponse(userMedications, input);
     }
 
     // Symptom assessment
-    if (context?.symptoms || input.includes('symptom') || input.includes('pain') || input.includes('feel')) {
+    if (
+      context?.symptoms ||
+      input.includes("symptom") ||
+      input.includes("pain") ||
+      input.includes("feel")
+    ) {
       return this.generateSymptomResponse(input);
     }
 
@@ -126,41 +157,58 @@ export class AIService {
 
   private static detectEmergency(input: string): boolean {
     const emergencyKeywords = [
-      'chest pain', 'can\'t breathe', 'difficulty breathing', 'heart attack',
-      'stroke', 'bleeding heavily', 'unconscious', 'severe pain',
-      'emergency', '911', 'ambulance', 'dying'
+      "chest pain",
+      "can't breathe",
+      "difficulty breathing",
+      "heart attack",
+      "stroke",
+      "bleeding heavily",
+      "unconscious",
+      "severe pain",
+      "emergency",
+      "911",
+      "ambulance",
+      "dying",
     ];
-    
-    return emergencyKeywords.some(keyword => input.includes(keyword));
+
+    return emergencyKeywords.some((keyword) => input.includes(keyword));
   }
 
-  private static generateLabResponse(labResults: LabResult[], input: string): {
+  private static generateLabResponse(
+    labResults: LabResult[],
+    input: string,
+  ): {
     response: string;
     confidence: number;
     suggestions: string[];
   } {
     if (labResults.length === 0) {
       return {
-        response: "I don't see any lab results in your profile yet. Would you like to upload a lab report for analysis? I can help interpret values, identify trends, and provide personalized insights based on your results.",
+        response:
+          "I don't see any lab results in your profile yet. Would you like to upload a lab report for analysis? I can help interpret values, identify trends, and provide personalized insights based on your results.",
         confidence: 85,
         suggestions: [
           "Upload lab report",
           "Learn about lab tests",
-          "Schedule lab work"
-        ]
+          "Schedule lab work",
+        ],
       };
     }
 
     const analysis = this.analyzeLabResults(labResults);
-    const abnormalResults = labResults.filter(r => r.status !== 'normal');
-    
+    const abnormalResults = labResults.filter((r) => r.status !== "normal");
+
     let response = `**Lab Results Analysis**\n\n`;
     response += `I've analyzed your recent lab results (${labResults.length} tests):\n\n`;
-    
+
     // Highlight key findings
-    labResults.forEach(result => {
-      const status = result.status === 'normal' ? '✅' : 
-                    result.status === 'borderline' ? '⚠️' : '🔴';
+    labResults.forEach((result) => {
+      const status =
+        result.status === "normal"
+          ? "✅"
+          : result.status === "borderline"
+            ? "⚠️"
+            : "🔴";
       response += `${status} **${result.testName}**: ${result.value} ${result.unit} (${result.status})\n`;
     });
 
@@ -169,7 +217,7 @@ export class AIService {
       response += `• All your lab values are within normal ranges\n`;
       response += `• This indicates good overall health status\n`;
     } else {
-      abnormalResults.forEach(result => {
+      abnormalResults.forEach((result) => {
         response += `• ${result.testName} needs attention - consider discussing with your doctor\n`;
       });
     }
@@ -184,34 +232,38 @@ export class AIService {
         "Explain specific values",
         "Lifestyle recommendations",
         "When to retest",
-        "Talk to doctor"
-      ]
+        "Talk to doctor",
+      ],
     };
   }
 
-  private static generateMedicationResponse(medications: any[], input: string): {
+  private static generateMedicationResponse(
+    medications: any[],
+    input: string,
+  ): {
     response: string;
     confidence: number;
     suggestions: string[];
   } {
     if (medications.length === 0) {
       return {
-        response: "I don't see any medications in your profile. If you're taking any medications, please add them to get personalized interaction checking and optimization recommendations.",
+        response:
+          "I don't see any medications in your profile. If you're taking any medications, please add them to get personalized interaction checking and optimization recommendations.",
         confidence: 80,
         suggestions: [
           "Add medications",
           "Check interactions",
-          "Medication reminders"
-        ]
+          "Medication reminders",
+        ],
       };
     }
 
     let response = `**Medication Analysis**\n\n`;
     response += `Current medications (${medications.length}):\n\n`;
-    
-    medications.forEach(med => {
+
+    medications.forEach((med) => {
       response += `💊 **${med.name}** ${med.dosage}\n`;
-      response += `   └ ${med.frequency} - ${med.instructions || 'No special instructions'}\n`;
+      response += `   └ ${med.frequency} - ${med.instructions || "No special instructions"}\n`;
     });
 
     response += `\n**Safety Check**: ✅ No major interactions detected\n`;
@@ -225,8 +277,8 @@ export class AIService {
         "Check new drug interactions",
         "Medication timing tips",
         "Side effects to watch",
-        "Pharmacy integration"
-      ]
+        "Pharmacy integration",
+      ],
     };
   }
 
@@ -242,12 +294,16 @@ export class AIService {
         "Emergency symptoms guide",
         "When to see a doctor",
         "Symptom tracking",
-        "Connect with provider"
-      ]
+        "Connect with provider",
+      ],
     };
   }
 
-  private static generateGeneralResponse(input: string, labResults: LabResult[], medications: any[]): {
+  private static generateGeneralResponse(
+    input: string,
+    labResults: LabResult[],
+    medications: any[],
+  ): {
     response: string;
     confidence: number;
     suggestions: string[];
@@ -259,64 +315,67 @@ export class AIService {
         "Review latest labs",
         "Check medication safety",
         "Analyze health trends",
-        "Get health summary"
-      ]
+        "Get health summary",
+      ],
     };
   }
 
   // OCR and document processing simulation
-  static async processLabDocument(fileBuffer: Buffer, fileName: string): Promise<{
+  static async processLabDocument(
+    fileBuffer: Buffer,
+    fileName: string,
+  ): Promise<{
     extractedText: string;
     confidence: number;
-    results: Omit<LabResult, 'id' | 'userId' | 'createdAt'>[];
+    results: Omit<LabResult, "id" | "userId" | "createdAt">[];
   }> {
     // Simulate OCR processing time
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
     // Simulate extracted lab results
-    const mockResults: Omit<LabResult, 'id' | 'userId' | 'createdAt'>[] = [
+    const mockResults: Omit<LabResult, "id" | "userId" | "createdAt">[] = [
       {
-        testName: 'Glucose (Fasting)',
+        testName: "Glucose (Fasting)",
         value: 95,
-        unit: 'mg/dL',
-        referenceRange: '70-100',
-        status: 'normal',
-        testDate: new Date().toISOString().split('T')[0],
-        labName: 'Quest Diagnostics'
+        unit: "mg/dL",
+        referenceRange: "70-100",
+        status: "normal",
+        testDate: new Date().toISOString().split("T")[0],
+        labName: "Quest Diagnostics",
       },
       {
-        testName: 'Total Cholesterol',
+        testName: "Total Cholesterol",
         value: 205,
-        unit: 'mg/dL',
-        referenceRange: '<200',
-        status: 'borderline',
-        testDate: new Date().toISOString().split('T')[0],
-        labName: 'Quest Diagnostics'
+        unit: "mg/dL",
+        referenceRange: "<200",
+        status: "borderline",
+        testDate: new Date().toISOString().split("T")[0],
+        labName: "Quest Diagnostics",
       },
       {
-        testName: 'HDL Cholesterol',
+        testName: "HDL Cholesterol",
         value: 58,
-        unit: 'mg/dL',
-        referenceRange: '>40 (M), >50 (F)',
-        status: 'normal',
-        testDate: new Date().toISOString().split('T')[0],
-        labName: 'Quest Diagnostics'
+        unit: "mg/dL",
+        referenceRange: ">40 (M), >50 (F)",
+        status: "normal",
+        testDate: new Date().toISOString().split("T")[0],
+        labName: "Quest Diagnostics",
       },
       {
-        testName: 'LDL Cholesterol',
+        testName: "LDL Cholesterol",
         value: 135,
-        unit: 'mg/dL',
-        referenceRange: '<100',
-        status: 'high',
-        testDate: new Date().toISOString().split('T')[0],
-        labName: 'Quest Diagnostics'
-      }
+        unit: "mg/dL",
+        referenceRange: "<100",
+        status: "high",
+        testDate: new Date().toISOString().split("T")[0],
+        labName: "Quest Diagnostics",
+      },
     ];
 
     return {
       extractedText: `Lab Report - ${fileName}\nGlucose: 95 mg/dL\nTotal Cholesterol: 205 mg/dL\nHDL: 58 mg/dL\nLDL: 135 mg/dL`,
       confidence: 0.94,
-      results: mockResults
+      results: mockResults,
     };
   }
 }

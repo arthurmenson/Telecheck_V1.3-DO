@@ -24,7 +24,7 @@ import {
   Wifi,
   Bell,
   Plus,
-  Eye
+  Eye,
 } from "lucide-react";
 
 export function PatientRPMDashboard() {
@@ -36,35 +36,79 @@ export function PatientRPMDashboard() {
     id: "PT-001",
     program: "Diabetes Management",
     enrollmentDate: "2024-01-15",
-    nextAppointment: "2024-02-20"
+    nextAppointment: "2024-02-20",
   };
 
   const deviceStatus = {
     glucose: { connected: true, battery: 78, lastReading: "2 min ago" },
     bloodPressure: { connected: true, battery: 92, lastReading: "1 hour ago" },
     weight: { connected: false, battery: 45, lastReading: "2 days ago" },
-    temperature: { connected: true, battery: 88, lastReading: "30 min ago" }
+    temperature: { connected: true, battery: 88, lastReading: "30 min ago" },
   };
 
   const todaysReadings = [
-    { type: "Glucose", value: "142 mg/dL", time: "2:15 PM", status: "normal", icon: Droplets },
-    { type: "Blood Pressure", value: "125/82 mmHg", time: "11:30 AM", status: "normal", icon: Heart },
-    { type: "Weight", value: "184.2 lbs", time: "8:00 AM", status: "normal", icon: Weight },
-    { type: "Temperature", value: "98.4°F", time: "9:15 AM", status: "normal", icon: Thermometer }
+    {
+      type: "Glucose",
+      value: "142 mg/dL",
+      time: "2:15 PM",
+      status: "normal",
+      icon: Droplets,
+    },
+    {
+      type: "Blood Pressure",
+      value: "125/82 mmHg",
+      time: "11:30 AM",
+      status: "normal",
+      icon: Heart,
+    },
+    {
+      type: "Weight",
+      value: "184.2 lbs",
+      time: "8:00 AM",
+      status: "normal",
+      icon: Weight,
+    },
+    {
+      type: "Temperature",
+      value: "98.4°F",
+      time: "9:15 AM",
+      status: "normal",
+      icon: Thermometer,
+    },
   ];
 
   const medications = [
     { name: "Metformin", dosage: "500mg", time: "8:00 AM", taken: true },
     { name: "Lisinopril", dosage: "10mg", time: "8:00 AM", taken: true },
     { name: "Metformin", dosage: "500mg", time: "8:00 PM", taken: false },
-    { name: "Insulin", dosage: "15 units", time: "Before meals", taken: false }
+    { name: "Insulin", dosage: "15 units", time: "Before meals", taken: false },
   ];
 
   const weeklyGoals = [
-    { goal: "Take glucose readings 4x daily", current: 26, target: 28, percentage: 93 },
-    { goal: "Take medications as prescribed", current: 13, target: 14, percentage: 93 },
-    { goal: "Check blood pressure daily", current: 6, target: 7, percentage: 86 },
-    { goal: "Maintain weight under 185 lbs", current: 1, target: 1, percentage: 100 }
+    {
+      goal: "Take glucose readings 4x daily",
+      current: 26,
+      target: 28,
+      percentage: 93,
+    },
+    {
+      goal: "Take medications as prescribed",
+      current: 13,
+      target: 14,
+      percentage: 93,
+    },
+    {
+      goal: "Check blood pressure daily",
+      current: 6,
+      target: 7,
+      percentage: 86,
+    },
+    {
+      goal: "Maintain weight under 185 lbs",
+      current: 1,
+      target: 1,
+      percentage: 100,
+    },
   ];
 
   const alerts = [
@@ -72,25 +116,28 @@ export function PatientRPMDashboard() {
       type: "medication",
       message: "Metformin dose due in 30 minutes",
       time: "7:30 PM",
-      priority: "medium"
+      priority: "medium",
     },
     {
       type: "device",
       message: "Weight scale needs charging",
       time: "Today",
-      priority: "low"
-    }
+      priority: "low",
+    },
   ];
 
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-7xl mx-auto space-y-6">
-        
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">My Health Dashboard</h1>
-            <p className="text-muted-foreground">Welcome back, {patientData.name}</p>
+            <h1 className="text-3xl font-bold text-foreground">
+              My Health Dashboard
+            </h1>
+            <p className="text-muted-foreground">
+              Welcome back, {patientData.name}
+            </p>
           </div>
           <div className="flex items-center gap-3">
             <Badge variant="secondary" className="bg-green-100 text-green-800">
@@ -110,20 +157,26 @@ export function PatientRPMDashboard() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Today's Glucose</p>
-                  <p className="text-2xl font-bold text-foreground">142 mg/dL</p>
+                  <p className="text-sm font-medium text-muted-foreground">
+                    Today's Glucose
+                  </p>
+                  <p className="text-2xl font-bold text-foreground">
+                    142 mg/dL
+                  </p>
                   <p className="text-xs text-green-600">Within range</p>
                 </div>
                 <Droplets className="w-8 h-8 text-blue-500" />
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Blood Pressure</p>
+                  <p className="text-sm font-medium text-muted-foreground">
+                    Blood Pressure
+                  </p>
                   <p className="text-2xl font-bold text-foreground">125/82</p>
                   <p className="text-xs text-green-600">Normal</p>
                 </div>
@@ -131,25 +184,31 @@ export function PatientRPMDashboard() {
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Current Weight</p>
-                  <p className="text-2xl font-bold text-foreground">184.2 lbs</p>
+                  <p className="text-sm font-medium text-muted-foreground">
+                    Current Weight
+                  </p>
+                  <p className="text-2xl font-bold text-foreground">
+                    184.2 lbs
+                  </p>
                   <p className="text-xs text-yellow-600">-0.8 from goal</p>
                 </div>
                 <Weight className="w-8 h-8 text-purple-500" />
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Medication Adherence</p>
+                  <p className="text-sm font-medium text-muted-foreground">
+                    Medication Adherence
+                  </p>
                   <p className="text-2xl font-bold text-foreground">93%</p>
                   <p className="text-xs text-green-600">This week</p>
                 </div>
@@ -171,16 +230,23 @@ export function PatientRPMDashboard() {
             <CardContent>
               <div className="space-y-3">
                 {alerts.map((alert, index) => (
-                  <Alert key={index} className={
-                    alert.priority === "high" ? "border-red-200 bg-red-50" :
-                    alert.priority === "medium" ? "border-yellow-200 bg-yellow-50" :
-                    "border-blue-200 bg-blue-50"
-                  }>
+                  <Alert
+                    key={index}
+                    className={
+                      alert.priority === "high"
+                        ? "border-red-200 bg-red-50"
+                        : alert.priority === "medium"
+                          ? "border-yellow-200 bg-yellow-50"
+                          : "border-blue-200 bg-blue-50"
+                    }
+                  >
                     <AlertTriangle className="h-4 w-4" />
                     <AlertDescription>
                       <div className="flex items-center justify-between">
                         <span>{alert.message}</span>
-                        <span className="text-xs text-muted-foreground">{alert.time}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {alert.time}
+                        </span>
                       </div>
                     </AlertDescription>
                   </Alert>
@@ -208,7 +274,10 @@ export function PatientRPMDashboard() {
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {todaysReadings.map((reading, index) => (
-                    <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div
+                      key={index}
+                      className="flex items-center justify-between p-4 border rounded-lg"
+                    >
                       <div className="flex items-center gap-3">
                         <reading.icon className="w-5 h-5 text-blue-600" />
                         <div>
@@ -217,8 +286,16 @@ export function PatientRPMDashboard() {
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="text-sm text-muted-foreground">{reading.time}</p>
-                        <Badge variant={reading.status === "normal" ? "secondary" : "destructive"}>
+                        <p className="text-sm text-muted-foreground">
+                          {reading.time}
+                        </p>
+                        <Badge
+                          variant={
+                            reading.status === "normal"
+                              ? "secondary"
+                              : "destructive"
+                          }
+                        >
                           {reading.status}
                         </Badge>
                       </div>
@@ -244,18 +321,29 @@ export function PatientRPMDashboard() {
               <CardContent>
                 <div className="space-y-3">
                   {medications.map((med, index) => (
-                    <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div
+                      key={index}
+                      className="flex items-center justify-between p-4 border rounded-lg"
+                    >
                       <div className="flex items-center gap-3">
-                        <Pill className={`w-5 h-5 ${med.taken ? 'text-green-600' : 'text-gray-400'}`} />
+                        <Pill
+                          className={`w-5 h-5 ${med.taken ? "text-green-600" : "text-gray-400"}`}
+                        />
                         <div>
                           <p className="font-medium">{med.name}</p>
-                          <p className="text-sm text-muted-foreground">{med.dosage}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {med.dosage}
+                          </p>
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
-                        <span className="text-sm text-muted-foreground">{med.time}</span>
+                        <span className="text-sm text-muted-foreground">
+                          {med.time}
+                        </span>
                         {med.taken ? (
-                          <Badge className="bg-green-100 text-green-800">Taken</Badge>
+                          <Badge className="bg-green-100 text-green-800">
+                            Taken
+                          </Badge>
                         ) : (
                           <Button size="sm">Mark Taken</Button>
                         )}
@@ -280,7 +368,9 @@ export function PatientRPMDashboard() {
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-2">
                           <Smartphone className="w-5 h-5" />
-                          <span className="font-medium capitalize">{device.replace(/([A-Z])/g, ' $1').trim()}</span>
+                          <span className="font-medium capitalize">
+                            {device.replace(/([A-Z])/g, " $1").trim()}
+                          </span>
                         </div>
                         <div className="flex items-center gap-2">
                           {status.connected ? (
@@ -288,21 +378,32 @@ export function PatientRPMDashboard() {
                           ) : (
                             <Wifi className="w-4 h-4 text-red-600" />
                           )}
-                          <Badge variant={status.connected ? "secondary" : "destructive"}>
+                          <Badge
+                            variant={
+                              status.connected ? "secondary" : "destructive"
+                            }
+                          >
                             {status.connected ? "Connected" : "Offline"}
                           </Badge>
                         </div>
                       </div>
                       <div className="space-y-2">
                         <div className="flex items-center justify-between">
-                          <span className="text-sm text-muted-foreground">Battery</span>
+                          <span className="text-sm text-muted-foreground">
+                            Battery
+                          </span>
                           <div className="flex items-center gap-2">
-                            <Progress value={status.battery} className="w-16 h-2" />
+                            <Progress
+                              value={status.battery}
+                              className="w-16 h-2"
+                            />
                             <span className="text-sm">{status.battery}%</span>
                           </div>
                         </div>
                         <div className="flex items-center justify-between">
-                          <span className="text-sm text-muted-foreground">Last Reading</span>
+                          <span className="text-sm text-muted-foreground">
+                            Last Reading
+                          </span>
                           <span className="text-sm">{status.lastReading}</span>
                         </div>
                       </div>
@@ -331,8 +432,12 @@ export function PatientRPMDashboard() {
                       </div>
                       <Progress value={goal.percentage} className="h-2" />
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-muted-foreground">Progress</span>
-                        <span className="text-sm font-medium">{goal.percentage}%</span>
+                        <span className="text-sm text-muted-foreground">
+                          Progress
+                        </span>
+                        <span className="text-sm font-medium">
+                          {goal.percentage}%
+                        </span>
                       </div>
                     </div>
                   ))}

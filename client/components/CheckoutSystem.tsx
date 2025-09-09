@@ -1,20 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Button } from './ui/button';
-import { Badge } from './ui/badge';
-import { Input } from './ui/input';
-import { Label } from './ui/label';
-import { Textarea } from './ui/textarea';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import { RadioGroup, RadioGroupItem } from './ui/radio-group';
-import { Checkbox } from './ui/checkbox';
+import React, { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Button } from "./ui/button";
+import { Badge } from "./ui/badge";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
+import { Textarea } from "./ui/textarea";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
+import { Checkbox } from "./ui/checkbox";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from './ui/select';
+} from "./ui/select";
 import {
   Dialog,
   DialogContent,
@@ -22,8 +22,8 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from './ui/dialog';
-import { useCart } from '../contexts/CartContext';
+} from "./ui/dialog";
+import { useCart } from "../contexts/CartContext";
 import {
   CreditCard,
   Building,
@@ -52,8 +52,8 @@ import {
   ArrowRight,
   Info,
   Eye,
-  EyeOff
-} from 'lucide-react';
+  EyeOff,
+} from "lucide-react";
 
 interface CheckoutSystemProps {
   isOpen: boolean;
@@ -62,7 +62,14 @@ interface CheckoutSystemProps {
 
 interface PaymentMethod {
   id: string;
-  type: 'card' | 'insurance' | 'fsa' | 'hsa' | 'paypal' | 'apple_pay' | 'google_pay';
+  type:
+    | "card"
+    | "insurance"
+    | "fsa"
+    | "hsa"
+    | "paypal"
+    | "apple_pay"
+    | "google_pay";
   name: string;
   icon: React.ReactNode;
   description: string;
@@ -100,7 +107,13 @@ interface InsuranceInfo {
 interface Order {
   id: string;
   orderNumber: string;
-  status: 'pending' | 'processing' | 'confirmed' | 'shipped' | 'delivered' | 'cancelled';
+  status:
+    | "pending"
+    | "processing"
+    | "confirmed"
+    | "shipped"
+    | "delivered"
+    | "cancelled";
   items: any[];
   subtotal: number;
   discounts: number;
@@ -120,131 +133,135 @@ export function CheckoutSystem({ isOpen, onClose }: CheckoutSystemProps) {
   const { state, clearCart } = useCart();
   const [currentStep, setCurrentStep] = useState(1);
   const [shippingAddress, setShippingAddress] = useState<ShippingAddress>({
-    firstName: '',
-    lastName: '',
-    street: '',
-    city: '',
-    state: '',
-    zipCode: '',
-    country: 'US',
-    phone: ''
+    firstName: "",
+    lastName: "",
+    street: "",
+    city: "",
+    state: "",
+    zipCode: "",
+    country: "US",
+    phone: "",
   });
   const [billingAddress, setBillingAddress] = useState<BillingAddress>({
     ...shippingAddress,
-    sameAsShipping: true
+    sameAsShipping: true,
   });
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('card');
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("card");
   const [insuranceInfo, setInsuranceInfo] = useState<InsuranceInfo>({
-    provider: '',
-    memberId: '',
-    groupNumber: '',
-    planType: '',
+    provider: "",
+    memberId: "",
+    groupNumber: "",
+    planType: "",
     copay: 0,
     deductible: 0,
-    coveragePercent: 80
+    coveragePercent: 80,
   });
   const [cardInfo, setCardInfo] = useState({
-    number: '',
-    expiry: '',
-    cvv: '',
-    name: ''
+    number: "",
+    expiry: "",
+    cvv: "",
+    name: "",
   });
   const [showCvv, setShowCvv] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [orderComplete, setOrderComplete] = useState(false);
   const [completedOrder, setCompletedOrder] = useState<Order | null>(null);
-  const [promoCode, setPromoCode] = useState('');
+  const [promoCode, setPromoCode] = useState("");
   const [appliedPromo, setAppliedPromo] = useState<string | null>(null);
 
   const paymentMethods: PaymentMethod[] = [
     {
-      id: 'card',
-      type: 'card',
-      name: 'Credit/Debit Card',
+      id: "card",
+      type: "card",
+      name: "Credit/Debit Card",
       icon: <CreditCard className="w-5 h-5" />,
-      description: 'Visa, MasterCard, American Express',
-      enabled: true
+      description: "Visa, MasterCard, American Express",
+      enabled: true,
     },
     {
-      id: 'insurance',
-      type: 'insurance',
-      name: 'Insurance',
+      id: "insurance",
+      type: "insurance",
+      name: "Insurance",
       icon: <Shield className="w-5 h-5" />,
-      description: 'Use your health insurance coverage',
-      enabled: true
+      description: "Use your health insurance coverage",
+      enabled: true,
     },
     {
-      id: 'fsa',
-      type: 'fsa',
-      name: 'FSA/HSA',
+      id: "fsa",
+      type: "fsa",
+      name: "FSA/HSA",
       icon: <Building className="w-5 h-5" />,
-      description: 'Flexible Spending Account',
-      enabled: true
+      description: "Flexible Spending Account",
+      enabled: true,
     },
     {
-      id: 'paypal',
-      type: 'paypal',
-      name: 'PayPal',
+      id: "paypal",
+      type: "paypal",
+      name: "PayPal",
       icon: <DollarSign className="w-5 h-5" />,
-      description: 'Pay with your PayPal account',
-      enabled: true
-    }
+      description: "Pay with your PayPal account",
+      enabled: true,
+    },
   ];
 
   const steps = [
-    { id: 1, name: 'Shipping', description: 'Enter delivery information' },
-    { id: 2, name: 'Payment', description: 'Choose payment method' },
-    { id: 3, name: 'Review', description: 'Confirm your order' },
-    { id: 4, name: 'Complete', description: 'Order confirmation' }
+    { id: 1, name: "Shipping", description: "Enter delivery information" },
+    { id: 2, name: "Payment", description: "Choose payment method" },
+    { id: 3, name: "Review", description: "Confirm your order" },
+    { id: 4, name: "Complete", description: "Order confirmation" },
   ];
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
     }).format(price);
   };
 
-  const handleAddressChange = (field: string, value: string, addressType: 'shipping' | 'billing') => {
-    if (addressType === 'shipping') {
-      setShippingAddress(prev => ({ ...prev, [field]: value }));
+  const handleAddressChange = (
+    field: string,
+    value: string,
+    addressType: "shipping" | "billing",
+  ) => {
+    if (addressType === "shipping") {
+      setShippingAddress((prev) => ({ ...prev, [field]: value }));
       if (billingAddress.sameAsShipping) {
-        setBillingAddress(prev => ({ ...prev, [field]: value }));
+        setBillingAddress((prev) => ({ ...prev, [field]: value }));
       }
     } else {
-      setBillingAddress(prev => ({ ...prev, [field]: value }));
+      setBillingAddress((prev) => ({ ...prev, [field]: value }));
     }
   };
 
   const handleSameAsShippingChange = (checked: boolean) => {
-    setBillingAddress(prev => ({
+    setBillingAddress((prev) => ({
       ...prev,
       sameAsShipping: checked,
-      ...(checked ? shippingAddress : {})
+      ...(checked ? shippingAddress : {}),
     }));
   };
 
   const handlePromoCodeApply = () => {
     // Simulate promo code validation
-    if (promoCode.toUpperCase() === 'SAVE10') {
-      setAppliedPromo('SAVE10 - 10% off your order');
-    } else if (promoCode.toUpperCase() === 'FREESHIP') {
-      setAppliedPromo('FREESHIP - Free shipping');
+    if (promoCode.toUpperCase() === "SAVE10") {
+      setAppliedPromo("SAVE10 - 10% off your order");
+    } else if (promoCode.toUpperCase() === "FREESHIP") {
+      setAppliedPromo("FREESHIP - Free shipping");
     } else {
-      alert('Invalid promo code');
+      alert("Invalid promo code");
     }
   };
 
   const processOrder = async () => {
     setIsProcessing(true);
-    
+
     // Simulate payment processing
-    await new Promise(resolve => setTimeout(resolve, 3000));
-    
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+
     const order: Order = {
       id: `order_${Date.now()}`,
       orderNumber: `ORD-${Date.now().toString().slice(-6)}`,
-      status: 'confirmed',
+      status: "confirmed",
       items: state.items,
       subtotal: state.summary.subtotal,
       discounts: state.summary.discounts,
@@ -257,7 +274,7 @@ export function CheckoutSystem({ isOpen, onClose }: CheckoutSystemProps) {
       billingAddress,
       estimatedDelivery: state.summary.estimatedDelivery,
       trackingNumber: `TRK${Date.now().toString().slice(-8)}`,
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
     };
 
     setCompletedOrder(order);
@@ -270,14 +287,21 @@ export function CheckoutSystem({ isOpen, onClose }: CheckoutSystemProps) {
   const validateStep = (step: number) => {
     switch (step) {
       case 1:
-        return shippingAddress.firstName && shippingAddress.lastName && 
-               shippingAddress.street && shippingAddress.city && 
-               shippingAddress.state && shippingAddress.zipCode;
+        return (
+          shippingAddress.firstName &&
+          shippingAddress.lastName &&
+          shippingAddress.street &&
+          shippingAddress.city &&
+          shippingAddress.state &&
+          shippingAddress.zipCode
+        );
       case 2:
-        if (selectedPaymentMethod === 'card') {
-          return cardInfo.number && cardInfo.expiry && cardInfo.cvv && cardInfo.name;
+        if (selectedPaymentMethod === "card") {
+          return (
+            cardInfo.number && cardInfo.expiry && cardInfo.cvv && cardInfo.name
+          );
         }
-        if (selectedPaymentMethod === 'insurance') {
+        if (selectedPaymentMethod === "insurance") {
           return insuranceInfo.provider && insuranceInfo.memberId;
         }
         return true;
@@ -292,11 +316,13 @@ export function CheckoutSystem({ isOpen, onClose }: CheckoutSystemProps) {
     <div className="flex items-center justify-between mb-8">
       {steps.map((step, index) => (
         <div key={step.id} className="flex items-center">
-          <div className={`flex items-center justify-center w-8 h-8 rounded-full border-2 ${
-            currentStep >= step.id 
-              ? 'bg-green-600 border-green-600 text-white'
-              : 'border-gray-300 text-gray-300'
-          }`}>
+          <div
+            className={`flex items-center justify-center w-8 h-8 rounded-full border-2 ${
+              currentStep >= step.id
+                ? "bg-green-600 border-green-600 text-white"
+                : "border-gray-300 text-gray-300"
+            }`}
+          >
             {currentStep > step.id ? (
               <CheckCircle className="w-5 h-5" />
             ) : (
@@ -304,17 +330,23 @@ export function CheckoutSystem({ isOpen, onClose }: CheckoutSystemProps) {
             )}
           </div>
           <div className="ml-3">
-            <p className={`text-sm font-medium ${
-              currentStep >= step.id ? 'text-gray-900 dark:text-white' : 'text-gray-400'
-            }`}>
+            <p
+              className={`text-sm font-medium ${
+                currentStep >= step.id
+                  ? "text-gray-900 dark:text-white"
+                  : "text-gray-400"
+              }`}
+            >
               {step.name}
             </p>
             <p className="text-xs text-gray-500">{step.description}</p>
           </div>
           {index < steps.length - 1 && (
-            <div className={`hidden md:block w-16 h-0.5 mx-4 ${
-              currentStep > step.id ? 'bg-green-600' : 'bg-gray-300'
-            }`} />
+            <div
+              className={`hidden md:block w-16 h-0.5 mx-4 ${
+                currentStep > step.id ? "bg-green-600" : "bg-gray-300"
+              }`}
+            />
           )}
         </div>
       ))}
@@ -337,7 +369,9 @@ export function CheckoutSystem({ isOpen, onClose }: CheckoutSystemProps) {
               <Input
                 id="firstName"
                 value={shippingAddress.firstName}
-                onChange={(e) => handleAddressChange('firstName', e.target.value, 'shipping')}
+                onChange={(e) =>
+                  handleAddressChange("firstName", e.target.value, "shipping")
+                }
                 required
               />
             </div>
@@ -346,47 +380,57 @@ export function CheckoutSystem({ isOpen, onClose }: CheckoutSystemProps) {
               <Input
                 id="lastName"
                 value={shippingAddress.lastName}
-                onChange={(e) => handleAddressChange('lastName', e.target.value, 'shipping')}
+                onChange={(e) =>
+                  handleAddressChange("lastName", e.target.value, "shipping")
+                }
                 required
               />
             </div>
           </div>
-          
+
           <div>
             <Label htmlFor="company">Company (Optional)</Label>
             <Input
               id="company"
               value={shippingAddress.company}
-              onChange={(e) => handleAddressChange('company', e.target.value, 'shipping')}
+              onChange={(e) =>
+                handleAddressChange("company", e.target.value, "shipping")
+              }
             />
           </div>
-          
+
           <div>
             <Label htmlFor="street">Street Address *</Label>
             <Input
               id="street"
               value={shippingAddress.street}
-              onChange={(e) => handleAddressChange('street', e.target.value, 'shipping')}
+              onChange={(e) =>
+                handleAddressChange("street", e.target.value, "shipping")
+              }
               required
             />
           </div>
-          
+
           <div>
             <Label htmlFor="apartment">Apartment/Suite (Optional)</Label>
             <Input
               id="apartment"
               value={shippingAddress.apartment}
-              onChange={(e) => handleAddressChange('apartment', e.target.value, 'shipping')}
+              onChange={(e) =>
+                handleAddressChange("apartment", e.target.value, "shipping")
+              }
             />
           </div>
-          
+
           <div className="grid grid-cols-3 gap-4">
             <div>
               <Label htmlFor="city">City *</Label>
               <Input
                 id="city"
                 value={shippingAddress.city}
-                onChange={(e) => handleAddressChange('city', e.target.value, 'shipping')}
+                onChange={(e) =>
+                  handleAddressChange("city", e.target.value, "shipping")
+                }
                 required
               />
             </div>
@@ -394,7 +438,9 @@ export function CheckoutSystem({ isOpen, onClose }: CheckoutSystemProps) {
               <Label htmlFor="state">State *</Label>
               <Select
                 value={shippingAddress.state}
-                onValueChange={(value) => handleAddressChange('state', value, 'shipping')}
+                onValueChange={(value) =>
+                  handleAddressChange("state", value, "shipping")
+                }
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select state" />
@@ -413,29 +459,37 @@ export function CheckoutSystem({ isOpen, onClose }: CheckoutSystemProps) {
               <Input
                 id="zipCode"
                 value={shippingAddress.zipCode}
-                onChange={(e) => handleAddressChange('zipCode', e.target.value, 'shipping')}
+                onChange={(e) =>
+                  handleAddressChange("zipCode", e.target.value, "shipping")
+                }
                 required
               />
             </div>
           </div>
-          
+
           <div>
             <Label htmlFor="phone">Phone Number *</Label>
             <Input
               id="phone"
               type="tel"
               value={shippingAddress.phone}
-              onChange={(e) => handleAddressChange('phone', e.target.value, 'shipping')}
+              onChange={(e) =>
+                handleAddressChange("phone", e.target.value, "shipping")
+              }
               required
             />
           </div>
-          
+
           <div>
-            <Label htmlFor="instructions">Delivery Instructions (Optional)</Label>
+            <Label htmlFor="instructions">
+              Delivery Instructions (Optional)
+            </Label>
             <Textarea
               id="instructions"
               value={shippingAddress.instructions}
-              onChange={(e) => handleAddressChange('instructions', e.target.value, 'shipping')}
+              onChange={(e) =>
+                handleAddressChange("instructions", e.target.value, "shipping")
+              }
               rows={3}
               placeholder="Leave package at front door, ring doorbell, etc."
             />
@@ -453,7 +507,9 @@ export function CheckoutSystem({ isOpen, onClose }: CheckoutSystemProps) {
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="standard" id="standard" />
                 <div>
-                  <Label htmlFor="standard" className="font-medium">Standard Delivery</Label>
+                  <Label htmlFor="standard" className="font-medium">
+                    Standard Delivery
+                  </Label>
                   <p className="text-sm text-gray-600">3-5 business days</p>
                 </div>
               </div>
@@ -463,7 +519,9 @@ export function CheckoutSystem({ isOpen, onClose }: CheckoutSystemProps) {
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="express" id="express" />
                 <div>
-                  <Label htmlFor="express" className="font-medium">Express Delivery</Label>
+                  <Label htmlFor="express" className="font-medium">
+                    Express Delivery
+                  </Label>
                   <p className="text-sm text-gray-600">1-2 business days</p>
                 </div>
               </div>
@@ -473,7 +531,9 @@ export function CheckoutSystem({ isOpen, onClose }: CheckoutSystemProps) {
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="overnight" id="overnight" />
                 <div>
-                  <Label htmlFor="overnight" className="font-medium">Overnight Delivery</Label>
+                  <Label htmlFor="overnight" className="font-medium">
+                    Overnight Delivery
+                  </Label>
                   <p className="text-sm text-gray-600">Next business day</p>
                 </div>
               </div>
@@ -498,18 +558,20 @@ export function CheckoutSystem({ isOpen, onClose }: CheckoutSystemProps) {
                 key={method.id}
                 className={`p-4 border rounded-lg cursor-pointer transition-all ${
                   selectedPaymentMethod === method.id
-                    ? 'border-green-600 bg-green-50 dark:bg-green-900/20'
-                    : 'border-gray-200 hover:border-gray-300'
+                    ? "border-green-600 bg-green-50 dark:bg-green-900/20"
+                    : "border-gray-200 hover:border-gray-300"
                 }`}
                 onClick={() => setSelectedPaymentMethod(method.id)}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className={`w-4 h-4 rounded-full border-2 ${
-                      selectedPaymentMethod === method.id
-                        ? 'border-green-600 bg-green-600'
-                        : 'border-gray-300'
-                    }`}>
+                    <div
+                      className={`w-4 h-4 rounded-full border-2 ${
+                        selectedPaymentMethod === method.id
+                          ? "border-green-600 bg-green-600"
+                          : "border-gray-300"
+                      }`}
+                    >
                       {selectedPaymentMethod === method.id && (
                         <div className="w-2 h-2 bg-white rounded-full mx-auto mt-0.5" />
                       )}
@@ -517,11 +579,15 @@ export function CheckoutSystem({ isOpen, onClose }: CheckoutSystemProps) {
                     {method.icon}
                     <div>
                       <p className="font-medium">{method.name}</p>
-                      <p className="text-sm text-gray-600">{method.description}</p>
+                      <p className="text-sm text-gray-600">
+                        {method.description}
+                      </p>
                     </div>
                   </div>
                   {method.enabled && (
-                    <Badge className="bg-green-100 text-green-800">Available</Badge>
+                    <Badge className="bg-green-100 text-green-800">
+                      Available
+                    </Badge>
                   )}
                 </div>
               </div>
@@ -531,7 +597,7 @@ export function CheckoutSystem({ isOpen, onClose }: CheckoutSystemProps) {
       </Card>
 
       {/* Payment Details based on selected method */}
-      {selectedPaymentMethod === 'card' && (
+      {selectedPaymentMethod === "card" && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -545,7 +611,9 @@ export function CheckoutSystem({ isOpen, onClose }: CheckoutSystemProps) {
               <Input
                 id="cardName"
                 value={cardInfo.name}
-                onChange={(e) => setCardInfo(prev => ({ ...prev, name: e.target.value }))}
+                onChange={(e) =>
+                  setCardInfo((prev) => ({ ...prev, name: e.target.value }))
+                }
                 placeholder="John Doe"
                 required
               />
@@ -555,7 +623,9 @@ export function CheckoutSystem({ isOpen, onClose }: CheckoutSystemProps) {
               <Input
                 id="cardNumber"
                 value={cardInfo.number}
-                onChange={(e) => setCardInfo(prev => ({ ...prev, number: e.target.value }))}
+                onChange={(e) =>
+                  setCardInfo((prev) => ({ ...prev, number: e.target.value }))
+                }
                 placeholder="1234 5678 9012 3456"
                 required
               />
@@ -566,7 +636,9 @@ export function CheckoutSystem({ isOpen, onClose }: CheckoutSystemProps) {
                 <Input
                   id="expiry"
                   value={cardInfo.expiry}
-                  onChange={(e) => setCardInfo(prev => ({ ...prev, expiry: e.target.value }))}
+                  onChange={(e) =>
+                    setCardInfo((prev) => ({ ...prev, expiry: e.target.value }))
+                  }
                   placeholder="MM/YY"
                   required
                 />
@@ -576,9 +648,11 @@ export function CheckoutSystem({ isOpen, onClose }: CheckoutSystemProps) {
                 <div className="relative">
                   <Input
                     id="cvv"
-                    type={showCvv ? 'text' : 'password'}
+                    type={showCvv ? "text" : "password"}
                     value={cardInfo.cvv}
-                    onChange={(e) => setCardInfo(prev => ({ ...prev, cvv: e.target.value }))}
+                    onChange={(e) =>
+                      setCardInfo((prev) => ({ ...prev, cvv: e.target.value }))
+                    }
                     placeholder="123"
                     required
                   />
@@ -587,7 +661,11 @@ export function CheckoutSystem({ isOpen, onClose }: CheckoutSystemProps) {
                     onClick={() => setShowCvv(!showCvv)}
                     className="absolute right-3 top-1/2 transform -translate-y-1/2"
                   >
-                    {showCvv ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    {showCvv ? (
+                      <EyeOff className="w-4 h-4" />
+                    ) : (
+                      <Eye className="w-4 h-4" />
+                    )}
                   </button>
                 </div>
               </div>
@@ -596,7 +674,7 @@ export function CheckoutSystem({ isOpen, onClose }: CheckoutSystemProps) {
         </Card>
       )}
 
-      {selectedPaymentMethod === 'insurance' && (
+      {selectedPaymentMethod === "insurance" && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -609,7 +687,9 @@ export function CheckoutSystem({ isOpen, onClose }: CheckoutSystemProps) {
               <Label htmlFor="provider">Insurance Provider *</Label>
               <Select
                 value={insuranceInfo.provider}
-                onValueChange={(value) => setInsuranceInfo(prev => ({ ...prev, provider: value }))}
+                onValueChange={(value) =>
+                  setInsuranceInfo((prev) => ({ ...prev, provider: value }))
+                }
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select your insurance provider" />
@@ -628,7 +708,12 @@ export function CheckoutSystem({ isOpen, onClose }: CheckoutSystemProps) {
               <Input
                 id="memberId"
                 value={insuranceInfo.memberId}
-                onChange={(e) => setInsuranceInfo(prev => ({ ...prev, memberId: e.target.value }))}
+                onChange={(e) =>
+                  setInsuranceInfo((prev) => ({
+                    ...prev,
+                    memberId: e.target.value,
+                  }))
+                }
                 required
               />
             </div>
@@ -637,14 +722,21 @@ export function CheckoutSystem({ isOpen, onClose }: CheckoutSystemProps) {
               <Input
                 id="groupNumber"
                 value={insuranceInfo.groupNumber}
-                onChange={(e) => setInsuranceInfo(prev => ({ ...prev, groupNumber: e.target.value }))}
+                onChange={(e) =>
+                  setInsuranceInfo((prev) => ({
+                    ...prev,
+                    groupNumber: e.target.value,
+                  }))
+                }
               />
             </div>
             <div>
               <Label htmlFor="planType">Plan Type</Label>
               <Select
                 value={insuranceInfo.planType}
-                onValueChange={(value) => setInsuranceInfo(prev => ({ ...prev, planType: value }))}
+                onValueChange={(value) =>
+                  setInsuranceInfo((prev) => ({ ...prev, planType: value }))
+                }
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select plan type" />
@@ -675,7 +767,7 @@ export function CheckoutSystem({ isOpen, onClose }: CheckoutSystemProps) {
             />
             <Label htmlFor="sameAsShipping">Same as shipping address</Label>
           </div>
-          
+
           {!billingAddress.sameAsShipping && (
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
@@ -684,7 +776,13 @@ export function CheckoutSystem({ isOpen, onClose }: CheckoutSystemProps) {
                   <Input
                     id="billFirstName"
                     value={billingAddress.firstName}
-                    onChange={(e) => handleAddressChange('firstName', e.target.value, 'billing')}
+                    onChange={(e) =>
+                      handleAddressChange(
+                        "firstName",
+                        e.target.value,
+                        "billing",
+                      )
+                    }
                     required
                   />
                 </div>
@@ -693,7 +791,9 @@ export function CheckoutSystem({ isOpen, onClose }: CheckoutSystemProps) {
                   <Input
                     id="billLastName"
                     value={billingAddress.lastName}
-                    onChange={(e) => handleAddressChange('lastName', e.target.value, 'billing')}
+                    onChange={(e) =>
+                      handleAddressChange("lastName", e.target.value, "billing")
+                    }
                     required
                   />
                 </div>
@@ -703,17 +803,23 @@ export function CheckoutSystem({ isOpen, onClose }: CheckoutSystemProps) {
                 <Input
                   id="billStreet"
                   value={billingAddress.street}
-                  onChange={(e) => handleAddressChange('street', e.target.value, 'billing')}
+                  onChange={(e) =>
+                    handleAddressChange("street", e.target.value, "billing")
+                  }
                   required
                 />
               </div>
 
               <div>
-                <Label htmlFor="billApartment">Apartment/Suite (Optional)</Label>
+                <Label htmlFor="billApartment">
+                  Apartment/Suite (Optional)
+                </Label>
                 <Input
                   id="billApartment"
                   value={billingAddress.apartment}
-                  onChange={(e) => handleAddressChange('apartment', e.target.value, 'billing')}
+                  onChange={(e) =>
+                    handleAddressChange("apartment", e.target.value, "billing")
+                  }
                 />
               </div>
 
@@ -723,7 +829,9 @@ export function CheckoutSystem({ isOpen, onClose }: CheckoutSystemProps) {
                   <Input
                     id="billCity"
                     value={billingAddress.city}
-                    onChange={(e) => handleAddressChange('city', e.target.value, 'billing')}
+                    onChange={(e) =>
+                      handleAddressChange("city", e.target.value, "billing")
+                    }
                     required
                   />
                 </div>
@@ -731,7 +839,9 @@ export function CheckoutSystem({ isOpen, onClose }: CheckoutSystemProps) {
                   <Label htmlFor="billState">State *</Label>
                   <Select
                     value={billingAddress.state}
-                    onValueChange={(value) => handleAddressChange('state', value, 'billing')}
+                    onValueChange={(value) =>
+                      handleAddressChange("state", value, "billing")
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select state" />
@@ -750,7 +860,9 @@ export function CheckoutSystem({ isOpen, onClose }: CheckoutSystemProps) {
                   <Input
                     id="billZipCode"
                     value={billingAddress.zipCode}
-                    onChange={(e) => handleAddressChange('zipCode', e.target.value, 'billing')}
+                    onChange={(e) =>
+                      handleAddressChange("zipCode", e.target.value, "billing")
+                    }
                     required
                   />
                 </div>
@@ -762,7 +874,9 @@ export function CheckoutSystem({ isOpen, onClose }: CheckoutSystemProps) {
                   id="billPhone"
                   type="tel"
                   value={billingAddress.phone}
-                  onChange={(e) => handleAddressChange('phone', e.target.value, 'billing')}
+                  onChange={(e) =>
+                    handleAddressChange("phone", e.target.value, "billing")
+                  }
                   required
                 />
               </div>
@@ -783,7 +897,10 @@ export function CheckoutSystem({ isOpen, onClose }: CheckoutSystemProps) {
         <CardContent>
           <div className="space-y-4">
             {state.items.map((item) => (
-              <div key={item.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+              <div
+                key={item.id}
+                className="flex items-center justify-between p-4 border border-gray-200 rounded-lg"
+              >
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center">
                     <Package className="w-6 h-6 text-gray-400" />
@@ -804,7 +921,9 @@ export function CheckoutSystem({ isOpen, onClose }: CheckoutSystemProps) {
                 <div className="text-right">
                   <p className="font-medium">{formatPrice(item.totalPrice)}</p>
                   {item.savings && item.savings > 0 && (
-                    <p className="text-sm text-green-600">Save {formatPrice(item.savings)}</p>
+                    <p className="text-sm text-green-600">
+                      Save {formatPrice(item.savings)}
+                    </p>
                   )}
                 </div>
               </div>
@@ -826,7 +945,8 @@ export function CheckoutSystem({ isOpen, onClose }: CheckoutSystemProps) {
             <p>{shippingAddress.street}</p>
             {shippingAddress.apartment && <p>{shippingAddress.apartment}</p>}
             <p>
-              {shippingAddress.city}, {shippingAddress.state} {shippingAddress.zipCode}
+              {shippingAddress.city}, {shippingAddress.state}{" "}
+              {shippingAddress.zipCode}
             </p>
             <p>{shippingAddress.phone}</p>
           </div>
@@ -840,12 +960,15 @@ export function CheckoutSystem({ isOpen, onClose }: CheckoutSystemProps) {
         </CardHeader>
         <CardContent>
           <div className="flex items-center gap-3">
-            {paymentMethods.find(m => m.id === selectedPaymentMethod)?.icon}
+            {paymentMethods.find((m) => m.id === selectedPaymentMethod)?.icon}
             <div>
               <p className="font-medium">
-                {paymentMethods.find(m => m.id === selectedPaymentMethod)?.name}
+                {
+                  paymentMethods.find((m) => m.id === selectedPaymentMethod)
+                    ?.name
+                }
               </p>
-              {selectedPaymentMethod === 'card' && cardInfo.number && (
+              {selectedPaymentMethod === "card" && cardInfo.number && (
                 <p className="text-sm text-gray-600">
                   •••• •••• •••• {cardInfo.number.slice(-4)}
                 </p>
@@ -874,7 +997,9 @@ export function CheckoutSystem({ isOpen, onClose }: CheckoutSystemProps) {
           <div className="flex justify-between">
             <span>Shipping</span>
             <span>
-              {state.summary.shipping > 0 ? formatPrice(state.summary.shipping) : 'FREE'}
+              {state.summary.shipping > 0
+                ? formatPrice(state.summary.shipping)
+                : "FREE"}
             </span>
           </div>
           {state.summary.insurance > 0 && (
@@ -916,10 +1041,11 @@ export function CheckoutSystem({ isOpen, onClose }: CheckoutSystemProps) {
               Order Confirmed!
             </h3>
             <p className="text-gray-600 dark:text-gray-400">
-              Thank you for your purchase. Your order has been successfully placed.
+              Thank you for your purchase. Your order has been successfully
+              placed.
             </p>
           </div>
-          
+
           {completedOrder && (
             <Card className="text-left max-w-md mx-auto">
               <CardHeader>
@@ -928,26 +1054,34 @@ export function CheckoutSystem({ isOpen, onClose }: CheckoutSystemProps) {
               <CardContent className="space-y-3">
                 <div className="flex justify-between">
                   <span>Order Number:</span>
-                  <span className="font-medium">{completedOrder.orderNumber}</span>
+                  <span className="font-medium">
+                    {completedOrder.orderNumber}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span>Total:</span>
-                  <span className="font-medium">{formatPrice(completedOrder.total)}</span>
+                  <span className="font-medium">
+                    {formatPrice(completedOrder.total)}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span>Estimated Delivery:</span>
-                  <span className="font-medium">{completedOrder.estimatedDelivery}</span>
+                  <span className="font-medium">
+                    {completedOrder.estimatedDelivery}
+                  </span>
                 </div>
                 {completedOrder.trackingNumber && (
                   <div className="flex justify-between">
                     <span>Tracking Number:</span>
-                    <span className="font-medium">{completedOrder.trackingNumber}</span>
+                    <span className="font-medium">
+                      {completedOrder.trackingNumber}
+                    </span>
                   </div>
                 )}
               </CardContent>
             </Card>
           )}
-          
+
           <div className="flex gap-4 justify-center">
             <Button variant="outline">
               <Printer className="w-4 h-4 mr-2" />
@@ -957,9 +1091,7 @@ export function CheckoutSystem({ isOpen, onClose }: CheckoutSystemProps) {
               <Download className="w-4 h-4 mr-2" />
               Download PDF
             </Button>
-            <Button onClick={onClose}>
-              Continue Shopping
-            </Button>
+            <Button onClick={onClose}>Continue Shopping</Button>
           </div>
         </div>
       )}
@@ -999,7 +1131,7 @@ export function CheckoutSystem({ isOpen, onClose }: CheckoutSystemProps) {
                 {currentStep > 1 && (
                   <Button
                     variant="outline"
-                    onClick={() => setCurrentStep(prev => prev - 1)}
+                    onClick={() => setCurrentStep((prev) => prev - 1)}
                   >
                     <ArrowLeft className="w-4 h-4 mr-2" />
                     Back
@@ -1015,7 +1147,7 @@ export function CheckoutSystem({ isOpen, onClose }: CheckoutSystemProps) {
                 </Button>
                 {currentStep < 3 ? (
                   <Button
-                    onClick={() => setCurrentStep(prev => prev + 1)}
+                    onClick={() => setCurrentStep((prev) => prev + 1)}
                     disabled={!validateStep(currentStep)}
                   >
                     Continue

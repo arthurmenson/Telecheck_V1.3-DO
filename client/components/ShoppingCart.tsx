@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
-import { Badge } from './ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Switch } from './ui/switch';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import { useCart } from '../contexts/CartContext';
+import React, { useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { Badge } from "./ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Switch } from "./ui/switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import { useCart } from "../contexts/CartContext";
 import {
   ShoppingCart as ShoppingCartIcon,
   Plus,
@@ -33,8 +33,8 @@ import {
   X,
   Info,
   ThumbsUp,
-  Award
-} from 'lucide-react';
+  Award,
+} from "lucide-react";
 
 interface ShoppingCartProps {
   isOpen: boolean;
@@ -42,38 +42,54 @@ interface ShoppingCartProps {
 }
 
 export function ShoppingCart({ isOpen, onClose }: ShoppingCartProps) {
-  const { state, removeItem, updateQuantity, setShippingMethod, toggleSubscription, toggleAutoRefill, applyPromotion, clearCart } = useCart();
-  const [promoCode, setPromoCode] = useState('');
+  const {
+    state,
+    removeItem,
+    updateQuantity,
+    setShippingMethod,
+    toggleSubscription,
+    toggleAutoRefill,
+    applyPromotion,
+    clearCart,
+  } = useCart();
+  const [promoCode, setPromoCode] = useState("");
   const [showUpsells, setShowUpsells] = useState(true);
-  const [activeTab, setActiveTab] = useState('cart');
+  const [activeTab, setActiveTab] = useState("cart");
 
   const handleApplyPromo = () => {
     if (promoCode.trim()) {
       applyPromotion(promoCode.trim());
-      setPromoCode('');
+      setPromoCode("");
     }
   };
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
     }).format(price);
   };
 
   const getShippingIcon = (method: string) => {
     switch (method) {
-      case 'overnight': return <Zap className="w-4 h-4" />;
-      case 'express': return <Truck className="w-4 h-4" />;
-      case 'pickup': return <Package className="w-4 h-4" />;
-      default: return <Clock className="w-4 h-4" />;
+      case "overnight":
+        return <Zap className="w-4 h-4" />;
+      case "express":
+        return <Truck className="w-4 h-4" />;
+      case "pickup":
+        return <Package className="w-4 h-4" />;
+      default:
+        return <Clock className="w-4 h-4" />;
     }
   };
 
   const renderCartItems = () => (
     <div className="space-y-4">
       {state.items.map((item) => (
-        <Card key={item.id} className="border border-gray-200 dark:border-gray-700">
+        <Card
+          key={item.id}
+          className="border border-gray-200 dark:border-gray-700"
+        >
           <CardContent className="p-4">
             <div className="flex items-start gap-4">
               {/* Product Image */}
@@ -135,7 +151,9 @@ export function ShoppingCart({ isOpen, onClose }: ShoppingCartProps) {
                     >
                       <Minus className="w-3 h-3" />
                     </Button>
-                    <span className="w-8 text-center font-medium">{item.quantity}</span>
+                    <span className="w-8 text-center font-medium">
+                      {item.quantity}
+                    </span>
                     <Button
                       variant="outline"
                       size="sm"
@@ -161,18 +179,26 @@ export function ShoppingCart({ isOpen, onClose }: ShoppingCartProps) {
                   <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                     {getShippingIcon(item.shippingMethod)}
                     <span>
-                      {item.shippingMethod === 'overnight' && 'Overnight Delivery (+$25.99)'}
-                      {item.shippingMethod === 'express' && 'Express Delivery (+$15.99)'}
-                      {item.shippingMethod === 'standard' && 'Standard Delivery (FREE over $50)'}
-                      {item.shippingMethod === 'pickup' && 'Pharmacy Pickup (FREE)'}
+                      {item.shippingMethod === "overnight" &&
+                        "Overnight Delivery (+$25.99)"}
+                      {item.shippingMethod === "express" &&
+                        "Express Delivery (+$15.99)"}
+                      {item.shippingMethod === "standard" &&
+                        "Standard Delivery (FREE over $50)"}
+                      {item.shippingMethod === "pickup" &&
+                        "Pharmacy Pickup (FREE)"}
                     </span>
                   </div>
-                  
+
                   <div className="flex gap-1">
-                    {(['standard', 'express', 'overnight', 'pickup'] as const).map((method) => (
+                    {(
+                      ["standard", "express", "overnight", "pickup"] as const
+                    ).map((method) => (
                       <Button
                         key={method}
-                        variant={item.shippingMethod === method ? 'default' : 'outline'}
+                        variant={
+                          item.shippingMethod === method ? "default" : "outline"
+                        }
                         size="sm"
                         onClick={() => setShippingMethod(item.id, method)}
                         className="text-xs px-2 py-1"
@@ -201,13 +227,18 @@ export function ShoppingCart({ isOpen, onClose }: ShoppingCartProps) {
                     {item.isSubscription && (
                       <div className="space-y-2">
                         <div className="text-xs text-green-700 dark:text-green-300">
-                          Delivery every {item.subscriptionFrequency} • Cancel anytime
+                          Delivery every {item.subscriptionFrequency} • Cancel
+                          anytime
                         </div>
                         <div className="flex gap-1">
-                          {(['monthly', 'quarterly'] as const).map((freq) => (
+                          {(["monthly", "quarterly"] as const).map((freq) => (
                             <Button
                               key={freq}
-                              variant={item.subscriptionFrequency === freq ? 'default' : 'outline'}
+                              variant={
+                                item.subscriptionFrequency === freq
+                                  ? "default"
+                                  : "outline"
+                              }
                               size="sm"
                               onClick={() => toggleSubscription(item.id, freq)}
                               className="text-xs px-2 py-1"
@@ -258,17 +289,16 @@ export function ShoppingCart({ isOpen, onClose }: ShoppingCartProps) {
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
           Recommended for You
         </h3>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setShowUpsells(false)}
-        >
+        <Button variant="ghost" size="sm" onClick={() => setShowUpsells(false)}>
           <X className="w-4 h-4" />
         </Button>
       </div>
 
       {state.upsells.map((upsell) => (
-        <Card key={upsell.id} className="border border-gray-200 dark:border-gray-700">
+        <Card
+          key={upsell.id}
+          className="border border-gray-200 dark:border-gray-700"
+        >
           <CardContent className="p-4">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center">
@@ -312,9 +342,12 @@ export function ShoppingCart({ isOpen, onClose }: ShoppingCartProps) {
       <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
         Frequently Bought Together
       </h3>
-      
+
       {state.crossSells.map((crossSell) => (
-        <Card key={crossSell.id} className="border border-gray-200 dark:border-gray-700">
+        <Card
+          key={crossSell.id}
+          className="border border-gray-200 dark:border-gray-700"
+        >
           <CardContent className="p-4">
             <div className="space-y-3">
               <div className="flex items-center justify-between">
@@ -325,20 +358,27 @@ export function ShoppingCart({ isOpen, onClose }: ShoppingCartProps) {
                   {crossSell.popularity}% buy together
                 </Badge>
               </div>
-              
+
               <p className="text-sm text-gray-600 dark:text-gray-400">
                 {crossSell.description}
               </p>
-              
+
               <div className="space-y-2">
                 {crossSell.products.map((product) => (
-                  <div key={product.id} className="flex items-center justify-between text-sm">
-                    <span className="text-gray-700 dark:text-gray-300">{product.name}</span>
-                    <span className="font-medium">{formatPrice(product.price)}</span>
+                  <div
+                    key={product.id}
+                    className="flex items-center justify-between text-sm"
+                  >
+                    <span className="text-gray-700 dark:text-gray-300">
+                      {product.name}
+                    </span>
+                    <span className="font-medium">
+                      {formatPrice(product.price)}
+                    </span>
                   </div>
                 ))}
               </div>
-              
+
               <div className="border-t pt-3">
                 <div className="flex items-center justify-between">
                   <div>
@@ -359,7 +399,7 @@ export function ShoppingCart({ isOpen, onClose }: ShoppingCartProps) {
                   </Button>
                 </div>
               </div>
-              
+
               <div className="text-xs text-blue-600 bg-blue-50 dark:bg-blue-900/20 p-2 rounded">
                 <Info className="w-3 h-3 inline mr-1" />
                 {crossSell.clinicalReason}
@@ -388,15 +428,20 @@ export function ShoppingCart({ isOpen, onClose }: ShoppingCartProps) {
               Apply
             </Button>
           </div>
-          
+
           {state.appliedPromotions.length > 0 && (
             <div className="mt-3 space-y-1">
               {state.appliedPromotions.map((promoId) => {
-                const promo = state.promotions.find(p => p.id === promoId);
+                const promo = state.promotions.find((p) => p.id === promoId);
                 return promo ? (
-                  <div key={promoId} className="flex items-center justify-between text-sm">
+                  <div
+                    key={promoId}
+                    className="flex items-center justify-between text-sm"
+                  >
                     <span className="text-green-600">✓ {promo.title}</span>
-                    <span className="text-green-600">-{formatPrice(promo.value)}</span>
+                    <span className="text-green-600">
+                      -{formatPrice(promo.value)}
+                    </span>
                   </div>
                 ) : null;
               })}
@@ -415,52 +460,54 @@ export function ShoppingCart({ isOpen, onClose }: ShoppingCartProps) {
             <span>Subtotal ({state.items.length} items)</span>
             <span>{formatPrice(state.summary.subtotal)}</span>
           </div>
-          
+
           {state.summary.discounts > 0 && (
             <div className="flex justify-between text-green-600">
               <span>Discounts</span>
               <span>-{formatPrice(state.summary.discounts)}</span>
             </div>
           )}
-          
+
           <div className="flex justify-between">
             <span>Shipping</span>
             <span>
-              {state.summary.shipping > 0 ? formatPrice(state.summary.shipping) : 'FREE'}
+              {state.summary.shipping > 0
+                ? formatPrice(state.summary.shipping)
+                : "FREE"}
             </span>
           </div>
-          
+
           {state.summary.insurance > 0 && (
             <div className="flex justify-between text-blue-600">
               <span>Insurance Coverage</span>
               <span>-{formatPrice(state.summary.insurance)}</span>
             </div>
           )}
-          
+
           {state.summary.copays > 0 && (
             <div className="flex justify-between">
               <span>Copays</span>
               <span>{formatPrice(state.summary.copays)}</span>
             </div>
           )}
-          
+
           <div className="flex justify-between">
             <span>Tax</span>
             <span>{formatPrice(state.summary.tax)}</span>
           </div>
-          
+
           <div className="border-t pt-3">
             <div className="flex justify-between text-lg font-bold">
               <span>Total</span>
               <span>{formatPrice(state.summary.finalTotal)}</span>
             </div>
-            
+
             {state.summary.totalSavings > 0 && (
               <div className="text-sm text-green-600 text-right">
                 You saved {formatPrice(state.summary.totalSavings)}!
               </div>
             )}
-            
+
             <div className="text-sm text-gray-600 text-right mt-1">
               Estimated delivery: {state.summary.estimatedDelivery}
             </div>
@@ -482,7 +529,7 @@ export function ShoppingCart({ isOpen, onClose }: ShoppingCartProps) {
       </Card>
 
       {/* Checkout Button */}
-      <Button 
+      <Button
         className="w-full bg-green-600 hover:bg-green-700 text-white py-3"
         size="lg"
         disabled={state.items.length === 0}
@@ -503,7 +550,7 @@ export function ShoppingCart({ isOpen, onClose }: ShoppingCartProps) {
               Your Cart
             </DialogTitle>
           </DialogHeader>
-          
+
           <div className="text-center py-8">
             <ShoppingCartIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
@@ -512,7 +559,10 @@ export function ShoppingCart({ isOpen, onClose }: ShoppingCartProps) {
             <p className="text-gray-600 dark:text-gray-400 mb-4">
               Add medications and health products to get started
             </p>
-            <Button onClick={onClose} className="bg-green-600 hover:bg-green-700">
+            <Button
+              onClick={onClose}
+              className="bg-green-600 hover:bg-green-700"
+            >
               Continue Shopping
             </Button>
           </div>
@@ -528,7 +578,12 @@ export function ShoppingCart({ isOpen, onClose }: ShoppingCartProps) {
           <DialogTitle className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <ShoppingCartIcon className="w-5 h-5" />
-              Your Cart ({state.items.reduce((total, item) => total + item.quantity, 0)} items)
+              Your Cart (
+              {state.items.reduce(
+                (total, item) => total + item.quantity,
+                0,
+              )}{" "}
+              items)
             </div>
             <div className="flex items-center gap-2">
               <Button

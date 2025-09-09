@@ -1,17 +1,17 @@
-import React, { useState, useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Button } from './ui/button';
-import { Badge } from './ui/badge';
-import { Input } from './ui/input';
-import { Label } from './ui/label';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import React, { useState, useMemo } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Button } from "./ui/button";
+import { Badge } from "./ui/badge";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from './ui/select';
+} from "./ui/select";
 import {
   Dialog,
   DialogContent,
@@ -19,10 +19,10 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from './ui/dialog';
-import { Switch } from './ui/switch';
-import { Calendar } from './ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
+} from "./ui/dialog";
+import { Switch } from "./ui/switch";
+import { Calendar } from "./ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import {
   RefreshCw,
   Calendar as CalendarIcon,
@@ -53,9 +53,9 @@ import {
   Eye,
   ArrowRight,
   Filter,
-  Search
-} from 'lucide-react';
-import { format, addDays, addWeeks, addMonths, addQuarters } from 'date-fns';
+  Search,
+} from "lucide-react";
+import { format, addDays, addWeeks, addMonths, addQuarters } from "date-fns";
 
 interface Subscription {
   id: string;
@@ -68,9 +68,9 @@ interface Subscription {
   unitPrice: number;
   discountedPrice: number;
   savings: number;
-  frequency: 'weekly' | 'biweekly' | 'monthly' | 'quarterly' | 'custom';
+  frequency: "weekly" | "biweekly" | "monthly" | "quarterly" | "custom";
   customFrequencyDays?: number;
-  status: 'active' | 'paused' | 'cancelled' | 'expired';
+  status: "active" | "paused" | "cancelled" | "expired";
   nextDelivery: string;
   lastDelivery?: string;
   deliveryCount: number;
@@ -80,7 +80,7 @@ interface Subscription {
   prescriberId?: string;
   prescriberName?: string;
   refillsRemaining?: number;
-  shippingMethod: 'standard' | 'express' | 'overnight';
+  shippingMethod: "standard" | "express" | "overnight";
   paymentMethod: string;
   adherenceScore: number;
   createdAt: string;
@@ -95,142 +95,161 @@ interface SubscriptionManagerProps {
 // Sample subscription data
 const SAMPLE_SUBSCRIPTIONS: Subscription[] = [
   {
-    id: 'sub_1',
-    productId: 'atorvastatin_20mg',
-    productName: 'Atorvastatin',
-    brand: 'Lipitor',
-    dosage: '20mg',
+    id: "sub_1",
+    productId: "atorvastatin_20mg",
+    productName: "Atorvastatin",
+    brand: "Lipitor",
+    dosage: "20mg",
     quantity: 90,
     unitPrice: 29.99,
     discountedPrice: 25.49,
-    savings: 4.50,
-    frequency: 'monthly',
-    status: 'active',
-    nextDelivery: '2024-02-15',
-    lastDelivery: '2024-01-15',
+    savings: 4.5,
+    frequency: "monthly",
+    status: "active",
+    nextDelivery: "2024-02-15",
+    lastDelivery: "2024-01-15",
     deliveryCount: 6,
-    totalSavings: 27.00,
+    totalSavings: 27.0,
     autoRefill: true,
     prescriptionRequired: true,
-    prescriberId: 'dr_smith_123',
-    prescriberName: 'Dr. Sarah Smith',
+    prescriberId: "dr_smith_123",
+    prescriberName: "Dr. Sarah Smith",
     refillsRemaining: 4,
-    shippingMethod: 'standard',
-    paymentMethod: 'card_ending_1234',
+    shippingMethod: "standard",
+    paymentMethod: "card_ending_1234",
     adherenceScore: 95,
-    createdAt: '2023-08-15',
-    modifiedAt: '2024-01-15'
+    createdAt: "2023-08-15",
+    modifiedAt: "2024-01-15",
   },
   {
-    id: 'sub_2',
-    productId: 'metformin_500mg',
-    productName: 'Metformin',
-    brand: 'Glucophage',
-    dosage: '500mg',
+    id: "sub_2",
+    productId: "metformin_500mg",
+    productName: "Metformin",
+    brand: "Glucophage",
+    dosage: "500mg",
     quantity: 180,
     unitPrice: 24.99,
     discountedPrice: 19.99,
-    savings: 5.00,
-    frequency: 'monthly',
-    status: 'active',
-    nextDelivery: '2024-02-20',
-    lastDelivery: '2024-01-20',
+    savings: 5.0,
+    frequency: "monthly",
+    status: "active",
+    nextDelivery: "2024-02-20",
+    lastDelivery: "2024-01-20",
     deliveryCount: 4,
-    totalSavings: 20.00,
+    totalSavings: 20.0,
     autoRefill: true,
     prescriptionRequired: true,
-    prescriberId: 'dr_johnson_456',
-    prescriberName: 'Dr. Michael Johnson',
+    prescriberId: "dr_johnson_456",
+    prescriberName: "Dr. Michael Johnson",
     refillsRemaining: 2,
-    shippingMethod: 'standard',
-    paymentMethod: 'card_ending_5678',
+    shippingMethod: "standard",
+    paymentMethod: "card_ending_5678",
     adherenceScore: 88,
-    createdAt: '2023-10-20',
-    modifiedAt: '2024-01-20'
+    createdAt: "2023-10-20",
+    modifiedAt: "2024-01-20",
   },
   {
-    id: 'sub_3',
-    productId: 'omega3_1000mg',
-    productName: 'Omega-3 Fish Oil',
-    dosage: '1000mg',
+    id: "sub_3",
+    productId: "omega3_1000mg",
+    productName: "Omega-3 Fish Oil",
+    dosage: "1000mg",
     quantity: 120,
     unitPrice: 24.99,
     discountedPrice: 21.24,
     savings: 3.75,
-    frequency: 'quarterly',
-    status: 'active',
-    nextDelivery: '2024-03-10',
-    lastDelivery: '2023-12-10',
+    frequency: "quarterly",
+    status: "active",
+    nextDelivery: "2024-03-10",
+    lastDelivery: "2023-12-10",
     deliveryCount: 3,
     totalSavings: 11.25,
     autoRefill: true,
     prescriptionRequired: false,
-    shippingMethod: 'standard',
-    paymentMethod: 'card_ending_9012',
+    shippingMethod: "standard",
+    paymentMethod: "card_ending_9012",
     adherenceScore: 92,
-    createdAt: '2023-09-10',
-    modifiedAt: '2023-12-10'
+    createdAt: "2023-09-10",
+    modifiedAt: "2023-12-10",
   },
   {
-    id: 'sub_4',
-    productId: 'sertraline_50mg',
-    productName: 'Sertraline',
-    brand: 'Zoloft',
-    dosage: '50mg',
+    id: "sub_4",
+    productId: "sertraline_50mg",
+    productName: "Sertraline",
+    brand: "Zoloft",
+    dosage: "50mg",
     quantity: 30,
     unitPrice: 34.99,
     discountedPrice: 29.74,
     savings: 5.25,
-    frequency: 'monthly',
-    status: 'paused',
-    nextDelivery: '2024-02-25',
-    lastDelivery: '2024-01-25',
+    frequency: "monthly",
+    status: "paused",
+    nextDelivery: "2024-02-25",
+    lastDelivery: "2024-01-25",
     deliveryCount: 2,
-    totalSavings: 10.50,
+    totalSavings: 10.5,
     autoRefill: false,
     prescriptionRequired: true,
-    prescriberId: 'dr_wilson_789',
-    prescriberName: 'Dr. Emily Wilson',
+    prescriberId: "dr_wilson_789",
+    prescriberName: "Dr. Emily Wilson",
     refillsRemaining: 3,
-    shippingMethod: 'express',
-    paymentMethod: 'card_ending_3456',
+    shippingMethod: "express",
+    paymentMethod: "card_ending_3456",
     adherenceScore: 75,
-    createdAt: '2023-11-25',
-    modifiedAt: '2024-01-25'
-  }
+    createdAt: "2023-11-25",
+    modifiedAt: "2024-01-25",
+  },
 ];
 
-export function SubscriptionManager({ isOpen = true, onClose }: SubscriptionManagerProps) {
-  const [subscriptions, setSubscriptions] = useState<Subscription[]>(SAMPLE_SUBSCRIPTIONS);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [selectedSubscription, setSelectedSubscription] = useState<Subscription | null>(null);
+export function SubscriptionManager({
+  isOpen = true,
+  onClose,
+}: SubscriptionManagerProps) {
+  const [subscriptions, setSubscriptions] =
+    useState<Subscription[]>(SAMPLE_SUBSCRIPTIONS);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [selectedSubscription, setSelectedSubscription] =
+    useState<Subscription | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isPauseDialogOpen, setIsPauseDialogOpen] = useState(false);
   const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
-  const [editingSubscription, setEditingSubscription] = useState<Subscription | null>(null);
+  const [editingSubscription, setEditingSubscription] =
+    useState<Subscription | null>(null);
 
   // Calculate subscription metrics
   const subscriptionMetrics = useMemo(() => {
-    const activeSubscriptions = subscriptions.filter(s => s.status === 'active');
-    const pausedSubscriptions = subscriptions.filter(s => s.status === 'paused');
+    const activeSubscriptions = subscriptions.filter(
+      (s) => s.status === "active",
+    );
+    const pausedSubscriptions = subscriptions.filter(
+      (s) => s.status === "paused",
+    );
     const monthlySpend = activeSubscriptions.reduce((total, sub) => {
-      const monthlyPrice = sub.frequency === 'monthly' ? sub.discountedPrice 
-        : sub.frequency === 'quarterly' ? sub.discountedPrice / 3
-        : sub.frequency === 'weekly' ? sub.discountedPrice * 4
-        : sub.discountedPrice;
+      const monthlyPrice =
+        sub.frequency === "monthly"
+          ? sub.discountedPrice
+          : sub.frequency === "quarterly"
+            ? sub.discountedPrice / 3
+            : sub.frequency === "weekly"
+              ? sub.discountedPrice * 4
+              : sub.discountedPrice;
       return total + monthlyPrice;
     }, 0);
-    const totalSavings = subscriptions.reduce((total, sub) => total + sub.totalSavings, 0);
-    const avgAdherence = subscriptions.reduce((total, sub) => total + sub.adherenceScore, 0) / subscriptions.length;
-    
+    const totalSavings = subscriptions.reduce(
+      (total, sub) => total + sub.totalSavings,
+      0,
+    );
+    const avgAdherence =
+      subscriptions.reduce((total, sub) => total + sub.adherenceScore, 0) /
+      subscriptions.length;
+
     return {
       totalSubscriptions: subscriptions.length,
       activeCount: activeSubscriptions.length,
       pausedCount: pausedSubscriptions.length,
       monthlySpend,
       totalSavings,
-      avgAdherence: Math.round(avgAdherence)
+      avgAdherence: Math.round(avgAdherence),
     };
   }, [subscriptions]);
 
@@ -239,64 +258,82 @@ export function SubscriptionManager({ isOpen = true, onClose }: SubscriptionMana
     let filtered = subscriptions;
 
     if (searchQuery) {
-      filtered = filtered.filter(sub =>
-        sub.productName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        sub.brand?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        sub.prescriberName?.toLowerCase().includes(searchQuery.toLowerCase())
+      filtered = filtered.filter(
+        (sub) =>
+          sub.productName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          sub.brand?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          sub.prescriberName?.toLowerCase().includes(searchQuery.toLowerCase()),
       );
     }
 
-    if (statusFilter !== 'all') {
-      filtered = filtered.filter(sub => sub.status === statusFilter);
+    if (statusFilter !== "all") {
+      filtered = filtered.filter((sub) => sub.status === statusFilter);
     }
 
-    return filtered.sort((a, b) => new Date(a.nextDelivery).getTime() - new Date(b.nextDelivery).getTime());
+    return filtered.sort(
+      (a, b) =>
+        new Date(a.nextDelivery).getTime() - new Date(b.nextDelivery).getTime(),
+    );
   }, [subscriptions, searchQuery, statusFilter]);
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
     }).format(price);
   };
 
   const formatDate = (dateString: string) => {
-    return format(new Date(dateString), 'MMM dd, yyyy');
+    return format(new Date(dateString), "MMM dd, yyyy");
   };
 
-  const getStatusColor = (status: Subscription['status']) => {
+  const getStatusColor = (status: Subscription["status"]) => {
     switch (status) {
-      case 'active': return 'text-green-600';
-      case 'paused': return 'text-yellow-600';
-      case 'cancelled': return 'text-red-600';
-      case 'expired': return 'text-gray-600';
-      default: return 'text-gray-600';
+      case "active":
+        return "text-green-600";
+      case "paused":
+        return "text-yellow-600";
+      case "cancelled":
+        return "text-red-600";
+      case "expired":
+        return "text-gray-600";
+      default:
+        return "text-gray-600";
     }
   };
 
-  const getStatusBadge = (status: Subscription['status']) => {
+  const getStatusBadge = (status: Subscription["status"]) => {
     switch (status) {
-      case 'active':
+      case "active":
         return <Badge className="bg-green-100 text-green-800">Active</Badge>;
-      case 'paused':
+      case "paused":
         return <Badge className="bg-yellow-100 text-yellow-800">Paused</Badge>;
-      case 'cancelled':
+      case "cancelled":
         return <Badge className="bg-red-100 text-red-800">Cancelled</Badge>;
-      case 'expired':
+      case "expired":
         return <Badge className="bg-gray-100 text-gray-800">Expired</Badge>;
       default:
         return <Badge className="bg-gray-100 text-gray-800">Unknown</Badge>;
     }
   };
 
-  const getFrequencyText = (frequency: Subscription['frequency'], customDays?: number) => {
+  const getFrequencyText = (
+    frequency: Subscription["frequency"],
+    customDays?: number,
+  ) => {
     switch (frequency) {
-      case 'weekly': return 'Weekly';
-      case 'biweekly': return 'Every 2 weeks';
-      case 'monthly': return 'Monthly';
-      case 'quarterly': return 'Quarterly';
-      case 'custom': return customDays ? `Every ${customDays} days` : 'Custom';
-      default: return frequency;
+      case "weekly":
+        return "Weekly";
+      case "biweekly":
+        return "Every 2 weeks";
+      case "monthly":
+        return "Monthly";
+      case "quarterly":
+        return "Quarterly";
+      case "custom":
+        return customDays ? `Every ${customDays} days` : "Custom";
+      default:
+        return frequency;
     }
   };
 
@@ -305,10 +342,10 @@ export function SubscriptionManager({ isOpen = true, onClose }: SubscriptionMana
     const delivery = new Date(deliveryDate);
     const diffTime = delivery.getTime() - today.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    if (diffDays < 0) return 'Overdue';
-    if (diffDays === 0) return 'Today';
-    if (diffDays === 1) return 'Tomorrow';
+
+    if (diffDays < 0) return "Overdue";
+    if (diffDays === 0) return "Today";
+    if (diffDays === 1) return "Tomorrow";
     return `${diffDays} days`;
   };
 
@@ -329,11 +366,13 @@ export function SubscriptionManager({ isOpen = true, onClose }: SubscriptionMana
 
   const confirmPause = () => {
     if (selectedSubscription) {
-      setSubscriptions(prev => prev.map(sub =>
-        sub.id === selectedSubscription.id
-          ? { ...sub, status: 'paused' as const }
-          : sub
-      ));
+      setSubscriptions((prev) =>
+        prev.map((sub) =>
+          sub.id === selectedSubscription.id
+            ? { ...sub, status: "paused" as const }
+            : sub,
+        ),
+      );
       setIsPauseDialogOpen(false);
       setSelectedSubscription(null);
     }
@@ -341,11 +380,13 @@ export function SubscriptionManager({ isOpen = true, onClose }: SubscriptionMana
 
   const confirmCancel = () => {
     if (selectedSubscription) {
-      setSubscriptions(prev => prev.map(sub =>
-        sub.id === selectedSubscription.id
-          ? { ...sub, status: 'cancelled' as const }
-          : sub
-      ));
+      setSubscriptions((prev) =>
+        prev.map((sub) =>
+          sub.id === selectedSubscription.id
+            ? { ...sub, status: "cancelled" as const }
+            : sub,
+        ),
+      );
       setIsCancelDialogOpen(false);
       setSelectedSubscription(null);
     }
@@ -353,31 +394,45 @@ export function SubscriptionManager({ isOpen = true, onClose }: SubscriptionMana
 
   const saveSubscriptionChanges = () => {
     if (editingSubscription) {
-      setSubscriptions(prev => prev.map(sub =>
-        sub.id === editingSubscription.id
-          ? { ...editingSubscription, modifiedAt: new Date().toISOString() }
-          : sub
-      ));
+      setSubscriptions((prev) =>
+        prev.map((sub) =>
+          sub.id === editingSubscription.id
+            ? { ...editingSubscription, modifiedAt: new Date().toISOString() }
+            : sub,
+        ),
+      );
       setIsEditDialogOpen(false);
       setEditingSubscription(null);
     }
   };
 
-  const MetricCard = ({ title, value, icon: Icon, trend, color = 'blue' }: any) => (
+  const MetricCard = ({
+    title,
+    value,
+    icon: Icon,
+    trend,
+    color = "blue",
+  }: any) => (
     <Card>
       <CardContent className="p-6">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm text-gray-600 dark:text-gray-400">{title}</p>
-            <p className="text-2xl font-bold text-gray-900 dark:text-white">{value}</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">
+              {value}
+            </p>
             {trend && (
-              <div className={`flex items-center text-sm ${trend.positive ? 'text-green-600' : 'text-red-600'}`}>
+              <div
+                className={`flex items-center text-sm ${trend.positive ? "text-green-600" : "text-red-600"}`}
+              >
                 <TrendingUp className="w-4 h-4 mr-1" />
                 {trend.value}
               </div>
             )}
           </div>
-          <div className={`p-3 rounded-lg bg-${color}-100 dark:bg-${color}-900/20`}>
+          <div
+            className={`p-3 rounded-lg bg-${color}-100 dark:bg-${color}-900/20`}
+          >
             <Icon className={`w-6 h-6 text-${color}-600`} />
           </div>
         </div>
@@ -385,7 +440,11 @@ export function SubscriptionManager({ isOpen = true, onClose }: SubscriptionMana
     </Card>
   );
 
-  const SubscriptionCard = ({ subscription }: { subscription: Subscription }) => (
+  const SubscriptionCard = ({
+    subscription,
+  }: {
+    subscription: Subscription;
+  }) => (
     <Card className="hover:shadow-md transition-shadow">
       <CardContent className="p-6">
         <div className="flex items-start justify-between mb-4">
@@ -427,9 +486,14 @@ export function SubscriptionManager({ isOpen = true, onClose }: SubscriptionMana
 
         <div className="grid grid-cols-2 gap-4 mb-4">
           <div>
-            <p className="text-sm text-gray-600 dark:text-gray-400">Frequency</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              Frequency
+            </p>
             <p className="font-medium">
-              {getFrequencyText(subscription.frequency, subscription.customFrequencyDays)}
+              {getFrequencyText(
+                subscription.frequency,
+                subscription.customFrequencyDays,
+              )}
             </p>
           </div>
           <div>
@@ -437,7 +501,9 @@ export function SubscriptionManager({ isOpen = true, onClose }: SubscriptionMana
             <p className="font-medium">{subscription.quantity} pills</p>
           </div>
           <div>
-            <p className="text-sm text-gray-600 dark:text-gray-400">Next Delivery</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              Next Delivery
+            </p>
             <p className="font-medium">
               {formatDate(subscription.nextDelivery)}
               <span className="text-sm text-gray-500 ml-1">
@@ -446,37 +512,45 @@ export function SubscriptionManager({ isOpen = true, onClose }: SubscriptionMana
             </p>
           </div>
           <div>
-            <p className="text-sm text-gray-600 dark:text-gray-400">Adherence</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              Adherence
+            </p>
             <div className="flex items-center gap-2">
               <div className="flex-1 bg-gray-200 rounded-full h-2">
                 <div
                   className={`h-2 rounded-full ${
-                    subscription.adherenceScore >= 80 ? 'bg-green-500' :
-                    subscription.adherenceScore >= 60 ? 'bg-yellow-500' : 'bg-red-500'
+                    subscription.adherenceScore >= 80
+                      ? "bg-green-500"
+                      : subscription.adherenceScore >= 60
+                        ? "bg-yellow-500"
+                        : "bg-red-500"
                   }`}
                   style={{ width: `${subscription.adherenceScore}%` }}
                 />
               </div>
-              <span className="text-sm font-medium">{subscription.adherenceScore}%</span>
+              <span className="text-sm font-medium">
+                {subscription.adherenceScore}%
+              </span>
             </div>
           </div>
         </div>
 
-        {subscription.prescriptionRequired && subscription.refillsRemaining !== undefined && (
-          <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg mb-4">
-            <div className="flex items-center gap-2">
-              <Shield className="w-4 h-4 text-blue-600" />
-              <span className="text-sm font-medium text-blue-800 dark:text-blue-200">
-                {subscription.refillsRemaining} refills remaining
-              </span>
+        {subscription.prescriptionRequired &&
+          subscription.refillsRemaining !== undefined && (
+            <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg mb-4">
+              <div className="flex items-center gap-2">
+                <Shield className="w-4 h-4 text-blue-600" />
+                <span className="text-sm font-medium text-blue-800 dark:text-blue-200">
+                  {subscription.refillsRemaining} refills remaining
+                </span>
+              </div>
+              {subscription.prescriberName && (
+                <p className="text-xs text-blue-700 dark:text-blue-300 mt-1">
+                  Prescribed by {subscription.prescriberName}
+                </p>
+              )}
             </div>
-            {subscription.prescriberName && (
-              <p className="text-xs text-blue-700 dark:text-blue-300 mt-1">
-                Prescribed by {subscription.prescriberName}
-              </p>
-            )}
-          </div>
-        )}
+          )}
 
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -488,7 +562,7 @@ export function SubscriptionManager({ isOpen = true, onClose }: SubscriptionMana
               <Edit className="w-4 h-4 mr-1" />
               Edit
             </Button>
-            {subscription.status === 'active' ? (
+            {subscription.status === "active" ? (
               <Button
                 variant="outline"
                 size="sm"
@@ -497,16 +571,18 @@ export function SubscriptionManager({ isOpen = true, onClose }: SubscriptionMana
                 <Pause className="w-4 h-4 mr-1" />
                 Pause
               </Button>
-            ) : subscription.status === 'paused' ? (
+            ) : subscription.status === "paused" ? (
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => {
-                  setSubscriptions(prev => prev.map(sub =>
-                    sub.id === subscription.id
-                      ? { ...sub, status: 'active' as const }
-                      : sub
-                  ));
+                  setSubscriptions((prev) =>
+                    prev.map((sub) =>
+                      sub.id === subscription.id
+                        ? { ...sub, status: "active" as const }
+                        : sub,
+                    ),
+                  );
                 }}
               >
                 <Play className="w-4 h-4 mr-1" />
@@ -572,14 +648,14 @@ export function SubscriptionManager({ isOpen = true, onClose }: SubscriptionMana
           title="Monthly Spend"
           value={formatPrice(subscriptionMetrics.monthlySpend)}
           icon={DollarSign}
-          trend={{ positive: false, value: '-8.2%' }}
+          trend={{ positive: false, value: "-8.2%" }}
           color="blue"
         />
         <MetricCard
           title="Total Savings"
           value={formatPrice(subscriptionMetrics.totalSavings)}
           icon={Gift}
-          trend={{ positive: true, value: '+24.5%' }}
+          trend={{ positive: true, value: "+24.5%" }}
           color="green"
         />
         <MetricCard
@@ -625,7 +701,10 @@ export function SubscriptionManager({ isOpen = true, onClose }: SubscriptionMana
       {filteredSubscriptions.length > 0 ? (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {filteredSubscriptions.map((subscription) => (
-            <SubscriptionCard key={subscription.id} subscription={subscription} />
+            <SubscriptionCard
+              key={subscription.id}
+              subscription={subscription}
+            />
           ))}
         </div>
       ) : (
@@ -636,10 +715,9 @@ export function SubscriptionManager({ isOpen = true, onClose }: SubscriptionMana
               No subscriptions found
             </h3>
             <p className="text-gray-600 dark:text-gray-400 mb-4">
-              {searchQuery || statusFilter !== 'all'
-                ? 'Try adjusting your search or filter criteria'
-                : 'Start saving with automatic medication deliveries'
-              }
+              {searchQuery || statusFilter !== "all"
+                ? "Try adjusting your search or filter criteria"
+                : "Start saving with automatic medication deliveries"}
             </p>
             <Button>
               <Plus className="w-4 h-4 mr-2" />
@@ -660,10 +738,13 @@ export function SubscriptionManager({ isOpen = true, onClose }: SubscriptionMana
         <CardContent>
           <div className="space-y-3">
             {filteredSubscriptions
-              .filter(sub => sub.status === 'active')
+              .filter((sub) => sub.status === "active")
               .slice(0, 5)
               .map((subscription) => (
-                <div key={subscription.id} className="flex items-center justify-between p-3 border border-gray-200 dark:border-gray-700 rounded-lg">
+                <div
+                  key={subscription.id}
+                  className="flex items-center justify-between p-3 border border-gray-200 dark:border-gray-700 rounded-lg"
+                >
                   <div className="flex items-center gap-3">
                     <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                     <div>
@@ -671,7 +752,8 @@ export function SubscriptionManager({ isOpen = true, onClose }: SubscriptionMana
                         {subscription.productName}
                       </p>
                       <p className="text-sm text-gray-600 dark:text-gray-400">
-                        {subscription.quantity} pills • {formatPrice(subscription.discountedPrice)}
+                        {subscription.quantity} pills •{" "}
+                        {formatPrice(subscription.discountedPrice)}
                       </p>
                     </div>
                   </div>
@@ -696,7 +778,8 @@ export function SubscriptionManager({ isOpen = true, onClose }: SubscriptionMana
             <DialogHeader>
               <DialogTitle>Edit Subscription</DialogTitle>
               <DialogDescription>
-                Modify your subscription settings for {editingSubscription.productName}
+                Modify your subscription settings for{" "}
+                {editingSubscription.productName}
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
@@ -705,9 +788,16 @@ export function SubscriptionManager({ isOpen = true, onClose }: SubscriptionMana
                   <Label>Frequency</Label>
                   <Select
                     value={editingSubscription.frequency}
-                    onValueChange={(value) => setEditingSubscription(prev => prev ? 
-                      { ...prev, frequency: value as Subscription['frequency'] } : null
-                    )}
+                    onValueChange={(value) =>
+                      setEditingSubscription((prev) =>
+                        prev
+                          ? {
+                              ...prev,
+                              frequency: value as Subscription["frequency"],
+                            }
+                          : null,
+                      )
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -725,9 +815,13 @@ export function SubscriptionManager({ isOpen = true, onClose }: SubscriptionMana
                   <Input
                     type="number"
                     value={editingSubscription.quantity}
-                    onChange={(e) => setEditingSubscription(prev => prev ?
-                      { ...prev, quantity: Number(e.target.value) } : null
-                    )}
+                    onChange={(e) =>
+                      setEditingSubscription((prev) =>
+                        prev
+                          ? { ...prev, quantity: Number(e.target.value) }
+                          : null,
+                      )
+                    }
                   />
                 </div>
               </div>
@@ -735,9 +829,17 @@ export function SubscriptionManager({ isOpen = true, onClose }: SubscriptionMana
                 <Label>Shipping Method</Label>
                 <Select
                   value={editingSubscription.shippingMethod}
-                  onValueChange={(value) => setEditingSubscription(prev => prev ?
-                    { ...prev, shippingMethod: value as Subscription['shippingMethod'] } : null
-                  )}
+                  onValueChange={(value) =>
+                    setEditingSubscription((prev) =>
+                      prev
+                        ? {
+                            ...prev,
+                            shippingMethod:
+                              value as Subscription["shippingMethod"],
+                          }
+                        : null,
+                    )
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -745,27 +847,32 @@ export function SubscriptionManager({ isOpen = true, onClose }: SubscriptionMana
                   <SelectContent>
                     <SelectItem value="standard">Standard (FREE)</SelectItem>
                     <SelectItem value="express">Express (+$15.99)</SelectItem>
-                    <SelectItem value="overnight">Overnight (+$25.99)</SelectItem>
+                    <SelectItem value="overnight">
+                      Overnight (+$25.99)
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div className="flex items-center space-x-2">
                 <Switch
                   checked={editingSubscription.autoRefill}
-                  onCheckedChange={(checked) => setEditingSubscription(prev => prev ?
-                    { ...prev, autoRefill: checked } : null
-                  )}
+                  onCheckedChange={(checked) =>
+                    setEditingSubscription((prev) =>
+                      prev ? { ...prev, autoRefill: checked } : null,
+                    )
+                  }
                 />
                 <Label>Auto-refill when running low</Label>
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+              <Button
+                variant="outline"
+                onClick={() => setIsEditDialogOpen(false)}
+              >
                 Cancel
               </Button>
-              <Button onClick={saveSubscriptionChanges}>
-                Save Changes
-              </Button>
+              <Button onClick={saveSubscriptionChanges}>Save Changes</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -777,17 +884,18 @@ export function SubscriptionManager({ isOpen = true, onClose }: SubscriptionMana
           <DialogHeader>
             <DialogTitle>Pause Subscription</DialogTitle>
             <DialogDescription>
-              Are you sure you want to pause your subscription for {selectedSubscription?.productName}?
-              You can resume it anytime.
+              Are you sure you want to pause your subscription for{" "}
+              {selectedSubscription?.productName}? You can resume it anytime.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsPauseDialogOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setIsPauseDialogOpen(false)}
+            >
               Cancel
             </Button>
-            <Button onClick={confirmPause}>
-              Pause Subscription
-            </Button>
+            <Button onClick={confirmPause}>Pause Subscription</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -798,12 +906,15 @@ export function SubscriptionManager({ isOpen = true, onClose }: SubscriptionMana
           <DialogHeader>
             <DialogTitle>Cancel Subscription</DialogTitle>
             <DialogDescription>
-              Are you sure you want to cancel your subscription for {selectedSubscription?.productName}?
-              This action cannot be undone.
+              Are you sure you want to cancel your subscription for{" "}
+              {selectedSubscription?.productName}? This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsCancelDialogOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setIsCancelDialogOpen(false)}
+            >
               Keep Subscription
             </Button>
             <Button variant="destructive" onClick={confirmCancel}>

@@ -13,7 +13,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Alert, AlertDescription } from "./ui/alert";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
 import {
   Smartphone,
   Wifi,
@@ -52,13 +58,20 @@ import {
   HelpCircle,
   Phone,
   Mail,
-  Globe
+  Globe,
 } from "lucide-react";
 
 interface DeviceType {
   id: string;
   name: string;
-  category: "glucose" | "cgm" | "blood_pressure" | "weight" | "heart_rate" | "pulse_ox" | "temperature";
+  category:
+    | "glucose"
+    | "cgm"
+    | "blood_pressure"
+    | "weight"
+    | "heart_rate"
+    | "pulse_ox"
+    | "temperature";
   manufacturer: string;
   model: string;
   connectivity: string[];
@@ -132,12 +145,12 @@ const deviceCatalog: DeviceType[] = [
     cmsReimbursable: true,
     setupComplexity: "moderate",
     cost: 89.99,
-    compatibility: ["iOS", "Android", "Receiver"]
+    compatibility: ["iOS", "Android", "Receiver"],
   },
   {
     id: "freestyle_libre_3",
     name: "FreeStyle Libre 3",
-    category: "cgm", 
+    category: "cgm",
     manufacturer: "Abbott",
     model: "Libre 3",
     connectivity: ["Bluetooth", "NFC"],
@@ -149,7 +162,7 @@ const deviceCatalog: DeviceType[] = [
     cmsReimbursable: true,
     setupComplexity: "easy",
     cost: 75.99,
-    compatibility: ["iOS", "Android"]
+    compatibility: ["iOS", "Android"],
   },
   {
     id: "onetouch_verio",
@@ -166,7 +179,7 @@ const deviceCatalog: DeviceType[] = [
     cmsReimbursable: true,
     setupComplexity: "easy",
     cost: 25.99,
-    compatibility: ["iOS", "Android"]
+    compatibility: ["iOS", "Android"],
   },
   {
     id: "omron_10_series",
@@ -183,7 +196,7 @@ const deviceCatalog: DeviceType[] = [
     cmsReimbursable: true,
     setupComplexity: "easy",
     cost: 79.99,
-    compatibility: ["iOS", "Android"]
+    compatibility: ["iOS", "Android"],
   },
   {
     id: "withings_body_plus",
@@ -200,8 +213,8 @@ const deviceCatalog: DeviceType[] = [
     cmsReimbursable: true,
     setupComplexity: "moderate",
     cost: 99.99,
-    compatibility: ["iOS", "Android", "Web"]
-  }
+    compatibility: ["iOS", "Android", "Web"],
+  },
 ];
 
 const mockConnectedDevices: ConnectedDevice[] = [
@@ -217,7 +230,7 @@ const mockConnectedDevices: ConnectedDevice[] = [
       value: 128,
       unit: "mg/dL",
       timestamp: "2024-01-16T08:25:00",
-      quality: "good"
+      quality: "good",
     },
     syncFrequency: "Every 15 minutes",
     dataPoints: 14400, // 10 days * 24 hours * 60 minutes
@@ -226,11 +239,11 @@ const mockConnectedDevices: ConnectedDevice[] = [
         type: "reading",
         message: "Glucose trending high after meal",
         severity: "medium",
-        timestamp: "2024-01-16T07:45:00"
-      }
+        timestamp: "2024-01-16T07:45:00",
+      },
     ],
     setupDate: "2024-01-05T10:00:00",
-    warrantyExpiry: "2025-01-05"
+    warrantyExpiry: "2025-01-05",
   },
   {
     id: "device_002",
@@ -244,34 +257,42 @@ const mockConnectedDevices: ConnectedDevice[] = [
       value: "128/82",
       unit: "mmHg",
       timestamp: "2024-01-16T06:00:00",
-      quality: "good"
+      quality: "good",
     },
     syncFrequency: "After each reading",
     dataPoints: 145,
     alerts: [],
     setupDate: "2024-01-05T11:00:00",
-    warrantyExpiry: "2026-01-05"
-  }
+    warrantyExpiry: "2026-01-05",
+  },
 ];
 
 export function RPMDeviceIntegration() {
   const [activeTab, setActiveTab] = useState("overview");
-  const [connectedDevices, setConnectedDevices] = useState<ConnectedDevice[]>(mockConnectedDevices);
-  const [availableDevices, setAvailableDevices] = useState<DeviceType[]>(deviceCatalog);
+  const [connectedDevices, setConnectedDevices] =
+    useState<ConnectedDevice[]>(mockConnectedDevices);
+  const [availableDevices, setAvailableDevices] =
+    useState<DeviceType[]>(deviceCatalog);
   const [isScanning, setIsScanning] = useState(false);
-  const [selectedDevice, setSelectedDevice] = useState<ConnectedDevice | null>(null);
+  const [selectedDevice, setSelectedDevice] = useState<ConnectedDevice | null>(
+    null,
+  );
   const [deviceFilter, setDeviceFilter] = useState<string>("all");
 
   const totalDevices = connectedDevices.length;
-  const activeDevices = connectedDevices.filter(d => d.connectionStatus === "connected").length;
-  const lowBatteryDevices = connectedDevices.filter(d => d.batteryLevel < 20).length;
-  const recentAlerts = connectedDevices.flatMap(d => d.alerts).length;
+  const activeDevices = connectedDevices.filter(
+    (d) => d.connectionStatus === "connected",
+  ).length;
+  const lowBatteryDevices = connectedDevices.filter(
+    (d) => d.batteryLevel < 20,
+  ).length;
+  const recentAlerts = connectedDevices.flatMap((d) => d.alerts).length;
 
   const handleDevicePairing = async (deviceType: DeviceType) => {
     setIsScanning(true);
     // Simulate device pairing process
-    await new Promise(resolve => setTimeout(resolve, 3000));
-    
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+
     const newDevice: ConnectedDevice = {
       id: `device_${Date.now()}`,
       deviceType,
@@ -281,16 +302,28 @@ export function RPMDeviceIntegration() {
       batteryLevel: 100,
       lastSync: new Date().toISOString(),
       lastReading: {
-        value: deviceType.category === "glucose" ? 120 : deviceType.category === "blood_pressure" ? "120/80" : 75,
-        unit: deviceType.category === "glucose" ? "mg/dL" : deviceType.category === "blood_pressure" ? "mmHg" : "kg",
+        value:
+          deviceType.category === "glucose"
+            ? 120
+            : deviceType.category === "blood_pressure"
+              ? "120/80"
+              : 75,
+        unit:
+          deviceType.category === "glucose"
+            ? "mg/dL"
+            : deviceType.category === "blood_pressure"
+              ? "mmHg"
+              : "kg",
         timestamp: new Date().toISOString(),
-        quality: "good"
+        quality: "good",
       },
       syncFrequency: deviceType.frequency,
       dataPoints: 0,
       alerts: [],
       setupDate: new Date().toISOString(),
-      warrantyExpiry: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+      warrantyExpiry: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
+        .toISOString()
+        .split("T")[0],
     };
 
     setConnectedDevices([...connectedDevices, newDevice]);
@@ -299,27 +332,38 @@ export function RPMDeviceIntegration() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "connected": return "bg-green-500";
-      case "syncing": return "bg-blue-500";
-      case "disconnected": return "bg-yellow-500";
-      case "error": return "bg-red-500";
-      default: return "bg-gray-500";
+      case "connected":
+        return "bg-green-500";
+      case "syncing":
+        return "bg-blue-500";
+      case "disconnected":
+        return "bg-yellow-500";
+      case "error":
+        return "bg-red-500";
+      default:
+        return "bg-gray-500";
     }
   };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case "connected": return { color: "default", text: "Connected" };
-      case "syncing": return { color: "secondary", text: "Syncing" };
-      case "disconnected": return { color: "warning", text: "Disconnected" };
-      case "error": return { color: "destructive", text: "Error" };
-      default: return { color: "secondary", text: "Unknown" };
+      case "connected":
+        return { color: "default", text: "Connected" };
+      case "syncing":
+        return { color: "secondary", text: "Syncing" };
+      case "disconnected":
+        return { color: "warning", text: "Disconnected" };
+      case "error":
+        return { color: "destructive", text: "Error" };
+      default:
+        return { color: "secondary", text: "Unknown" };
     }
   };
 
-  const filteredDevices = deviceFilter === "all" 
-    ? connectedDevices 
-    : connectedDevices.filter(d => d.deviceType.category === deviceFilter);
+  const filteredDevices =
+    deviceFilter === "all"
+      ? connectedDevices
+      : connectedDevices.filter((d) => d.deviceType.category === deviceFilter);
 
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6">
@@ -351,7 +395,9 @@ export function RPMDeviceIntegration() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Total Devices</p>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Total Devices
+                </p>
                 <div className="text-2xl font-bold">{totalDevices}</div>
                 <p className="text-sm text-muted-foreground">Registered</p>
               </div>
@@ -364,8 +410,12 @@ export function RPMDeviceIntegration() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Active Devices</p>
-                <div className="text-2xl font-bold text-green-600">{activeDevices}</div>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Active Devices
+                </p>
+                <div className="text-2xl font-bold text-green-600">
+                  {activeDevices}
+                </div>
                 <p className="text-sm text-green-600">Currently connected</p>
               </div>
               <Signal className="h-8 w-8 text-green-500" />
@@ -377,8 +427,12 @@ export function RPMDeviceIntegration() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Low Battery</p>
-                <div className="text-2xl font-bold text-yellow-600">{lowBatteryDevices}</div>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Low Battery
+                </p>
+                <div className="text-2xl font-bold text-yellow-600">
+                  {lowBatteryDevices}
+                </div>
                 <p className="text-sm text-muted-foreground">Need attention</p>
               </div>
               <Battery className="h-8 w-8 text-yellow-500" />
@@ -390,8 +444,12 @@ export function RPMDeviceIntegration() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Recent Alerts</p>
-                <div className="text-2xl font-bold text-red-600">{recentAlerts}</div>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Recent Alerts
+                </p>
+                <div className="text-2xl font-bold text-red-600">
+                  {recentAlerts}
+                </div>
                 <p className="text-sm text-muted-foreground">Last 24 hours</p>
               </div>
               <AlertTriangle className="h-8 w-8 text-red-500" />
@@ -401,7 +459,11 @@ export function RPMDeviceIntegration() {
       </div>
 
       {/* Main Content */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+      <Tabs
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className="space-y-4"
+      >
         <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="devices">My Devices</TabsTrigger>
@@ -415,7 +477,9 @@ export function RPMDeviceIntegration() {
             <Card className="lg:col-span-2">
               <CardHeader>
                 <CardTitle>Device Status Monitor</CardTitle>
-                <CardDescription>Real-time status of all connected devices</CardDescription>
+                <CardDescription>
+                  Real-time status of all connected devices
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 {connectedDevices.map((device) => (
@@ -423,48 +487,75 @@ export function RPMDeviceIntegration() {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-4">
                         <div className="relative">
-                          <div className={`w-3 h-3 rounded-full ${getStatusColor(device.connectionStatus)}`} />
+                          <div
+                            className={`w-3 h-3 rounded-full ${getStatusColor(device.connectionStatus)}`}
+                          />
                           {device.connectionStatus === "syncing" && (
                             <RefreshCw className="w-4 h-4 absolute -top-0.5 -left-0.5 animate-spin text-blue-500" />
                           )}
                         </div>
                         <div>
-                          <h4 className="font-medium">{device.deviceType.name}</h4>
+                          <h4 className="font-medium">
+                            {device.deviceType.name}
+                          </h4>
                           <p className="text-sm text-muted-foreground">
-                            {device.deviceType.manufacturer} • {device.serialNumber}
+                            {device.deviceType.manufacturer} •{" "}
+                            {device.serialNumber}
                           </p>
                         </div>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <Badge variant={getStatusBadge(device.connectionStatus).color as any}>
+                        <Badge
+                          variant={
+                            getStatusBadge(device.connectionStatus).color as any
+                          }
+                        >
                           {getStatusBadge(device.connectionStatus).text}
                         </Badge>
                         <div className="flex items-center space-x-1">
-                          <Battery className={`w-4 h-4 ${
-                            device.batteryLevel > 50 ? "text-green-600" :
-                            device.batteryLevel > 20 ? "text-yellow-600" : "text-red-600"
-                          }`} />
-                          <span className="text-sm">{device.batteryLevel}%</span>
+                          <Battery
+                            className={`w-4 h-4 ${
+                              device.batteryLevel > 50
+                                ? "text-green-600"
+                                : device.batteryLevel > 20
+                                  ? "text-yellow-600"
+                                  : "text-red-600"
+                            }`}
+                          />
+                          <span className="text-sm">
+                            {device.batteryLevel}%
+                          </span>
                         </div>
                       </div>
                     </div>
 
                     <div className="grid grid-cols-3 gap-4 mt-4 text-sm">
                       <div>
-                        <span className="text-muted-foreground">Last Reading:</span>
+                        <span className="text-muted-foreground">
+                          Last Reading:
+                        </span>
                         <p className="font-medium">
                           {device.lastReading.value} {device.lastReading.unit}
                         </p>
                       </div>
                       <div>
-                        <span className="text-muted-foreground">Last Sync:</span>
+                        <span className="text-muted-foreground">
+                          Last Sync:
+                        </span>
                         <p className="font-medium">
-                          {new Date(device.lastSync).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          {new Date(device.lastSync).toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
                         </p>
                       </div>
                       <div>
-                        <span className="text-muted-foreground">Data Points:</span>
-                        <p className="font-medium">{device.dataPoints.toLocaleString()}</p>
+                        <span className="text-muted-foreground">
+                          Data Points:
+                        </span>
+                        <p className="font-medium">
+                          {device.dataPoints.toLocaleString()}
+                        </p>
                       </div>
                     </div>
 
@@ -568,12 +659,19 @@ export function RPMDeviceIntegration() {
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <div>
-                      <CardTitle className="text-lg">{device.deviceType.name}</CardTitle>
+                      <CardTitle className="text-lg">
+                        {device.deviceType.name}
+                      </CardTitle>
                       <CardDescription>
-                        {device.deviceType.manufacturer} • SN: {device.serialNumber}
+                        {device.deviceType.manufacturer} • SN:{" "}
+                        {device.serialNumber}
                       </CardDescription>
                     </div>
-                    <Badge variant={getStatusBadge(device.connectionStatus).color as any}>
+                    <Badge
+                      variant={
+                        getStatusBadge(device.connectionStatus).color as any
+                      }
+                    >
                       {getStatusBadge(device.connectionStatus).text}
                     </Badge>
                   </div>
@@ -581,15 +679,30 @@ export function RPMDeviceIntegration() {
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label className="text-sm text-muted-foreground">Battery Level</Label>
+                      <Label className="text-sm text-muted-foreground">
+                        Battery Level
+                      </Label>
                       <div className="flex items-center space-x-2">
-                        <Progress value={device.batteryLevel} className="flex-1 h-2" />
-                        <span className="text-sm font-medium">{device.batteryLevel}%</span>
+                        <Progress
+                          value={device.batteryLevel}
+                          className="flex-1 h-2"
+                        />
+                        <span className="text-sm font-medium">
+                          {device.batteryLevel}%
+                        </span>
                       </div>
                     </div>
                     <div>
-                      <Label className="text-sm text-muted-foreground">Data Quality</Label>
-                      <Badge variant={device.lastReading.quality === "good" ? "default" : "secondary"}>
+                      <Label className="text-sm text-muted-foreground">
+                        Data Quality
+                      </Label>
+                      <Badge
+                        variant={
+                          device.lastReading.quality === "good"
+                            ? "default"
+                            : "secondary"
+                        }
+                      >
                         {device.lastReading.quality}
                       </Badge>
                     </div>
@@ -597,26 +710,39 @@ export function RPMDeviceIntegration() {
 
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
-                      <Label className="text-muted-foreground">Last Reading</Label>
+                      <Label className="text-muted-foreground">
+                        Last Reading
+                      </Label>
                       <p className="font-medium text-lg">
                         {device.lastReading.value} {device.lastReading.unit}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        {new Date(device.lastReading.timestamp).toLocaleString()}
+                        {new Date(
+                          device.lastReading.timestamp,
+                        ).toLocaleString()}
                       </p>
                     </div>
                     <div>
-                      <Label className="text-muted-foreground">Sync Frequency</Label>
+                      <Label className="text-muted-foreground">
+                        Sync Frequency
+                      </Label>
                       <p className="font-medium">{device.syncFrequency}</p>
                       <p className="text-xs text-muted-foreground">
-                        Last: {new Date(device.lastSync).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        Last:{" "}
+                        {new Date(device.lastSync).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
                       </p>
                     </div>
                   </div>
 
                   <div className="flex justify-between pt-4 border-t">
                     <div className="flex space-x-2">
-                      <Button size="sm" onClick={() => setSelectedDevice(device)}>
+                      <Button
+                        size="sm"
+                        onClick={() => setSelectedDevice(device)}
+                      >
                         <Eye className="w-4 h-4 mr-2" />
                         Details
                       </Button>
@@ -647,10 +773,7 @@ export function RPMDeviceIntegration() {
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-semibold">Available Devices</h3>
             <div className="flex items-center space-x-2">
-              <Input
-                placeholder="Search devices..."
-                className="w-64"
-              />
+              <Input placeholder="Search devices..." className="w-64" />
               <Button variant="outline">
                 <Search className="w-4 h-4" />
               </Button>
@@ -664,7 +787,9 @@ export function RPMDeviceIntegration() {
                   <div className="flex items-center justify-between">
                     <div>
                       <CardTitle className="text-lg">{device.name}</CardTitle>
-                      <CardDescription>{device.manufacturer} • {device.model}</CardDescription>
+                      <CardDescription>
+                        {device.manufacturer} • {device.model}
+                      </CardDescription>
                     </div>
                     <Badge variant="outline">{device.category}</Badge>
                   </div>
@@ -676,19 +801,30 @@ export function RPMDeviceIntegration() {
                       <span className="font-medium">{device.accuracy}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Battery Life:</span>
+                      <span className="text-muted-foreground">
+                        Battery Life:
+                      </span>
                       <span className="font-medium">{device.batteryLife}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Connectivity:</span>
-                      <span className="font-medium">{device.connectivity.join(", ")}</span>
+                      <span className="text-muted-foreground">
+                        Connectivity:
+                      </span>
+                      <span className="font-medium">
+                        {device.connectivity.join(", ")}
+                      </span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Setup:</span>
-                      <Badge variant={
-                        device.setupComplexity === "easy" ? "default" :
-                        device.setupComplexity === "moderate" ? "secondary" : "destructive"
-                      }>
+                      <Badge
+                        variant={
+                          device.setupComplexity === "easy"
+                            ? "default"
+                            : device.setupComplexity === "moderate"
+                              ? "secondary"
+                              : "destructive"
+                        }
+                      >
                         {device.setupComplexity}
                       </Badge>
                     </div>
@@ -696,19 +832,25 @@ export function RPMDeviceIntegration() {
 
                   <div className="flex flex-wrap gap-1">
                     {device.fdaApproved && (
-                      <Badge variant="outline" className="text-xs">FDA Approved</Badge>
+                      <Badge variant="outline" className="text-xs">
+                        FDA Approved
+                      </Badge>
                     )}
                     {device.cmsReimbursable && (
-                      <Badge variant="outline" className="text-xs">CMS Reimbursable</Badge>
+                      <Badge variant="outline" className="text-xs">
+                        CMS Reimbursable
+                      </Badge>
                     )}
                   </div>
 
                   <div className="flex justify-between items-center pt-4 border-t">
                     <div>
                       <span className="text-lg font-bold">${device.cost}</span>
-                      <span className="text-sm text-muted-foreground">/device</span>
+                      <span className="text-sm text-muted-foreground">
+                        /device
+                      </span>
                     </div>
-                    <Button 
+                    <Button
                       onClick={() => handleDevicePairing(device)}
                       disabled={isScanning}
                     >
@@ -731,16 +873,27 @@ export function RPMDeviceIntegration() {
             <Card>
               <CardHeader>
                 <CardTitle>Data Transmission Health</CardTitle>
-                <CardDescription>Real-time monitoring of data flow from devices</CardDescription>
+                <CardDescription>
+                  Real-time monitoring of data flow from devices
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 {connectedDevices.map((device) => (
-                  <div key={device.id} className="flex items-center justify-between p-3 border rounded">
+                  <div
+                    key={device.id}
+                    className="flex items-center justify-between p-3 border rounded"
+                  >
                     <div className="flex items-center space-x-3">
-                      <div className={`w-3 h-3 rounded-full ${getStatusColor(device.connectionStatus)}`} />
+                      <div
+                        className={`w-3 h-3 rounded-full ${getStatusColor(device.connectionStatus)}`}
+                      />
                       <div>
-                        <h5 className="font-medium">{device.deviceType.name}</h5>
-                        <p className="text-sm text-muted-foreground">{device.dataPoints} data points</p>
+                        <h5 className="font-medium">
+                          {device.deviceType.name}
+                        </h5>
+                        <p className="text-sm text-muted-foreground">
+                          {device.dataPoints} data points
+                        </p>
                       </div>
                     </div>
                     <div className="text-right">
@@ -751,7 +904,11 @@ export function RPMDeviceIntegration() {
                         </span>
                       </div>
                       <p className="text-xs text-muted-foreground">
-                        Last: {new Date(device.lastSync).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        Last:{" "}
+                        {new Date(device.lastSync).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
                       </p>
                     </div>
                   </div>
@@ -762,7 +919,9 @@ export function RPMDeviceIntegration() {
             <Card>
               <CardHeader>
                 <CardTitle>Data Export & Management</CardTitle>
-                <CardDescription>Export patient data for analysis and reporting</CardDescription>
+                <CardDescription>
+                  Export patient data for analysis and reporting
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-3">
@@ -815,7 +974,9 @@ export function RPMDeviceIntegration() {
             <Card>
               <CardHeader>
                 <CardTitle>Sync Settings</CardTitle>
-                <CardDescription>Configure how and when devices sync data</CardDescription>
+                <CardDescription>
+                  Configure how and when devices sync data
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
@@ -856,7 +1017,11 @@ export function RPMDeviceIntegration() {
                       <Label htmlFor="wifiOnly">WiFi only sync</Label>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <input type="checkbox" id="backgroundSync" defaultChecked />
+                      <input
+                        type="checkbox"
+                        id="backgroundSync"
+                        defaultChecked
+                      />
                       <Label htmlFor="backgroundSync">Background sync</Label>
                     </div>
                     <div className="flex items-center space-x-2">
@@ -871,7 +1036,9 @@ export function RPMDeviceIntegration() {
             <Card>
               <CardHeader>
                 <CardTitle>Alert Settings</CardTitle>
-                <CardDescription>Configure device alerts and notifications</CardDescription>
+                <CardDescription>
+                  Configure device alerts and notifications
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-3">
@@ -897,10 +1064,18 @@ export function RPMDeviceIntegration() {
                   <Label>Battery Alert Threshold</Label>
                   <div className="flex items-center space-x-4 mt-2">
                     <span>0%</span>
-                    <input type="range" min="0" max="50" defaultValue="20" className="flex-1" />
+                    <input
+                      type="range"
+                      min="0"
+                      max="50"
+                      defaultValue="20"
+                      className="flex-1"
+                    />
                     <span>50%</span>
                   </div>
-                  <p className="text-sm text-muted-foreground mt-1">Currently set to 20%</p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Currently set to 20%
+                  </p>
                 </div>
               </CardContent>
             </Card>
@@ -911,14 +1086,23 @@ export function RPMDeviceIntegration() {
   );
 }
 
-function Label({ children, className, htmlFor, ...props }: { 
-  children: React.ReactNode; 
-  className?: string; 
+function Label({
+  children,
+  className,
+  htmlFor,
+  ...props
+}: {
+  children: React.ReactNode;
+  className?: string;
   htmlFor?: string;
   [key: string]: any;
 }) {
   return (
-    <label htmlFor={htmlFor} className={`text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 ${className}`} {...props}>
+    <label
+      htmlFor={htmlFor}
+      className={`text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 ${className}`}
+      {...props}
+    >
       {children}
     </label>
   );

@@ -26,62 +26,162 @@ import {
 
 // Define EHR navigation categories and their sub-items
 const ehrCategories = {
-  "dashboard": {
+  dashboard: {
     name: "Dashboard & Overview",
     items: [
-      { name: "EHR Overview", href: "/ehr", icon: Cloud, key: "overview" }
-    ]
+      { name: "EHR Overview", href: "/ehr", icon: Cloud, key: "overview" },
+    ],
   },
   "patient-management": {
-    name: "Patient Management", 
+    name: "Patient Management",
     items: [
-      { name: "Patient Intake", href: "/ehr/intake", icon: UserPlus, key: "intake" },
-      { name: "Clinical Charting", href: "/ehr/charting", icon: FileText, key: "charting" },
-      { name: "Care Plans", href: "/ehr/care-plans", icon: ClipboardList, key: "care-plans" }
-    ]
+      {
+        name: "Patient Intake",
+        href: "/ehr/intake",
+        icon: UserPlus,
+        key: "intake",
+      },
+      {
+        name: "Clinical Charting",
+        href: "/ehr/charting",
+        icon: FileText,
+        key: "charting",
+      },
+      {
+        name: "Care Plans",
+        href: "/ehr/care-plans",
+        icon: ClipboardList,
+        key: "care-plans",
+      },
+    ],
   },
   "clinical-operations": {
     name: "Clinical Operations",
     items: [
-      { name: "Clinical Tools", href: "/ehr/clinical-tools", icon: Stethoscope, key: "clinical-tools" },
-      { name: "AI Medical Scribe", href: "/ehr/ai-scribe", icon: Brain, key: "ai-scribe" },
-      { name: "Multi-Provider", href: "/ehr/providers", icon: Users, key: "providers" }
-    ]
+      {
+        name: "Clinical Tools",
+        href: "/ehr/clinical-tools",
+        icon: Stethoscope,
+        key: "clinical-tools",
+      },
+      {
+        name: "AI Medical Scribe",
+        href: "/ehr/ai-scribe",
+        icon: Brain,
+        key: "ai-scribe",
+      },
+      {
+        name: "Multi-Provider",
+        href: "/ehr/providers",
+        icon: Users,
+        key: "providers",
+      },
+    ],
   },
   "practice-management": {
     name: "Practice Management",
     items: [
-      { name: "Smart Scheduling", href: "/ehr/scheduling", icon: Calendar, key: "scheduling" },
-      { name: "Billing & Revenue", href: "/ehr/billing", icon: DollarSign, key: "billing" },
-      { name: "Insurance Management", href: "/ehr/insurance", icon: Shield, key: "insurance" }
-    ]
+      {
+        name: "Smart Scheduling",
+        href: "/ehr/scheduling",
+        icon: Calendar,
+        key: "scheduling",
+      },
+      {
+        name: "Billing & Revenue",
+        href: "/ehr/billing",
+        icon: DollarSign,
+        key: "billing",
+      },
+      {
+        name: "Insurance Management",
+        href: "/ehr/insurance",
+        icon: Shield,
+        key: "insurance",
+      },
+    ],
   },
   "analytics-reporting": {
     name: "Analytics & Reporting",
     items: [
-      { name: "Reporting Dashboard", href: "/ehr/reporting", icon: BarChart3, key: "reporting" },
-      { name: "System Analytics", href: "/analytics", icon: BarChart3, key: "analytics" },
-      { name: "Workflows", href: "/ehr/workflows", icon: Workflow, key: "workflows" },
-      { name: "Quality Measures", href: "/ehr/quality", icon: Target, key: "quality" }
-    ]
+      {
+        name: "Reporting Dashboard",
+        href: "/ehr/reporting",
+        icon: BarChart3,
+        key: "reporting",
+      },
+      {
+        name: "System Analytics",
+        href: "/analytics",
+        icon: BarChart3,
+        key: "analytics",
+      },
+      {
+        name: "Workflows",
+        href: "/ehr/workflows",
+        icon: Workflow,
+        key: "workflows",
+      },
+      {
+        name: "Quality Measures",
+        href: "/ehr/quality",
+        icon: Target,
+        key: "quality",
+      },
+    ],
   },
   "patient-engagement": {
     name: "Patient Engagement",
     items: [
-      { name: "Telehealth", href: "/ehr/telehealth", icon: Video, key: "telehealth" },
-      { name: "Secure Messaging", href: "/ehr/messaging", icon: MessageCircle, key: "messaging" },
-      { name: "Programs", href: "/ehr/programs", icon: HeartPulse, key: "programs" },
-      { name: "Patient Journaling", href: "/ehr/journaling", icon: BookOpen, key: "journaling" },
-      { name: "Patient Portal", href: "/ehr/portal", icon: Globe, key: "portal" },
-      { name: "Questionnaire Builder", href: "/questionnaire-builder", icon: ClipboardList, key: "questionnaire" }
-    ]
+      {
+        name: "Telehealth",
+        href: "/ehr/telehealth",
+        icon: Video,
+        key: "telehealth",
+      },
+      {
+        name: "Secure Messaging",
+        href: "/ehr/messaging",
+        icon: MessageCircle,
+        key: "messaging",
+      },
+      {
+        name: "Programs",
+        href: "/ehr/programs",
+        icon: HeartPulse,
+        key: "programs",
+      },
+      {
+        name: "Patient Journaling",
+        href: "/ehr/journaling",
+        icon: BookOpen,
+        key: "journaling",
+      },
+      {
+        name: "Patient Portal",
+        href: "/ehr/portal",
+        icon: Globe,
+        key: "portal",
+      },
+      {
+        name: "Questionnaire Builder",
+        href: "/questionnaire-builder",
+        icon: ClipboardList,
+        key: "questionnaire",
+      },
+    ],
   },
   "business-operations": {
     name: "Business Operations",
     items: [
-      { name: "Affiliate Management", href: "/ehr/affiliate", icon: Share2, key: "affiliate" }
-    ]
-  }
+      {
+        name: "Affiliate Management",
+        href: "/ehr/affiliate",
+        icon: Share2,
+        key: "affiliate",
+      },
+    ],
+  },
 };
 
 // Function to determine which category the current route belongs to
@@ -90,7 +190,7 @@ function getCurrentCategory(pathname: string): string | null {
   const routeToCategory: Record<string, string> = {
     "/ehr": "dashboard",
     "/ehr/intake": "patient-management",
-    "/ehr/charting": "patient-management", 
+    "/ehr/charting": "patient-management",
     "/ehr/care-plans": "patient-management",
     "/ehr/clinical-tools": "clinical-operations",
     "/ehr/ai-scribe": "clinical-operations",
@@ -108,7 +208,7 @@ function getCurrentCategory(pathname: string): string | null {
     "/ehr/journaling": "patient-engagement",
     "/ehr/portal": "patient-engagement",
     "/questionnaire-builder": "patient-engagement",
-    "/ehr/affiliate": "business-operations"
+    "/ehr/affiliate": "business-operations",
   };
 
   return routeToCategory[pathname] || null;
@@ -123,7 +223,10 @@ export function EHRSubNavigation({ className = "" }: EHRSubNavigationProps) {
   const currentCategory = getCurrentCategory(location.pathname);
 
   // Don't render if we can't determine the category
-  if (!currentCategory || !ehrCategories[currentCategory as keyof typeof ehrCategories]) {
+  if (
+    !currentCategory ||
+    !ehrCategories[currentCategory as keyof typeof ehrCategories]
+  ) {
     return null;
   }
 
@@ -135,11 +238,16 @@ export function EHRSubNavigation({ className = "" }: EHRSubNavigationProps) {
   }
 
   return (
-    <div className={`border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-16 z-30 ${className}`}>
+    <div
+      className={`border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-16 z-30 ${className}`}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between py-3">
           <div className="flex items-center gap-4 overflow-x-auto scrollbar-hide">
-            <Badge variant="outline" className="text-xs font-medium whitespace-nowrap">
+            <Badge
+              variant="outline"
+              className="text-xs font-medium whitespace-nowrap"
+            >
               {category.name}
             </Badge>
             <div className="flex items-center gap-1 overflow-x-auto scrollbar-hide">
@@ -162,7 +270,9 @@ export function EHRSubNavigation({ className = "" }: EHRSubNavigationProps) {
                     <Link to={item.href}>
                       <Icon className="w-4 h-4" />
                       <span className="hidden sm:inline">{item.name}</span>
-                      <span className="sm:hidden">{item.name.split(' ')[0]}</span>
+                      <span className="sm:hidden">
+                        {item.name.split(" ")[0]}
+                      </span>
                     </Link>
                   </Button>
                 );

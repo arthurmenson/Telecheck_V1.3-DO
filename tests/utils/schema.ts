@@ -1,9 +1,9 @@
-import { Pool } from 'pg';
+import { Pool } from "pg";
 
 export const createTables = async (pool: Pool) => {
   // Enable UUID extension
   await pool.query(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`);
-  
+
   // Users table
   await pool.query(`
     CREATE TABLE IF NOT EXISTS users (
@@ -144,27 +144,45 @@ export const createTables = async (pool: Pool) => {
   `);
 
   // Create indexes for better performance
-  await pool.query(`CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)`);
-  await pool.query(`CREATE INDEX IF NOT EXISTS idx_patients_user_id ON patients(user_id)`);
-  await pool.query(`CREATE INDEX IF NOT EXISTS idx_lab_reports_user_id ON lab_reports(user_id)`);
-  await pool.query(`CREATE INDEX IF NOT EXISTS idx_lab_results_report_id ON lab_results(lab_report_id)`);
-  await pool.query(`CREATE INDEX IF NOT EXISTS idx_medications_user_id ON medications(user_id)`);
-  await pool.query(`CREATE INDEX IF NOT EXISTS idx_appointments_patient_id ON appointments(patient_id)`);
-  await pool.query(`CREATE INDEX IF NOT EXISTS idx_appointments_provider_id ON appointments(provider_id)`);
-  await pool.query(`CREATE INDEX IF NOT EXISTS idx_vital_signs_user_id ON vital_signs(user_id)`);
-  await pool.query(`CREATE INDEX IF NOT EXISTS idx_notifications_user_id ON notifications(user_id)`);
+  await pool.query(
+    `CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)`,
+  );
+  await pool.query(
+    `CREATE INDEX IF NOT EXISTS idx_patients_user_id ON patients(user_id)`,
+  );
+  await pool.query(
+    `CREATE INDEX IF NOT EXISTS idx_lab_reports_user_id ON lab_reports(user_id)`,
+  );
+  await pool.query(
+    `CREATE INDEX IF NOT EXISTS idx_lab_results_report_id ON lab_results(lab_report_id)`,
+  );
+  await pool.query(
+    `CREATE INDEX IF NOT EXISTS idx_medications_user_id ON medications(user_id)`,
+  );
+  await pool.query(
+    `CREATE INDEX IF NOT EXISTS idx_appointments_patient_id ON appointments(patient_id)`,
+  );
+  await pool.query(
+    `CREATE INDEX IF NOT EXISTS idx_appointments_provider_id ON appointments(provider_id)`,
+  );
+  await pool.query(
+    `CREATE INDEX IF NOT EXISTS idx_vital_signs_user_id ON vital_signs(user_id)`,
+  );
+  await pool.query(
+    `CREATE INDEX IF NOT EXISTS idx_notifications_user_id ON notifications(user_id)`,
+  );
 };
 
 export const dropTables = async (pool: Pool) => {
   const tables = [
-    'notifications',
-    'vital_signs',
-    'appointments',
-    'medications',
-    'lab_results',
-    'lab_reports',
-    'patients',
-    'users'
+    "notifications",
+    "vital_signs",
+    "appointments",
+    "medications",
+    "lab_results",
+    "lab_reports",
+    "patients",
+    "users",
   ];
 
   for (const table of tables) {

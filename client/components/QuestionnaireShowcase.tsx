@@ -13,7 +13,7 @@ import {
   Lightbulb,
   Users,
   Clock,
-  Award
+  Award,
 } from "lucide-react";
 
 export function QuestionnaireShowcase() {
@@ -28,9 +28,9 @@ export function QuestionnaireShowcase() {
         "BMI calculation and validation",
         "Diabetes screening integration",
         "Lifestyle factor analysis",
-        "Side effect preference matching"
+        "Side effect preference matching",
       ],
-      stats: "15-20% average weight loss with AI-matched medications"
+      stats: "15-20% average weight loss with AI-matched medications",
     },
     {
       category: "Men's ED Treatment",
@@ -42,9 +42,9 @@ export function QuestionnaireShowcase() {
         "Cardiovascular safety screening",
         "IIEF-5 standardized assessment",
         "Medication interaction checks",
-        "Performance anxiety evaluation"
+        "Performance anxiety evaluation",
       ],
-      stats: "80-85% success rate with personalized medication selection"
+      stats: "80-85% success rate with personalized medication selection",
     },
     {
       category: "Prescription Skincare",
@@ -56,9 +56,10 @@ export function QuestionnaireShowcase() {
         "Skin type classification",
         "Acne severity assessment",
         "Pregnancy safety protocols",
-        "Sensitivity testing guidance"
+        "Sensitivity testing guidance",
       ],
-      stats: "90% of patients see improvement with AI-guided retinoid selection"
+      stats:
+        "90% of patients see improvement with AI-guided retinoid selection",
     },
     {
       category: "Hair Growth Treatment",
@@ -70,37 +71,41 @@ export function QuestionnaireShowcase() {
         "Norwood/Ludwig scale assessment",
         "Hormonal factor evaluation",
         "Family history analysis",
-        "Treatment timeline planning"
+        "Treatment timeline planning",
       ],
-      stats: "90% hair loss prevention, 65% regrowth with early treatment"
-    }
+      stats: "90% hair loss prevention, 65% regrowth with early treatment",
+    },
   ];
 
   const globalFeatures = [
     {
       icon: Brain,
       title: "AI Prescription Engine",
-      description: "Analyzes 100+ factors to recommend optimal medication and dosage",
-      color: "text-emerald-600"
+      description:
+        "Analyzes 100+ factors to recommend optimal medication and dosage",
+      color: "text-emerald-600",
     },
     {
       icon: BookOpen,
       title: "Educational Insights",
-      description: "Real statistics and medical facts integrated throughout assessment",
-      color: "text-blue-600"
+      description:
+        "Real statistics and medical facts integrated throughout assessment",
+      color: "text-blue-600",
     },
     {
       icon: Shield,
       title: "Safety-First Protocol",
-      description: "FDA-guided contraindication checking and consultation triggers",
-      color: "text-purple-600"
+      description:
+        "FDA-guided contraindication checking and consultation triggers",
+      color: "text-purple-600",
     },
     {
       icon: Heart,
       title: "Empathetic Design",
-      description: "Supportive messaging that reduces anxiety and builds confidence",
-      color: "text-rose-600"
-    }
+      description:
+        "Supportive messaging that reduces anxiety and builds confidence",
+      color: "text-rose-600",
+    },
   ];
 
   return (
@@ -116,8 +121,9 @@ export function QuestionnaireShowcase() {
           </h2>
         </div>
         <p className="text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
-          Real-world clinical scenarios with intelligent prescription recommendations, 
-          empathetic messaging, and educational content designed for optimal patient outcomes.
+          Real-world clinical scenarios with intelligent prescription
+          recommendations, empathetic messaging, and educational content
+          designed for optimal patient outcomes.
         </p>
       </div>
 
@@ -126,9 +132,14 @@ export function QuestionnaireShowcase() {
         {globalFeatures.map((feature, index) => {
           const IconComponent = feature.icon;
           return (
-            <Card key={index} className="border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow">
+            <Card
+              key={index}
+              className="border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow"
+            >
               <CardContent className="p-6 text-center">
-                <IconComponent className={`w-8 h-8 ${feature.color} mx-auto mb-3`} />
+                <IconComponent
+                  className={`w-8 h-8 ${feature.color} mx-auto mb-3`}
+                />
                 <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
                   {feature.title}
                 </h3>
@@ -146,10 +157,15 @@ export function QuestionnaireShowcase() {
         {features.map((feature, index) => {
           const IconComponent = feature.icon;
           return (
-            <Card key={index} className="border-2 border-gray-200 dark:border-gray-700 hover:border-emerald-300 transition-colors">
+            <Card
+              key={index}
+              className="border-2 border-gray-200 dark:border-gray-700 hover:border-emerald-300 transition-colors"
+            >
               <CardContent className="p-6">
                 <div className="flex items-start gap-4 mb-4">
-                  <div className={`w-12 h-12 bg-gradient-to-r ${feature.gradient} rounded-xl flex items-center justify-center shadow-lg`}>
+                  <div
+                    className={`w-12 h-12 bg-gradient-to-r ${feature.gradient} rounded-xl flex items-center justify-center shadow-lg`}
+                  >
                     <IconComponent className="w-6 h-6 text-white" />
                   </div>
                   <div className="flex-1">
@@ -177,7 +193,10 @@ export function QuestionnaireShowcase() {
                     </h4>
                     <ul className="space-y-1">
                       {feature.highlights.map((highlight, idx) => (
-                        <li key={idx} className="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-2">
+                        <li
+                          key={idx}
+                          className="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-2"
+                        >
                           <div className="w-1 h-1 bg-emerald-500 rounded-full"></div>
                           {highlight}
                         </li>
@@ -211,7 +230,9 @@ export function QuestionnaireShowcase() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
               <div className="text-3xl font-bold mb-2">47</div>
-              <div className="text-sm opacity-90">Total Questions Across Categories</div>
+              <div className="text-sm opacity-90">
+                Total Questions Across Categories
+              </div>
             </div>
             <div>
               <div className="text-3xl font-bold mb-2">12</div>
@@ -219,11 +240,15 @@ export function QuestionnaireShowcase() {
             </div>
             <div>
               <div className="text-3xl font-bold mb-2">95%</div>
-              <div className="text-sm opacity-90">AI Recommendation Accuracy</div>
+              <div className="text-sm opacity-90">
+                AI Recommendation Accuracy
+              </div>
             </div>
             <div>
               <div className="text-3xl font-bold mb-2">24/7</div>
-              <div className="text-sm opacity-90">Available Assessment Access</div>
+              <div className="text-sm opacity-90">
+                Available Assessment Access
+              </div>
             </div>
           </div>
         </CardContent>

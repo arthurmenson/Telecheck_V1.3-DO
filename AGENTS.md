@@ -20,6 +20,7 @@ client/
 ## 🎯 **Best Practices Implemented**
 
 ### 1. **Centralized API Client** (`client/lib/api-client.ts`)
+
 - **Type Safety**: Full TypeScript support
 - **Error Handling**: Automatic error processing
 - **Retry Logic**: Configurable retry with exponential backoff
@@ -28,32 +29,34 @@ client/
 - **Timeout Management**: Configurable timeouts
 
 ```typescript
-import { apiClient } from '../lib/api-client';
+import { apiClient } from "../lib/api-client";
 
 // Automatic auth headers, retries, error handling
-const response = await apiClient.get<User[]>('/users');
+const response = await apiClient.get<User[]>("/users");
 ```
 
 ### 2. **Endpoint Configuration** (`client/lib/api-endpoints.ts`)
+
 - **Centralized Endpoints**: All URLs in one place
 - **Type Safety**: TypeScript endpoint definitions
 - **Dynamic Parameters**: Template-based URL building
 
 ```typescript
-import { API_ENDPOINTS } from '../lib/api-endpoints';
+import { API_ENDPOINTS } from "../lib/api-endpoints";
 
 // Instead of hardcoding URLs
-const url = API_ENDPOINTS.EHR.PROGRAMS.UPDATE('123');
+const url = API_ENDPOINTS.EHR.PROGRAMS.UPDATE("123");
 // Generates: '/ehr/programs/123'
 ```
 
 ### 3. **Domain Services** (`client/services/api.service.ts`)
+
 - **Type-Safe Methods**: Full TypeScript interfaces
 - **Domain Organization**: Grouped by business logic
 - **Consistent API**: Standardized method signatures
 
 ```typescript
-import { ProgramService } from '../services/api.service';
+import { ProgramService } from "../services/api.service";
 
 // Type-safe with autocomplete
 const programs = await ProgramService.getPrograms();
@@ -65,6 +68,7 @@ const newProgram = await ProgramService.createProgram({
 ```
 
 ### 4. **React Query Integration** (`client/hooks/api/`)
+
 - **Caching**: Intelligent data caching
 - **Background Updates**: Automatic data freshness
 - **Optimistic Updates**: Immediate UI feedback
@@ -89,7 +93,7 @@ function ProgramsList() {
 
   if (isLoading) return <Loading />;
   if (error) return <Error error={error} />;
-  
+
   return <ProgramsGrid programs={programs} />;
 }
 ```
@@ -97,6 +101,7 @@ function ProgramsList() {
 ## 📁 **Where to Place API Code**
 
 ### **1. API Client Configuration** → `client/lib/api-client.ts`
+
 - HTTP client setup
 - Global interceptors
 - Authentication logic
@@ -104,22 +109,26 @@ function ProgramsList() {
 - Retry configuration
 
 ### **2. Endpoint Definitions** → `client/lib/api-endpoints.ts`
+
 - All API URLs
 - URL templates
 - Endpoint grouping
 
 ### **3. Service Layer** → `client/services/api.service.ts`
+
 - Domain-specific API methods
 - Request/response transformation
 - Business logic abstraction
 
 ### **4. React Hooks** → `client/hooks/api/`
+
 - React Query integration
 - Caching strategies
 - Optimistic updates
 - Loading states
 
 ### **5. Type Definitions** → `shared/types.ts`
+
 - API request/response types
 - Shared interfaces
 - Domain models
@@ -127,12 +136,13 @@ function ProgramsList() {
 ## 🚀 **Usage Examples**
 
 ### **Simple Data Fetching**
+
 ```typescript
 import { useLabResults } from '../hooks/api';
 
 function LabResultsComponent() {
   const { data, isLoading, error, refetch } = useLabResults();
-  
+
   return (
     <div>
       {isLoading && <Spinner />}
@@ -144,16 +154,17 @@ function LabResultsComponent() {
 ```
 
 ### **Data Mutations with Optimistic Updates**
+
 ```typescript
-import { useAddMedication } from '../hooks/api';
+import { useAddMedication } from "../hooks/api";
 
 function AddMedicationForm() {
   const addMedication = useAddMedication();
-  
+
   const handleSubmit = async (medicationData) => {
     try {
-      await addMedication.mutateAsync({ 
-        medication: medicationData 
+      await addMedication.mutateAsync({
+        medication: medicationData,
       });
       // UI updates immediately (optimistic)
       // Cache refreshes automatically
@@ -165,24 +176,26 @@ function AddMedicationForm() {
 ```
 
 ### **File Uploads**
+
 ```typescript
-import { useUploadLabReport } from '../hooks/api';
+import { useUploadLabReport } from "../hooks/api";
 
 function LabUpload() {
   const uploadReport = useUploadLabReport();
-  
+
   const handleFileUpload = async (file: File) => {
     try {
       const result = await uploadReport.mutateAsync({ file });
-      console.log('Upload successful:', result);
+      console.log("Upload successful:", result);
     } catch (error) {
-      console.error('Upload failed:', error);
+      console.error("Upload failed:", error);
     }
   };
 }
 ```
 
 ### **Pagination**
+
 ```typescript
 import { usePagination } from '../hooks/api';
 import { ProgramService } from '../services/api.service';
@@ -202,7 +215,7 @@ function PaginatedPrograms() {
     ProgramService.getProgramsPaginated,
     10 // items per page
   );
-  
+
   return (
     <div>
       <ProgramsList programs={data?.items} />
@@ -222,6 +235,7 @@ function PaginatedPrograms() {
 ## 🔧 **Configuration**
 
 ### **Environment Variables**
+
 ```bash
 # .env
 VITE_API_URL=http://localhost:3000/api
@@ -230,10 +244,11 @@ VITE_API_MAX_RETRIES=3
 ```
 
 ### **API Client Setup**
+
 ```typescript
 // client/lib/api-client.ts
 const API_CONFIG = {
-  BASE_URL: import.meta.env.VITE_API_URL || '/api',
+  BASE_URL: import.meta.env.VITE_API_URL || "/api",
   TIMEOUT: 30000,
   MAX_RETRIES: 3,
   RETRY_DELAY: 1000,
@@ -243,15 +258,18 @@ const API_CONFIG = {
 ## 🛡️ **Error Handling Strategy**
 
 ### **1. Client-Side Errors**
+
 - Network errors (connection issues)
 - Timeout errors
 - Request cancellation
 
 ### **2. Server-Side Errors**
+
 - 4xx: Client errors (validation, auth)
 - 5xx: Server errors (automatic retry)
 
 ### **3. Error Boundaries**
+
 ```typescript
 // Automatic error handling in hooks
 const { data, error } = usePrograms();
@@ -265,6 +283,7 @@ if (error) {
 ## 🔄 **Caching Strategy**
 
 ### **Cache Keys**
+
 - Hierarchical key structure
 - Automatic invalidation
 - Selective updates
@@ -272,20 +291,21 @@ if (error) {
 ```typescript
 export const queryKeys = {
   programs: {
-    all: ['programs'],
-    list: () => [...queryKeys.programs.all, 'list'],
-    details: (id: string) => [...queryKeys.programs.all, 'details', id],
+    all: ["programs"],
+    list: () => [...queryKeys.programs.all, "list"],
+    details: (id: string) => [...queryKeys.programs.all, "details", id],
   },
 };
 ```
 
 ### **Cache Invalidation**
+
 ```typescript
 // Automatic invalidation after mutations
 const updateProgram = useUpdateProgram();
 
 // Cache automatically updates after successful mutation
-await updateProgram.mutateAsync({ id: '123', updates });
+await updateProgram.mutateAsync({ id: "123", updates });
 ```
 
 ## 📊 **Performance Optimizations**
@@ -308,10 +328,10 @@ await updateProgram.mutateAsync({ id: '123', updates });
 
 ```typescript
 // Mock API client for testing
-import { vi } from 'vitest';
-import { apiClient } from '../lib/api-client';
+import { vi } from "vitest";
+import { apiClient } from "../lib/api-client";
 
-vi.mock('../lib/api-client', () => ({
+vi.mock("../lib/api-client", () => ({
   apiClient: {
     get: vi.fn(),
     post: vi.fn(),

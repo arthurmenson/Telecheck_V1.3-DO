@@ -1,19 +1,19 @@
-import React, { useState, useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Button } from './ui/button';
-import { Badge } from './ui/badge';
-import { Input } from './ui/input';
-import { Label } from './ui/label';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import { Textarea } from './ui/textarea';
-import { Switch } from './ui/switch';
+import React, { useState, useMemo } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Button } from "./ui/button";
+import { Badge } from "./ui/badge";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import { Textarea } from "./ui/textarea";
+import { Switch } from "./ui/switch";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from './ui/select';
+} from "./ui/select";
 import {
   Dialog,
   DialogContent,
@@ -21,8 +21,15 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from './ui/dialog';
-import { Product, SAMPLE_PRODUCTS, ProductManager, SAMPLE_SUPPLIERS, PurchaseOrder, PRODUCT_CATEGORIES } from '../data/products';
+} from "./ui/dialog";
+import {
+  Product,
+  SAMPLE_PRODUCTS,
+  ProductManager,
+  SAMPLE_SUPPLIERS,
+  PurchaseOrder,
+  PRODUCT_CATEGORIES,
+} from "../data/products";
 import {
   Package,
   AlertTriangle,
@@ -49,18 +56,21 @@ import {
   Settings,
   FileText,
   Users,
-  Activity
-} from 'lucide-react';
+  Activity,
+} from "lucide-react";
 
 interface InventoryDashboardProps {
   isOpen?: boolean;
   onClose?: () => void;
 }
 
-export function InventoryDashboard({ isOpen = true, onClose }: InventoryDashboardProps) {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  const [stockFilter, setStockFilter] = useState('all');
+export function InventoryDashboard({
+  isOpen = true,
+  onClose,
+}: InventoryDashboardProps) {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [stockFilter, setStockFilter] = useState("all");
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isCreatePOOpen, setIsCreatePOOpen] = useState(false);
   const [isStockAdjustmentOpen, setIsStockAdjustmentOpen] = useState(false);
@@ -69,22 +79,22 @@ export function InventoryDashboard({ isOpen = true, onClose }: InventoryDashboar
 
   // Form state for new product
   const [newProduct, setNewProduct] = useState<Partial<Product>>({
-    name: '',
-    genericName: '',
-    brand: '',
+    name: "",
+    genericName: "",
+    brand: "",
     category: PRODUCT_CATEGORIES[0],
-    type: 'prescription',
-    description: '',
-    shortDescription: '',
+    type: "prescription",
+    description: "",
+    shortDescription: "",
     price: 0,
     costPrice: 0,
-    sku: '',
+    sku: "",
     stock: 0,
     lowStockThreshold: 10,
     reorderPoint: 20,
     reorderQuantity: 100,
-    dosageForm: 'tablet',
-    strength: '',
+    dosageForm: "tablet",
+    strength: "",
     dosages: [],
     activeIngredients: [],
     indications: [],
@@ -95,9 +105,9 @@ export function InventoryDashboard({ isOpen = true, onClose }: InventoryDashboar
     controlledSubstance: false,
     maxRefills: 5,
     daysSupply: [30],
-    manufacturer: '',
-    ndc: '',
-    upc: '',
+    manufacturer: "",
+    ndc: "",
+    upc: "",
     images: [],
     rating: 0,
     reviewCount: 0,
@@ -110,7 +120,7 @@ export function InventoryDashboard({ isOpen = true, onClose }: InventoryDashboar
     weight: 0,
     dimensions: { length: 0, width: 0, height: 0 },
     requiresRefrigeration: false,
-    hazmat: false
+    hazmat: false,
   });
 
   // Calculate inventory metrics
@@ -118,9 +128,9 @@ export function InventoryDashboard({ isOpen = true, onClose }: InventoryDashboar
     const totalProducts = products.length;
     const lowStockProducts = ProductManager.getLowStockProducts(products);
     const reorderProducts = ProductManager.getReorderProducts(products);
-    const outOfStockProducts = products.filter(p => p.stock === 0);
+    const outOfStockProducts = products.filter((p) => p.stock === 0);
     const totalValue = ProductManager.calculateInventoryValue(products);
-    
+
     return {
       totalProducts,
       lowStockCount: lowStockProducts.length,
@@ -129,7 +139,7 @@ export function InventoryDashboard({ isOpen = true, onClose }: InventoryDashboar
       totalValue,
       lowStockProducts,
       reorderProducts,
-      outOfStockProducts
+      outOfStockProducts,
     };
   }, [products]);
 
@@ -138,26 +148,38 @@ export function InventoryDashboard({ isOpen = true, onClose }: InventoryDashboar
     let filteredProducts = products;
 
     if (searchQuery) {
-      filteredProducts = ProductManager.searchProducts(searchQuery, filteredProducts);
+      filteredProducts = ProductManager.searchProducts(
+        searchQuery,
+        filteredProducts,
+      );
     }
 
-    if (selectedCategory !== 'all') {
-      filteredProducts = ProductManager.filterByCategory(selectedCategory, filteredProducts);
+    if (selectedCategory !== "all") {
+      filteredProducts = ProductManager.filterByCategory(
+        selectedCategory,
+        filteredProducts,
+      );
     }
 
-    if (stockFilter !== 'all') {
+    if (stockFilter !== "all") {
       switch (stockFilter) {
-        case 'low':
-          filteredProducts = filteredProducts.filter(p => p.stock <= p.lowStockThreshold && p.stock > 0);
+        case "low":
+          filteredProducts = filteredProducts.filter(
+            (p) => p.stock <= p.lowStockThreshold && p.stock > 0,
+          );
           break;
-        case 'out':
-          filteredProducts = filteredProducts.filter(p => p.stock === 0);
+        case "out":
+          filteredProducts = filteredProducts.filter((p) => p.stock === 0);
           break;
-        case 'reorder':
-          filteredProducts = filteredProducts.filter(p => p.stock <= p.reorderPoint);
+        case "reorder":
+          filteredProducts = filteredProducts.filter(
+            (p) => p.stock <= p.reorderPoint,
+          );
           break;
-        case 'good':
-          filteredProducts = filteredProducts.filter(p => p.stock > p.lowStockThreshold);
+        case "good":
+          filteredProducts = filteredProducts.filter(
+            (p) => p.stock > p.lowStockThreshold,
+          );
           break;
       }
     }
@@ -166,9 +188,9 @@ export function InventoryDashboard({ isOpen = true, onClose }: InventoryDashboar
   }, [products, searchQuery, selectedCategory, stockFilter]);
 
   const getStockStatusColor = (product: Product) => {
-    if (product.stock === 0) return 'text-red-600';
-    if (product.stock <= product.lowStockThreshold) return 'text-yellow-600';
-    return 'text-green-600';
+    if (product.stock === 0) return "text-red-600";
+    if (product.stock <= product.lowStockThreshold) return "text-yellow-600";
+    return "text-green-600";
   };
 
   const getStockStatusBadge = (product: Product) => {
@@ -185,27 +207,43 @@ export function InventoryDashboard({ isOpen = true, onClose }: InventoryDashboar
   };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
     }).format(amount);
   };
 
-  const MetricCard = ({ title, value, icon: Icon, trend, color = 'blue' }: any) => (
+  const MetricCard = ({
+    title,
+    value,
+    icon: Icon,
+    trend,
+    color = "blue",
+  }: any) => (
     <Card>
       <CardContent className="p-6">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm text-gray-600 dark:text-gray-400">{title}</p>
-            <p className="text-2xl font-bold text-gray-900 dark:text-white">{value}</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">
+              {value}
+            </p>
             {trend && (
-              <div className={`flex items-center text-sm ${trend.positive ? 'text-green-600' : 'text-red-600'}`}>
-                {trend.positive ? <TrendingUp className="w-4 h-4 mr-1" /> : <TrendingDown className="w-4 h-4 mr-1" />}
+              <div
+                className={`flex items-center text-sm ${trend.positive ? "text-green-600" : "text-red-600"}`}
+              >
+                {trend.positive ? (
+                  <TrendingUp className="w-4 h-4 mr-1" />
+                ) : (
+                  <TrendingDown className="w-4 h-4 mr-1" />
+                )}
                 {trend.value}
               </div>
             )}
           </div>
-          <div className={`p-3 rounded-lg bg-${color}-100 dark:bg-${color}-900/20`}>
+          <div
+            className={`p-3 rounded-lg bg-${color}-100 dark:bg-${color}-900/20`}
+          >
             <Icon className={`w-6 h-6 text-${color}-600`} />
           </div>
         </div>
@@ -221,28 +259,40 @@ export function InventoryDashboard({ isOpen = true, onClose }: InventoryDashboar
             <Package className="w-5 h-5 text-gray-400" />
           </div>
           <div>
-            <p className="font-medium text-gray-900 dark:text-white">{product.name}</p>
-            <p className="text-sm text-gray-600 dark:text-gray-400">{product.sku}</p>
+            <p className="font-medium text-gray-900 dark:text-white">
+              {product.name}
+            </p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              {product.sku}
+            </p>
           </div>
         </div>
       </div>
       <div className="col-span-2">
-        <p className="text-sm text-gray-900 dark:text-white">{product.category.name}</p>
-        <p className="text-xs text-gray-600 dark:text-gray-400">{product.type}</p>
+        <p className="text-sm text-gray-900 dark:text-white">
+          {product.category.name}
+        </p>
+        <p className="text-xs text-gray-600 dark:text-gray-400">
+          {product.type}
+        </p>
       </div>
       <div className="col-span-1 text-center">
-        <p className={`font-medium ${getStockStatusColor(product)}`}>{product.stock}</p>
+        <p className={`font-medium ${getStockStatusColor(product)}`}>
+          {product.stock}
+        </p>
         <p className="text-xs text-gray-600 dark:text-gray-400">units</p>
       </div>
       <div className="col-span-1 text-center">
-        <p className="text-sm text-gray-900 dark:text-white">{product.lowStockThreshold}</p>
+        <p className="text-sm text-gray-900 dark:text-white">
+          {product.lowStockThreshold}
+        </p>
         <p className="text-xs text-gray-600 dark:text-gray-400">min</p>
       </div>
-      <div className="col-span-1">
-        {getStockStatusBadge(product)}
-      </div>
+      <div className="col-span-1">{getStockStatusBadge(product)}</div>
       <div className="col-span-2 text-right">
-        <p className="font-medium text-gray-900 dark:text-white">{formatCurrency(product.price)}</p>
+        <p className="font-medium text-gray-900 dark:text-white">
+          {formatCurrency(product.price)}
+        </p>
         <p className="text-xs text-gray-600 dark:text-gray-400">
           Cost: {formatCurrency(product.costPrice)}
         </p>
@@ -254,7 +304,11 @@ export function InventoryDashboard({ isOpen = true, onClose }: InventoryDashboar
         <p className="text-xs text-gray-600 dark:text-gray-400">total value</p>
       </div>
       <div className="col-span-1 flex justify-end gap-1">
-        <Button variant="ghost" size="sm" onClick={() => setSelectedProduct(product)}>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setSelectedProduct(product)}
+        >
           <Eye className="w-4 h-4" />
         </Button>
         <Button variant="ghost" size="sm">
@@ -276,11 +330,15 @@ export function InventoryDashboard({ isOpen = true, onClose }: InventoryDashboar
             Inventory Management
           </h1>
           <p className="text-gray-600 dark:text-gray-400">
-            Monitor stock levels, manage inventory, and track product performance
+            Monitor stock levels, manage inventory, and track product
+            performance
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={() => setIsStockAdjustmentOpen(true)}>
+          <Button
+            variant="outline"
+            onClick={() => setIsStockAdjustmentOpen(true)}
+          >
             <RefreshCw className="w-4 h-4 mr-2" />
             Stock Adjustment
           </Button>
@@ -307,7 +365,7 @@ export function InventoryDashboard({ isOpen = true, onClose }: InventoryDashboar
           title="Total Inventory Value"
           value={formatCurrency(inventoryMetrics.totalValue)}
           icon={DollarSign}
-          trend={{ positive: true, value: '+12.5%' }}
+          trend={{ positive: true, value: "+12.5%" }}
           color="green"
         />
         <MetricCard
@@ -417,7 +475,10 @@ export function InventoryDashboard({ isOpen = true, onClose }: InventoryDashboar
                 />
               </div>
             </div>
-            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+            <Select
+              value={selectedCategory}
+              onValueChange={setSelectedCategory}
+            >
               <SelectTrigger className="w-48">
                 <SelectValue placeholder="All Categories" />
               </SelectTrigger>
@@ -445,14 +506,30 @@ export function InventoryDashboard({ isOpen = true, onClose }: InventoryDashboar
 
           {/* Table Header */}
           <div className="grid grid-cols-12 gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg mb-2">
-            <div className="col-span-3 font-medium text-gray-900 dark:text-white">Product</div>
-            <div className="col-span-2 font-medium text-gray-900 dark:text-white">Category</div>
-            <div className="col-span-1 text-center font-medium text-gray-900 dark:text-white">Stock</div>
-            <div className="col-span-1 text-center font-medium text-gray-900 dark:text-white">Min</div>
-            <div className="col-span-1 font-medium text-gray-900 dark:text-white">Status</div>
-            <div className="col-span-2 text-right font-medium text-gray-900 dark:text-white">Price</div>
-            <div className="col-span-2 text-right font-medium text-gray-900 dark:text-white">Value</div>
-            <div className="col-span-1 text-right font-medium text-gray-900 dark:text-white">Actions</div>
+            <div className="col-span-3 font-medium text-gray-900 dark:text-white">
+              Product
+            </div>
+            <div className="col-span-2 font-medium text-gray-900 dark:text-white">
+              Category
+            </div>
+            <div className="col-span-1 text-center font-medium text-gray-900 dark:text-white">
+              Stock
+            </div>
+            <div className="col-span-1 text-center font-medium text-gray-900 dark:text-white">
+              Min
+            </div>
+            <div className="col-span-1 font-medium text-gray-900 dark:text-white">
+              Status
+            </div>
+            <div className="col-span-2 text-right font-medium text-gray-900 dark:text-white">
+              Price
+            </div>
+            <div className="col-span-2 text-right font-medium text-gray-900 dark:text-white">
+              Value
+            </div>
+            <div className="col-span-1 text-right font-medium text-gray-900 dark:text-white">
+              Actions
+            </div>
           </div>
 
           {/* Table Body */}
@@ -488,9 +565,14 @@ export function InventoryDashboard({ isOpen = true, onClose }: InventoryDashboar
           <CardContent>
             <div className="space-y-4">
               {SAMPLE_SUPPLIERS.map((supplier) => (
-                <div key={supplier.id} className="flex items-center justify-between p-3 border border-gray-200 dark:border-gray-700 rounded-lg">
+                <div
+                  key={supplier.id}
+                  className="flex items-center justify-between p-3 border border-gray-200 dark:border-gray-700 rounded-lg"
+                >
                   <div>
-                    <p className="font-medium text-gray-900 dark:text-white">{supplier.name}</p>
+                    <p className="font-medium text-gray-900 dark:text-white">
+                      {supplier.name}
+                    </p>
                     <p className="text-sm text-gray-600 dark:text-gray-400">
                       Lead time: {supplier.leadTimeDays} days
                     </p>
@@ -501,12 +583,16 @@ export function InventoryDashboard({ isOpen = true, onClose }: InventoryDashboar
                         <div
                           key={i}
                           className={`w-2 h-2 rounded-full ${
-                            i < supplier.rating ? 'bg-yellow-400' : 'bg-gray-200'
+                            i < supplier.rating
+                              ? "bg-yellow-400"
+                              : "bg-gray-200"
                           }`}
                         />
                       ))}
                     </div>
-                    <p className="text-xs text-gray-600 dark:text-gray-400">{supplier.rating}/5</p>
+                    <p className="text-xs text-gray-600 dark:text-gray-400">
+                      {supplier.rating}/5
+                    </p>
                   </div>
                 </div>
               ))}
@@ -529,7 +615,9 @@ export function InventoryDashboard({ isOpen = true, onClose }: InventoryDashboar
                   <p className="text-sm font-medium text-gray-900 dark:text-white">
                     Stock updated for Atorvastatin 20mg
                   </p>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">2 hours ago</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">
+                    2 hours ago
+                  </p>
                 </div>
               </div>
               <div className="flex items-center gap-3 p-3 border border-gray-200 dark:border-gray-700 rounded-lg">
@@ -538,7 +626,9 @@ export function InventoryDashboard({ isOpen = true, onClose }: InventoryDashboar
                   <p className="text-sm font-medium text-gray-900 dark:text-white">
                     Purchase order #PO-2024-001 received
                   </p>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">1 day ago</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">
+                    1 day ago
+                  </p>
                 </div>
               </div>
               <div className="flex items-center gap-3 p-3 border border-gray-200 dark:border-gray-700 rounded-lg">
@@ -547,7 +637,9 @@ export function InventoryDashboard({ isOpen = true, onClose }: InventoryDashboar
                   <p className="text-sm font-medium text-gray-900 dark:text-white">
                     Low stock alert: Metformin 500mg
                   </p>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">2 days ago</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">
+                    2 days ago
+                  </p>
                 </div>
               </div>
             </div>
@@ -557,7 +649,10 @@ export function InventoryDashboard({ isOpen = true, onClose }: InventoryDashboar
 
       {/* Product Details Dialog */}
       {selectedProduct && (
-        <Dialog open={!!selectedProduct} onOpenChange={() => setSelectedProduct(null)}>
+        <Dialog
+          open={!!selectedProduct}
+          onOpenChange={() => setSelectedProduct(null)}
+        >
           <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle>{selectedProduct.name}</DialogTitle>
@@ -568,38 +663,51 @@ export function InventoryDashboard({ isOpen = true, onClose }: InventoryDashboar
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label>SKU</Label>
-                <p className="text-sm text-gray-600 dark:text-gray-400">{selectedProduct.sku}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  {selectedProduct.sku}
+                </p>
               </div>
               <div>
                 <Label>Category</Label>
-                <p className="text-sm text-gray-600 dark:text-gray-400">{selectedProduct.category.name}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  {selectedProduct.category.name}
+                </p>
               </div>
               <div>
                 <Label>Current Stock</Label>
-                <p className={`text-sm font-medium ${getStockStatusColor(selectedProduct)}`}>
+                <p
+                  className={`text-sm font-medium ${getStockStatusColor(selectedProduct)}`}
+                >
                   {selectedProduct.stock} units
                 </p>
               </div>
               <div>
                 <Label>Low Stock Threshold</Label>
-                <p className="text-sm text-gray-600 dark:text-gray-400">{selectedProduct.lowStockThreshold} units</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  {selectedProduct.lowStockThreshold} units
+                </p>
               </div>
               <div>
                 <Label>Unit Price</Label>
-                <p className="text-sm text-gray-600 dark:text-gray-400">{formatCurrency(selectedProduct.price)}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  {formatCurrency(selectedProduct.price)}
+                </p>
               </div>
               <div>
                 <Label>Cost Price</Label>
-                <p className="text-sm text-gray-600 dark:text-gray-400">{formatCurrency(selectedProduct.costPrice)}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  {formatCurrency(selectedProduct.costPrice)}
+                </p>
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setSelectedProduct(null)}>
+              <Button
+                variant="outline"
+                onClick={() => setSelectedProduct(null)}
+              >
                 Close
               </Button>
-              <Button>
-                Edit Product
-              </Button>
+              <Button>Edit Product</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -633,7 +741,12 @@ export function InventoryDashboard({ isOpen = true, onClose }: InventoryDashboar
                   <Input
                     id="name"
                     value={newProduct.name}
-                    onChange={(e) => setNewProduct(prev => ({ ...prev, name: e.target.value }))}
+                    onChange={(e) =>
+                      setNewProduct((prev) => ({
+                        ...prev,
+                        name: e.target.value,
+                      }))
+                    }
                     placeholder="Enter product name"
                   />
                 </div>
@@ -642,7 +755,12 @@ export function InventoryDashboard({ isOpen = true, onClose }: InventoryDashboar
                   <Input
                     id="genericName"
                     value={newProduct.genericName}
-                    onChange={(e) => setNewProduct(prev => ({ ...prev, genericName: e.target.value }))}
+                    onChange={(e) =>
+                      setNewProduct((prev) => ({
+                        ...prev,
+                        genericName: e.target.value,
+                      }))
+                    }
                     placeholder="Enter generic name"
                   />
                 </div>
@@ -654,7 +772,12 @@ export function InventoryDashboard({ isOpen = true, onClose }: InventoryDashboar
                   <Input
                     id="brand"
                     value={newProduct.brand}
-                    onChange={(e) => setNewProduct(prev => ({ ...prev, brand: e.target.value }))}
+                    onChange={(e) =>
+                      setNewProduct((prev) => ({
+                        ...prev,
+                        brand: e.target.value,
+                      }))
+                    }
                     placeholder="Enter brand name"
                   />
                 </div>
@@ -663,7 +786,12 @@ export function InventoryDashboard({ isOpen = true, onClose }: InventoryDashboar
                   <Input
                     id="manufacturer"
                     value={newProduct.manufacturer}
-                    onChange={(e) => setNewProduct(prev => ({ ...prev, manufacturer: e.target.value }))}
+                    onChange={(e) =>
+                      setNewProduct((prev) => ({
+                        ...prev,
+                        manufacturer: e.target.value,
+                      }))
+                    }
                     placeholder="Enter manufacturer name"
                   />
                 </div>
@@ -672,15 +800,20 @@ export function InventoryDashboard({ isOpen = true, onClose }: InventoryDashboar
               <div className="grid grid-cols-3 gap-4">
                 <div>
                   <Label htmlFor="category">Category *</Label>
-                  <Select value={newProduct.category?.id} onValueChange={(value) => {
-                    const category = PRODUCT_CATEGORIES.find(cat => cat.id === value);
-                    setNewProduct(prev => ({ ...prev, category }));
-                  }}>
+                  <Select
+                    value={newProduct.category?.id}
+                    onValueChange={(value) => {
+                      const category = PRODUCT_CATEGORIES.find(
+                        (cat) => cat.id === value,
+                      );
+                      setNewProduct((prev) => ({ ...prev, category }));
+                    }}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select category" />
                     </SelectTrigger>
                     <SelectContent>
-                      {PRODUCT_CATEGORIES.map(category => (
+                      {PRODUCT_CATEGORIES.map((category) => (
                         <SelectItem key={category.id} value={category.id}>
                           {category.name}
                         </SelectItem>
@@ -690,9 +823,12 @@ export function InventoryDashboard({ isOpen = true, onClose }: InventoryDashboar
                 </div>
                 <div>
                   <Label htmlFor="type">Product Type *</Label>
-                  <Select value={newProduct.type} onValueChange={(value) =>
-                    setNewProduct(prev => ({ ...prev, type: value as any }))
-                  }>
+                  <Select
+                    value={newProduct.type}
+                    onValueChange={(value) =>
+                      setNewProduct((prev) => ({ ...prev, type: value as any }))
+                    }
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select type" />
                     </SelectTrigger>
@@ -707,9 +843,15 @@ export function InventoryDashboard({ isOpen = true, onClose }: InventoryDashboar
                 </div>
                 <div>
                   <Label htmlFor="dosageForm">Dosage Form</Label>
-                  <Select value={newProduct.dosageForm} onValueChange={(value) =>
-                    setNewProduct(prev => ({ ...prev, dosageForm: value as any }))
-                  }>
+                  <Select
+                    value={newProduct.dosageForm}
+                    onValueChange={(value) =>
+                      setNewProduct((prev) => ({
+                        ...prev,
+                        dosageForm: value as any,
+                      }))
+                    }
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select form" />
                     </SelectTrigger>
@@ -731,7 +873,12 @@ export function InventoryDashboard({ isOpen = true, onClose }: InventoryDashboar
                 <Textarea
                   id="description"
                   value={newProduct.description}
-                  onChange={(e) => setNewProduct(prev => ({ ...prev, description: e.target.value }))}
+                  onChange={(e) =>
+                    setNewProduct((prev) => ({
+                      ...prev,
+                      description: e.target.value,
+                    }))
+                  }
                   placeholder="Enter detailed product description"
                   rows={3}
                 />
@@ -742,7 +889,12 @@ export function InventoryDashboard({ isOpen = true, onClose }: InventoryDashboar
                 <Input
                   id="shortDescription"
                   value={newProduct.shortDescription}
-                  onChange={(e) => setNewProduct(prev => ({ ...prev, shortDescription: e.target.value }))}
+                  onChange={(e) =>
+                    setNewProduct((prev) => ({
+                      ...prev,
+                      shortDescription: e.target.value,
+                    }))
+                  }
                   placeholder="Brief product summary"
                 />
               </div>
@@ -755,7 +907,12 @@ export function InventoryDashboard({ isOpen = true, onClose }: InventoryDashboar
                   <Input
                     id="sku"
                     value={newProduct.sku}
-                    onChange={(e) => setNewProduct(prev => ({ ...prev, sku: e.target.value }))}
+                    onChange={(e) =>
+                      setNewProduct((prev) => ({
+                        ...prev,
+                        sku: e.target.value,
+                      }))
+                    }
                     placeholder="Product SKU"
                   />
                 </div>
@@ -764,7 +921,12 @@ export function InventoryDashboard({ isOpen = true, onClose }: InventoryDashboar
                   <Input
                     id="ndc"
                     value={newProduct.ndc}
-                    onChange={(e) => setNewProduct(prev => ({ ...prev, ndc: e.target.value }))}
+                    onChange={(e) =>
+                      setNewProduct((prev) => ({
+                        ...prev,
+                        ndc: e.target.value,
+                      }))
+                    }
                     placeholder="NDC number"
                   />
                 </div>
@@ -773,7 +935,12 @@ export function InventoryDashboard({ isOpen = true, onClose }: InventoryDashboar
                   <Input
                     id="upc"
                     value={newProduct.upc}
-                    onChange={(e) => setNewProduct(prev => ({ ...prev, upc: e.target.value }))}
+                    onChange={(e) =>
+                      setNewProduct((prev) => ({
+                        ...prev,
+                        upc: e.target.value,
+                      }))
+                    }
                     placeholder="UPC barcode"
                   />
                 </div>
@@ -787,7 +954,12 @@ export function InventoryDashboard({ isOpen = true, onClose }: InventoryDashboar
                     type="number"
                     step="0.01"
                     value={newProduct.price}
-                    onChange={(e) => setNewProduct(prev => ({ ...prev, price: parseFloat(e.target.value) || 0 }))}
+                    onChange={(e) =>
+                      setNewProduct((prev) => ({
+                        ...prev,
+                        price: parseFloat(e.target.value) || 0,
+                      }))
+                    }
                     placeholder="0.00"
                   />
                 </div>
@@ -798,7 +970,12 @@ export function InventoryDashboard({ isOpen = true, onClose }: InventoryDashboar
                     type="number"
                     step="0.01"
                     value={newProduct.costPrice}
-                    onChange={(e) => setNewProduct(prev => ({ ...prev, costPrice: parseFloat(e.target.value) || 0 }))}
+                    onChange={(e) =>
+                      setNewProduct((prev) => ({
+                        ...prev,
+                        costPrice: parseFloat(e.target.value) || 0,
+                      }))
+                    }
                     placeholder="0.00"
                   />
                 </div>
@@ -808,8 +985,13 @@ export function InventoryDashboard({ isOpen = true, onClose }: InventoryDashboar
                     id="compareAtPrice"
                     type="number"
                     step="0.01"
-                    value={newProduct.compareAtPrice || ''}
-                    onChange={(e) => setNewProduct(prev => ({ ...prev, compareAtPrice: parseFloat(e.target.value) || undefined }))}
+                    value={newProduct.compareAtPrice || ""}
+                    onChange={(e) =>
+                      setNewProduct((prev) => ({
+                        ...prev,
+                        compareAtPrice: parseFloat(e.target.value) || undefined,
+                      }))
+                    }
                     placeholder="0.00"
                   />
                 </div>
@@ -822,7 +1004,12 @@ export function InventoryDashboard({ isOpen = true, onClose }: InventoryDashboar
                     id="stock"
                     type="number"
                     value={newProduct.stock}
-                    onChange={(e) => setNewProduct(prev => ({ ...prev, stock: parseInt(e.target.value) || 0 }))}
+                    onChange={(e) =>
+                      setNewProduct((prev) => ({
+                        ...prev,
+                        stock: parseInt(e.target.value) || 0,
+                      }))
+                    }
                     placeholder="0"
                   />
                 </div>
@@ -832,7 +1019,12 @@ export function InventoryDashboard({ isOpen = true, onClose }: InventoryDashboar
                     id="lowStockThreshold"
                     type="number"
                     value={newProduct.lowStockThreshold}
-                    onChange={(e) => setNewProduct(prev => ({ ...prev, lowStockThreshold: parseInt(e.target.value) || 0 }))}
+                    onChange={(e) =>
+                      setNewProduct((prev) => ({
+                        ...prev,
+                        lowStockThreshold: parseInt(e.target.value) || 0,
+                      }))
+                    }
                     placeholder="10"
                   />
                 </div>
@@ -842,7 +1034,12 @@ export function InventoryDashboard({ isOpen = true, onClose }: InventoryDashboar
                     id="reorderPoint"
                     type="number"
                     value={newProduct.reorderPoint}
-                    onChange={(e) => setNewProduct(prev => ({ ...prev, reorderPoint: parseInt(e.target.value) || 0 }))}
+                    onChange={(e) =>
+                      setNewProduct((prev) => ({
+                        ...prev,
+                        reorderPoint: parseInt(e.target.value) || 0,
+                      }))
+                    }
                     placeholder="20"
                   />
                 </div>
@@ -852,7 +1049,12 @@ export function InventoryDashboard({ isOpen = true, onClose }: InventoryDashboar
                     id="reorderQuantity"
                     type="number"
                     value={newProduct.reorderQuantity}
-                    onChange={(e) => setNewProduct(prev => ({ ...prev, reorderQuantity: parseInt(e.target.value) || 0 }))}
+                    onChange={(e) =>
+                      setNewProduct((prev) => ({
+                        ...prev,
+                        reorderQuantity: parseInt(e.target.value) || 0,
+                      }))
+                    }
                     placeholder="100"
                   />
                 </div>
@@ -866,7 +1068,12 @@ export function InventoryDashboard({ isOpen = true, onClose }: InventoryDashboar
                   <Input
                     id="strength"
                     value={newProduct.strength}
-                    onChange={(e) => setNewProduct(prev => ({ ...prev, strength: e.target.value }))}
+                    onChange={(e) =>
+                      setNewProduct((prev) => ({
+                        ...prev,
+                        strength: e.target.value,
+                      }))
+                    }
                     placeholder="e.g., 20mg, 500ml"
                   />
                 </div>
@@ -876,7 +1083,12 @@ export function InventoryDashboard({ isOpen = true, onClose }: InventoryDashboar
                     id="maxRefills"
                     type="number"
                     value={newProduct.maxRefills}
-                    onChange={(e) => setNewProduct(prev => ({ ...prev, maxRefills: parseInt(e.target.value) || 0 }))}
+                    onChange={(e) =>
+                      setNewProduct((prev) => ({
+                        ...prev,
+                        maxRefills: parseInt(e.target.value) || 0,
+                      }))
+                    }
                     placeholder="5"
                   />
                 </div>
@@ -884,19 +1096,33 @@ export function InventoryDashboard({ isOpen = true, onClose }: InventoryDashboar
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="prescriptionRequired">Prescription Required</Label>
+                  <Label htmlFor="prescriptionRequired">
+                    Prescription Required
+                  </Label>
                   <Switch
                     id="prescriptionRequired"
                     checked={newProduct.prescriptionRequired}
-                    onCheckedChange={(checked) => setNewProduct(prev => ({ ...prev, prescriptionRequired: checked }))}
+                    onCheckedChange={(checked) =>
+                      setNewProduct((prev) => ({
+                        ...prev,
+                        prescriptionRequired: checked,
+                      }))
+                    }
                   />
                 </div>
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="controlledSubstance">Controlled Substance</Label>
+                  <Label htmlFor="controlledSubstance">
+                    Controlled Substance
+                  </Label>
                   <Switch
                     id="controlledSubstance"
                     checked={newProduct.controlledSubstance}
-                    onCheckedChange={(checked) => setNewProduct(prev => ({ ...prev, controlledSubstance: checked }))}
+                    onCheckedChange={(checked) =>
+                      setNewProduct((prev) => ({
+                        ...prev,
+                        controlledSubstance: checked,
+                      }))
+                    }
                   />
                 </div>
               </div>
@@ -905,11 +1131,16 @@ export function InventoryDashboard({ isOpen = true, onClose }: InventoryDashboar
                 <Label htmlFor="activeIngredients">Active Ingredients</Label>
                 <Textarea
                   id="activeIngredients"
-                  value={newProduct.activeIngredients?.join(', ')}
-                  onChange={(e) => setNewProduct(prev => ({
-                    ...prev,
-                    activeIngredients: e.target.value.split(',').map(s => s.trim()).filter(Boolean)
-                  }))}
+                  value={newProduct.activeIngredients?.join(", ")}
+                  onChange={(e) =>
+                    setNewProduct((prev) => ({
+                      ...prev,
+                      activeIngredients: e.target.value
+                        .split(",")
+                        .map((s) => s.trim())
+                        .filter(Boolean),
+                    }))
+                  }
                   placeholder="Enter active ingredients separated by commas"
                   rows={2}
                 />
@@ -919,11 +1150,16 @@ export function InventoryDashboard({ isOpen = true, onClose }: InventoryDashboar
                 <Label htmlFor="indications">Indications</Label>
                 <Textarea
                   id="indications"
-                  value={newProduct.indications?.join(', ')}
-                  onChange={(e) => setNewProduct(prev => ({
-                    ...prev,
-                    indications: e.target.value.split(',').map(s => s.trim()).filter(Boolean)
-                  }))}
+                  value={newProduct.indications?.join(", ")}
+                  onChange={(e) =>
+                    setNewProduct((prev) => ({
+                      ...prev,
+                      indications: e.target.value
+                        .split(",")
+                        .map((s) => s.trim())
+                        .filter(Boolean),
+                    }))
+                  }
                   placeholder="Enter medical indications separated by commas"
                   rows={2}
                 />
@@ -933,11 +1169,16 @@ export function InventoryDashboard({ isOpen = true, onClose }: InventoryDashboar
                 <Label htmlFor="contraindications">Contraindications</Label>
                 <Textarea
                   id="contraindications"
-                  value={newProduct.contraindications?.join(', ')}
-                  onChange={(e) => setNewProduct(prev => ({
-                    ...prev,
-                    contraindications: e.target.value.split(',').map(s => s.trim()).filter(Boolean)
-                  }))}
+                  value={newProduct.contraindications?.join(", ")}
+                  onChange={(e) =>
+                    setNewProduct((prev) => ({
+                      ...prev,
+                      contraindications: e.target.value
+                        .split(",")
+                        .map((s) => s.trim())
+                        .filter(Boolean),
+                    }))
+                  }
                   placeholder="Enter contraindications separated by commas"
                   rows={2}
                 />
@@ -947,11 +1188,16 @@ export function InventoryDashboard({ isOpen = true, onClose }: InventoryDashboar
                 <Label htmlFor="sideEffects">Side Effects</Label>
                 <Textarea
                   id="sideEffects"
-                  value={newProduct.sideEffects?.join(', ')}
-                  onChange={(e) => setNewProduct(prev => ({
-                    ...prev,
-                    sideEffects: e.target.value.split(',').map(s => s.trim()).filter(Boolean)
-                  }))}
+                  value={newProduct.sideEffects?.join(", ")}
+                  onChange={(e) =>
+                    setNewProduct((prev) => ({
+                      ...prev,
+                      sideEffects: e.target.value
+                        .split(",")
+                        .map((s) => s.trim())
+                        .filter(Boolean),
+                    }))
+                  }
                   placeholder="Enter potential side effects separated by commas"
                   rows={2}
                 />
@@ -966,7 +1212,12 @@ export function InventoryDashboard({ isOpen = true, onClose }: InventoryDashboar
                     id="weight"
                     type="number"
                     value={newProduct.weight}
-                    onChange={(e) => setNewProduct(prev => ({ ...prev, weight: parseFloat(e.target.value) || 0 }))}
+                    onChange={(e) =>
+                      setNewProduct((prev) => ({
+                        ...prev,
+                        weight: parseFloat(e.target.value) || 0,
+                      }))
+                    }
                     placeholder="0"
                   />
                 </div>
@@ -976,13 +1227,15 @@ export function InventoryDashboard({ isOpen = true, onClose }: InventoryDashboar
                     id="length"
                     type="number"
                     value={newProduct.dimensions?.length}
-                    onChange={(e) => setNewProduct(prev => ({
-                      ...prev,
-                      dimensions: {
-                        ...prev.dimensions!,
-                        length: parseFloat(e.target.value) || 0
-                      }
-                    }))}
+                    onChange={(e) =>
+                      setNewProduct((prev) => ({
+                        ...prev,
+                        dimensions: {
+                          ...prev.dimensions!,
+                          length: parseFloat(e.target.value) || 0,
+                        },
+                      }))
+                    }
                     placeholder="0"
                   />
                 </div>
@@ -992,13 +1245,15 @@ export function InventoryDashboard({ isOpen = true, onClose }: InventoryDashboar
                     id="width"
                     type="number"
                     value={newProduct.dimensions?.width}
-                    onChange={(e) => setNewProduct(prev => ({
-                      ...prev,
-                      dimensions: {
-                        ...prev.dimensions!,
-                        width: parseFloat(e.target.value) || 0
-                      }
-                    }))}
+                    onChange={(e) =>
+                      setNewProduct((prev) => ({
+                        ...prev,
+                        dimensions: {
+                          ...prev.dimensions!,
+                          width: parseFloat(e.target.value) || 0,
+                        },
+                      }))
+                    }
                     placeholder="0"
                   />
                 </div>
@@ -1011,22 +1266,31 @@ export function InventoryDashboard({ isOpen = true, onClose }: InventoryDashboar
                     id="height"
                     type="number"
                     value={newProduct.dimensions?.height}
-                    onChange={(e) => setNewProduct(prev => ({
-                      ...prev,
-                      dimensions: {
-                        ...prev.dimensions!,
-                        height: parseFloat(e.target.value) || 0
-                      }
-                    }))}
+                    onChange={(e) =>
+                      setNewProduct((prev) => ({
+                        ...prev,
+                        dimensions: {
+                          ...prev.dimensions!,
+                          height: parseFloat(e.target.value) || 0,
+                        },
+                      }))
+                    }
                     placeholder="0"
                   />
                 </div>
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="requiresRefrigeration">Requires Refrigeration</Label>
+                  <Label htmlFor="requiresRefrigeration">
+                    Requires Refrigeration
+                  </Label>
                   <Switch
                     id="requiresRefrigeration"
                     checked={newProduct.requiresRefrigeration}
-                    onCheckedChange={(checked) => setNewProduct(prev => ({ ...prev, requiresRefrigeration: checked }))}
+                    onCheckedChange={(checked) =>
+                      setNewProduct((prev) => ({
+                        ...prev,
+                        requiresRefrigeration: checked,
+                      }))
+                    }
                   />
                 </div>
                 <div className="flex items-center justify-between">
@@ -1034,7 +1298,9 @@ export function InventoryDashboard({ isOpen = true, onClose }: InventoryDashboar
                   <Switch
                     id="hazmat"
                     checked={newProduct.hazmat}
-                    onCheckedChange={(checked) => setNewProduct(prev => ({ ...prev, hazmat: checked }))}
+                    onCheckedChange={(checked) =>
+                      setNewProduct((prev) => ({ ...prev, hazmat: checked }))
+                    }
                   />
                 </div>
               </div>
@@ -1043,11 +1309,16 @@ export function InventoryDashboard({ isOpen = true, onClose }: InventoryDashboar
                 <Label htmlFor="tags">Tags</Label>
                 <Textarea
                   id="tags"
-                  value={newProduct.tags?.join(', ')}
-                  onChange={(e) => setNewProduct(prev => ({
-                    ...prev,
-                    tags: e.target.value.split(',').map(s => s.trim()).filter(Boolean)
-                  }))}
+                  value={newProduct.tags?.join(", ")}
+                  onChange={(e) =>
+                    setNewProduct((prev) => ({
+                      ...prev,
+                      tags: e.target.value
+                        .split(",")
+                        .map((s) => s.trim())
+                        .filter(Boolean),
+                    }))
+                  }
                   placeholder="Enter tags separated by commas (e.g., diabetes, heart health, pain relief)"
                   rows={2}
                 />
@@ -1057,11 +1328,16 @@ export function InventoryDashboard({ isOpen = true, onClose }: InventoryDashboar
                 <Label htmlFor="features">Key Features</Label>
                 <Textarea
                   id="features"
-                  value={newProduct.features?.join(', ')}
-                  onChange={(e) => setNewProduct(prev => ({
-                    ...prev,
-                    features: e.target.value.split(',').map(s => s.trim()).filter(Boolean)
-                  }))}
+                  value={newProduct.features?.join(", ")}
+                  onChange={(e) =>
+                    setNewProduct((prev) => ({
+                      ...prev,
+                      features: e.target.value
+                        .split(",")
+                        .map((s) => s.trim())
+                        .filter(Boolean),
+                    }))
+                  }
                   placeholder="Enter key features separated by commas"
                   rows={2}
                 />
@@ -1071,11 +1347,16 @@ export function InventoryDashboard({ isOpen = true, onClose }: InventoryDashboar
                 <Label htmlFor="benefits">Benefits</Label>
                 <Textarea
                   id="benefits"
-                  value={newProduct.benefits?.join(', ')}
-                  onChange={(e) => setNewProduct(prev => ({
-                    ...prev,
-                    benefits: e.target.value.split(',').map(s => s.trim()).filter(Boolean)
-                  }))}
+                  value={newProduct.benefits?.join(", ")}
+                  onChange={(e) =>
+                    setNewProduct((prev) => ({
+                      ...prev,
+                      benefits: e.target.value
+                        .split(",")
+                        .map((s) => s.trim())
+                        .filter(Boolean),
+                    }))
+                  }
                   placeholder="Enter product benefits separated by commas"
                   rows={2}
                 />
@@ -1087,7 +1368,9 @@ export function InventoryDashboard({ isOpen = true, onClose }: InventoryDashboar
                   <Switch
                     id="isActive"
                     checked={newProduct.isActive}
-                    onCheckedChange={(checked) => setNewProduct(prev => ({ ...prev, isActive: checked }))}
+                    onCheckedChange={(checked) =>
+                      setNewProduct((prev) => ({ ...prev, isActive: checked }))
+                    }
                   />
                 </div>
                 <div className="flex items-center justify-between">
@@ -1095,7 +1378,12 @@ export function InventoryDashboard({ isOpen = true, onClose }: InventoryDashboar
                   <Switch
                     id="isDiscontinued"
                     checked={newProduct.isDiscontinued}
-                    onCheckedChange={(checked) => setNewProduct(prev => ({ ...prev, isDiscontinued: checked }))}
+                    onCheckedChange={(checked) =>
+                      setNewProduct((prev) => ({
+                        ...prev,
+                        isDiscontinued: checked,
+                      }))
+                    }
                   />
                 </div>
               </div>
@@ -1103,96 +1391,27 @@ export function InventoryDashboard({ isOpen = true, onClose }: InventoryDashboar
           </Tabs>
 
           <DialogFooter className="mt-6">
-            <Button variant="outline" onClick={() => {
-              setIsAddProductOpen(false);
-              setNewProduct({
-                name: '',
-                genericName: '',
-                brand: '',
-                category: PRODUCT_CATEGORIES[0],
-                type: 'prescription',
-                description: '',
-                shortDescription: '',
-                price: 0,
-                costPrice: 0,
-                sku: '',
-                stock: 0,
-                lowStockThreshold: 10,
-                reorderPoint: 20,
-                reorderQuantity: 100,
-                dosageForm: 'tablet',
-                strength: '',
-                dosages: [],
-                activeIngredients: [],
-                indications: [],
-                contraindications: [],
-                sideEffects: [],
-                interactions: [],
-                prescriptionRequired: true,
-                controlledSubstance: false,
-                maxRefills: 5,
-                daysSupply: [30],
-                manufacturer: '',
-                ndc: '',
-                upc: '',
-                images: [],
-                rating: 0,
-                reviewCount: 0,
-                isActive: true,
-                isDiscontinued: false,
-                isOnBackorder: false,
-                tags: [],
-                features: [],
-                benefits: [],
-                weight: 0,
-                dimensions: { length: 0, width: 0, height: 0 },
-                requiresRefrigeration: false,
-                hazmat: false
-              });
-            }}>
-              Cancel
-            </Button>
             <Button
+              variant="outline"
               onClick={() => {
-                // Validate required fields
-                if (!newProduct.name || !newProduct.description || !newProduct.sku ||
-                    !newProduct.manufacturer || !newProduct.category) {
-                  alert('Please fill in all required fields');
-                  return;
-                }
-
-                // Create new product with unique ID and timestamps
-                const productToAdd: Product = {
-                  ...newProduct,
-                  id: `product_${Date.now()}`,
-                  createdAt: new Date().toISOString(),
-                  updatedAt: new Date().toISOString(),
-                  dosages: newProduct.strength ? [newProduct.strength] : [],
-                  images: ['/placeholder.svg']
-                } as Product;
-
-                // Add to products list
-                setProducts(prev => [...prev, productToAdd]);
-
-                // Close modal and reset form
                 setIsAddProductOpen(false);
                 setNewProduct({
-                  name: '',
-                  genericName: '',
-                  brand: '',
+                  name: "",
+                  genericName: "",
+                  brand: "",
                   category: PRODUCT_CATEGORIES[0],
-                  type: 'prescription',
-                  description: '',
-                  shortDescription: '',
+                  type: "prescription",
+                  description: "",
+                  shortDescription: "",
                   price: 0,
                   costPrice: 0,
-                  sku: '',
+                  sku: "",
                   stock: 0,
                   lowStockThreshold: 10,
                   reorderPoint: 20,
                   reorderQuantity: 100,
-                  dosageForm: 'tablet',
-                  strength: '',
+                  dosageForm: "tablet",
+                  strength: "",
                   dosages: [],
                   activeIngredients: [],
                   indications: [],
@@ -1203,9 +1422,9 @@ export function InventoryDashboard({ isOpen = true, onClose }: InventoryDashboar
                   controlledSubstance: false,
                   maxRefills: 5,
                   daysSupply: [30],
-                  manufacturer: '',
-                  ndc: '',
-                  upc: '',
+                  manufacturer: "",
+                  ndc: "",
+                  upc: "",
                   images: [],
                   rating: 0,
                   reviewCount: 0,
@@ -1218,7 +1437,84 @@ export function InventoryDashboard({ isOpen = true, onClose }: InventoryDashboar
                   weight: 0,
                   dimensions: { length: 0, width: 0, height: 0 },
                   requiresRefrigeration: false,
-                  hazmat: false
+                  hazmat: false,
+                });
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                // Validate required fields
+                if (
+                  !newProduct.name ||
+                  !newProduct.description ||
+                  !newProduct.sku ||
+                  !newProduct.manufacturer ||
+                  !newProduct.category
+                ) {
+                  alert("Please fill in all required fields");
+                  return;
+                }
+
+                // Create new product with unique ID and timestamps
+                const productToAdd: Product = {
+                  ...newProduct,
+                  id: `product_${Date.now()}`,
+                  createdAt: new Date().toISOString(),
+                  updatedAt: new Date().toISOString(),
+                  dosages: newProduct.strength ? [newProduct.strength] : [],
+                  images: ["/placeholder.svg"],
+                } as Product;
+
+                // Add to products list
+                setProducts((prev) => [...prev, productToAdd]);
+
+                // Close modal and reset form
+                setIsAddProductOpen(false);
+                setNewProduct({
+                  name: "",
+                  genericName: "",
+                  brand: "",
+                  category: PRODUCT_CATEGORIES[0],
+                  type: "prescription",
+                  description: "",
+                  shortDescription: "",
+                  price: 0,
+                  costPrice: 0,
+                  sku: "",
+                  stock: 0,
+                  lowStockThreshold: 10,
+                  reorderPoint: 20,
+                  reorderQuantity: 100,
+                  dosageForm: "tablet",
+                  strength: "",
+                  dosages: [],
+                  activeIngredients: [],
+                  indications: [],
+                  contraindications: [],
+                  sideEffects: [],
+                  interactions: [],
+                  prescriptionRequired: true,
+                  controlledSubstance: false,
+                  maxRefills: 5,
+                  daysSupply: [30],
+                  manufacturer: "",
+                  ndc: "",
+                  upc: "",
+                  images: [],
+                  rating: 0,
+                  reviewCount: 0,
+                  isActive: true,
+                  isDiscontinued: false,
+                  isOnBackorder: false,
+                  tags: [],
+                  features: [],
+                  benefits: [],
+                  weight: 0,
+                  dimensions: { length: 0, width: 0, height: 0 },
+                  requiresRefrigeration: false,
+                  hazmat: false,
                 });
               }}
               className="bg-blue-600 hover:bg-blue-700 text-white"

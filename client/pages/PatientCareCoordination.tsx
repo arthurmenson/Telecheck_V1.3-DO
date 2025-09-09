@@ -11,7 +11,12 @@ import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { Textarea } from "../components/ui/textarea";
 import { Progress } from "../components/ui/progress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../components/ui/tabs";
 import {
   Select,
   SelectContent,
@@ -108,10 +113,10 @@ const mockCareTeam = [
     email: "sarah.johnson@clinic.com",
     avatar: null,
     primaryContact: true,
-    lastContact: "2024-02-15"
+    lastContact: "2024-02-15",
   },
   {
-    id: "2", 
+    id: "2",
     name: "Dr. Michael Chen",
     role: "Endocrinologist",
     specialty: "Diabetes Management",
@@ -119,7 +124,7 @@ const mockCareTeam = [
     email: "michael.chen@specialist.com",
     avatar: null,
     primaryContact: false,
-    lastContact: "2024-02-10"
+    lastContact: "2024-02-10",
   },
   {
     id: "3",
@@ -130,7 +135,7 @@ const mockCareTeam = [
     email: "mary.rodriguez@clinic.com",
     avatar: null,
     primaryContact: false,
-    lastContact: "2024-02-14"
+    lastContact: "2024-02-14",
   },
   {
     id: "4",
@@ -141,15 +146,16 @@ const mockCareTeam = [
     email: "james.wilson@nutrition.com",
     avatar: null,
     primaryContact: false,
-    lastContact: "2024-02-08"
-  }
+    lastContact: "2024-02-08",
+  },
 ];
 
 const mockCarePlans = [
   {
     id: "1",
     title: "Diabetes Management Plan",
-    description: "Comprehensive diabetes care including medication management, lifestyle modifications, and regular monitoring",
+    description:
+      "Comprehensive diabetes care including medication management, lifestyle modifications, and regular monitoring",
     status: "active",
     priority: "high",
     startDate: "2024-01-15",
@@ -163,7 +169,7 @@ const mockCarePlans = [
         target: "< 7%",
         current: "7.2%",
         status: "in-progress",
-        dueDate: "2024-05-01"
+        dueDate: "2024-05-01",
       },
       {
         id: "2",
@@ -171,7 +177,7 @@ const mockCarePlans = [
         target: "180 lbs",
         current: "185 lbs",
         status: "in-progress",
-        dueDate: "2024-04-01"
+        dueDate: "2024-04-01",
       },
       {
         id: "3",
@@ -179,9 +185,9 @@ const mockCarePlans = [
         target: "150 min",
         current: "120 min",
         status: "in-progress",
-        dueDate: "2024-03-01"
-      }
-    ]
+        dueDate: "2024-03-01",
+      },
+    ],
   },
   {
     id: "2",
@@ -200,10 +206,10 @@ const mockCarePlans = [
         target: "< 130/80 mmHg",
         current: "135/85 mmHg",
         status: "in-progress",
-        dueDate: "2024-04-01"
-      }
-    ]
-  }
+        dueDate: "2024-04-01",
+      },
+    ],
+  },
 ];
 
 const mockTasks = [
@@ -218,7 +224,7 @@ const mockTasks = [
     status: "pending",
     category: "appointment",
     patientId: "PAT001",
-    carePlanId: "1"
+    carePlanId: "1",
   },
   {
     id: "2",
@@ -231,7 +237,7 @@ const mockTasks = [
     status: "in-progress",
     category: "lab",
     patientId: "PAT001",
-    carePlanId: "1"
+    carePlanId: "1",
   },
   {
     id: "3",
@@ -244,7 +250,7 @@ const mockTasks = [
     status: "pending",
     category: "medication",
     patientId: "PAT001",
-    carePlanId: "1"
+    carePlanId: "1",
   },
   {
     id: "4",
@@ -257,8 +263,8 @@ const mockTasks = [
     status: "completed",
     category: "consultation",
     patientId: "PAT001",
-    carePlanId: "1"
-  }
+    carePlanId: "1",
+  },
 ];
 
 const mockAppointments = [
@@ -271,18 +277,18 @@ const mockAppointments = [
     type: "Follow-up",
     location: "Endocrinology Clinic",
     status: "scheduled",
-    notes: "Review diabetes management and adjust medications"
+    notes: "Review diabetes management and adjust medications",
   },
   {
     id: "2",
     date: "2024-03-15",
-    time: "2:00 PM", 
+    time: "2:00 PM",
     duration: 60,
     provider: "Dr. Sarah Johnson",
     type: "Routine Check-up",
     location: "Primary Care",
     status: "scheduled",
-    notes: "Annual physical examination"
+    notes: "Annual physical examination",
   },
   {
     id: "3",
@@ -293,11 +299,13 @@ const mockAppointments = [
     type: "Nutrition Consultation",
     location: "Nutrition Center",
     status: "completed",
-    notes: "Discussed meal planning and portion control"
-  }
+    notes: "Discussed meal planning and portion control",
+  },
 ];
 
-export function PatientCareCoordination({ patientId: propPatientId }: PatientCareCoordinationProps) {
+export function PatientCareCoordination({
+  patientId: propPatientId,
+}: PatientCareCoordinationProps) {
   const { patientId: urlPatientId } = useParams<{ patientId?: string }>();
   const patientId = propPatientId || urlPatientId;
 
@@ -309,102 +317,102 @@ export function PatientCareCoordination({ patientId: propPatientId }: PatientCar
 
   // Form states
   const [newTask, setNewTask] = useState({
-    title: '',
-    description: '',
-    assignedTo: '',
-    dueDate: '',
-    priority: 'medium',
-    category: 'general'
+    title: "",
+    description: "",
+    assignedTo: "",
+    dueDate: "",
+    priority: "medium",
+    category: "general",
   });
 
   const [newPlan, setNewPlan] = useState({
-    title: '',
-    description: '',
-    startDate: '',
-    endDate: '',
-    priority: 'medium',
-    assignedTo: ''
+    title: "",
+    description: "",
+    startDate: "",
+    endDate: "",
+    priority: "medium",
+    assignedTo: "",
   });
 
   // Hooks - only fetch patient if patientId is provided and valid
   const { data: patient, isLoading: patientLoading } = usePatient(
-    patientId || '',
-    !!patientId
+    patientId || "",
+    !!patientId,
   );
 
   // Task filtering and stats
   const taskStats = useMemo(() => {
     const total = mockTasks.length;
-    const completed = mockTasks.filter(t => t.status === 'completed').length;
-    const overdue = mockTasks.filter(t => {
+    const completed = mockTasks.filter((t) => t.status === "completed").length;
+    const overdue = mockTasks.filter((t) => {
       const dueDate = new Date(t.dueDate);
       const today = new Date();
-      return dueDate < today && t.status !== 'completed';
+      return dueDate < today && t.status !== "completed";
     }).length;
-    const pending = mockTasks.filter(t => t.status === 'pending').length;
+    const pending = mockTasks.filter((t) => t.status === "pending").length;
 
     return { total, completed, overdue, pending };
   }, []);
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'completed':
-        return 'bg-green-100 text-green-800';
-      case 'in-progress':
-        return 'bg-blue-100 text-blue-800';
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'overdue':
-        return 'bg-red-100 text-red-800';
+      case "completed":
+        return "bg-green-100 text-green-800";
+      case "in-progress":
+        return "bg-blue-100 text-blue-800";
+      case "pending":
+        return "bg-yellow-100 text-yellow-800";
+      case "overdue":
+        return "bg-red-100 text-red-800";
       default:
-        return 'bg-gray-100 text-gray-800';
+        return "bg-gray-100 text-gray-800";
     }
   };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'high':
-        return 'bg-red-100 text-red-800';
-      case 'medium':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'low':
-        return 'bg-green-100 text-green-800';
+      case "high":
+        return "bg-red-100 text-red-800";
+      case "medium":
+        return "bg-yellow-100 text-yellow-800";
+      case "low":
+        return "bg-green-100 text-green-800";
       default:
-        return 'bg-gray-100 text-gray-800';
+        return "bg-gray-100 text-gray-800";
     }
   };
 
   const handleCreateTask = () => {
     // Implement task creation logic
-    console.log('Creating task:', newTask);
+    console.log("Creating task:", newTask);
     setShowAddTaskDialog(false);
     setNewTask({
-      title: '',
-      description: '',
-      assignedTo: '',
-      dueDate: '',
-      priority: 'medium',
-      category: 'general'
+      title: "",
+      description: "",
+      assignedTo: "",
+      dueDate: "",
+      priority: "medium",
+      category: "general",
     });
   };
 
   const handleCreatePlan = () => {
     // Implement care plan creation logic
-    console.log('Creating care plan:', newPlan);
+    console.log("Creating care plan:", newPlan);
     setShowAddPlanDialog(false);
     setNewPlan({
-      title: '',
-      description: '',
-      startDate: '',
-      endDate: '',
-      priority: 'medium',
-      assignedTo: ''
+      title: "",
+      description: "",
+      startDate: "",
+      endDate: "",
+      priority: "medium",
+      assignedTo: "",
     });
   };
 
   const handleDeleteTask = () => {
     // Implement task deletion logic
-    console.log('Deleting task:', selectedTask?.id);
+    console.log("Deleting task:", selectedTask?.id);
     setShowDeleteDialog(false);
     setSelectedTask(null);
   };
@@ -420,7 +428,6 @@ export function PatientCareCoordination({ patientId: propPatientId }: PatientCar
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-4 py-6 space-y-6">
-        
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
@@ -432,13 +439,16 @@ export function PatientCareCoordination({ patientId: propPatientId }: PatientCar
               Coordinate patient care across providers and manage care plans
             </p>
           </div>
-          
+
           <div className="flex gap-3">
             <Button variant="outline" size="sm">
               <Download className="w-4 h-4 mr-2" />
               Export Report
             </Button>
-            <Button onClick={() => setShowAddTaskDialog(true)} className="gap-2">
+            <Button
+              onClick={() => setShowAddTaskDialog(true)}
+              className="gap-2"
+            >
               <Plus className="w-4 h-4" />
               Add Task
             </Button>
@@ -451,49 +461,70 @@ export function PatientCareCoordination({ patientId: propPatientId }: PatientCar
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Total Tasks</p>
-                  <p className="text-2xl font-bold text-foreground">{taskStats.total}</p>
+                  <p className="text-sm font-medium text-muted-foreground">
+                    Total Tasks
+                  </p>
+                  <p className="text-2xl font-bold text-foreground">
+                    {taskStats.total}
+                  </p>
                 </div>
                 <CheckSquare className="w-8 h-8 text-blue-600" />
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Completed</p>
-                  <p className="text-2xl font-bold text-foreground">{taskStats.completed}</p>
+                  <p className="text-sm font-medium text-muted-foreground">
+                    Completed
+                  </p>
+                  <p className="text-2xl font-bold text-foreground">
+                    {taskStats.completed}
+                  </p>
                   <p className="text-xs text-muted-foreground">
-                    {Math.round((taskStats.completed / taskStats.total) * 100)}% complete
+                    {Math.round((taskStats.completed / taskStats.total) * 100)}%
+                    complete
                   </p>
                 </div>
                 <CheckCircle className="w-8 h-8 text-green-600" />
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Pending</p>
-                  <p className="text-2xl font-bold text-foreground">{taskStats.pending}</p>
-                  <p className="text-xs text-muted-foreground">Need attention</p>
+                  <p className="text-sm font-medium text-muted-foreground">
+                    Pending
+                  </p>
+                  <p className="text-2xl font-bold text-foreground">
+                    {taskStats.pending}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Need attention
+                  </p>
                 </div>
                 <Clock className="w-8 h-8 text-yellow-600" />
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Overdue</p>
-                  <p className="text-2xl font-bold text-foreground">{taskStats.overdue}</p>
-                  <p className="text-xs text-muted-foreground">Require immediate action</p>
+                  <p className="text-sm font-medium text-muted-foreground">
+                    Overdue
+                  </p>
+                  <p className="text-2xl font-bold text-foreground">
+                    {taskStats.overdue}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Require immediate action
+                  </p>
                 </div>
                 <AlertTriangle className="w-8 h-8 text-red-600" />
               </div>
@@ -501,7 +532,11 @@ export function PatientCareCoordination({ patientId: propPatientId }: PatientCar
           </Card>
         </div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="space-y-6"
+        >
           <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="care-team">Care Team</TabsTrigger>
@@ -514,7 +549,6 @@ export function PatientCareCoordination({ patientId: propPatientId }: PatientCar
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Main Content */}
               <div className="lg:col-span-2 space-y-6">
-                
                 {/* Active Care Plans */}
                 <Card>
                   <CardHeader>
@@ -525,38 +559,45 @@ export function PatientCareCoordination({ patientId: propPatientId }: PatientCar
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
-                      {mockCarePlans.filter(plan => plan.status === 'active').map((plan) => (
-                        <div key={plan.id} className="p-4 border rounded-lg">
-                          <div className="flex items-center justify-between mb-3">
-                            <h3 className="font-semibold">{plan.title}</h3>
-                            <div className="flex gap-2">
-                              <Badge className={getPriorityColor(plan.priority)}>
-                                {plan.priority} priority
-                              </Badge>
-                              <Badge className={getStatusColor(plan.status)}>
-                                {plan.status}
-                              </Badge>
+                      {mockCarePlans
+                        .filter((plan) => plan.status === "active")
+                        .map((plan) => (
+                          <div key={plan.id} className="p-4 border rounded-lg">
+                            <div className="flex items-center justify-between mb-3">
+                              <h3 className="font-semibold">{plan.title}</h3>
+                              <div className="flex gap-2">
+                                <Badge
+                                  className={getPriorityColor(plan.priority)}
+                                >
+                                  {plan.priority} priority
+                                </Badge>
+                                <Badge className={getStatusColor(plan.status)}>
+                                  {plan.status}
+                                </Badge>
+                              </div>
+                            </div>
+
+                            <p className="text-sm text-muted-foreground mb-3">
+                              {plan.description}
+                            </p>
+
+                            <div className="space-y-2 mb-3">
+                              <div className="flex justify-between text-sm">
+                                <span>Progress</span>
+                                <span>{plan.progress}%</span>
+                              </div>
+                              <Progress value={plan.progress} className="h-2" />
+                            </div>
+
+                            <div className="flex items-center justify-between text-sm text-muted-foreground">
+                              <span>Assigned to: {plan.assignedTo}</span>
+                              <span>
+                                {new Date(plan.startDate).toLocaleDateString()}{" "}
+                                - {new Date(plan.endDate).toLocaleDateString()}
+                              </span>
                             </div>
                           </div>
-                          
-                          <p className="text-sm text-muted-foreground mb-3">{plan.description}</p>
-                          
-                          <div className="space-y-2 mb-3">
-                            <div className="flex justify-between text-sm">
-                              <span>Progress</span>
-                              <span>{plan.progress}%</span>
-                            </div>
-                            <Progress value={plan.progress} className="h-2" />
-                          </div>
-                          
-                          <div className="flex items-center justify-between text-sm text-muted-foreground">
-                            <span>Assigned to: {plan.assignedTo}</span>
-                            <span>
-                              {new Date(plan.startDate).toLocaleDateString()} - {new Date(plan.endDate).toLocaleDateString()}
-                            </span>
-                          </div>
-                        </div>
-                      ))}
+                        ))}
                     </div>
                   </CardContent>
                 </Card>
@@ -572,20 +613,33 @@ export function PatientCareCoordination({ patientId: propPatientId }: PatientCar
                   <CardContent>
                     <div className="space-y-3">
                       {mockTasks.slice(0, 5).map((task) => (
-                        <div key={task.id} className="flex items-center gap-3 p-3 border rounded-lg">
+                        <div
+                          key={task.id}
+                          className="flex items-center gap-3 p-3 border rounded-lg"
+                        >
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-1">
-                              <h4 className="font-medium text-sm">{task.title}</h4>
-                              <Badge className={getPriorityColor(task.priority)} variant="outline">
+                              <h4 className="font-medium text-sm">
+                                {task.title}
+                              </h4>
+                              <Badge
+                                className={getPriorityColor(task.priority)}
+                                variant="outline"
+                              >
                                 {task.priority}
                               </Badge>
                               <Badge className={getStatusColor(task.status)}>
                                 {task.status}
                               </Badge>
                             </div>
-                            <p className="text-xs text-muted-foreground mb-1">{task.description}</p>
+                            <p className="text-xs text-muted-foreground mb-1">
+                              {task.description}
+                            </p>
                             <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                              <span>Due: {new Date(task.dueDate).toLocaleDateString()}</span>
+                              <span>
+                                Due:{" "}
+                                {new Date(task.dueDate).toLocaleDateString()}
+                              </span>
                               <span>Assigned to: {task.assignedTo}</span>
                             </div>
                           </div>
@@ -601,7 +655,6 @@ export function PatientCareCoordination({ patientId: propPatientId }: PatientCar
 
               {/* Sidebar */}
               <div className="space-y-6">
-                
                 {/* Care Team Summary */}
                 <Card>
                   <CardHeader>
@@ -613,13 +666,20 @@ export function PatientCareCoordination({ patientId: propPatientId }: PatientCar
                   <CardContent>
                     <div className="space-y-3">
                       {mockCareTeam.slice(0, 4).map((member) => (
-                        <div key={member.id} className="flex items-center gap-3">
+                        <div
+                          key={member.id}
+                          className="flex items-center gap-3"
+                        >
                           <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
                             <User className="w-4 h-4 text-primary" />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="font-medium text-sm truncate">{member.name}</p>
-                            <p className="text-xs text-muted-foreground">{member.role}</p>
+                            <p className="font-medium text-sm truncate">
+                              {member.name}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {member.role}
+                            </p>
                           </div>
                           {member.primaryContact && (
                             <Star className="w-4 h-4 text-yellow-500" />
@@ -640,28 +700,40 @@ export function PatientCareCoordination({ patientId: propPatientId }: PatientCar
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
-                      {mockAppointments.filter(apt => apt.status === 'scheduled').map((appointment) => (
-                        <div key={appointment.id} className="p-3 border rounded-lg">
-                          <div className="flex items-center justify-between mb-2">
-                            <h4 className="font-medium text-sm">{appointment.type}</h4>
-                            <Badge variant="outline">{appointment.status}</Badge>
+                      {mockAppointments
+                        .filter((apt) => apt.status === "scheduled")
+                        .map((appointment) => (
+                          <div
+                            key={appointment.id}
+                            className="p-3 border rounded-lg"
+                          >
+                            <div className="flex items-center justify-between mb-2">
+                              <h4 className="font-medium text-sm">
+                                {appointment.type}
+                              </h4>
+                              <Badge variant="outline">
+                                {appointment.status}
+                              </Badge>
+                            </div>
+                            <div className="space-y-1 text-xs text-muted-foreground">
+                              <div className="flex items-center gap-1">
+                                <CalendarIcon className="w-3 h-3" />
+                                {new Date(
+                                  appointment.date,
+                                ).toLocaleDateString()}{" "}
+                                at {appointment.time}
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <User className="w-3 h-3" />
+                                {appointment.provider}
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <MapPin className="w-3 h-3" />
+                                {appointment.location}
+                              </div>
+                            </div>
                           </div>
-                          <div className="space-y-1 text-xs text-muted-foreground">
-                            <div className="flex items-center gap-1">
-                              <CalendarIcon className="w-3 h-3" />
-                              {new Date(appointment.date).toLocaleDateString()} at {appointment.time}
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <User className="w-3 h-3" />
-                              {appointment.provider}
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <MapPin className="w-3 h-3" />
-                              {appointment.location}
-                            </div>
-                          </div>
-                        </div>
-                      ))}
+                        ))}
                     </div>
                   </CardContent>
                 </Card>
@@ -676,19 +748,35 @@ export function PatientCareCoordination({ patientId: propPatientId }: PatientCar
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-2">
-                      <Button variant="outline" className="w-full justify-start" size="sm">
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start"
+                        size="sm"
+                      >
                         <Calendar className="w-4 h-4 mr-2" />
                         Schedule Appointment
                       </Button>
-                      <Button variant="outline" className="w-full justify-start" size="sm">
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start"
+                        size="sm"
+                      >
                         <MessageSquare className="w-4 h-4 mr-2" />
                         Send Message
                       </Button>
-                      <Button variant="outline" className="w-full justify-start" size="sm">
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start"
+                        size="sm"
+                      >
                         <FileText className="w-4 h-4 mr-2" />
                         Create Note
                       </Button>
-                      <Button variant="outline" className="w-full justify-start" size="sm">
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start"
+                        size="sm"
+                      >
                         <Bell className="w-4 h-4 mr-2" />
                         Set Reminder
                       </Button>
@@ -731,9 +819,13 @@ export function PatientCareCoordination({ patientId: propPatientId }: PatientCar
                                 </Badge>
                               )}
                             </div>
-                            <p className="text-sm text-muted-foreground mb-3">{member.role}</p>
-                            <p className="text-sm text-muted-foreground mb-3">{member.specialty}</p>
-                            
+                            <p className="text-sm text-muted-foreground mb-3">
+                              {member.role}
+                            </p>
+                            <p className="text-sm text-muted-foreground mb-3">
+                              {member.specialty}
+                            </p>
+
                             <div className="space-y-2 text-sm">
                               <div className="flex items-center gap-2">
                                 <Phone className="w-4 h-4 text-muted-foreground" />
@@ -744,11 +836,14 @@ export function PatientCareCoordination({ patientId: propPatientId }: PatientCar
                                 <span>{member.email}</span>
                               </div>
                               <div className="text-xs text-muted-foreground">
-                                Last contact: {new Date(member.lastContact).toLocaleDateString()}
+                                Last contact:{" "}
+                                {new Date(
+                                  member.lastContact,
+                                ).toLocaleDateString()}
                               </div>
                             </div>
                           </div>
-                          
+
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                               <Button variant="ghost" size="sm">
@@ -800,13 +895,19 @@ export function PatientCareCoordination({ patientId: propPatientId }: PatientCar
                       <CardContent className="p-6">
                         <div className="flex items-start justify-between mb-4">
                           <div>
-                            <h3 className="font-semibold text-lg mb-2">{plan.title}</h3>
-                            <p className="text-muted-foreground mb-3">{plan.description}</p>
+                            <h3 className="font-semibold text-lg mb-2">
+                              {plan.title}
+                            </h3>
+                            <p className="text-muted-foreground mb-3">
+                              {plan.description}
+                            </p>
                             <div className="flex gap-2">
                               <Badge className={getStatusColor(plan.status)}>
                                 {plan.status}
                               </Badge>
-                              <Badge className={getPriorityColor(plan.priority)}>
+                              <Badge
+                                className={getPriorityColor(plan.priority)}
+                              >
                                 {plan.priority} priority
                               </Badge>
                             </div>
@@ -846,15 +947,21 @@ export function PatientCareCoordination({ patientId: propPatientId }: PatientCar
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                             <div>
                               <span className="font-medium">Assigned to:</span>
-                              <p className="text-muted-foreground">{plan.assignedTo}</p>
+                              <p className="text-muted-foreground">
+                                {plan.assignedTo}
+                              </p>
                             </div>
                             <div>
                               <span className="font-medium">Start Date:</span>
-                              <p className="text-muted-foreground">{new Date(plan.startDate).toLocaleDateString()}</p>
+                              <p className="text-muted-foreground">
+                                {new Date(plan.startDate).toLocaleDateString()}
+                              </p>
                             </div>
                             <div>
                               <span className="font-medium">End Date:</span>
-                              <p className="text-muted-foreground">{new Date(plan.endDate).toLocaleDateString()}</p>
+                              <p className="text-muted-foreground">
+                                {new Date(plan.endDate).toLocaleDateString()}
+                              </p>
                             </div>
                           </div>
 
@@ -862,17 +969,29 @@ export function PatientCareCoordination({ patientId: propPatientId }: PatientCar
                             <h4 className="font-medium mb-3">Goals</h4>
                             <div className="space-y-2">
                               {plan.goals.map((goal) => (
-                                <div key={goal.id} className="flex items-center gap-3 p-3 border rounded-lg">
+                                <div
+                                  key={goal.id}
+                                  className="flex items-center gap-3 p-3 border rounded-lg"
+                                >
                                   <Target className="w-4 h-4 text-primary" />
                                   <div className="flex-1">
                                     <div className="flex items-center justify-between mb-1">
-                                      <span className="text-sm font-medium">{goal.description}</span>
-                                      <Badge className={getStatusColor(goal.status)} variant="outline">
+                                      <span className="text-sm font-medium">
+                                        {goal.description}
+                                      </span>
+                                      <Badge
+                                        className={getStatusColor(goal.status)}
+                                        variant="outline"
+                                      >
                                         {goal.status}
                                       </Badge>
                                     </div>
                                     <div className="text-xs text-muted-foreground">
-                                      Target: {goal.target} • Current: {goal.current} • Due: {new Date(goal.dueDate).toLocaleDateString()}
+                                      Target: {goal.target} • Current:{" "}
+                                      {goal.current} • Due:{" "}
+                                      {new Date(
+                                        goal.dueDate,
+                                      ).toLocaleDateString()}
                                     </div>
                                   </div>
                                 </div>
@@ -908,7 +1027,10 @@ export function PatientCareCoordination({ patientId: propPatientId }: PatientCar
                         <SelectItem value="completed">Completed</SelectItem>
                       </SelectContent>
                     </Select>
-                    <Button onClick={() => setShowAddTaskDialog(true)} size="sm">
+                    <Button
+                      onClick={() => setShowAddTaskDialog(true)}
+                      size="sm"
+                    >
                       <Plus className="w-4 h-4 mr-2" />
                       Add Task
                     </Button>
@@ -934,11 +1056,15 @@ export function PatientCareCoordination({ patientId: propPatientId }: PatientCar
                         <TableCell>
                           <div>
                             <div className="font-medium">{task.title}</div>
-                            <div className="text-sm text-muted-foreground">{task.description}</div>
+                            <div className="text-sm text-muted-foreground">
+                              {task.description}
+                            </div>
                           </div>
                         </TableCell>
                         <TableCell>{task.assignedTo}</TableCell>
-                        <TableCell>{new Date(task.dueDate).toLocaleDateString()}</TableCell>
+                        <TableCell>
+                          {new Date(task.dueDate).toLocaleDateString()}
+                        </TableCell>
                         <TableCell>
                           <Badge className={getPriorityColor(task.priority)}>
                             {task.priority}
@@ -968,7 +1094,7 @@ export function PatientCareCoordination({ patientId: propPatientId }: PatientCar
                                 <CheckCircle className="w-4 h-4 mr-2" />
                                 Mark Complete
                               </DropdownMenuItem>
-                              <DropdownMenuItem 
+                              <DropdownMenuItem
                                 onClick={() => {
                                   setSelectedTask(task);
                                   setShowDeleteDialog(true);
@@ -1013,12 +1139,23 @@ export function PatientCareCoordination({ patientId: propPatientId }: PatientCar
                               <CalendarIcon className="w-6 h-6 text-primary" />
                             </div>
                             <div>
-                              <h3 className="font-semibold">{appointment.type}</h3>
-                              <p className="text-sm text-muted-foreground mb-2">{appointment.provider}</p>
+                              <h3 className="font-semibold">
+                                {appointment.type}
+                              </h3>
+                              <p className="text-sm text-muted-foreground mb-2">
+                                {appointment.provider}
+                              </p>
                               <div className="grid grid-cols-2 gap-4 text-sm text-muted-foreground">
                                 <div>
-                                  <span className="font-medium">Date & Time:</span>
-                                  <p>{new Date(appointment.date).toLocaleDateString()} at {appointment.time}</p>
+                                  <span className="font-medium">
+                                    Date & Time:
+                                  </span>
+                                  <p>
+                                    {new Date(
+                                      appointment.date,
+                                    ).toLocaleDateString()}{" "}
+                                    at {appointment.time}
+                                  </p>
                                 </div>
                                 <div>
                                   <span className="font-medium">Location:</span>
@@ -1027,14 +1164,20 @@ export function PatientCareCoordination({ patientId: propPatientId }: PatientCar
                               </div>
                               {appointment.notes && (
                                 <div className="mt-2">
-                                  <span className="font-medium text-sm">Notes:</span>
-                                  <p className="text-sm text-muted-foreground">{appointment.notes}</p>
+                                  <span className="font-medium text-sm">
+                                    Notes:
+                                  </span>
+                                  <p className="text-sm text-muted-foreground">
+                                    {appointment.notes}
+                                  </p>
                                 </div>
                               )}
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
-                            <Badge className={getStatusColor(appointment.status)}>
+                            <Badge
+                              className={getStatusColor(appointment.status)}
+                            >
                               {appointment.status}
                             </Badge>
                             <DropdownMenu>
@@ -1084,7 +1227,9 @@ export function PatientCareCoordination({ patientId: propPatientId }: PatientCar
                 <Input
                   id="taskTitle"
                   value={newTask.title}
-                  onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
+                  onChange={(e) =>
+                    setNewTask({ ...newTask, title: e.target.value })
+                  }
                   placeholder="Enter task title"
                 />
               </div>
@@ -1093,14 +1238,21 @@ export function PatientCareCoordination({ patientId: propPatientId }: PatientCar
                 <Textarea
                   id="taskDescription"
                   value={newTask.description}
-                  onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
+                  onChange={(e) =>
+                    setNewTask({ ...newTask, description: e.target.value })
+                  }
                   placeholder="Enter task description"
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="assignedTo">Assign To</Label>
-                  <Select value={newTask.assignedTo} onValueChange={(value) => setNewTask({ ...newTask, assignedTo: value })}>
+                  <Select
+                    value={newTask.assignedTo}
+                    onValueChange={(value) =>
+                      setNewTask({ ...newTask, assignedTo: value })
+                    }
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select team member" />
                     </SelectTrigger>
@@ -1119,14 +1271,21 @@ export function PatientCareCoordination({ patientId: propPatientId }: PatientCar
                     id="dueDate"
                     type="date"
                     value={newTask.dueDate}
-                    onChange={(e) => setNewTask({ ...newTask, dueDate: e.target.value })}
+                    onChange={(e) =>
+                      setNewTask({ ...newTask, dueDate: e.target.value })
+                    }
                   />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="priority">Priority</Label>
-                  <Select value={newTask.priority} onValueChange={(value) => setNewTask({ ...newTask, priority: value })}>
+                  <Select
+                    value={newTask.priority}
+                    onValueChange={(value) =>
+                      setNewTask({ ...newTask, priority: value })
+                    }
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -1139,7 +1298,12 @@ export function PatientCareCoordination({ patientId: propPatientId }: PatientCar
                 </div>
                 <div>
                   <Label htmlFor="category">Category</Label>
-                  <Select value={newTask.category} onValueChange={(value) => setNewTask({ ...newTask, category: value })}>
+                  <Select
+                    value={newTask.category}
+                    onValueChange={(value) =>
+                      setNewTask({ ...newTask, category: value })
+                    }
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -1155,7 +1319,10 @@ export function PatientCareCoordination({ patientId: propPatientId }: PatientCar
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setShowAddTaskDialog(false)}>
+              <Button
+                variant="outline"
+                onClick={() => setShowAddTaskDialog(false)}
+              >
                 Cancel
               </Button>
               <Button onClick={handleCreateTask}>Create Task</Button>
@@ -1178,7 +1345,9 @@ export function PatientCareCoordination({ patientId: propPatientId }: PatientCar
                 <Input
                   id="planTitle"
                   value={newPlan.title}
-                  onChange={(e) => setNewPlan({ ...newPlan, title: e.target.value })}
+                  onChange={(e) =>
+                    setNewPlan({ ...newPlan, title: e.target.value })
+                  }
                   placeholder="Enter care plan title"
                 />
               </div>
@@ -1187,7 +1356,9 @@ export function PatientCareCoordination({ patientId: propPatientId }: PatientCar
                 <Textarea
                   id="planDescription"
                   value={newPlan.description}
-                  onChange={(e) => setNewPlan({ ...newPlan, description: e.target.value })}
+                  onChange={(e) =>
+                    setNewPlan({ ...newPlan, description: e.target.value })
+                  }
                   placeholder="Enter care plan description"
                 />
               </div>
@@ -1198,7 +1369,9 @@ export function PatientCareCoordination({ patientId: propPatientId }: PatientCar
                     id="startDate"
                     type="date"
                     value={newPlan.startDate}
-                    onChange={(e) => setNewPlan({ ...newPlan, startDate: e.target.value })}
+                    onChange={(e) =>
+                      setNewPlan({ ...newPlan, startDate: e.target.value })
+                    }
                   />
                 </div>
                 <div>
@@ -1207,14 +1380,21 @@ export function PatientCareCoordination({ patientId: propPatientId }: PatientCar
                     id="endDate"
                     type="date"
                     value={newPlan.endDate}
-                    onChange={(e) => setNewPlan({ ...newPlan, endDate: e.target.value })}
+                    onChange={(e) =>
+                      setNewPlan({ ...newPlan, endDate: e.target.value })
+                    }
                   />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="planPriority">Priority</Label>
-                  <Select value={newPlan.priority} onValueChange={(value) => setNewPlan({ ...newPlan, priority: value })}>
+                  <Select
+                    value={newPlan.priority}
+                    onValueChange={(value) =>
+                      setNewPlan({ ...newPlan, priority: value })
+                    }
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -1227,7 +1407,12 @@ export function PatientCareCoordination({ patientId: propPatientId }: PatientCar
                 </div>
                 <div>
                   <Label htmlFor="planAssignedTo">Assign To</Label>
-                  <Select value={newPlan.assignedTo} onValueChange={(value) => setNewPlan({ ...newPlan, assignedTo: value })}>
+                  <Select
+                    value={newPlan.assignedTo}
+                    onValueChange={(value) =>
+                      setNewPlan({ ...newPlan, assignedTo: value })
+                    }
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select provider" />
                     </SelectTrigger>
@@ -1243,7 +1428,10 @@ export function PatientCareCoordination({ patientId: propPatientId }: PatientCar
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setShowAddPlanDialog(false)}>
+              <Button
+                variant="outline"
+                onClick={() => setShowAddPlanDialog(false)}
+              >
                 Cancel
               </Button>
               <Button onClick={handleCreatePlan}>Create Plan</Button>
@@ -1257,12 +1445,15 @@ export function PatientCareCoordination({ patientId: propPatientId }: PatientCar
             <AlertDialogHeader>
               <AlertDialogTitle>Delete Task</AlertDialogTitle>
               <AlertDialogDescription>
-                Are you sure you want to delete "{selectedTask?.title}"? This action cannot be undone.
+                Are you sure you want to delete "{selectedTask?.title}"? This
+                action cannot be undone.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={handleDeleteTask}>Delete</AlertDialogAction>
+              <AlertDialogAction onClick={handleDeleteTask}>
+                Delete
+              </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>

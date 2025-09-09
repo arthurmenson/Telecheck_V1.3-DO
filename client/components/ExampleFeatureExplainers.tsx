@@ -2,32 +2,28 @@ import React from "react";
 import { FeatureExplainer, presets } from "./FeatureExplainer";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
-import { 
-  Stethoscope, 
-  Brain, 
-  Users, 
+import {
+  Stethoscope,
+  Brain,
+  Users,
   Heart,
   Info,
   HelpCircle,
-  AlertCircle
+  AlertCircle,
 } from "lucide-react";
 
 export function ExampleFeatureExplainers() {
   return (
     <div className="space-y-6 p-6">
       <h2 className="text-2xl font-bold">FeatureExplainer Usage Examples</h2>
-      
+
       {/* Example 1: Simple info dot next to title */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Brain className="w-5 h-5" />
             AI Medical Scribe
-            <FeatureExplainer
-              {...presets.aiScribe}
-              size="sm"
-              variant="info"
-            />
+            <FeatureExplainer {...presets.aiScribe} size="sm" variant="info" />
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -48,18 +44,18 @@ export function ExampleFeatureExplainers() {
                 "Multi-provider collaboration",
                 "Role-based permissions",
                 "Task assignment and tracking",
-                "Real-time communication"
+                "Real-time communication",
               ]}
               benefits={[
                 "Improved care coordination",
                 "Reduced care gaps",
                 "Better patient outcomes",
-                "Enhanced provider satisfaction"
+                "Enhanced provider satisfaction",
               ]}
               examples={[
                 "Assign tasks to specific team members",
                 "Share patient updates across providers",
-                "Coordinate appointment scheduling"
+                "Coordinate appointment scheduling",
               ]}
               category="Team Collaboration"
               complexity="Intermediate"
@@ -84,14 +80,14 @@ export function ExampleFeatureExplainers() {
           description="Real-time monitoring of patient vital signs with configurable alert thresholds."
           features={[
             "Real-time data streaming",
-            "Customizable alert thresholds", 
+            "Customizable alert thresholds",
             "Historical trend analysis",
-            "Multi-device support"
+            "Multi-device support",
           ]}
           benefits={[
             "Early detection of health changes",
             "Reduced emergency visits",
-            "Improved patient safety"
+            "Improved patient safety",
           ]}
           category="Monitoring"
           complexity="Beginner"
@@ -99,7 +95,9 @@ export function ExampleFeatureExplainers() {
           size="sm"
           variant="minimal"
         />
-        <Badge variant="secondary" className="ml-auto">Real-time</Badge>
+        <Badge variant="secondary" className="ml-auto">
+          Real-time
+        </Badge>
       </div>
 
       {/* Example 4: Large size with warning style */}
@@ -115,18 +113,18 @@ export function ExampleFeatureExplainers() {
                 "Instant notifications",
                 "Escalation protocols",
                 "Multiple delivery channels",
-                "Acknowledgment tracking"
+                "Acknowledgment tracking",
               ]}
               benefits={[
                 "Faster response times",
                 "Improved patient safety",
                 "Reduced liability",
-                "Better outcomes"
+                "Better outcomes",
               ]}
               examples={[
                 "Blood pressure spike alerts",
                 "Medication allergy warnings",
-                "Critical lab value notifications"
+                "Critical lab value notifications",
               ]}
               category="Emergency Response"
               complexity="Advanced"
@@ -134,7 +132,7 @@ export function ExampleFeatureExplainers() {
               prerequisites={[
                 "Emergency contact setup",
                 "Alert threshold configuration",
-                "Team notification protocols"
+                "Team notification protocols",
               ]}
               icon={AlertCircle}
               size="lg"
@@ -153,10 +151,7 @@ export function ExampleFeatureExplainers() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-sm">
               Clinical Tools
-              <FeatureExplainer
-                {...presets.clinicalTools}
-                size="sm"
-              />
+              <FeatureExplainer {...presets.clinicalTools} size="sm" />
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -168,10 +163,7 @@ export function ExampleFeatureExplainers() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-sm">
               Care Coordination
-              <FeatureExplainer
-                {...presets.careCoordination}
-                size="sm"
-              />
+              <FeatureExplainer {...presets.careCoordination} size="sm" />
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -205,15 +197,19 @@ export function ExampleFeatureExplainers() {
           </CardTitle>
         </CardHeader>
         <CardContent className="text-sm text-blue-700 dark:text-blue-300 space-y-2">
-          <p><strong>When to use:</strong></p>
+          <p>
+            <strong>When to use:</strong>
+          </p>
           <ul className="list-disc list-inside space-y-1 ml-4">
             <li>Complex features that need explanation</li>
             <li>New features users might not understand</li>
             <li>Features with multiple configuration options</li>
             <li>Medical tools requiring clinical context</li>
           </ul>
-          
-          <p><strong>Best practices:</strong></p>
+
+          <p>
+            <strong>Best practices:</strong>
+          </p>
           <ul className="list-disc list-inside space-y-1 ml-4">
             <li>Keep explanations concise but comprehensive</li>
             <li>Use appropriate complexity levels</li>
