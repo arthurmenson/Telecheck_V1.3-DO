@@ -45,8 +45,7 @@ interface MessagingAnalytics {
 
 export default function AdminSettings() {
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState("general");
-  const [messagingConfig, setMessagingConfig] = useState<MessagingConfig>({
+
     telnyxApiKey: "YOUR_TELNYX_API_KEY_HERE",
     twilioAccountSid: "",
     twilioAuthToken: "",
