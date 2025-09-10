@@ -30,17 +30,17 @@ import {
 import { Link } from "react-router-dom";
 
 // Doctor Card Component
-const DoctorCard = ({ 
-  doctor, 
-  onSelect, 
-  isSelected = false 
-}: { 
-  doctor: any; 
-  onSelect: () => void; 
+const DoctorCard = ({
+  doctor,
+  onSelect,
+  isSelected = false,
+}: {
+  doctor: any;
+  onSelect: () => void;
   isSelected?: boolean;
 }) => {
   return (
-    <Card 
+    <Card
       className={`cursor-pointer transition-all hover:shadow-md ${
         isSelected ? "ring-2 ring-primary border-primary" : ""
       }`}
@@ -55,8 +55,12 @@ const DoctorCard = ({
             <div className="flex items-start justify-between mb-2">
               <div>
                 <h3 className="font-semibold text-foreground">{doctor.name}</h3>
-                <p className="text-sm text-muted-foreground">{doctor.specialty}</p>
-                <p className="text-xs text-muted-foreground">{doctor.location}</p>
+                <p className="text-sm text-muted-foreground">
+                  {doctor.specialty}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {doctor.location}
+                </p>
               </div>
               <div className="text-right">
                 <div className="flex items-center gap-1 mb-1">
@@ -68,7 +72,7 @@ const DoctorCard = ({
                 </Badge>
               </div>
             </div>
-            
+
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <Clock className="w-3 h-3 text-muted-foreground" />
@@ -76,7 +80,7 @@ const DoctorCard = ({
                   Next available: {doctor.nextAvailable}
                 </span>
               </div>
-              
+
               {doctor.urgentSlots && (
                 <div className="flex items-center gap-2">
                   <AlertTriangle className="w-3 h-3 text-orange-500" />
@@ -85,7 +89,7 @@ const DoctorCard = ({
                   </span>
                 </div>
               )}
-              
+
               <div className="flex gap-2 mt-3">
                 {doctor.hasVideo && (
                   <Badge variant="outline" className="text-xs">
@@ -109,13 +113,13 @@ const DoctorCard = ({
 };
 
 // Time Slot Component
-const TimeSlot = ({ 
-  time, 
-  type = "regular", 
-  onSelect, 
-  isSelected = false 
-}: { 
-  time: string; 
+const TimeSlot = ({
+  time,
+  type = "regular",
+  onSelect,
+  isSelected = false,
+}: {
+  time: string;
   type?: "urgent" | "regular" | "video";
   onSelect: () => void;
   isSelected?: boolean;
@@ -123,7 +127,7 @@ const TimeSlot = ({
   const typeColors = {
     urgent: "border-red-200 bg-red-50 text-red-700 hover:bg-red-100",
     regular: "border-gray-200 bg-white text-gray-700 hover:bg-gray-50",
-    video: "border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100"
+    video: "border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100",
   };
 
   return (
@@ -138,9 +142,7 @@ const TimeSlot = ({
         {type === "video" && <Video className="w-3 h-3" />}
         <span>{time}</span>
       </div>
-      {type === "urgent" && (
-        <div className="text-xs mt-1">Same Day</div>
-      )}
+      {type === "urgent" && <div className="text-xs mt-1">Same Day</div>}
     </button>
   );
 };
@@ -166,7 +168,7 @@ export function Schedule() {
       urgentSlots: 3,
       hasVideo: true,
       hasInPerson: true,
-      specializes: ["High Cholesterol", "Heart Disease", "Drug Interactions"]
+      specializes: ["High Cholesterol", "Heart Disease", "Drug Interactions"],
     },
     {
       id: 2,
@@ -174,12 +176,12 @@ export function Schedule() {
       specialty: "Internal Medicine",
       location: "Medical Plaza, Main St",
       rating: 4.8,
-      experience: "12+ years", 
+      experience: "12+ years",
       nextAvailable: "Tomorrow 9:00 AM",
       urgentSlots: 1,
       hasVideo: true,
       hasInPerson: true,
-      specializes: ["Preventive Care", "Medication Management", "Lab Review"]
+      specializes: ["Preventive Care", "Medication Management", "Lab Review"],
     },
     {
       id: 3,
@@ -192,8 +194,8 @@ export function Schedule() {
       urgentSlots: 2,
       hasVideo: true,
       hasInPerson: false,
-      specializes: ["Diabetes", "Metabolic Disorders", "Hormone Therapy"]
-    }
+      specializes: ["Diabetes", "Metabolic Disorders", "Hormone Therapy"],
+    },
   ];
 
   // Available time slots
@@ -202,7 +204,7 @@ export function Schedule() {
     { time: "2:30 PM", type: "urgent" as const },
     { time: "4:30 PM", type: "urgent" as const },
     { time: "5:00 PM", type: "video" as const },
-    { time: "5:30 PM", type: "video" as const }
+    { time: "5:30 PM", type: "video" as const },
   ];
 
   const tomorrowSlots = [
@@ -211,12 +213,14 @@ export function Schedule() {
     { time: "10:00 AM", type: "video" as const },
     { time: "10:30 AM", type: "regular" as const },
     { time: "2:00 PM", type: "regular" as const },
-    { time: "2:30 PM", type: "video" as const }
+    { time: "2:30 PM", type: "video" as const },
   ];
 
   const handleBookAppointment = () => {
     // Here you would integrate with your booking system
-    alert(`Appointment booked with ${selectedDoctor.name} on ${selectedDate} at ${selectedTime}`);
+    alert(
+      `Appointment booked with ${selectedDoctor.name} on ${selectedDate} at ${selectedTime}`,
+    );
     setStep(4); // Confirmation step
   };
 
@@ -232,7 +236,7 @@ export function Schedule() {
             <p className="text-muted-foreground mb-6">
               Your appointment has been successfully scheduled.
             </p>
-            
+
             <Card className="max-w-md mx-auto mb-6">
               <CardContent className="p-6">
                 <div className="space-y-3 text-left">
@@ -251,7 +255,9 @@ export function Schedule() {
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Type:</span>
                     <span className="font-medium">
-                      {appointmentType === "urgent" ? "Urgent Consultation" : "Regular Visit"}
+                      {appointmentType === "urgent"
+                        ? "Urgent Consultation"
+                        : "Regular Visit"}
                     </span>
                   </div>
                 </div>
@@ -273,7 +279,6 @@ export function Schedule() {
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-6xl mx-auto px-4 py-6">
-        
         {/* Header */}
         <div className="flex items-center gap-4 mb-6">
           <Button variant="outline" size="sm" asChild>
@@ -283,8 +288,12 @@ export function Schedule() {
             </Link>
           </Button>
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Schedule Appointment</h1>
-            <p className="text-muted-foreground">Book urgent consultation for lab results and medication review</p>
+            <h1 className="text-3xl font-bold text-foreground">
+              Schedule Appointment
+            </h1>
+            <p className="text-muted-foreground">
+              Book urgent consultation for lab results and medication review
+            </p>
           </div>
         </div>
 
@@ -292,17 +301,21 @@ export function Schedule() {
         <div className="flex items-center gap-4 mb-8">
           {[1, 2, 3].map((num) => (
             <div key={num} className="flex items-center">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                step >= num 
-                  ? "bg-primary text-primary-foreground" 
-                  : "bg-muted text-muted-foreground"
-              }`}>
+              <div
+                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+                  step >= num
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted text-muted-foreground"
+                }`}
+              >
                 {num}
               </div>
               {num < 3 && (
-                <div className={`w-12 h-0.5 mx-2 ${
-                  step > num ? "bg-primary" : "bg-muted"
-                }`} />
+                <div
+                  className={`w-12 h-0.5 mx-2 ${
+                    step > num ? "bg-primary" : "bg-muted"
+                  }`}
+                />
               )}
             </div>
           ))}
@@ -317,7 +330,7 @@ export function Schedule() {
                 Based on your recent lab results
               </Badge>
             </div>
-            
+
             <div className="grid gap-4">
               {doctors.map((doctor) => (
                 <DoctorCard
@@ -330,7 +343,7 @@ export function Schedule() {
             </div>
 
             <div className="flex justify-end">
-              <Button 
+              <Button
                 onClick={() => setStep(2)}
                 disabled={!selectedDoctor}
                 size="lg"
@@ -358,8 +371,8 @@ export function Schedule() {
                 <button
                   onClick={() => setSelectedDate("Today")}
                   className={`p-4 rounded-lg border-2 transition-all ${
-                    selectedDate === "Today" 
-                      ? "border-primary ring-2 ring-primary/20" 
+                    selectedDate === "Today"
+                      ? "border-primary ring-2 ring-primary/20"
                       : "border-gray-200 hover:border-gray-300"
                   }`}
                 >
@@ -373,12 +386,12 @@ export function Schedule() {
                     </Badge>
                   </div>
                 </button>
-                
+
                 <button
                   onClick={() => setSelectedDate("Tomorrow")}
                   className={`p-4 rounded-lg border-2 transition-all ${
-                    selectedDate === "Tomorrow" 
-                      ? "border-primary ring-2 ring-primary/20" 
+                    selectedDate === "Tomorrow"
+                      ? "border-primary ring-2 ring-primary/20"
                       : "border-gray-200 hover:border-gray-300"
                   }`}
                 >
@@ -400,15 +413,17 @@ export function Schedule() {
               <div className="space-y-4">
                 <h3 className="font-medium">Available Times</h3>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-                  {(selectedDate === "Today" ? todaySlots : tomorrowSlots).map((slot, idx) => (
-                    <TimeSlot
-                      key={idx}
-                      time={slot.time}
-                      type={slot.type}
-                      isSelected={selectedTime === slot.time}
-                      onSelect={() => setSelectedTime(slot.time)}
-                    />
-                  ))}
+                  {(selectedDate === "Today" ? todaySlots : tomorrowSlots).map(
+                    (slot, idx) => (
+                      <TimeSlot
+                        key={idx}
+                        time={slot.time}
+                        type={slot.type}
+                        isSelected={selectedTime === slot.time}
+                        onSelect={() => setSelectedTime(slot.time)}
+                      />
+                    ),
+                  )}
                 </div>
               </div>
             )}
@@ -417,7 +432,7 @@ export function Schedule() {
               <Button variant="outline" onClick={() => setStep(1)}>
                 Back
               </Button>
-              <Button 
+              <Button
                 onClick={() => setStep(3)}
                 disabled={!selectedDate || !selectedTime}
                 size="lg"
@@ -432,7 +447,7 @@ export function Schedule() {
         {step === 3 && (
           <div className="space-y-6">
             <h2 className="text-xl font-semibold">Appointment Details</h2>
-            
+
             <Card>
               <CardContent className="p-6">
                 <div className="grid md:grid-cols-2 gap-6">
@@ -444,7 +459,9 @@ export function Schedule() {
                         <span>{selectedDoctor?.name}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Specialty:</span>
+                        <span className="text-muted-foreground">
+                          Specialty:
+                        </span>
                         <span>{selectedDoctor?.specialty}</span>
                       </div>
                       <div className="flex justify-between">
@@ -458,7 +475,9 @@ export function Schedule() {
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Type:</span>
                         <span>
-                          {selectedDate === "Today" ? "Urgent Consultation" : "Regular Visit"}
+                          {selectedDate === "Today"
+                            ? "Urgent Consultation"
+                            : "Regular Visit"}
                         </span>
                       </div>
                     </div>
@@ -472,7 +491,7 @@ export function Schedule() {
                       onChange={(e) => setReason(e.target.value)}
                       className="h-32"
                     />
-                    
+
                     <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
                       <div className="flex items-start gap-2">
                         <Shield className="w-4 h-4 text-blue-600 mt-0.5" />
@@ -481,8 +500,9 @@ export function Schedule() {
                             Pre-visit Preparation
                           </div>
                           <div className="text-blue-700 dark:text-blue-300">
-                            Your recent lab results and medication list will be automatically 
-                            shared with the doctor before your appointment.
+                            Your recent lab results and medication list will be
+                            automatically shared with the doctor before your
+                            appointment.
                           </div>
                         </div>
                       </div>

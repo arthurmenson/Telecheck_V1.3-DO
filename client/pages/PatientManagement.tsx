@@ -1,6 +1,16 @@
 import React, { useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
-import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../components/ui/tabs";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
 import { Badge } from "../components/ui/badge";
 import { Users, UserPlus, BarChart3, MessageCircle } from "lucide-react";
 
@@ -19,35 +29,34 @@ export function PatientManagement() {
       label: "Patient Registry",
       icon: Users,
       component: PatientRegistry,
-      description: "View and manage patient records"
+      description: "View and manage patient records",
     },
     {
       id: "intake",
       label: "Patient Intake",
       icon: UserPlus,
       component: Intake,
-      description: "Onboard new patients"
+      description: "Onboard new patients",
     },
     {
       id: "analytics",
       label: "Analytics",
       icon: BarChart3,
       component: PatientAnalytics,
-      description: "Patient insights and reports"
+      description: "Patient insights and reports",
     },
     {
       id: "communication",
       label: "Communication",
       icon: MessageCircle,
       component: PatientCommunication,
-      description: "Patient messaging and outreach"
-    }
+      description: "Patient messaging and outreach",
+    },
   ];
 
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-full mx-auto p-6 space-y-6">
-        
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
@@ -70,23 +79,29 @@ export function PatientManagement() {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
             return (
-              <Card 
+              <Card
                 key={tab.id}
                 className={`cursor-pointer transition-all duration-200 hover:shadow-md ${
-                  isActive ? 'ring-2 ring-primary' : ''
+                  isActive ? "ring-2 ring-primary" : ""
                 }`}
                 onClick={() => setActiveTab(tab.id)}
               >
                 <CardContent className="p-4">
                   <div className="flex items-center space-x-3">
-                    <div className={`p-2 rounded-lg ${
-                      isActive ? 'bg-primary text-white' : 'bg-primary/10 text-primary'
-                    }`}>
+                    <div
+                      className={`p-2 rounded-lg ${
+                        isActive
+                          ? "bg-primary text-white"
+                          : "bg-primary/10 text-primary"
+                      }`}
+                    >
                       <Icon className="w-5 h-5" />
                     </div>
                     <div>
                       <h3 className="font-medium text-sm">{tab.label}</h3>
-                      <p className="text-xs text-muted-foreground">{tab.description}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {tab.description}
+                      </p>
                     </div>
                   </div>
                 </CardContent>
@@ -96,14 +111,18 @@ export function PatientManagement() {
         </div>
 
         {/* Tabbed Content */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="space-y-6"
+        >
           <TabsList className="grid w-full grid-cols-4">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               return (
-                <TabsTrigger 
-                  key={tab.id} 
-                  value={tab.id} 
+                <TabsTrigger
+                  key={tab.id}
+                  value={tab.id}
                   className="flex items-center gap-2 text-sm"
                 >
                   <Icon className="w-4 h-4" />

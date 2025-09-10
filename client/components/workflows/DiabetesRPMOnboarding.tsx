@@ -12,7 +12,13 @@ import { Progress } from "../ui/progress";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Textarea } from "../ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 import { Checkbox } from "../ui/checkbox";
 import {
   CheckCircle,
@@ -33,7 +39,7 @@ import {
   Camera,
   Wifi,
   BarChart3,
-  Shield
+  Shield,
 } from "lucide-react";
 
 interface DiabetesAssessment {
@@ -63,18 +69,30 @@ const diabetesOnboardingSteps = [
     status: "completed",
     duration: "5 min",
     icon: User,
-    validations: ["Insurance verification", "Medicare/CMS criteria", "Provider referral"],
-    actions: ["Create RPM profile", "Verify eligibility", "Document consent"]
+    validations: [
+      "Insurance verification",
+      "Medicare/CMS criteria",
+      "Provider referral",
+    ],
+    actions: ["Create RPM profile", "Verify eligibility", "Document consent"],
   },
   {
     id: 2,
     title: "Diabetes Clinical Assessment",
     description: "Comprehensive diabetes history and current status",
     status: "current",
-    duration: "10 min", 
+    duration: "10 min",
     icon: Stethoscope,
-    validations: ["Diabetes type confirmation", "Medication review", "Complication screening"],
-    actions: ["A1C target setting", "Risk stratification", "Care plan template"]
+    validations: [
+      "Diabetes type confirmation",
+      "Medication review",
+      "Complication screening",
+    ],
+    actions: [
+      "A1C target setting",
+      "Risk stratification",
+      "Care plan template",
+    ],
   },
   {
     id: 3,
@@ -83,8 +101,12 @@ const diabetesOnboardingSteps = [
     status: "pending",
     duration: "15 min",
     icon: Smartphone,
-    validations: ["Device compatibility", "Connectivity test", "Data transmission"],
-    actions: ["Bluetooth pairing", "App installation", "Test readings"]
+    validations: [
+      "Device compatibility",
+      "Connectivity test",
+      "Data transmission",
+    ],
+    actions: ["Bluetooth pairing", "App installation", "Test readings"],
   },
   {
     id: 4,
@@ -94,7 +116,11 @@ const diabetesOnboardingSteps = [
     duration: "3 min",
     icon: Heart,
     validations: ["Staff availability", "Workload balance", "Expertise match"],
-    actions: ["Care coordinator assignment", "Contact preferences", "Schedule introduction"]
+    actions: [
+      "Care coordinator assignment",
+      "Contact preferences",
+      "Schedule introduction",
+    ],
   },
   {
     id: 5,
@@ -103,8 +129,12 @@ const diabetesOnboardingSteps = [
     status: "pending",
     duration: "8 min",
     icon: Target,
-    validations: ["Clinical guidelines", "Patient preferences", "Resource availability"],
-    actions: ["Goal setting", "Alert thresholds", "Education modules"]
+    validations: [
+      "Clinical guidelines",
+      "Patient preferences",
+      "Resource availability",
+    ],
+    actions: ["Goal setting", "Alert thresholds", "Education modules"],
   },
   {
     id: 6,
@@ -113,8 +143,12 @@ const diabetesOnboardingSteps = [
     status: "pending",
     duration: "20 min",
     icon: FileText,
-    validations: ["Learning assessment", "Comprehension check", "Skill demonstration"],
-    actions: ["Interactive modules", "Video tutorials", "Skill validation"]
+    validations: [
+      "Learning assessment",
+      "Comprehension check",
+      "Skill demonstration",
+    ],
+    actions: ["Interactive modules", "Video tutorials", "Skill validation"],
   },
   {
     id: 7,
@@ -124,7 +158,11 @@ const diabetesOnboardingSteps = [
     duration: "10 min",
     icon: BarChart3,
     validations: ["Data accuracy", "Trend analysis", "Risk assessment"],
-    actions: ["Historical import", "Baseline measurements", "Trend establishment"]
+    actions: [
+      "Historical import",
+      "Baseline measurements",
+      "Trend establishment",
+    ],
   },
   {
     id: 8,
@@ -133,18 +171,52 @@ const diabetesOnboardingSteps = [
     status: "pending",
     duration: "5 min",
     icon: Calendar,
-    validations: ["Schedule feasibility", "Provider capacity", "Patient availability"],
-    actions: ["Reading schedule", "Check-in frequency", "Emergency protocols"]
-  }
+    validations: [
+      "Schedule feasibility",
+      "Provider capacity",
+      "Patient availability",
+    ],
+    actions: ["Reading schedule", "Check-in frequency", "Emergency protocols"],
+  },
 ];
 
 const deviceOptions = [
-  { id: "freestyle_libre", name: "FreeStyle Libre CGM", type: "CGM", connectivity: "NFC/Bluetooth" },
-  { id: "dexcom_g7", name: "Dexcom G7 CGM", type: "CGM", connectivity: "Bluetooth" },
-  { id: "accu_chek", name: "Accu-Chek Guide", type: "Glucose Meter", connectivity: "Bluetooth" },
-  { id: "one_touch", name: "OneTouch Verio", type: "Glucose Meter", connectivity: "Bluetooth" },
-  { id: "omron_bp", name: "Omron BP Monitor", type: "Blood Pressure", connectivity: "Bluetooth" },
-  { id: "weight_scale", name: "Smart Weight Scale", type: "Scale", connectivity: "WiFi/Bluetooth" }
+  {
+    id: "freestyle_libre",
+    name: "FreeStyle Libre CGM",
+    type: "CGM",
+    connectivity: "NFC/Bluetooth",
+  },
+  {
+    id: "dexcom_g7",
+    name: "Dexcom G7 CGM",
+    type: "CGM",
+    connectivity: "Bluetooth",
+  },
+  {
+    id: "accu_chek",
+    name: "Accu-Chek Guide",
+    type: "Glucose Meter",
+    connectivity: "Bluetooth",
+  },
+  {
+    id: "one_touch",
+    name: "OneTouch Verio",
+    type: "Glucose Meter",
+    connectivity: "Bluetooth",
+  },
+  {
+    id: "omron_bp",
+    name: "Omron BP Monitor",
+    type: "Blood Pressure",
+    connectivity: "Bluetooth",
+  },
+  {
+    id: "weight_scale",
+    name: "Smart Weight Scale",
+    type: "Scale",
+    connectivity: "WiFi/Bluetooth",
+  },
 ];
 
 export function DiabetesRPMOnboarding() {
@@ -153,7 +225,9 @@ export function DiabetesRPMOnboarding() {
   const [selectedDevices, setSelectedDevices] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const currentStepData = diabetesOnboardingSteps.find(step => step.id === currentStep);
+  const currentStepData = diabetesOnboardingSteps.find(
+    (step) => step.id === currentStep,
+  );
   const progress = (currentStep / diabetesOnboardingSteps.length) * 100;
 
   const handleNext = () => {
@@ -169,10 +243,10 @@ export function DiabetesRPMOnboarding() {
   };
 
   const handleDeviceToggle = (deviceId: string) => {
-    setSelectedDevices(prev => 
-      prev.includes(deviceId) 
-        ? prev.filter(id => id !== deviceId)
-        : [...prev, deviceId]
+    setSelectedDevices((prev) =>
+      prev.includes(deviceId)
+        ? prev.filter((id) => id !== deviceId)
+        : [...prev, deviceId],
     );
   };
 
@@ -182,7 +256,9 @@ export function DiabetesRPMOnboarding() {
         return (
           <div className="space-y-6">
             <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200">
-              <h4 className="font-semibold text-blue-900 dark:text-blue-100 mb-2">RPM Eligibility Verification</h4>
+              <h4 className="font-semibold text-blue-900 dark:text-blue-100 mb-2">
+                RPM Eligibility Verification
+              </h4>
               <div className="space-y-2 text-sm">
                 <div className="flex items-center gap-2">
                   <CheckCircle className="w-4 h-4 text-green-600" />
@@ -202,7 +278,7 @@ export function DiabetesRPMOnboarding() {
                 </div>
               </div>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="patientId">Patient ID</Label>
@@ -215,9 +291,15 @@ export function DiabetesRPMOnboarding() {
                     <SelectValue placeholder="Select provider" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="dr-smith">Dr. Sarah Smith (Endocrinology)</SelectItem>
-                    <SelectItem value="dr-johnson">Dr. Michael Johnson (Internal Medicine)</SelectItem>
-                    <SelectItem value="dr-williams">Dr. Lisa Williams (Family Medicine)</SelectItem>
+                    <SelectItem value="dr-smith">
+                      Dr. Sarah Smith (Endocrinology)
+                    </SelectItem>
+                    <SelectItem value="dr-johnson">
+                      Dr. Michael Johnson (Internal Medicine)
+                    </SelectItem>
+                    <SelectItem value="dr-williams">
+                      Dr. Lisa Williams (Family Medicine)
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -231,43 +313,67 @@ export function DiabetesRPMOnboarding() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="diabetesType">Diabetes Type</Label>
-                <Select onValueChange={(value) => setAssessment(prev => ({ ...prev, diabetesType: value as any }))}>
+                <Select
+                  onValueChange={(value) =>
+                    setAssessment((prev) => ({
+                      ...prev,
+                      diabetesType: value as any,
+                    }))
+                  }
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select type" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="type1">Type 1 Diabetes</SelectItem>
                     <SelectItem value="type2">Type 2 Diabetes</SelectItem>
-                    <SelectItem value="gestational">Gestational Diabetes</SelectItem>
+                    <SelectItem value="gestational">
+                      Gestational Diabetes
+                    </SelectItem>
                     <SelectItem value="prediabetes">Prediabetes</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div>
                 <Label htmlFor="diagnosisDate">Diagnosis Date</Label>
-                <Input 
-                  type="date" 
+                <Input
+                  type="date"
                   id="diagnosisDate"
                   value={assessment.diagnosisDate || ""}
-                  onChange={(e) => setAssessment(prev => ({ ...prev, diagnosisDate: e.target.value }))}
+                  onChange={(e) =>
+                    setAssessment((prev) => ({
+                      ...prev,
+                      diagnosisDate: e.target.value,
+                    }))
+                  }
                 />
               </div>
               <div>
                 <Label htmlFor="lastA1C">Most Recent A1C (%)</Label>
-                <Input 
-                  id="lastA1C" 
+                <Input
+                  id="lastA1C"
                   placeholder="e.g., 7.2"
                   value={assessment.lastA1C || ""}
-                  onChange={(e) => setAssessment(prev => ({ ...prev, lastA1C: e.target.value }))}
+                  onChange={(e) =>
+                    setAssessment((prev) => ({
+                      ...prev,
+                      lastA1C: e.target.value,
+                    }))
+                  }
                 />
               </div>
               <div>
                 <Label htmlFor="lastFootExam">Last Foot Exam</Label>
-                <Input 
-                  type="date" 
+                <Input
+                  type="date"
                   id="lastFootExam"
                   value={assessment.lastFootExam || ""}
-                  onChange={(e) => setAssessment(prev => ({ ...prev, lastFootExam: e.target.value }))}
+                  onChange={(e) =>
+                    setAssessment((prev) => ({
+                      ...prev,
+                      lastFootExam: e.target.value,
+                    }))
+                  }
                 />
               </div>
             </div>
@@ -275,21 +381,36 @@ export function DiabetesRPMOnboarding() {
             <div>
               <Label>Current Complications (Check all that apply)</Label>
               <div className="grid grid-cols-2 gap-2 mt-2">
-                {["Neuropathy", "Retinopathy", "Nephropathy", "Cardiovascular", "Foot ulcers", "None"].map((complication) => (
-                  <div key={complication} className="flex items-center space-x-2">
-                    <Checkbox 
+                {[
+                  "Neuropathy",
+                  "Retinopathy",
+                  "Nephropathy",
+                  "Cardiovascular",
+                  "Foot ulcers",
+                  "None",
+                ].map((complication) => (
+                  <div
+                    key={complication}
+                    className="flex items-center space-x-2"
+                  >
+                    <Checkbox
                       id={complication}
                       checked={assessment.complications?.includes(complication)}
                       onCheckedChange={(checked) => {
                         if (checked) {
-                          setAssessment(prev => ({ 
-                            ...prev, 
-                            complications: [...(prev.complications || []), complication]
+                          setAssessment((prev) => ({
+                            ...prev,
+                            complications: [
+                              ...(prev.complications || []),
+                              complication,
+                            ],
                           }));
                         } else {
-                          setAssessment(prev => ({ 
-                            ...prev, 
-                            complications: (prev.complications || []).filter(c => c !== complication)
+                          setAssessment((prev) => ({
+                            ...prev,
+                            complications: (prev.complications || []).filter(
+                              (c) => c !== complication,
+                            ),
                           }));
                         }
                       }}
@@ -302,7 +423,7 @@ export function DiabetesRPMOnboarding() {
 
             <div>
               <Label htmlFor="medications">Current Diabetes Medications</Label>
-              <Textarea 
+              <Textarea
                 id="medications"
                 placeholder="List current medications, dosages, and frequency..."
                 className="min-h-[100px]"
@@ -315,7 +436,9 @@ export function DiabetesRPMOnboarding() {
         return (
           <div className="space-y-6">
             <div className="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-lg border border-amber-200">
-              <h4 className="font-semibold text-amber-900 dark:text-amber-100 mb-2">Device Setup Requirements</h4>
+              <h4 className="font-semibold text-amber-900 dark:text-amber-100 mb-2">
+                Device Setup Requirements
+              </h4>
               <div className="space-y-2 text-sm">
                 <div className="flex items-center gap-2">
                   <Wifi className="w-4 h-4 text-amber-600" />
@@ -336,22 +459,36 @@ export function DiabetesRPMOnboarding() {
               <h4 className="font-semibold mb-4">Select Monitoring Devices</h4>
               <div className="grid grid-cols-1 gap-3">
                 {deviceOptions.map((device) => (
-                  <Card key={device.id} className={`cursor-pointer transition-colors ${
-                    selectedDevices.includes(device.id) ? 'ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-900/20' : ''
-                  }`} onClick={() => handleDeviceToggle(device.id)}>
+                  <Card
+                    key={device.id}
+                    className={`cursor-pointer transition-colors ${
+                      selectedDevices.includes(device.id)
+                        ? "ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-900/20"
+                        : ""
+                    }`}
+                    onClick={() => handleDeviceToggle(device.id)}
+                  >
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-3">
-                          <Checkbox 
+                          <Checkbox
                             checked={selectedDevices.includes(device.id)}
                             onChange={() => {}}
                           />
                           <div>
                             <h5 className="font-medium">{device.name}</h5>
-                            <p className="text-sm text-muted-foreground">{device.type} • {device.connectivity}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {device.type} • {device.connectivity}
+                            </p>
                           </div>
                         </div>
-                        <Badge variant={selectedDevices.includes(device.id) ? "default" : "secondary"}>
+                        <Badge
+                          variant={
+                            selectedDevices.includes(device.id)
+                              ? "default"
+                              : "secondary"
+                          }
+                        >
                           {device.type}
                         </Badge>
                       </div>
@@ -362,15 +499,22 @@ export function DiabetesRPMOnboarding() {
             </div>
 
             <div>
-              <Label htmlFor="techComfort">Technology Comfort Level (1-10)</Label>
+              <Label htmlFor="techComfort">
+                Technology Comfort Level (1-10)
+              </Label>
               <div className="flex items-center space-x-4 mt-2">
                 <span>1 (Beginner)</span>
-                <input 
-                  type="range" 
-                  min="1" 
-                  max="10" 
+                <input
+                  type="range"
+                  min="1"
+                  max="10"
                   value={assessment.techComfort || 5}
-                  onChange={(e) => setAssessment(prev => ({ ...prev, techComfort: parseInt(e.target.value) }))}
+                  onChange={(e) =>
+                    setAssessment((prev) => ({
+                      ...prev,
+                      techComfort: parseInt(e.target.value),
+                    }))
+                  }
                   className="flex-1"
                 />
                 <span>10 (Expert)</span>
@@ -386,9 +530,12 @@ export function DiabetesRPMOnboarding() {
         return (
           <div className="space-y-6">
             <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200">
-              <h4 className="font-semibold text-green-900 dark:text-green-100 mb-2">Your Diabetes Care Team</h4>
+              <h4 className="font-semibold text-green-900 dark:text-green-100 mb-2">
+                Your Diabetes Care Team
+              </h4>
               <p className="text-sm text-green-700 dark:text-green-300">
-                A dedicated team will monitor your health data and provide support.
+                A dedicated team will monitor your health data and provide
+                support.
               </p>
             </div>
 
@@ -401,8 +548,12 @@ export function DiabetesRPMOnboarding() {
                     </div>
                     <div className="flex-1">
                       <h5 className="font-medium">Dr. Sarah Chen, CDE</h5>
-                      <p className="text-sm text-muted-foreground">Primary Diabetes Educator</p>
-                      <p className="text-sm">20+ years experience • Available Mon-Fri 8AM-6PM</p>
+                      <p className="text-sm text-muted-foreground">
+                        Primary Diabetes Educator
+                      </p>
+                      <p className="text-sm">
+                        20+ years experience • Available Mon-Fri 8AM-6PM
+                      </p>
                     </div>
                     <Badge variant="outline">Assigned</Badge>
                   </div>
@@ -417,8 +568,12 @@ export function DiabetesRPMOnboarding() {
                     </div>
                     <div className="flex-1">
                       <h5 className="font-medium">Maria Rodriguez, RN</h5>
-                      <p className="text-sm text-muted-foreground">Care Coordinator</p>
-                      <p className="text-sm">Daily monitoring • 24/7 emergency support</p>
+                      <p className="text-sm text-muted-foreground">
+                        Care Coordinator
+                      </p>
+                      <p className="text-sm">
+                        Daily monitoring • 24/7 emergency support
+                      </p>
                     </div>
                     <Badge variant="outline">Assigned</Badge>
                   </div>
@@ -433,8 +588,12 @@ export function DiabetesRPMOnboarding() {
                     </div>
                     <div className="flex-1">
                       <h5 className="font-medium">Tech Support Team</h5>
-                      <p className="text-sm text-muted-foreground">Device & App Support</p>
-                      <p className="text-sm">Mon-Fri 7AM-9PM • Weekend support available</p>
+                      <p className="text-sm text-muted-foreground">
+                        Device & App Support
+                      </p>
+                      <p className="text-sm">
+                        Mon-Fri 7AM-9PM • Weekend support available
+                      </p>
                     </div>
                     <Badge variant="outline">Available</Badge>
                   </div>
@@ -447,34 +606,51 @@ export function DiabetesRPMOnboarding() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
                 <div>
                   <Label htmlFor="emergencyName">Name</Label>
-                  <Input 
-                    id="emergencyName" 
+                  <Input
+                    id="emergencyName"
                     placeholder="Full name"
                     value={assessment.emergencyContact?.name || ""}
-                    onChange={(e) => setAssessment(prev => ({ 
-                      ...prev, 
-                      emergencyContact: { ...prev.emergencyContact, name: e.target.value } as any
-                    }))}
+                    onChange={(e) =>
+                      setAssessment((prev) => ({
+                        ...prev,
+                        emergencyContact: {
+                          ...prev.emergencyContact,
+                          name: e.target.value,
+                        } as any,
+                      }))
+                    }
                   />
                 </div>
                 <div>
                   <Label htmlFor="emergencyPhone">Phone</Label>
-                  <Input 
-                    id="emergencyPhone" 
+                  <Input
+                    id="emergencyPhone"
                     placeholder="(555) 123-4567"
                     value={assessment.emergencyContact?.phone || ""}
-                    onChange={(e) => setAssessment(prev => ({ 
-                      ...prev, 
-                      emergencyContact: { ...prev.emergencyContact, phone: e.target.value } as any
-                    }))}
+                    onChange={(e) =>
+                      setAssessment((prev) => ({
+                        ...prev,
+                        emergencyContact: {
+                          ...prev.emergencyContact,
+                          phone: e.target.value,
+                        } as any,
+                      }))
+                    }
                   />
                 </div>
                 <div>
                   <Label htmlFor="emergencyRelation">Relationship</Label>
-                  <Select onValueChange={(value) => setAssessment(prev => ({ 
-                    ...prev, 
-                    emergencyContact: { ...prev.emergencyContact, relationship: value } as any
-                  }))}>
+                  <Select
+                    onValueChange={(value) =>
+                      setAssessment((prev) => ({
+                        ...prev,
+                        emergencyContact: {
+                          ...prev.emergencyContact,
+                          relationship: value,
+                        } as any,
+                      }))
+                    }
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select" />
                     </SelectTrigger>
@@ -497,7 +673,9 @@ export function DiabetesRPMOnboarding() {
         return (
           <div className="text-center py-8">
             <CheckCircle className="w-16 h-16 text-green-600 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold mb-2">Step {currentStep} Content</h3>
+            <h3 className="text-xl font-semibold mb-2">
+              Step {currentStep} Content
+            </h3>
             <p className="text-muted-foreground">
               {currentStepData?.description}
             </p>
@@ -513,7 +691,8 @@ export function DiabetesRPMOnboarding() {
           Diabetes RPM Onboarding
         </h1>
         <p className="text-lg text-muted-foreground">
-          Complete setup for remote patient monitoring and diabetes care management
+          Complete setup for remote patient monitoring and diabetes care
+          management
         </p>
       </div>
 
@@ -522,39 +701,40 @@ export function DiabetesRPMOnboarding() {
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="flex items-center gap-2">
-                {currentStepData?.icon && <currentStepData.icon className="w-5 h-5" />}
+                {currentStepData?.icon && (
+                  <currentStepData.icon className="w-5 h-5" />
+                )}
                 Step {currentStep}: {currentStepData?.title}
               </CardTitle>
               <CardDescription>{currentStepData?.description}</CardDescription>
             </div>
-            <Badge variant="outline">
-              {currentStepData?.duration}
-            </Badge>
+            <Badge variant="outline">{currentStepData?.duration}</Badge>
           </div>
           <Progress value={progress} className="mt-4" />
           <p className="text-sm text-muted-foreground mt-2">
-            Step {currentStep} of {diabetesOnboardingSteps.length} • {Math.round(progress)}% complete
+            Step {currentStep} of {diabetesOnboardingSteps.length} •{" "}
+            {Math.round(progress)}% complete
           </p>
         </CardHeader>
-        <CardContent>
-          {renderStepContent()}
-        </CardContent>
+        <CardContent>{renderStepContent()}</CardContent>
       </Card>
 
       <div className="flex justify-between">
-        <Button 
-          variant="outline" 
+        <Button
+          variant="outline"
           onClick={handlePrevious}
           disabled={currentStep === 1}
         >
           Previous
         </Button>
-        <Button 
+        <Button
           onClick={handleNext}
           disabled={currentStep === diabetesOnboardingSteps.length}
           className="bg-blue-600 hover:bg-blue-700"
         >
-          {currentStep === diabetesOnboardingSteps.length ? "Complete Setup" : "Next Step"}
+          {currentStep === diabetesOnboardingSteps.length
+            ? "Complete Setup"
+            : "Next Step"}
           <ArrowRight className="w-4 h-4 ml-2" />
         </Button>
       </div>
@@ -567,14 +747,14 @@ export function DiabetesRPMOnboarding() {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {diabetesOnboardingSteps.map((step) => (
-              <div 
+              <div
                 key={step.id}
                 className={`p-3 rounded-lg border ${
-                  step.id === currentStep 
-                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                    : step.id < currentStep 
-                    ? 'border-green-500 bg-green-50 dark:bg-green-900/20'
-                    : 'border-gray-200 bg-gray-50 dark:bg-gray-800'
+                  step.id === currentStep
+                    ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
+                    : step.id < currentStep
+                      ? "border-green-500 bg-green-50 dark:bg-green-900/20"
+                      : "border-gray-200 bg-gray-50 dark:bg-gray-800"
                 }`}
               >
                 <div className="flex items-center gap-2 mb-2">
@@ -587,9 +767,7 @@ export function DiabetesRPMOnboarding() {
                   )}
                   <span className="font-medium text-sm">{step.title}</span>
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  {step.duration}
-                </p>
+                <p className="text-xs text-muted-foreground">{step.duration}</p>
               </div>
             ))}
           </div>

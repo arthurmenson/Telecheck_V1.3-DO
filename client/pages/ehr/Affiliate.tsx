@@ -9,7 +9,12 @@ import { Badge } from "../../components/ui/badge";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { Progress } from "../../components/ui/progress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../../components/ui/tabs";
 import {
   Share2,
   Users,
@@ -58,7 +63,7 @@ const affiliateStats = [
     change: "+23 this month",
     changeType: "increase",
     icon: Users,
-    color: "#10b981"
+    color: "#10b981",
   },
   {
     title: "Total Revenue",
@@ -66,7 +71,7 @@ const affiliateStats = [
     change: "+18.5% MTD",
     changeType: "increase",
     icon: DollarSign,
-    color: "#3b82f6"
+    color: "#3b82f6",
   },
   {
     title: "Conversions",
@@ -74,7 +79,7 @@ const affiliateStats = [
     change: "+12.3%",
     changeType: "increase",
     icon: Target,
-    color: "#8b5cf6"
+    color: "#8b5cf6",
   },
   {
     title: "Commission Paid",
@@ -82,8 +87,8 @@ const affiliateStats = [
     change: "+$3,240",
     changeType: "increase",
     icon: CreditCard,
-    color: "#f59e0b"
-  }
+    color: "#f59e0b",
+  },
 ];
 
 const topAffiliates = [
@@ -99,7 +104,7 @@ const topAffiliates = [
     status: "active",
     joinDate: "2023-01-15",
     website: "healthhub.com",
-    location: "New York, NY"
+    location: "New York, NY",
   },
   {
     id: "AFF002",
@@ -113,7 +118,7 @@ const topAffiliates = [
     status: "active",
     joinDate: "2023-02-20",
     website: "wellnesspartners.com",
-    location: "Los Angeles, CA"
+    location: "Los Angeles, CA",
   },
   {
     id: "AFF003",
@@ -127,7 +132,7 @@ const topAffiliates = [
     status: "active",
     joinDate: "2023-03-10",
     website: "medconnect.com",
-    location: "Chicago, IL"
+    location: "Chicago, IL",
   },
   {
     id: "AFF004",
@@ -141,8 +146,8 @@ const topAffiliates = [
     status: "pending",
     joinDate: "2023-04-05",
     website: "digitalhealth.co",
-    location: "Austin, TX"
-  }
+    location: "Austin, TX",
+  },
 ];
 
 const commissionTiers = [
@@ -151,29 +156,37 @@ const commissionTiers = [
     minReferrals: 0,
     rate: 8,
     color: "#cd7f32",
-    benefits: ["Basic marketing materials", "Monthly reports", "Email support"]
+    benefits: ["Basic marketing materials", "Monthly reports", "Email support"],
   },
   {
     name: "Silver",
     minReferrals: 25,
     rate: 10,
     color: "#c0c0c0",
-    benefits: ["Priority support", "Custom landing pages", "Quarterly bonuses"]
+    benefits: ["Priority support", "Custom landing pages", "Quarterly bonuses"],
   },
   {
     name: "Gold",
     minReferrals: 50,
     rate: 12,
     color: "#ffd700",
-    benefits: ["Dedicated account manager", "Early access to features", "Performance bonuses"]
+    benefits: [
+      "Dedicated account manager",
+      "Early access to features",
+      "Performance bonuses",
+    ],
   },
   {
     name: "Platinum",
     minReferrals: 100,
     rate: 15,
     color: "#e5e4e2",
-    benefits: ["Custom commission rates", "Co-marketing opportunities", "VIP support"]
-  }
+    benefits: [
+      "Custom commission rates",
+      "Co-marketing opportunities",
+      "VIP support",
+    ],
+  },
 ];
 
 const recentPayouts = [
@@ -185,7 +198,7 @@ const recentPayouts = [
     period: "March 2024",
     status: "paid",
     paidDate: "2024-04-01",
-    method: "Bank Transfer"
+    method: "Bank Transfer",
   },
   {
     id: "PAY002",
@@ -195,7 +208,7 @@ const recentPayouts = [
     period: "March 2024",
     status: "processing",
     paidDate: null,
-    method: "PayPal"
+    method: "PayPal",
   },
   {
     id: "PAY003",
@@ -205,8 +218,8 @@ const recentPayouts = [
     period: "March 2024",
     status: "pending",
     paidDate: null,
-    method: "Check"
-  }
+    method: "Check",
+  },
 ];
 
 export function Affiliate() {
@@ -214,35 +227,45 @@ export function Affiliate() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedTier, setSelectedTier] = useState("all");
 
-  const filteredAffiliates = topAffiliates.filter(affiliate => 
-    (selectedTier === "all" || affiliate.tier.toLowerCase() === selectedTier) &&
-    (affiliate.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-     affiliate.email.toLowerCase().includes(searchTerm.toLowerCase()))
+  const filteredAffiliates = topAffiliates.filter(
+    (affiliate) =>
+      (selectedTier === "all" ||
+        affiliate.tier.toLowerCase() === selectedTier) &&
+      (affiliate.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        affiliate.email.toLowerCase().includes(searchTerm.toLowerCase())),
   );
 
   const getTierBadgeColor = (tier: string) => {
     switch (tier.toLowerCase()) {
-      case "platinum": return "bg-gray-100 text-gray-800";
-      case "gold": return "bg-yellow-100 text-yellow-800";
-      case "silver": return "bg-gray-100 text-gray-600";
-      case "bronze": return "bg-orange-100 text-orange-800";
-      default: return "bg-gray-100 text-gray-600";
+      case "platinum":
+        return "bg-gray-100 text-gray-800";
+      case "gold":
+        return "bg-yellow-100 text-yellow-800";
+      case "silver":
+        return "bg-gray-100 text-gray-600";
+      case "bronze":
+        return "bg-orange-100 text-orange-800";
+      default:
+        return "bg-gray-100 text-gray-600";
     }
   };
 
   const getStatusBadgeColor = (status: string) => {
     switch (status) {
-      case "active": return "bg-green-100 text-green-800";
-      case "pending": return "bg-yellow-100 text-yellow-800";
-      case "suspended": return "bg-red-100 text-red-800";
-      default: return "bg-gray-100 text-gray-600";
+      case "active":
+        return "bg-green-100 text-green-800";
+      case "pending":
+        return "bg-yellow-100 text-yellow-800";
+      case "suspended":
+        return "bg-red-100 text-red-800";
+      default:
+        return "bg-gray-100 text-gray-600";
     }
   };
 
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-4 py-6 space-y-8">
-        
         {/* Header */}
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
           <div>
@@ -254,7 +277,7 @@ export function Affiliate() {
               Manage affiliate partnerships and track commission performance
             </p>
           </div>
-          
+
           <div className="flex gap-3">
             <Button variant="outline" className="gap-2">
               <Settings className="w-4 h-4" />
@@ -267,13 +290,19 @@ export function Affiliate() {
           </div>
         </div>
 
-        <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-6">
+        <Tabs
+          value={selectedTab}
+          onValueChange={setSelectedTab}
+          className="space-y-6"
+        >
           <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="affiliates">Affiliates</TabsTrigger>
             <TabsTrigger value="commissions">Commissions</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
-            <TabsTrigger value="sales-optimization">Sales Optimization</TabsTrigger>
+            <TabsTrigger value="sales-optimization">
+              Sales Optimization
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
@@ -282,22 +311,32 @@ export function Affiliate() {
               {affiliateStats.map((stat, idx) => {
                 const Icon = stat.icon;
                 return (
-                  <Card key={idx} className="hover:shadow-lg transition-all duration-300">
+                  <Card
+                    key={idx}
+                    className="hover:shadow-lg transition-all duration-300"
+                  >
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
-                          <p className="text-3xl font-bold text-foreground">{stat.value}</p>
+                          <p className="text-sm font-medium text-muted-foreground">
+                            {stat.title}
+                          </p>
+                          <p className="text-3xl font-bold text-foreground">
+                            {stat.value}
+                          </p>
                           <div className="flex items-center gap-1 text-sm mt-1 text-green-600">
                             <TrendingUp className="w-3 h-3" />
                             <span>{stat.change}</span>
                           </div>
                         </div>
-                        <div 
+                        <div
                           className="w-12 h-12 rounded-lg flex items-center justify-center"
                           style={{ backgroundColor: `${stat.color}15` }}
                         >
-                          <Icon className="w-6 h-6" style={{ color: stat.color }} />
+                          <Icon
+                            className="w-6 h-6"
+                            style={{ color: stat.color }}
+                          />
                         </div>
                       </div>
                     </CardContent>
@@ -320,23 +359,34 @@ export function Affiliate() {
                     <Card key={idx} className="border-2">
                       <CardContent className="p-4">
                         <div className="text-center mb-4">
-                          <div 
+                          <div
                             className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-2"
                             style={{ backgroundColor: `${tier.color}20` }}
                           >
-                            <Award className="w-8 h-8" style={{ color: tier.color }} />
+                            <Award
+                              className="w-8 h-8"
+                              style={{ color: tier.color }}
+                            />
                           </div>
-                          <h3 className="font-bold text-lg" style={{ color: tier.color }}>
+                          <h3
+                            className="font-bold text-lg"
+                            style={{ color: tier.color }}
+                          >
                             {tier.name}
                           </h3>
-                          <p className="text-2xl font-bold text-foreground">{tier.rate}%</p>
+                          <p className="text-2xl font-bold text-foreground">
+                            {tier.rate}%
+                          </p>
                           <p className="text-xs text-muted-foreground">
                             {tier.minReferrals}+ referrals
                           </p>
                         </div>
                         <ul className="space-y-1 text-xs">
                           {tier.benefits.map((benefit, benefitIdx) => (
-                            <li key={benefitIdx} className="flex items-center gap-1">
+                            <li
+                              key={benefitIdx}
+                              className="flex items-center gap-1"
+                            >
                               <CheckCircle className="w-3 h-3 text-green-500" />
                               <span>{benefit}</span>
                             </li>
@@ -360,22 +410,31 @@ export function Affiliate() {
               <CardContent>
                 <div className="space-y-4">
                   {topAffiliates.slice(0, 3).map((affiliate, idx) => (
-                    <div key={affiliate.id} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div
+                      key={affiliate.id}
+                      className="flex items-center justify-between p-4 border rounded-lg"
+                    >
                       <div className="flex items-center gap-4">
                         <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center font-bold text-primary">
                           #{idx + 1}
                         </div>
                         <div>
                           <h4 className="font-semibold">{affiliate.name}</h4>
-                          <p className="text-sm text-muted-foreground">{affiliate.email}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {affiliate.email}
+                          </p>
                         </div>
                         <Badge className={getTierBadgeColor(affiliate.tier)}>
                           {affiliate.tier}
                         </Badge>
                       </div>
                       <div className="text-right">
-                        <p className="font-bold text-lg">${affiliate.totalEarnings.toLocaleString()}</p>
-                        <p className="text-sm text-muted-foreground">{affiliate.referrals} referrals</p>
+                        <p className="font-bold text-lg">
+                          ${affiliate.totalEarnings.toLocaleString()}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          {affiliate.referrals} referrals
+                        </p>
                       </div>
                     </div>
                   ))}
@@ -399,17 +458,21 @@ export function Affiliate() {
                     />
                   </div>
                   <div className="flex gap-2">
-                    {["all", "platinum", "gold", "silver", "bronze"].map((tier) => (
-                      <Button
-                        key={tier}
-                        variant={selectedTier === tier ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => setSelectedTier(tier)}
-                        className="capitalize"
-                      >
-                        {tier}
-                      </Button>
-                    ))}
+                    {["all", "platinum", "gold", "silver", "bronze"].map(
+                      (tier) => (
+                        <Button
+                          key={tier}
+                          variant={
+                            selectedTier === tier ? "default" : "outline"
+                          }
+                          size="sm"
+                          onClick={() => setSelectedTier(tier)}
+                          className="capitalize"
+                        >
+                          {tier}
+                        </Button>
+                      ),
+                    )}
                   </div>
                 </div>
               </CardContent>
@@ -418,18 +481,25 @@ export function Affiliate() {
             {/* Affiliates List */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {filteredAffiliates.map((affiliate) => (
-                <Card key={affiliate.id} className="hover:shadow-lg transition-all duration-300">
+                <Card
+                  key={affiliate.id}
+                  className="hover:shadow-lg transition-all duration-300"
+                >
                   <CardHeader className="pb-3">
                     <div className="flex items-center justify-between">
                       <div>
                         <h3 className="font-bold text-lg">{affiliate.name}</h3>
-                        <p className="text-sm text-muted-foreground">{affiliate.email}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {affiliate.email}
+                        </p>
                       </div>
                       <div className="flex flex-col gap-2">
                         <Badge className={getTierBadgeColor(affiliate.tier)}>
                           {affiliate.tier}
                         </Badge>
-                        <Badge className={getStatusBadgeColor(affiliate.status)}>
+                        <Badge
+                          className={getStatusBadgeColor(affiliate.status)}
+                        >
                           {affiliate.status}
                         </Badge>
                       </div>
@@ -438,31 +508,55 @@ export function Affiliate() {
                   <CardContent>
                     <div className="grid grid-cols-2 gap-4 mb-4">
                       <div className="text-center">
-                        <p className="text-2xl font-bold text-primary">{affiliate.commissionRate}%</p>
-                        <p className="text-xs text-muted-foreground">Commission Rate</p>
+                        <p className="text-2xl font-bold text-primary">
+                          {affiliate.commissionRate}%
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          Commission Rate
+                        </p>
                       </div>
                       <div className="text-center">
-                        <p className="text-2xl font-bold text-green-600">${affiliate.totalEarnings.toLocaleString()}</p>
-                        <p className="text-xs text-muted-foreground">Total Earnings</p>
+                        <p className="text-2xl font-bold text-green-600">
+                          ${affiliate.totalEarnings.toLocaleString()}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          Total Earnings
+                        </p>
                       </div>
                     </div>
-                    
+
                     <div className="space-y-2 mb-4">
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-muted-foreground">Referrals</span>
-                        <span className="font-medium">{affiliate.referrals}</span>
+                        <span className="font-medium">
+                          {affiliate.referrals}
+                        </span>
                       </div>
                       <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground">Conversions</span>
-                        <span className="font-medium">{affiliate.conversions}</span>
+                        <span className="text-muted-foreground">
+                          Conversions
+                        </span>
+                        <span className="font-medium">
+                          {affiliate.conversions}
+                        </span>
                       </div>
                       <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground">Conversion Rate</span>
-                        <span className="font-medium">{((affiliate.conversions / affiliate.referrals) * 100).toFixed(1)}%</span>
+                        <span className="text-muted-foreground">
+                          Conversion Rate
+                        </span>
+                        <span className="font-medium">
+                          {(
+                            (affiliate.conversions / affiliate.referrals) *
+                            100
+                          ).toFixed(1)}
+                          %
+                        </span>
                       </div>
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-muted-foreground">Join Date</span>
-                        <span className="font-medium">{new Date(affiliate.joinDate).toLocaleDateString()}</span>
+                        <span className="font-medium">
+                          {new Date(affiliate.joinDate).toLocaleDateString()}
+                        </span>
                       </div>
                     </div>
 
@@ -474,11 +568,19 @@ export function Affiliate() {
                     </div>
 
                     <div className="flex gap-2">
-                      <Button size="sm" variant="outline" className="flex-1 gap-1">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="flex-1 gap-1"
+                      >
                         <Eye className="w-3 h-3" />
                         View
                       </Button>
-                      <Button size="sm" variant="outline" className="flex-1 gap-1">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="flex-1 gap-1"
+                      >
                         <Edit className="w-3 h-3" />
                         Edit
                       </Button>
@@ -506,15 +608,21 @@ export function Affiliate() {
                   <div className="space-y-4">
                     <div className="flex items-center justify-between p-3 border rounded">
                       <span>New Patient Referral</span>
-                      <Badge className="bg-blue-100 text-blue-800">$50 + 10%</Badge>
+                      <Badge className="bg-blue-100 text-blue-800">
+                        $50 + 10%
+                      </Badge>
                     </div>
                     <div className="flex items-center justify-between p-3 border rounded">
                       <span>Subscription Signup</span>
-                      <Badge className="bg-green-100 text-green-800">15% recurring</Badge>
+                      <Badge className="bg-green-100 text-green-800">
+                        15% recurring
+                      </Badge>
                     </div>
                     <div className="flex items-center justify-between p-3 border rounded">
                       <span>Premium Service</span>
-                      <Badge className="bg-purple-100 text-purple-800">20% first month</Badge>
+                      <Badge className="bg-purple-100 text-purple-800">
+                        20% first month
+                      </Badge>
                     </div>
                   </div>
                 </CardContent>
@@ -531,7 +639,9 @@ export function Affiliate() {
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <span className="text-sm">Payment Frequency</span>
-                      <Badge className="bg-blue-100 text-blue-800">Monthly</Badge>
+                      <Badge className="bg-blue-100 text-blue-800">
+                        Monthly
+                      </Badge>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm">Payment Date</span>
@@ -561,18 +671,31 @@ export function Affiliate() {
               <CardContent>
                 <div className="space-y-3">
                   {recentPayouts.map((payout) => (
-                    <div key={payout.id} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div
+                      key={payout.id}
+                      className="flex items-center justify-between p-4 border rounded-lg"
+                    >
                       <div>
-                        <h4 className="font-semibold">{payout.affiliateName}</h4>
-                        <p className="text-sm text-muted-foreground">{payout.period} • {payout.method}</p>
+                        <h4 className="font-semibold">
+                          {payout.affiliateName}
+                        </h4>
+                        <p className="text-sm text-muted-foreground">
+                          {payout.period} • {payout.method}
+                        </p>
                       </div>
                       <div className="text-right">
-                        <p className="font-bold text-lg">${payout.amount.toLocaleString()}</p>
-                        <Badge className={
-                          payout.status === 'paid' ? 'bg-green-100 text-green-800' :
-                          payout.status === 'processing' ? 'bg-yellow-100 text-yellow-800' :
-                          'bg-gray-100 text-gray-800'
-                        }>
+                        <p className="font-bold text-lg">
+                          ${payout.amount.toLocaleString()}
+                        </p>
+                        <Badge
+                          className={
+                            payout.status === "paid"
+                              ? "bg-green-100 text-green-800"
+                              : payout.status === "processing"
+                                ? "bg-yellow-100 text-yellow-800"
+                                : "bg-gray-100 text-gray-800"
+                          }
+                        >
                           {payout.status}
                         </Badge>
                       </div>
@@ -673,22 +796,44 @@ export function Affiliate() {
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   {commissionTiers.map((tier) => {
-                    const tierAffiliates = topAffiliates.filter(a => a.tier.toLowerCase() === tier.name.toLowerCase());
-                    const totalEarnings = tierAffiliates.reduce((sum, a) => sum + a.totalEarnings, 0);
-                    const totalReferrals = tierAffiliates.reduce((sum, a) => sum + a.referrals, 0);
-                    
+                    const tierAffiliates = topAffiliates.filter(
+                      (a) => a.tier.toLowerCase() === tier.name.toLowerCase(),
+                    );
+                    const totalEarnings = tierAffiliates.reduce(
+                      (sum, a) => sum + a.totalEarnings,
+                      0,
+                    );
+                    const totalReferrals = tierAffiliates.reduce(
+                      (sum, a) => sum + a.referrals,
+                      0,
+                    );
+
                     return (
-                      <div key={tier.name} className="text-center p-4 border rounded-lg">
-                        <div 
+                      <div
+                        key={tier.name}
+                        className="text-center p-4 border rounded-lg"
+                      >
+                        <div
                           className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-2"
                           style={{ backgroundColor: `${tier.color}20` }}
                         >
-                          <Award className="w-6 h-6" style={{ color: tier.color }} />
+                          <Award
+                            className="w-6 h-6"
+                            style={{ color: tier.color }}
+                          />
                         </div>
-                        <h3 className="font-bold" style={{ color: tier.color }}>{tier.name}</h3>
-                        <p className="text-xs text-muted-foreground mb-2">{tierAffiliates.length} affiliates</p>
-                        <p className="text-lg font-bold">${totalEarnings.toLocaleString()}</p>
-                        <p className="text-xs text-muted-foreground">{totalReferrals} referrals</p>
+                        <h3 className="font-bold" style={{ color: tier.color }}>
+                          {tier.name}
+                        </h3>
+                        <p className="text-xs text-muted-foreground mb-2">
+                          {tierAffiliates.length} affiliates
+                        </p>
+                        <p className="text-lg font-bold">
+                          ${totalEarnings.toLocaleString()}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {totalReferrals} referrals
+                        </p>
                       </div>
                     );
                   })}
@@ -700,7 +845,6 @@ export function Affiliate() {
           <TabsContent value="sales-optimization">
             <SalesOptimization />
           </TabsContent>
-
         </Tabs>
       </div>
     </div>

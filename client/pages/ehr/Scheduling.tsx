@@ -19,12 +19,12 @@ import {
   AlertCircle,
   CheckCircle,
   Users,
-  Stethoscope
+  Stethoscope,
 } from "lucide-react";
 
 export function Scheduling() {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [viewMode, setViewMode] = useState<'day' | 'week' | 'month'>('day');
+  const [viewMode, setViewMode] = useState<"day" | "week" | "month">("day");
 
   const appointments = [
     {
@@ -36,7 +36,7 @@ export function Scheduling() {
       provider: "Dr. Smith",
       room: "Room 101",
       status: "confirmed",
-      isVirtual: false
+      isVirtual: false,
     },
     {
       id: 2,
@@ -47,7 +47,7 @@ export function Scheduling() {
       provider: "Dr. Smith",
       room: "Virtual",
       status: "pending",
-      isVirtual: true
+      isVirtual: true,
     },
     {
       id: 3,
@@ -58,7 +58,7 @@ export function Scheduling() {
       provider: "Dr. Smith",
       room: "Room 102",
       status: "confirmed",
-      isVirtual: false
+      isVirtual: false,
     },
     {
       id: 4,
@@ -69,31 +69,39 @@ export function Scheduling() {
       provider: "Dr. Smith",
       room: "Room 101",
       status: "confirmed",
-      isVirtual: false
-    }
+      isVirtual: false,
+    },
   ];
 
   const providers = [
     { name: "Dr. Smith", specialty: "Internal Medicine", available: true },
     { name: "Dr. Johnson", specialty: "Cardiology", available: false },
-    { name: "Dr. Williams", specialty: "Dermatology", available: true }
+    { name: "Dr. Williams", specialty: "Dermatology", available: true },
   ];
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'confirmed': return 'bg-green-100 text-green-800';
-      case 'pending': return 'bg-yellow-100 text-yellow-800';
-      case 'cancelled': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case "confirmed":
+        return "bg-green-100 text-green-800";
+      case "pending":
+        return "bg-yellow-100 text-yellow-800";
+      case "cancelled":
+        return "bg-red-100 text-red-800";
+      default:
+        return "bg-gray-100 text-gray-800";
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'confirmed': return CheckCircle;
-      case 'pending': return Clock;
-      case 'cancelled': return AlertCircle;
-      default: return Clock;
+      case "confirmed":
+        return CheckCircle;
+      case "pending":
+        return Clock;
+      case "cancelled":
+        return AlertCircle;
+      default:
+        return Clock;
     }
   };
 
@@ -153,13 +161,24 @@ export function Scheduling() {
             <CardContent>
               <div className="space-y-3">
                 {providers.map((provider, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                  <div
+                    key={index}
+                    className="flex items-center justify-between p-3 border rounded-lg"
+                  >
                     <div>
                       <div className="font-medium">{provider.name}</div>
-                      <div className="text-sm text-gray-600">{provider.specialty}</div>
+                      <div className="text-sm text-gray-600">
+                        {provider.specialty}
+                      </div>
                     </div>
-                    <Badge className={provider.available ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}>
-                      {provider.available ? 'Available' : 'Busy'}
+                    <Badge
+                      className={
+                        provider.available
+                          ? "bg-green-100 text-green-800"
+                          : "bg-red-100 text-red-800"
+                      }
+                    >
+                      {provider.available ? "Available" : "Busy"}
                     </Badge>
                   </div>
                 ))}
@@ -179,11 +198,11 @@ export function Scheduling() {
                     <ChevronLeft className="w-4 h-4" />
                   </Button>
                   <span className="font-medium">
-                    {selectedDate.toLocaleDateString('en-US', { 
-                      weekday: 'long', 
-                      year: 'numeric', 
-                      month: 'long', 
-                      day: 'numeric' 
+                    {selectedDate.toLocaleDateString("en-US", {
+                      weekday: "long",
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
                     })}
                   </span>
                   <Button variant="outline" size="sm">
@@ -191,24 +210,24 @@ export function Scheduling() {
                   </Button>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Button 
-                    variant={viewMode === 'day' ? 'default' : 'outline'} 
+                  <Button
+                    variant={viewMode === "day" ? "default" : "outline"}
                     size="sm"
-                    onClick={() => setViewMode('day')}
+                    onClick={() => setViewMode("day")}
                   >
                     Day
                   </Button>
-                  <Button 
-                    variant={viewMode === 'week' ? 'default' : 'outline'} 
+                  <Button
+                    variant={viewMode === "week" ? "default" : "outline"}
                     size="sm"
-                    onClick={() => setViewMode('week')}
+                    onClick={() => setViewMode("week")}
                   >
                     Week
                   </Button>
-                  <Button 
-                    variant={viewMode === 'month' ? 'default' : 'outline'} 
+                  <Button
+                    variant={viewMode === "month" ? "default" : "outline"}
                     size="sm"
-                    onClick={() => setViewMode('month')}
+                    onClick={() => setViewMode("month")}
                   >
                     Month
                   </Button>
@@ -225,7 +244,9 @@ export function Scheduling() {
                   <Clock className="w-5 h-5" />
                   Today's Appointments
                 </span>
-                <Badge variant="secondary">{appointments.length} appointments</Badge>
+                <Badge variant="secondary">
+                  {appointments.length} appointments
+                </Badge>
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -233,7 +254,10 @@ export function Scheduling() {
                 {appointments.map((appointment) => {
                   const StatusIcon = getStatusIcon(appointment.status);
                   return (
-                    <div key={appointment.id} className="border rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                    <div
+                      key={appointment.id}
+                      className="border rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                    >
                       <div className="flex items-start justify-between">
                         <div className="flex items-start gap-4">
                           <div className="text-center">
@@ -247,11 +271,15 @@ export function Scheduling() {
                           <div className="space-y-1">
                             <div className="flex items-center gap-2">
                               <User className="w-4 h-4 text-gray-500" />
-                              <span className="font-medium">{appointment.patient}</span>
+                              <span className="font-medium">
+                                {appointment.patient}
+                              </span>
                             </div>
                             <div className="flex items-center gap-2">
                               <Stethoscope className="w-4 h-4 text-gray-500" />
-                              <span className="text-sm text-gray-600">{appointment.type}</span>
+                              <span className="text-sm text-gray-600">
+                                {appointment.type}
+                              </span>
                             </div>
                             <div className="flex items-center gap-2">
                               {appointment.isVirtual ? (
@@ -259,7 +287,9 @@ export function Scheduling() {
                               ) : (
                                 <MapPin className="w-4 h-4 text-gray-500" />
                               )}
-                              <span className="text-sm text-gray-600">{appointment.room}</span>
+                              <span className="text-sm text-gray-600">
+                                {appointment.room}
+                              </span>
                             </div>
                           </div>
                         </div>
@@ -285,7 +315,9 @@ export function Scheduling() {
             <Card>
               <CardContent className="p-6 text-center">
                 <div className="text-2xl font-bold text-blue-600">8</div>
-                <div className="text-sm text-gray-600">Today's Appointments</div>
+                <div className="text-sm text-gray-600">
+                  Today's Appointments
+                </div>
               </CardContent>
             </Card>
             <Card>

@@ -4,12 +4,22 @@
  */
 
 import React, { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
 import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Progress } from "../components/ui/progress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../components/ui/tabs";
 
 // 🚀 NEW: Import the modern API hooks
 import {
@@ -61,7 +71,10 @@ export function ModernProgramsComponent() {
   };
 
   // Handle enrolling a participant
-  const handleEnrollParticipant = async (programId: string, participantData: any) => {
+  const handleEnrollParticipant = async (
+    programId: string,
+    participantData: any,
+  ) => {
     try {
       await enrollParticipant.mutateAsync({ programId, participantData });
       // ✅ Optimistic updates - UI updates immediately!
@@ -71,9 +84,10 @@ export function ModernProgramsComponent() {
   };
 
   // Filter programs based on search
-  const filteredPrograms = programs.filter(program =>
-    program.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    program.description.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredPrograms = programs.filter(
+    (program) =>
+      program.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      program.description.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   // 🚀 NEW: Built-in loading and error states
@@ -104,7 +118,6 @@ export function ModernProgramsComponent() {
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-4 py-6 space-y-8">
-        
         {/* Header with real-time stats */}
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
           <div>
@@ -113,10 +126,12 @@ export function ModernProgramsComponent() {
               Programs Management
             </h1>
             <p className="text-lg text-muted-foreground">
-              {programs.length} active programs • {programs.reduce((sum, p) => sum + p.enrolledParticipants, 0)} total participants
+              {programs.length} active programs •{" "}
+              {programs.reduce((sum, p) => sum + p.enrolledParticipants, 0)}{" "}
+              total participants
             </p>
           </div>
-          
+
           <div className="flex gap-3">
             <Button
               className="gap-2"
@@ -129,10 +144,16 @@ export function ModernProgramsComponent() {
           </div>
         </div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="space-y-6"
+        >
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="programs">Programs ({programs.length})</TabsTrigger>
+            <TabsTrigger value="programs">
+              Programs ({programs.length})
+            </TabsTrigger>
             <TabsTrigger value="participants">Participants</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
           </TabsList>
@@ -156,11 +177,14 @@ export function ModernProgramsComponent() {
             {/* Programs Grid with real data */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredPrograms.map((program) => (
-                <Card key={program.id} className="hover:shadow-lg transition-all duration-300 overflow-hidden">
+                <Card
+                  key={program.id}
+                  className="hover:shadow-lg transition-all duration-300 overflow-hidden"
+                >
                   <div className="relative">
                     {program.image && (
-                      <img 
-                        src={program.image} 
+                      <img
+                        src={program.image}
                         alt={program.title}
                         className="w-full h-48 object-cover"
                       />
@@ -174,17 +198,21 @@ export function ModernProgramsComponent() {
                       </Badge>
                     </div>
                   </div>
-                  
+
                   <CardHeader className="pb-3">
                     <CardTitle className="text-lg">{program.title}</CardTitle>
-                    <p className="text-sm text-muted-foreground">{program.description}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {program.description}
+                    </p>
                   </CardHeader>
-                  
+
                   <CardContent>
                     <div className="space-y-3">
                       <div className="grid grid-cols-2 gap-4 text-sm">
                         <div>
-                          <span className="text-muted-foreground">Duration:</span>
+                          <span className="text-muted-foreground">
+                            Duration:
+                          </span>
                           <p className="font-medium">{program.duration}</p>
                         </div>
                         <div>
@@ -192,14 +220,21 @@ export function ModernProgramsComponent() {
                           <p className="font-medium">{program.coach}</p>
                         </div>
                       </div>
-                      
+
                       <div className="space-y-2">
                         <div className="flex justify-between text-sm">
                           <span>Participants</span>
-                          <span>{program.enrolledParticipants}/{program.maxParticipants || "∞"}</span>
+                          <span>
+                            {program.enrolledParticipants}/
+                            {program.maxParticipants || "∞"}
+                          </span>
                         </div>
-                        <Progress 
-                          value={(program.enrolledParticipants / (program.maxParticipants || 100)) * 100} 
+                        <Progress
+                          value={
+                            (program.enrolledParticipants /
+                              (program.maxParticipants || 100)) *
+                            100
+                          }
                           className="h-2"
                         />
                       </div>
@@ -211,7 +246,9 @@ export function ModernProgramsComponent() {
                         </div>
                         <div className="flex items-center gap-1">
                           <Target className="w-4 h-4 text-green-600" />
-                          <span className="font-medium">{program.completionRate}%</span>
+                          <span className="font-medium">
+                            {program.completionRate}%
+                          </span>
                         </div>
                         <div className="font-semibold text-primary">
                           ${program.price}
@@ -219,9 +256,9 @@ export function ModernProgramsComponent() {
                       </div>
 
                       <div className="flex gap-2 pt-2">
-                        <Button 
-                          size="sm" 
-                          variant="outline" 
+                        <Button
+                          size="sm"
+                          variant="outline"
                           className="flex-1"
                           onClick={() => handleEditProgram(program)}
                           disabled={updateProgram.isPending}
@@ -229,10 +266,12 @@ export function ModernProgramsComponent() {
                           <Edit className="w-3 h-3 mr-1" />
                           Edit
                         </Button>
-                        <Button 
-                          size="sm" 
+                        <Button
+                          size="sm"
                           className="flex-1"
-                          onClick={() => handleEnrollParticipant(program.id, {})}
+                          onClick={() =>
+                            handleEnrollParticipant(program.id, {})
+                          }
                           disabled={enrollParticipant.isPending}
                         >
                           <UserPlus className="w-3 h-3 mr-1" />
@@ -278,9 +317,9 @@ export async function exampleApiUsage() {
     console.log("Created program:", newProgram.data);
 
     // Get participants for a program
-    const participants = await ProgramService.getProgramParticipants("program-id");
+    const participants =
+      await ProgramService.getProgramParticipants("program-id");
     console.log("Participants:", participants.data);
-
   } catch (error) {
     console.error("API Error:", error);
   }

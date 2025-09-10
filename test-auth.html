@@ -1,40 +1,42 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
+  <head>
     <title>Test Auth</title>
-</head>
-<body>
+  </head>
+  <body>
     <h1>API Test</h1>
     <button onclick="testApi()">Test Patient Stats API</button>
     <div id="result"></div>
-    
+
     <script>
-        async function testApi() {
-            const result = document.getElementById('result');
-            
-            // Create a mock token like the frontend does
-            const mockToken = btoa(JSON.stringify({
-                userId: '2',
-                email: 'doctor@telecheck.com',
-                role: 'doctor',
-                permissions: ['view_all_patients'],
-                exp: Date.now() + (24 * 60 * 60 * 1000)
-            }));
-            
-            try {
-                const response = await fetch('/api/patients/stats', {
-                    headers: {
-                        'Authorization': `Bearer ${mockToken}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-                
-                const data = await response.json();
-                result.innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
-            } catch (error) {
-                result.innerHTML = 'Error: ' + error.message;
-            }
+      async function testApi() {
+        const result = document.getElementById("result");
+
+        // Create a mock token like the frontend does
+        const mockToken = btoa(
+          JSON.stringify({
+            userId: "2",
+            email: "doctor@telecheck.com",
+            role: "doctor",
+            permissions: ["view_all_patients"],
+            exp: Date.now() + 24 * 60 * 60 * 1000,
+          }),
+        );
+
+        try {
+          const response = await fetch("/api/patients/stats", {
+            headers: {
+              Authorization: `Bearer ${mockToken}`,
+              "Content-Type": "application/json",
+            },
+          });
+
+          const data = await response.json();
+          result.innerHTML = "<pre>" + JSON.stringify(data, null, 2) + "</pre>";
+        } catch (error) {
+          result.innerHTML = "Error: " + error.message;
         }
+      }
     </script>
-</body>
+  </body>
 </html>

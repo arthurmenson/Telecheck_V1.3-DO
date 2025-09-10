@@ -1,16 +1,25 @@
 import React, { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../../components/ui/card";
 import { Button } from "../../components/ui/button";
 import { Badge } from "../../components/ui/badge";
 import { Input } from "../../components/ui/input";
 import { Textarea } from "../../components/ui/textarea";
-import { Avatar, AvatarFallback, AvatarImage } from "../../components/ui/avatar";
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "../../components/ui/avatar";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "../../components/ui/select";
 import {
   MessageCircle,
@@ -37,11 +46,13 @@ import {
   FileText,
   Image,
   Mic,
-  Settings
+  Settings,
 } from "lucide-react";
 
 export function Messaging() {
-  const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
+  const [selectedConversation, setSelectedConversation] = useState<
+    string | null
+  >(null);
   const [messageText, setMessageText] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -51,22 +62,24 @@ export function Messaging() {
       participant: "Dr. Sarah Johnson",
       role: "Cardiologist",
       avatar: "/avatars/dr-johnson.jpg",
-      lastMessage: "Lab results look good. Let's schedule a follow-up next week.",
+      lastMessage:
+        "Lab results look good. Let's schedule a follow-up next week.",
       timestamp: "2 min ago",
       unread: 2,
       priority: "normal",
-      status: "online"
+      status: "online",
     },
     {
       id: "2",
       participant: "Emma Wilson",
       role: "Patient",
       avatar: "/avatars/emma-wilson.jpg",
-      lastMessage: "Thank you for the medication adjustment. I'm feeling much better.",
+      lastMessage:
+        "Thank you for the medication adjustment. I'm feeling much better.",
       timestamp: "15 min ago",
       unread: 0,
       priority: "normal",
-      status: "offline"
+      status: "offline",
     },
     {
       id: "3",
@@ -77,7 +90,7 @@ export function Messaging() {
       timestamp: "1 hour ago",
       unread: 1,
       priority: "urgent",
-      status: "busy"
+      status: "busy",
     },
     {
       id: "4",
@@ -88,7 +101,7 @@ export function Messaging() {
       timestamp: "2 hours ago",
       unread: 0,
       priority: "normal",
-      status: "offline"
+      status: "offline",
     },
     {
       id: "5",
@@ -99,8 +112,8 @@ export function Messaging() {
       timestamp: "3 hours ago",
       unread: 1,
       priority: "normal",
-      status: "online"
-    }
+      status: "online",
+    },
   ];
 
   const messages = [
@@ -108,10 +121,11 @@ export function Messaging() {
       id: "1",
       senderId: "dr-johnson",
       senderName: "Dr. Sarah Johnson",
-      content: "I've reviewed your latest test results. Overall, they look very encouraging.",
+      content:
+        "I've reviewed your latest test results. Overall, they look very encouraging.",
       timestamp: "10:30 AM",
       type: "text",
-      isOwn: false
+      isOwn: false,
     },
     {
       id: "2",
@@ -120,16 +134,17 @@ export function Messaging() {
       content: "That's great to hear! What about the cholesterol levels?",
       timestamp: "10:32 AM",
       type: "text",
-      isOwn: true
+      isOwn: true,
     },
     {
       id: "3",
       senderId: "dr-johnson",
       senderName: "Dr. Sarah Johnson",
-      content: "Your cholesterol has improved significantly since starting the new medication. We should continue with the current treatment plan.",
+      content:
+        "Your cholesterol has improved significantly since starting the new medication. We should continue with the current treatment plan.",
       timestamp: "10:35 AM",
       type: "text",
-      isOwn: false
+      isOwn: false,
     },
     {
       id: "4",
@@ -138,24 +153,31 @@ export function Messaging() {
       content: "Lab results look good. Let's schedule a follow-up next week.",
       timestamp: "10:45 AM",
       type: "text",
-      isOwn: false
-    }
+      isOwn: false,
+    },
   ];
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'online': return 'bg-green-500';
-      case 'busy': return 'bg-yellow-500';
-      case 'offline': return 'bg-gray-400';
-      default: return 'bg-gray-400';
+      case "online":
+        return "bg-green-500";
+      case "busy":
+        return "bg-yellow-500";
+      case "offline":
+        return "bg-gray-400";
+      default:
+        return "bg-gray-400";
     }
   };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'urgent': return 'border-l-red-500 bg-red-50 dark:bg-red-900/20';
-      case 'high': return 'border-l-orange-500 bg-orange-50 dark:bg-orange-900/20';
-      default: return 'border-l-blue-500 bg-white dark:bg-gray-800';
+      case "urgent":
+        return "border-l-red-500 bg-red-50 dark:bg-red-900/20";
+      case "high":
+        return "border-l-orange-500 bg-orange-50 dark:bg-orange-900/20";
+      default:
+        return "border-l-blue-500 bg-white dark:bg-gray-800";
     }
   };
 
@@ -203,7 +225,7 @@ export function Messaging() {
                   Conversations
                 </span>
                 <Badge variant="outline">
-                  {conversations.filter(c => c.unread > 0).length} unread
+                  {conversations.filter((c) => c.unread > 0).length} unread
                 </Badge>
               </CardTitle>
               {/* Search */}
@@ -224,8 +246,8 @@ export function Messaging() {
                     key={conversation.id}
                     onClick={() => setSelectedConversation(conversation.id)}
                     className={`p-4 cursor-pointer transition-colors border-l-4 ${
-                      selectedConversation === conversation.id 
-                        ? 'bg-blue-50 dark:bg-blue-900/20 border-l-blue-500' 
+                      selectedConversation === conversation.id
+                        ? "bg-blue-50 dark:bg-blue-900/20 border-l-blue-500"
                         : getPriorityColor(conversation.priority)
                     } hover:bg-gray-50 dark:hover:bg-gray-700`}
                   >
@@ -234,10 +256,15 @@ export function Messaging() {
                         <Avatar className="w-10 h-10">
                           <AvatarImage src={conversation.avatar} />
                           <AvatarFallback>
-                            {conversation.participant.split(' ').map(n => n[0]).join('')}
+                            {conversation.participant
+                              .split(" ")
+                              .map((n) => n[0])
+                              .join("")}
                           </AvatarFallback>
                         </Avatar>
-                        <div className={`absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 border-white ${getStatusColor(conversation.status)}`} />
+                        <div
+                          className={`absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 border-white ${getStatusColor(conversation.status)}`}
+                        />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between mb-1">
@@ -245,7 +272,7 @@ export function Messaging() {
                             {conversation.participant}
                           </h4>
                           <div className="flex items-center gap-1">
-                            {conversation.priority === 'urgent' && (
+                            {conversation.priority === "urgent" && (
                               <AlertCircle className="w-4 h-4 text-red-500" />
                             )}
                             {conversation.unread > 0 && (
@@ -287,7 +314,9 @@ export function Messaging() {
                       </Avatar>
                       <div>
                         <h3 className="font-semibold">Dr. Sarah Johnson</h3>
-                        <p className="text-sm text-gray-600">Cardiologist • Online</p>
+                        <p className="text-sm text-gray-600">
+                          Cardiologist • Online
+                        </p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
@@ -309,17 +338,21 @@ export function Messaging() {
                   {messages.map((message) => (
                     <div
                       key={message.id}
-                      className={`flex ${message.isOwn ? 'justify-end' : 'justify-start'}`}
+                      className={`flex ${message.isOwn ? "justify-end" : "justify-start"}`}
                     >
-                      <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-                        message.isOwn 
-                          ? 'bg-blue-600 text-white' 
-                          : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white'
-                      }`}>
+                      <div
+                        className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+                          message.isOwn
+                            ? "bg-blue-600 text-white"
+                            : "bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white"
+                        }`}
+                      >
                         <p className="text-sm">{message.content}</p>
-                        <p className={`text-xs mt-1 ${
-                          message.isOwn ? 'text-blue-100' : 'text-gray-500'
-                        }`}>
+                        <p
+                          className={`text-xs mt-1 ${
+                            message.isOwn ? "text-blue-100" : "text-gray-500"
+                          }`}
+                        >
                           {message.timestamp}
                         </p>
                       </div>
@@ -347,13 +380,13 @@ export function Messaging() {
                         rows={1}
                         className="resize-none"
                         onKeyPress={(e) => {
-                          if (e.key === 'Enter' && !e.shiftKey) {
+                          if (e.key === "Enter" && !e.shiftKey) {
                             e.preventDefault();
                             sendMessage();
                           }
                         }}
                       />
-                      <Button 
+                      <Button
                         onClick={sendMessage}
                         disabled={!messageText.trim()}
                       >
@@ -367,8 +400,12 @@ export function Messaging() {
               <CardContent className="flex-1 flex items-center justify-center">
                 <div className="text-center text-gray-500">
                   <MessageCircle className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                  <h3 className="text-lg font-semibold mb-2">Select a Conversation</h3>
-                  <p className="text-sm">Choose a conversation from the list to start messaging</p>
+                  <h3 className="text-lg font-semibold mb-2">
+                    Select a Conversation
+                  </h3>
+                  <p className="text-sm">
+                    Choose a conversation from the list to start messaging
+                  </p>
                 </div>
               </CardContent>
             )}
@@ -381,28 +418,36 @@ export function Messaging() {
         <Card>
           <CardContent className="p-6 text-center">
             <Bell className="w-8 h-8 text-blue-600 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-gray-900 dark:text-white">5</div>
+            <div className="text-2xl font-bold text-gray-900 dark:text-white">
+              5
+            </div>
             <div className="text-sm text-gray-600">Urgent Messages</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-6 text-center">
             <Users className="w-8 h-8 text-green-600 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-gray-900 dark:text-white">23</div>
+            <div className="text-2xl font-bold text-gray-900 dark:text-white">
+              23
+            </div>
             <div className="text-sm text-gray-600">Active Conversations</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-6 text-center">
             <Clock className="w-8 h-8 text-purple-600 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-gray-900 dark:text-white">2.3h</div>
+            <div className="text-2xl font-bold text-gray-900 dark:text-white">
+              2.3h
+            </div>
             <div className="text-sm text-gray-600">Avg Response Time</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-6 text-center">
             <CheckCircle className="w-8 h-8 text-emerald-600 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-gray-900 dark:text-white">98%</div>
+            <div className="text-2xl font-bold text-gray-900 dark:text-white">
+              98%
+            </div>
             <div className="text-sm text-gray-600">Message Delivery</div>
           </CardContent>
         </Card>

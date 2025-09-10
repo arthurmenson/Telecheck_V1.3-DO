@@ -5,39 +5,44 @@
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "skipLibCheck": true,
-
-    /* Bundler mode */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
     "isolatedModules": true,
-    "moduleDetection": "force",
     "noEmit": true,
     "jsx": "react-jsx",
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "forceConsistentCasingInFileNames": true,
-
-    /* Linting */
     "strict": false,
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
     "noImplicitAny": false,
-    "noFallthroughCasesInSwitch": false,
     "strictNullChecks": false,
-
-    /* Path mapping */
+    "strictFunctionTypes": false,
+    "noImplicitReturns": false,
+    "noFallthroughCasesInSwitch": false,
+    "noUncheckedIndexedAccess": false,
+    "exactOptionalPropertyTypes": false,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
     "paths": {
       "@/*": ["./client/*"],
-      "@shared/*": ["./shared/*"]
+      "@/components/*": ["./client/components/*"],
+      "@/pages/*": ["./client/pages/*"],
+      "@/services/*": ["./client/services/*"],
+      "@/hooks/*": ["./client/hooks/*"],
+      "@/lib/*": ["./client/lib/*"],
+      "@/utils/*": ["./client/utils/*"],
+      "@/types/*": ["./shared/types.ts"],
+      "@/api/*": ["./shared/api.ts"],
+      "@/server/*": ["./server/*"]
     }
   },
   "include": [
     "client/**/*",
     "server/**/*",
     "shared/**/*",
+    "tests/**/*",
     "vite.config.ts",
-    "vite.config.server.ts"
+    "vitest.config.ts"
   ],
-  "exclude": ["node_modules", "dist"]
+  "exclude": ["node_modules", "dist", "build", "coverage"]
 }

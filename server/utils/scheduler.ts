@@ -6,9 +6,9 @@ export class HealthScheduler {
   // Start the health scheduler
   static start() {
     if (this.isRunning) return;
-    
+
     this.isRunning = true;
-    console.log('🕐 Health Scheduler started');
+    console.log("🕐 Health Scheduler started");
 
     // Schedule different types of automated tasks
     this.scheduleHealthInsights();
@@ -25,77 +25,92 @@ export class HealthScheduler {
     });
     this.intervals.clear();
     this.isRunning = false;
-    console.log('🛑 Health Scheduler stopped');
+    console.log("🛑 Health Scheduler stopped");
   }
 
   // Generate automated health insights every hour
   private static scheduleHealthInsights() {
-    const interval = setInterval(async () => {
-      try {
-        console.log('🧠 Generating automated health insights...');
-        await this.generateAutomatedInsights();
-      } catch (error) {
-        console.error('Error generating health insights:', error);
-      }
-    }, 60 * 60 * 1000); // Every hour
+    const interval = setInterval(
+      async () => {
+        try {
+          console.log("🧠 Generating automated health insights...");
+          await this.generateAutomatedInsights();
+        } catch (error) {
+          console.error("Error generating health insights:", error);
+        }
+      },
+      60 * 60 * 1000,
+    ); // Every hour
 
-    this.intervals.set('health_insights', interval);
+    this.intervals.set("health_insights", interval);
   }
 
   // Check for medication reminders every 15 minutes
   private static scheduleMedicationReminders() {
-    const interval = setInterval(async () => {
-      try {
-        console.log('💊 Checking medication reminders...');
-        await this.checkMedicationReminders();
-      } catch (error) {
-        console.error('Error checking medication reminders:', error);
-      }
-    }, 15 * 60 * 1000); // Every 15 minutes
+    const interval = setInterval(
+      async () => {
+        try {
+          console.log("💊 Checking medication reminders...");
+          await this.checkMedicationReminders();
+        } catch (error) {
+          console.error("Error checking medication reminders:", error);
+        }
+      },
+      15 * 60 * 1000,
+    ); // Every 15 minutes
 
-    this.intervals.set('medication_reminders', interval);
+    this.intervals.set("medication_reminders", interval);
   }
 
   // Analyze vital signs trends every 30 minutes
   private static scheduleVitalSignsAnalysis() {
-    const interval = setInterval(async () => {
-      try {
-        console.log('📊 Analyzing vital signs trends...');
-        await this.analyzeVitalSignsTrends();
-      } catch (error) {
-        console.error('Error analyzing vital signs:', error);
-      }
-    }, 30 * 60 * 1000); // Every 30 minutes
+    const interval = setInterval(
+      async () => {
+        try {
+          console.log("📊 Analyzing vital signs trends...");
+          await this.analyzeVitalSignsTrends();
+        } catch (error) {
+          console.error("Error analyzing vital signs:", error);
+        }
+      },
+      30 * 60 * 1000,
+    ); // Every 30 minutes
 
-    this.intervals.set('vitals_analysis', interval);
+    this.intervals.set("vitals_analysis", interval);
   }
 
   // Analyze lab trends daily
   private static scheduleLabTrendAnalysis() {
-    const interval = setInterval(async () => {
-      try {
-        console.log('🔬 Analyzing lab result trends...');
-        await this.analyzeLabTrends();
-      } catch (error) {
-        console.error('Error analyzing lab trends:', error);
-      }
-    }, 24 * 60 * 60 * 1000); // Daily
+    const interval = setInterval(
+      async () => {
+        try {
+          console.log("🔬 Analyzing lab result trends...");
+          await this.analyzeLabTrends();
+        } catch (error) {
+          console.error("Error analyzing lab trends:", error);
+        }
+      },
+      24 * 60 * 60 * 1000,
+    ); // Daily
 
-    this.intervals.set('lab_trends', interval);
+    this.intervals.set("lab_trends", interval);
   }
 
   // Perform risk assessments weekly
   private static scheduleRiskAssessments() {
-    const interval = setInterval(async () => {
-      try {
-        console.log('⚠️ Performing weekly risk assessments...');
-        await this.performRiskAssessments();
-      } catch (error) {
-        console.error('Error performing risk assessments:', error);
-      }
-    }, 7 * 24 * 60 * 60 * 1000); // Weekly
+    const interval = setInterval(
+      async () => {
+        try {
+          console.log("⚠️ Performing weekly risk assessments...");
+          await this.performRiskAssessments();
+        } catch (error) {
+          console.error("Error performing risk assessments:", error);
+        }
+      },
+      7 * 24 * 60 * 60 * 1000,
+    ); // Weekly
 
-    this.intervals.set('risk_assessments', interval);
+    this.intervals.set("risk_assessments", interval);
   }
 
   // Implementation methods
@@ -103,26 +118,29 @@ export class HealthScheduler {
     // Simulate automated insight generation
     const insights = [
       {
-        type: 'trend_analysis',
-        title: 'Cholesterol Improvement Detected',
-        description: 'Your cholesterol levels have improved by 8% over the past month',
+        type: "trend_analysis",
+        title: "Cholesterol Improvement Detected",
+        description:
+          "Your cholesterol levels have improved by 8% over the past month",
         confidence: 89,
-        category: 'Cardiovascular Health'
+        category: "Cardiovascular Health",
       },
       {
-        type: 'medication_optimization',
-        title: 'Medication Timing Optimization',
-        description: 'Taking your statin in the evening may improve effectiveness',
+        type: "medication_optimization",
+        title: "Medication Timing Optimization",
+        description:
+          "Taking your statin in the evening may improve effectiveness",
         confidence: 92,
-        category: 'Medication Management'
+        category: "Medication Management",
       },
       {
-        type: 'lifestyle_correlation',
-        title: 'Exercise-Glucose Correlation',
-        description: 'Your glucose levels are 12% better on days with 30+ minutes of exercise',
+        type: "lifestyle_correlation",
+        title: "Exercise-Glucose Correlation",
+        description:
+          "Your glucose levels are 12% better on days with 30+ minutes of exercise",
         confidence: 85,
-        category: 'Lifestyle Factors'
-      }
+        category: "Lifestyle Factors",
+      },
     ];
 
     // In a real implementation, this would save to database and send notifications
@@ -138,20 +156,20 @@ export class HealthScheduler {
     // Morning medications (8 AM)
     if (currentHour === 8) {
       reminders.push({
-        type: 'medication_reminder',
-        medication: 'Atorvastatin 20mg',
-        time: 'Morning',
-        instructions: 'Take with breakfast'
+        type: "medication_reminder",
+        medication: "Atorvastatin 20mg",
+        time: "Morning",
+        instructions: "Take with breakfast",
       });
     }
 
     // Evening medications (8 PM)
     if (currentHour === 20) {
       reminders.push({
-        type: 'medication_reminder',
-        medication: 'Metformin 500mg',
-        time: 'Evening',
-        instructions: 'Take with dinner'
+        type: "medication_reminder",
+        medication: "Metformin 500mg",
+        time: "Evening",
+        instructions: "Take with dinner",
       });
     }
 
@@ -166,26 +184,26 @@ export class HealthScheduler {
     // Simulate vital signs trend analysis
     const trends = {
       heartRate: {
-        trend: 'stable',
+        trend: "stable",
         average: 72,
-        variability: 'normal',
-        alerts: []
+        variability: "normal",
+        alerts: [],
       },
       bloodPressure: {
-        trend: 'improving',
+        trend: "improving",
         average: { systolic: 118, diastolic: 76 },
-        variability: 'low',
-        alerts: []
+        variability: "low",
+        alerts: [],
       },
       temperature: {
-        trend: 'stable',
+        trend: "stable",
         average: 98.6,
-        variability: 'normal',
-        alerts: []
-      }
+        variability: "normal",
+        alerts: [],
+      },
     };
 
-    console.log('Vital signs trends analyzed:', trends);
+    console.log("Vital signs trends analyzed:", trends);
     return trends;
   }
 
@@ -193,26 +211,26 @@ export class HealthScheduler {
     // Simulate lab trend analysis
     const labTrends = {
       glucose: {
-        trend: 'improving',
+        trend: "improving",
         change: -7.4,
-        timeframe: '3 months',
-        significance: 'clinically significant'
+        timeframe: "3 months",
+        significance: "clinically significant",
       },
       cholesterol: {
-        trend: 'improving',
+        trend: "improving",
         change: -9.8,
-        timeframe: '3 months',
-        significance: 'clinically significant'
+        timeframe: "3 months",
+        significance: "clinically significant",
       },
       hba1c: {
-        trend: 'stable',
+        trend: "stable",
         change: 0.1,
-        timeframe: '6 months',
-        significance: 'not significant'
-      }
+        timeframe: "6 months",
+        significance: "not significant",
+      },
     };
 
-    console.log('Lab trends analyzed:', labTrends);
+    console.log("Lab trends analyzed:", labTrends);
     return labTrends;
   }
 
@@ -221,32 +239,32 @@ export class HealthScheduler {
     const riskAssessment = {
       cardiovascular: {
         tenYearRisk: 8.5,
-        riskCategory: 'intermediate',
+        riskCategory: "intermediate",
         recommendations: [
-          'Continue statin therapy',
-          'Maintain current exercise routine',
-          'Consider aspirin therapy discussion'
-        ]
+          "Continue statin therapy",
+          "Maintain current exercise routine",
+          "Consider aspirin therapy discussion",
+        ],
       },
       diabetes: {
-        risk: 'low',
+        risk: "low",
         hba1c: 5.4,
         recommendations: [
-          'Maintain excellent glucose control',
-          'Continue current lifestyle habits'
-        ]
+          "Maintain excellent glucose control",
+          "Continue current lifestyle habits",
+        ],
       },
       medication: {
         adherence: 94,
         interactions: 0,
         recommendations: [
-          'Excellent medication adherence',
-          'No significant interactions detected'
-        ]
-      }
+          "Excellent medication adherence",
+          "No significant interactions detected",
+        ],
+      },
     };
 
-    console.log('Risk assessments completed:', riskAssessment);
+    console.log("Risk assessments completed:", riskAssessment);
     return riskAssessment;
   }
 
@@ -276,7 +294,7 @@ export class HealthScheduler {
     return {
       isRunning: this.isRunning,
       activeIntervals: this.intervals.size,
-      intervals: Array.from(this.intervals.keys())
+      intervals: Array.from(this.intervals.keys()),
     };
   }
 }

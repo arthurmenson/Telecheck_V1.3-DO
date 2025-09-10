@@ -28,7 +28,7 @@ import {
   AlertCircle,
   Play,
   Pause,
-  RotateCcw
+  RotateCcw,
 } from "lucide-react";
 
 export function Telehealth() {
@@ -44,7 +44,7 @@ export function Telehealth() {
       duration: "30 min",
       type: "Follow-up",
       status: "Scheduled",
-      platform: "Video Call"
+      platform: "Video Call",
     },
     {
       id: 2,
@@ -53,7 +53,7 @@ export function Telehealth() {
       duration: "45 min",
       type: "Consultation",
       status: "Pending",
-      platform: "Phone Call"
+      platform: "Phone Call",
     },
     {
       id: 3,
@@ -62,8 +62,8 @@ export function Telehealth() {
       duration: "20 min",
       type: "Check-in",
       status: "Confirmed",
-      platform: "Video Call"
-    }
+      platform: "Video Call",
+    },
   ];
 
   const recentSessions = [
@@ -72,37 +72,42 @@ export function Telehealth() {
       date: "Today, 9:00 AM",
       duration: "25 min",
       outcome: "Completed",
-      notes: "Patient reported improvement in symptoms"
+      notes: "Patient reported improvement in symptoms",
     },
     {
       patient: "Lisa Thompson",
       date: "Yesterday, 3:30 PM",
       duration: "40 min",
       outcome: "Completed",
-      notes: "Follow-up scheduled for next week"
+      notes: "Follow-up scheduled for next week",
     },
     {
       patient: "David Kim",
       date: "Yesterday, 2:00 PM",
       duration: "30 min",
       outcome: "Completed",
-      notes: "Prescription updated"
-    }
+      notes: "Prescription updated",
+    },
   ];
 
   const platformStats = [
     { platform: "Video Calls", sessions: 156, percentage: 65 },
     { platform: "Phone Calls", sessions: 67, percentage: 28 },
-    { platform: "Chat Sessions", sessions: 17, percentage: 7 }
+    { platform: "Chat Sessions", sessions: 17, percentage: 7 },
   ];
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'Scheduled': return 'bg-blue-100 text-blue-800';
-      case 'Confirmed': return 'bg-green-100 text-green-800';
-      case 'Pending': return 'bg-yellow-100 text-yellow-800';
-      case 'Completed': return 'bg-emerald-100 text-emerald-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case "Scheduled":
+        return "bg-blue-100 text-blue-800";
+      case "Confirmed":
+        return "bg-green-100 text-green-800";
+      case "Pending":
+        return "bg-yellow-100 text-yellow-800";
+      case "Completed":
+        return "bg-emerald-100 text-emerald-800";
+      default:
+        return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -139,28 +144,36 @@ export function Telehealth() {
         <Card>
           <CardContent className="p-6 text-center">
             <Video className="w-8 h-8 text-blue-600 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-gray-900 dark:text-white">47</div>
+            <div className="text-2xl font-bold text-gray-900 dark:text-white">
+              47
+            </div>
             <div className="text-sm text-gray-600">Active Sessions Today</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-6 text-center">
             <Users className="w-8 h-8 text-green-600 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-gray-900 dark:text-white">240</div>
+            <div className="text-2xl font-bold text-gray-900 dark:text-white">
+              240
+            </div>
             <div className="text-sm text-gray-600">Total Patients</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-6 text-center">
             <Clock className="w-8 h-8 text-purple-600 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-gray-900 dark:text-white">4.2h</div>
+            <div className="text-2xl font-bold text-gray-900 dark:text-white">
+              4.2h
+            </div>
             <div className="text-sm text-gray-600">Total Session Time</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-6 text-center">
             <CheckCircle className="w-8 h-8 text-emerald-600 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-gray-900 dark:text-white">98%</div>
+            <div className="text-2xl font-bold text-gray-900 dark:text-white">
+              98%
+            </div>
             <div className="text-sm text-gray-600">Connection Quality</div>
           </CardContent>
         </Card>
@@ -201,7 +214,11 @@ export function Telehealth() {
                   onClick={() => setIsMuted(!isMuted)}
                   className="rounded-full w-14 h-14"
                 >
-                  {isMuted ? <MicOff className="w-6 h-6" /> : <Mic className="w-6 h-6" />}
+                  {isMuted ? (
+                    <MicOff className="w-6 h-6" />
+                  ) : (
+                    <Mic className="w-6 h-6" />
+                  )}
                 </Button>
                 <Button
                   variant={isVideoOff ? "destructive" : "outline"}
@@ -209,12 +226,24 @@ export function Telehealth() {
                   onClick={() => setIsVideoOff(!isVideoOff)}
                   className="rounded-full w-14 h-14"
                 >
-                  {isVideoOff ? <VideoOff className="w-6 h-6" /> : <Video className="w-6 h-6" />}
+                  {isVideoOff ? (
+                    <VideoOff className="w-6 h-6" />
+                  ) : (
+                    <Video className="w-6 h-6" />
+                  )}
                 </Button>
-                <Button variant="outline" size="lg" className="rounded-full w-14 h-14">
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="rounded-full w-14 h-14"
+                >
                   <Volume2 className="w-6 h-6" />
                 </Button>
-                <Button variant="outline" size="lg" className="rounded-full w-14 h-14">
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="rounded-full w-14 h-14"
+                >
                   <Share className="w-6 h-6" />
                 </Button>
               </div>
@@ -249,7 +278,10 @@ export function Telehealth() {
           <CardContent>
             <div className="space-y-4">
               {upcomingSessions.map((session) => (
-                <div key={session.id} className="border rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                <div
+                  key={session.id}
+                  className="border rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                >
                   <div className="flex items-start justify-between">
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
@@ -262,7 +294,7 @@ export function Telehealth() {
                         {session.time} • {session.duration} • {session.type}
                       </div>
                       <div className="flex items-center gap-2 text-sm">
-                        {session.platform === 'Video Call' ? (
+                        {session.platform === "Video Call" ? (
                           <Video className="w-4 h-4 text-blue-500" />
                         ) : (
                           <Phone className="w-4 h-4 text-green-500" />
@@ -270,9 +302,7 @@ export function Telehealth() {
                         <span>{session.platform}</span>
                       </div>
                     </div>
-                    <Button size="sm">
-                      Join
-                    </Button>
+                    <Button size="sm">Join</Button>
                   </div>
                 </div>
               ))}
@@ -296,9 +326,13 @@ export function Telehealth() {
                 <div className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
                   {stat.sessions}
                 </div>
-                <div className="text-sm text-gray-600 mb-3">{stat.platform}</div>
+                <div className="text-sm text-gray-600 mb-3">
+                  {stat.platform}
+                </div>
                 <Progress value={stat.percentage} className="h-2" />
-                <div className="text-xs text-gray-500 mt-1">{stat.percentage}% of total</div>
+                <div className="text-xs text-gray-500 mt-1">
+                  {stat.percentage}% of total
+                </div>
               </div>
             ))}
           </div>
@@ -342,7 +376,6 @@ export function Telehealth() {
           </div>
         </CardContent>
       </Card>
-
     </div>
   );
 }

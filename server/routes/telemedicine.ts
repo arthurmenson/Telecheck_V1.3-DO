@@ -7,19 +7,19 @@ export const getAvailableProviders: RequestHandler = async (req, res) => {
   try {
     const { specialty, location } = req.query;
     const providers = await TelemedicineService.getAvailableProviders(
-      specialty as string, 
-      location as string
+      specialty as string,
+      location as string,
     );
-    
+
     res.json({
       success: true,
-      data: providers
+      data: providers,
     });
   } catch (error) {
-    console.error('Get providers error:', error);
+    console.error("Get providers error:", error);
     res.status(500).json({
       success: false,
-      error: 'Failed to get available providers'
+      error: "Failed to get available providers",
     });
   }
 };
@@ -28,17 +28,18 @@ export const getAvailableProviders: RequestHandler = async (req, res) => {
 export const scheduleAppointment: RequestHandler = async (req, res) => {
   try {
     const appointmentData = req.body;
-    const appointment = await TelemedicineService.scheduleAppointment(appointmentData);
-    
+    const appointment =
+      await TelemedicineService.scheduleAppointment(appointmentData);
+
     res.json({
       success: true,
-      data: appointment
+      data: appointment,
     });
   } catch (error) {
-    console.error('Schedule appointment error:', error);
+    console.error("Schedule appointment error:", error);
     res.status(500).json({
       success: false,
-      error: 'Failed to schedule appointment'
+      error: "Failed to schedule appointment",
     });
   }
 };
@@ -46,18 +47,18 @@ export const scheduleAppointment: RequestHandler = async (req, res) => {
 // Get user appointments
 export const getUserAppointments: RequestHandler = async (req, res) => {
   try {
-    const userId = req.params.userId || 'user-1';
+    const userId = req.params.userId || "user-1";
     const appointments = TelemedicineService.getUserAppointments(userId);
-    
+
     res.json({
       success: true,
-      data: appointments
+      data: appointments,
     });
   } catch (error) {
-    console.error('Get appointments error:', error);
+    console.error("Get appointments error:", error);
     res.status(500).json({
       success: false,
-      error: 'Failed to get appointments'
+      error: "Failed to get appointments",
     });
   }
 };
@@ -66,17 +67,18 @@ export const getUserAppointments: RequestHandler = async (req, res) => {
 export const createConsultationRoom: RequestHandler = async (req, res) => {
   try {
     const { appointmentId } = req.body;
-    const room = await TelemedicineService.createConsultationRoom(appointmentId);
-    
+    const room =
+      await TelemedicineService.createConsultationRoom(appointmentId);
+
     res.json({
       success: true,
-      data: room
+      data: room,
     });
   } catch (error) {
-    console.error('Create room error:', error);
+    console.error("Create room error:", error);
     res.status(500).json({
       success: false,
-      error: 'Failed to create consultation room'
+      error: "Failed to create consultation room",
     });
   }
 };
@@ -85,17 +87,18 @@ export const createConsultationRoom: RequestHandler = async (req, res) => {
 export const generateConsultationSummary: RequestHandler = async (req, res) => {
   try {
     const { roomId } = req.params;
-    const summary = await TelemedicineService.generateConsultationSummary(roomId);
-    
+    const summary =
+      await TelemedicineService.generateConsultationSummary(roomId);
+
     res.json({
       success: true,
-      data: summary
+      data: summary,
     });
   } catch (error) {
-    console.error('Generate summary error:', error);
+    console.error("Generate summary error:", error);
     res.status(500).json({
       success: false,
-      error: 'Failed to generate consultation summary'
+      error: "Failed to generate consultation summary",
     });
   }
 };
@@ -104,17 +107,20 @@ export const generateConsultationSummary: RequestHandler = async (req, res) => {
 export const triageEmergency: RequestHandler = async (req, res) => {
   try {
     const { symptoms, vitals } = req.body;
-    const triage = TelemedicineService.triageEmergencyConsultation(symptoms, vitals);
-    
+    const triage = TelemedicineService.triageEmergencyConsultation(
+      symptoms,
+      vitals,
+    );
+
     res.json({
       success: true,
-      data: triage
+      data: triage,
     });
   } catch (error) {
-    console.error('Emergency triage error:', error);
+    console.error("Emergency triage error:", error);
     res.status(500).json({
       success: false,
-      error: 'Failed to triage emergency consultation'
+      error: "Failed to triage emergency consultation",
     });
   }
 };

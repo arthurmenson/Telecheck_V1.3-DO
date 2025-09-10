@@ -12,7 +12,12 @@ import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { Textarea } from "../components/ui/textarea";
 import { Switch } from "../components/ui/switch";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../components/ui/tabs";
 import {
   Select,
   SelectContent,
@@ -73,7 +78,7 @@ import {
   Eye,
   Stethoscope,
   Pill,
-  TestTube
+  TestTube,
 } from "lucide-react";
 
 // Mock data for workflows
@@ -89,10 +94,10 @@ const activeWorkflows = [
     lastUpdated: "2024-02-15",
     category: "onboarding",
     steps: 8,
-    automatedSteps: 6
+    automatedSteps: 6,
   },
   {
-    id: "WF002", 
+    id: "WF002",
     name: "Appointment Reminders",
     description: "SMS and email reminders 24h and 2h before",
     status: "active",
@@ -102,20 +107,20 @@ const activeWorkflows = [
     lastUpdated: "2024-02-14",
     category: "scheduling",
     steps: 4,
-    automatedSteps: 4
+    automatedSteps: 4,
   },
   {
     id: "WF003",
     name: "Care Plan Follow-up",
     description: "Weekly check-ins and progress tracking",
-    status: "active", 
+    status: "active",
     trigger: "Care Plan Assigned",
     patients: 356,
     completion: 87,
     lastUpdated: "2024-02-13",
     category: "care",
     steps: 12,
-    automatedSteps: 9
+    automatedSteps: 9,
   },
   {
     id: "WF004",
@@ -128,7 +133,7 @@ const activeWorkflows = [
     lastUpdated: "2024-02-12",
     category: "clinical",
     steps: 6,
-    automatedSteps: 5
+    automatedSteps: 5,
   },
   {
     id: "WF005",
@@ -141,30 +146,31 @@ const activeWorkflows = [
     lastUpdated: "2024-02-10",
     category: "billing",
     steps: 7,
-    automatedSteps: 4
-  }
+    automatedSteps: 4,
+  },
 ];
 
 const workflowTemplates = [
   {
     id: "TPL001",
     name: "New Patient Complete Onboarding",
-    description: "Full onboarding with intake forms, insurance verification, and portal setup",
+    description:
+      "Full onboarding with intake forms, insurance verification, and portal setup",
     category: "onboarding",
     steps: 12,
     estimatedTime: "3-5 days",
     popularity: 95,
-    icon: UserPlus
+    icon: UserPlus,
   },
   {
-    id: "TPL002", 
+    id: "TPL002",
     name: "Chronic Care Management",
     description: "Ongoing monitoring and check-ins for chronic conditions",
     category: "care",
     steps: 15,
     estimatedTime: "Ongoing",
     popularity: 88,
-    icon: Heart
+    icon: Heart,
   },
   {
     id: "TPL003",
@@ -174,17 +180,18 @@ const workflowTemplates = [
     steps: 8,
     estimatedTime: "Monthly",
     popularity: 92,
-    icon: Shield
+    icon: Shield,
   },
   {
     id: "TPL004",
     name: "Medication Management",
-    description: "Prescription refills, interaction checks, and adherence tracking",
+    description:
+      "Prescription refills, interaction checks, and adherence tracking",
     category: "medication",
     steps: 10,
     estimatedTime: "Weekly",
     popularity: 85,
-    icon: Pill
+    icon: Pill,
   },
   {
     id: "TPL005",
@@ -194,25 +201,50 @@ const workflowTemplates = [
     steps: 9,
     estimatedTime: "1-2 weeks",
     popularity: 90,
-    icon: TestTube
+    icon: TestTube,
   },
   {
     id: "TPL006",
     name: "Telehealth Visit Workflow",
-    description: "Pre-visit prep, virtual consultation, and post-visit follow-up",
+    description:
+      "Pre-visit prep, virtual consultation, and post-visit follow-up",
     category: "telehealth",
     steps: 7,
     estimatedTime: "2-3 days",
     popularity: 94,
-    icon: Stethoscope
-  }
+    icon: Stethoscope,
+  },
 ];
 
 const workflowStats = [
-  { title: "Active Workflows", value: "24", change: "+3 this month", icon: Workflow, color: "#10b981" },
-  { title: "Patients Enrolled", value: "3,247", change: "+18% this month", icon: Users, color: "#3b82f6" },
-  { title: "Automation Rate", value: "89%", change: "+5% this month", icon: Zap, color: "#8b5cf6" },
-  { title: "Time Saved", value: "340hrs", change: "This month", icon: Clock, color: "#f59e0b" }
+  {
+    title: "Active Workflows",
+    value: "24",
+    change: "+3 this month",
+    icon: Workflow,
+    color: "#10b981",
+  },
+  {
+    title: "Patients Enrolled",
+    value: "3,247",
+    change: "+18% this month",
+    icon: Users,
+    color: "#3b82f6",
+  },
+  {
+    title: "Automation Rate",
+    value: "89%",
+    change: "+5% this month",
+    icon: Zap,
+    color: "#8b5cf6",
+  },
+  {
+    title: "Time Saved",
+    value: "340hrs",
+    change: "This month",
+    icon: Clock,
+    color: "#f59e0b",
+  },
 ];
 
 export function WorkflowAutomation() {
@@ -222,33 +254,48 @@ export function WorkflowAutomation() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterCategory, setFilterCategory] = useState("all");
 
-  const filteredWorkflows = activeWorkflows.filter(workflow => {
-    const matchesSearch = workflow.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         workflow.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = filterCategory === "all" || workflow.category === filterCategory;
+  const filteredWorkflows = activeWorkflows.filter((workflow) => {
+    const matchesSearch =
+      workflow.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      workflow.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory =
+      filterCategory === "all" || workflow.category === filterCategory;
     return matchesSearch && matchesCategory;
   });
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "active": return "bg-green-100 text-green-800 border-green-200";
-      case "paused": return "bg-yellow-100 text-yellow-800 border-yellow-200";
-      case "draft": return "bg-gray-100 text-gray-800 border-gray-200";
-      default: return "bg-gray-100 text-gray-800 border-gray-200";
+      case "active":
+        return "bg-green-100 text-green-800 border-green-200";
+      case "paused":
+        return "bg-yellow-100 text-yellow-800 border-yellow-200";
+      case "draft":
+        return "bg-gray-100 text-gray-800 border-gray-200";
+      default:
+        return "bg-gray-100 text-gray-800 border-gray-200";
     }
   };
 
   const getCategoryIcon = (category: string) => {
     switch (category) {
-      case "onboarding": return UserPlus;
-      case "scheduling": return Calendar;
-      case "care": return Heart;
-      case "clinical": return Stethoscope;
-      case "billing": return CreditCard;
-      case "medication": return Pill;
-      case "preventive": return Shield;
-      case "telehealth": return Activity;
-      default: return Workflow;
+      case "onboarding":
+        return UserPlus;
+      case "scheduling":
+        return Calendar;
+      case "care":
+        return Heart;
+      case "clinical":
+        return Stethoscope;
+      case "billing":
+        return CreditCard;
+      case "medication":
+        return Pill;
+      case "preventive":
+        return Shield;
+      case "telehealth":
+        return Activity;
+      default:
+        return Workflow;
     }
   };
 
@@ -272,7 +319,10 @@ export function WorkflowAutomation() {
             <Download className="w-4 h-4 mr-2" />
             Export Workflows
           </Button>
-          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+          <Dialog
+            open={isCreateDialogOpen}
+            onOpenChange={setIsCreateDialogOpen}
+          >
             <DialogTrigger asChild>
               <Button className="gradient-bg text-white border-0 shadow-lg hover:shadow-xl">
                 <Plus className="w-4 h-4 mr-2" />
@@ -283,32 +333,45 @@ export function WorkflowAutomation() {
               <DialogHeader>
                 <DialogTitle>Create New Workflow</DialogTitle>
                 <DialogDescription>
-                  Choose a template or start from scratch to create your automated workflow
+                  Choose a template or start from scratch to create your
+                  automated workflow
                 </DialogDescription>
               </DialogHeader>
               <div className="grid grid-cols-2 gap-4 py-4">
                 {workflowTemplates.slice(0, 4).map((template) => {
                   const Icon = template.icon;
                   return (
-                    <Card key={template.id} className="cursor-pointer hover:shadow-md transition-shadow">
+                    <Card
+                      key={template.id}
+                      className="cursor-pointer hover:shadow-md transition-shadow"
+                    >
                       <CardContent className="p-4">
                         <div className="flex items-center gap-3 mb-3">
                           <div className="p-2 bg-primary/10 rounded-lg">
                             <Icon className="w-5 h-5 text-primary" />
                           </div>
                           <div className="flex-1">
-                            <h4 className="font-semibold text-sm">{template.name}</h4>
-                            <p className="text-xs text-muted-foreground">{template.steps} steps</p>
+                            <h4 className="font-semibold text-sm">
+                              {template.name}
+                            </h4>
+                            <p className="text-xs text-muted-foreground">
+                              {template.steps} steps
+                            </p>
                           </div>
                         </div>
-                        <p className="text-xs text-muted-foreground">{template.description}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {template.description}
+                        </p>
                       </CardContent>
                     </Card>
                   );
                 })}
               </div>
               <DialogFooter>
-                <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+                <Button
+                  variant="outline"
+                  onClick={() => setIsCreateDialogOpen(false)}
+                >
                   Cancel
                 </Button>
                 <Button className="gradient-bg text-white border-0">
@@ -329,11 +392,17 @@ export function WorkflowAutomation() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
-                    <p className="text-2xl font-bold text-foreground">{stat.value}</p>
-                    <p className="text-xs text-muted-foreground mt-1">{stat.change}</p>
+                    <p className="text-sm font-medium text-muted-foreground">
+                      {stat.title}
+                    </p>
+                    <p className="text-2xl font-bold text-foreground">
+                      {stat.value}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {stat.change}
+                    </p>
                   </div>
-                  <div 
+                  <div
                     className="w-12 h-12 rounded-xl flex items-center justify-center"
                     style={{ backgroundColor: `${stat.color}20` }}
                   >
@@ -347,7 +416,11 @@ export function WorkflowAutomation() {
       </div>
 
       {/* Main Content Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+      <Tabs
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className="space-y-6"
+      >
         <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="active">Active Workflows</TabsTrigger>
@@ -366,33 +439,81 @@ export function WorkflowAutomation() {
                   <Activity className="w-5 h-5" />
                   Recent Workflow Activity
                 </CardTitle>
-                <CardDescription>Latest automation events and completions</CardDescription>
+                <CardDescription>
+                  Latest automation events and completions
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   {[
-                    { patient: "Sarah Johnson", workflow: "Patient Onboarding", status: "completed", time: "2 min ago" },
-                    { patient: "Michael Chen", workflow: "Lab Results Processing", status: "in-progress", time: "5 min ago" },
-                    { patient: "Emma Davis", workflow: "Appointment Reminders", status: "completed", time: "8 min ago" },
-                    { patient: "David Wilson", workflow: "Care Plan Follow-up", status: "pending", time: "12 min ago" },
-                    { patient: "Lisa Rodriguez", workflow: "Payment Collection", status: "completed", time: "15 min ago" }
+                    {
+                      patient: "Sarah Johnson",
+                      workflow: "Patient Onboarding",
+                      status: "completed",
+                      time: "2 min ago",
+                    },
+                    {
+                      patient: "Michael Chen",
+                      workflow: "Lab Results Processing",
+                      status: "in-progress",
+                      time: "5 min ago",
+                    },
+                    {
+                      patient: "Emma Davis",
+                      workflow: "Appointment Reminders",
+                      status: "completed",
+                      time: "8 min ago",
+                    },
+                    {
+                      patient: "David Wilson",
+                      workflow: "Care Plan Follow-up",
+                      status: "pending",
+                      time: "12 min ago",
+                    },
+                    {
+                      patient: "Lisa Rodriguez",
+                      workflow: "Payment Collection",
+                      status: "completed",
+                      time: "15 min ago",
+                    },
                   ].map((activity, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+                    <div
+                      key={index}
+                      className="flex items-center justify-between p-3 bg-muted/30 rounded-lg"
+                    >
                       <div className="flex items-center gap-3">
-                        <div className={`w-2 h-2 rounded-full ${
-                          activity.status === 'completed' ? 'bg-green-500' :
-                          activity.status === 'in-progress' ? 'bg-blue-500' : 'bg-yellow-500'
-                        }`} />
+                        <div
+                          className={`w-2 h-2 rounded-full ${
+                            activity.status === "completed"
+                              ? "bg-green-500"
+                              : activity.status === "in-progress"
+                                ? "bg-blue-500"
+                                : "bg-yellow-500"
+                          }`}
+                        />
                         <div>
-                          <p className="text-sm font-medium">{activity.patient}</p>
-                          <p className="text-xs text-muted-foreground">{activity.workflow}</p>
+                          <p className="text-sm font-medium">
+                            {activity.patient}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {activity.workflow}
+                          </p>
                         </div>
                       </div>
                       <div className="text-right">
-                        <Badge variant={activity.status === 'completed' ? 'default' : 'secondary'} className="text-xs">
+                        <Badge
+                          variant={
+                            activity.status === "completed"
+                              ? "default"
+                              : "secondary"
+                          }
+                          className="text-xs"
+                        >
                           {activity.status}
                         </Badge>
-                        <p className="text-xs text-muted-foreground mt-1">{activity.time}</p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {activity.time}
+                        </p>
                       </div>
                     </div>
                   ))}
@@ -407,27 +528,38 @@ export function WorkflowAutomation() {
                   <Star className="w-5 h-5" />
                   Popular Workflow Templates
                 </CardTitle>
-                <CardDescription>Most used automation templates</CardDescription>
+                <CardDescription>
+                  Most used automation templates
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   {workflowTemplates.slice(0, 5).map((template) => {
                     const Icon = template.icon;
                     return (
-                      <div key={template.id} className="flex items-center justify-between p-3 hover:bg-muted/30 rounded-lg transition-colors cursor-pointer">
+                      <div
+                        key={template.id}
+                        className="flex items-center justify-between p-3 hover:bg-muted/30 rounded-lg transition-colors cursor-pointer"
+                      >
                         <div className="flex items-center gap-3">
                           <div className="p-2 bg-primary/10 rounded-lg">
                             <Icon className="w-4 h-4 text-primary" />
                           </div>
                           <div>
-                            <p className="text-sm font-medium">{template.name}</p>
-                            <p className="text-xs text-muted-foreground">{template.steps} steps</p>
+                            <p className="text-sm font-medium">
+                              {template.name}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {template.steps} steps
+                            </p>
                           </div>
                         </div>
                         <div className="text-right">
                           <div className="flex items-center gap-1">
                             <Star className="w-3 h-3 text-yellow-500 fill-current" />
-                            <span className="text-xs text-muted-foreground">{template.popularity}%</span>
+                            <span className="text-xs text-muted-foreground">
+                              {template.popularity}%
+                            </span>
                           </div>
                           <Button variant="ghost" size="sm" className="mt-1">
                             Use Template
@@ -448,25 +580,50 @@ export function WorkflowAutomation() {
                 <Zap className="w-5 h-5" />
                 Quick Actions
               </CardTitle>
-              <CardDescription>Common workflow automation tasks</CardDescription>
+              <CardDescription>
+                Common workflow automation tasks
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {[
-                  { title: "Setup Patient Onboarding", icon: UserPlus, desc: "Create automated intake flow" },
-                  { title: "Configure Reminders", icon: Bell, desc: "Set up appointment alerts" },
-                  { title: "Build Care Protocol", icon: Heart, desc: "Design treatment workflows" },
-                  { title: "Automate Billing", icon: CreditCard, desc: "Streamline payment collection" }
+                  {
+                    title: "Setup Patient Onboarding",
+                    icon: UserPlus,
+                    desc: "Create automated intake flow",
+                  },
+                  {
+                    title: "Configure Reminders",
+                    icon: Bell,
+                    desc: "Set up appointment alerts",
+                  },
+                  {
+                    title: "Build Care Protocol",
+                    icon: Heart,
+                    desc: "Design treatment workflows",
+                  },
+                  {
+                    title: "Automate Billing",
+                    icon: CreditCard,
+                    desc: "Streamline payment collection",
+                  },
                 ].map((action, index) => {
                   const Icon = action.icon;
                   return (
-                    <Card key={index} className="cursor-pointer hover:shadow-md transition-shadow group">
+                    <Card
+                      key={index}
+                      className="cursor-pointer hover:shadow-md transition-shadow group"
+                    >
                       <CardContent className="p-4 text-center">
                         <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:bg-primary/20 transition-colors">
                           <Icon className="w-6 h-6 text-primary" />
                         </div>
-                        <h4 className="font-semibold text-sm mb-2">{action.title}</h4>
-                        <p className="text-xs text-muted-foreground">{action.desc}</p>
+                        <h4 className="font-semibold text-sm mb-2">
+                          {action.title}
+                        </h4>
+                        <p className="text-xs text-muted-foreground">
+                          {action.desc}
+                        </p>
                       </CardContent>
                     </Card>
                   );
@@ -491,7 +648,10 @@ export function WorkflowAutomation() {
                     className="pl-10"
                   />
                 </div>
-                <Select value={filterCategory} onValueChange={setFilterCategory}>
+                <Select
+                  value={filterCategory}
+                  onValueChange={setFilterCategory}
+                >
                   <SelectTrigger className="w-48">
                     <SelectValue placeholder="Filter by category" />
                   </SelectTrigger>
@@ -513,7 +673,10 @@ export function WorkflowAutomation() {
             {filteredWorkflows.map((workflow) => {
               const CategoryIcon = getCategoryIcon(workflow.category);
               return (
-                <Card key={workflow.id} className="hover:shadow-lg transition-shadow">
+                <Card
+                  key={workflow.id}
+                  className="hover:shadow-lg transition-shadow"
+                >
                   <CardContent className="p-6">
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center gap-3">
@@ -521,8 +684,12 @@ export function WorkflowAutomation() {
                           <CategoryIcon className="w-5 h-5 text-primary" />
                         </div>
                         <div>
-                          <h3 className="font-semibold text-foreground">{workflow.name}</h3>
-                          <p className="text-sm text-muted-foreground">{workflow.description}</p>
+                          <h3 className="font-semibold text-foreground">
+                            {workflow.name}
+                          </h3>
+                          <p className="text-sm text-muted-foreground">
+                            {workflow.description}
+                          </p>
                         </div>
                       </div>
                       <Badge className={getStatusColor(workflow.status)}>
@@ -532,19 +699,27 @@ export function WorkflowAutomation() {
 
                     <div className="space-y-3">
                       <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Completion Rate</span>
-                        <span className="font-medium">{workflow.completion}%</span>
+                        <span className="text-muted-foreground">
+                          Completion Rate
+                        </span>
+                        <span className="font-medium">
+                          {workflow.completion}%
+                        </span>
                       </div>
                       <Progress value={workflow.completion} className="h-2" />
-                      
+
                       <div className="grid grid-cols-3 gap-4 text-sm">
                         <div>
                           <p className="text-muted-foreground">Patients</p>
-                          <p className="font-medium">{workflow.patients.toLocaleString()}</p>
+                          <p className="font-medium">
+                            {workflow.patients.toLocaleString()}
+                          </p>
                         </div>
                         <div>
                           <p className="text-muted-foreground">Steps</p>
-                          <p className="font-medium">{workflow.automatedSteps}/{workflow.steps}</p>
+                          <p className="font-medium">
+                            {workflow.automatedSteps}/{workflow.steps}
+                          </p>
                         </div>
                         <div>
                           <p className="text-muted-foreground">Updated</p>
@@ -563,12 +738,20 @@ export function WorkflowAutomation() {
                         <Button variant="outline" size="sm">
                           <Eye className="w-3 h-3" />
                         </Button>
-                        <Button 
-                          variant="outline" 
+                        <Button
+                          variant="outline"
                           size="sm"
-                          className={workflow.status === 'active' ? 'text-yellow-600' : 'text-green-600'}
+                          className={
+                            workflow.status === "active"
+                              ? "text-yellow-600"
+                              : "text-green-600"
+                          }
                         >
-                          {workflow.status === 'active' ? <Pause className="w-3 h-3" /> : <Play className="w-3 h-3" />}
+                          {workflow.status === "active" ? (
+                            <Pause className="w-3 h-3" />
+                          ) : (
+                            <Play className="w-3 h-3" />
+                          )}
                         </Button>
                       </div>
                     </div>
@@ -585,21 +768,28 @@ export function WorkflowAutomation() {
             {workflowTemplates.map((template) => {
               const Icon = template.icon;
               return (
-                <Card key={template.id} className="hover:shadow-lg transition-shadow group">
+                <Card
+                  key={template.id}
+                  className="hover:shadow-lg transition-shadow group"
+                >
                   <CardContent className="p-6">
                     <div className="flex items-center gap-3 mb-4">
                       <div className="p-3 bg-primary/10 rounded-xl group-hover:bg-primary/20 transition-colors">
                         <Icon className="w-6 h-6 text-primary" />
                       </div>
                       <div className="flex-1">
-                        <h3 className="font-semibold text-foreground">{template.name}</h3>
+                        <h3 className="font-semibold text-foreground">
+                          {template.name}
+                        </h3>
                         <Badge variant="secondary" className="text-xs mt-1">
                           {template.category}
                         </Badge>
                       </div>
                     </div>
 
-                    <p className="text-sm text-muted-foreground mb-4">{template.description}</p>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      {template.description}
+                    </p>
 
                     <div className="grid grid-cols-2 gap-4 text-sm mb-4">
                       <div>
@@ -615,8 +805,12 @@ export function WorkflowAutomation() {
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-1">
                         <Star className="w-4 h-4 text-yellow-500 fill-current" />
-                        <span className="text-sm font-medium">{template.popularity}%</span>
-                        <span className="text-xs text-muted-foreground">popularity</span>
+                        <span className="text-sm font-medium">
+                          {template.popularity}%
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          popularity
+                        </span>
                       </div>
                     </div>
 
@@ -646,7 +840,9 @@ export function WorkflowAutomation() {
                   <BarChart3 className="w-5 h-5" />
                   Workflow Performance
                 </CardTitle>
-                <CardDescription>Success rates and completion metrics</CardDescription>
+                <CardDescription>
+                  Success rates and completion metrics
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -654,7 +850,9 @@ export function WorkflowAutomation() {
                     <div key={workflow.id} className="space-y-2">
                       <div className="flex justify-between text-sm">
                         <span className="font-medium">{workflow.name}</span>
-                        <span className="text-muted-foreground">{workflow.completion}%</span>
+                        <span className="text-muted-foreground">
+                          {workflow.completion}%
+                        </span>
                       </div>
                       <Progress value={workflow.completion} className="h-2" />
                     </div>
@@ -670,16 +868,43 @@ export function WorkflowAutomation() {
                   <Timer className="w-5 h-5" />
                   Time Savings Analysis
                 </CardTitle>
-                <CardDescription>Hours saved through automation</CardDescription>
+                <CardDescription>
+                  Hours saved through automation
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   {[
-                    { task: "Patient Intake Processing", manual: "45 min", automated: "5 min", saved: "40 min" },
-                    { task: "Appointment Reminders", manual: "30 min", automated: "2 min", saved: "28 min" },
-                    { task: "Follow-up Scheduling", manual: "25 min", automated: "3 min", saved: "22 min" },
-                    { task: "Insurance Verification", manual: "20 min", automated: "1 min", saved: "19 min" },
-                    { task: "Lab Result Processing", manual: "35 min", automated: "5 min", saved: "30 min" }
+                    {
+                      task: "Patient Intake Processing",
+                      manual: "45 min",
+                      automated: "5 min",
+                      saved: "40 min",
+                    },
+                    {
+                      task: "Appointment Reminders",
+                      manual: "30 min",
+                      automated: "2 min",
+                      saved: "28 min",
+                    },
+                    {
+                      task: "Follow-up Scheduling",
+                      manual: "25 min",
+                      automated: "3 min",
+                      saved: "22 min",
+                    },
+                    {
+                      task: "Insurance Verification",
+                      manual: "20 min",
+                      automated: "1 min",
+                      saved: "19 min",
+                    },
+                    {
+                      task: "Lab Result Processing",
+                      manual: "35 min",
+                      automated: "5 min",
+                      saved: "30 min",
+                    },
                   ].map((item, index) => (
                     <div key={index} className="p-3 bg-muted/30 rounded-lg">
                       <div className="flex justify-between items-start mb-2">
@@ -705,24 +930,38 @@ export function WorkflowAutomation() {
                   <Target className="w-5 h-5" />
                   ROI Calculator
                 </CardTitle>
-                <CardDescription>Return on automation investment</CardDescription>
+                <CardDescription>
+                  Return on automation investment
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div className="text-center p-4 bg-green-50 dark:bg-green-950/20 rounded-lg">
-                      <h3 className="text-2xl font-bold text-green-600">$45,380</h3>
-                      <p className="text-sm text-muted-foreground">Monthly Savings</p>
+                      <h3 className="text-2xl font-bold text-green-600">
+                        $45,380
+                      </h3>
+                      <p className="text-sm text-muted-foreground">
+                        Monthly Savings
+                      </p>
                     </div>
                     <div className="text-center p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg">
-                      <h3 className="text-2xl font-bold text-blue-600">340hrs</h3>
-                      <p className="text-sm text-muted-foreground">Time Saved</p>
+                      <h3 className="text-2xl font-bold text-blue-600">
+                        340hrs
+                      </h3>
+                      <p className="text-sm text-muted-foreground">
+                        Time Saved
+                      </p>
                     </div>
                   </div>
                   <div className="text-center p-4 bg-purple-50 dark:bg-purple-950/20 rounded-lg">
                     <h3 className="text-3xl font-bold text-purple-600">387%</h3>
-                    <p className="text-sm text-muted-foreground">ROI Increase</p>
-                    <p className="text-xs text-muted-foreground mt-1">Compared to manual processes</p>
+                    <p className="text-sm text-muted-foreground">
+                      ROI Increase
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Compared to manual processes
+                    </p>
                   </div>
                 </div>
               </CardContent>
@@ -735,25 +974,52 @@ export function WorkflowAutomation() {
                   <Sparkles className="w-5 h-5" />
                   Patient Satisfaction Impact
                 </CardTitle>
-                <CardDescription>How automation affects patient experience</CardDescription>
+                <CardDescription>
+                  How automation affects patient experience
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">Overall Satisfaction</span>
-                    <span className="text-2xl font-bold text-green-600">4.8/5</span>
+                    <span className="text-sm font-medium">
+                      Overall Satisfaction
+                    </span>
+                    <span className="text-2xl font-bold text-green-600">
+                      4.8/5
+                    </span>
                   </div>
                   <Progress value={96} className="h-3" />
-                  
+
                   <div className="space-y-3 mt-4">
                     {[
-                      { metric: "Appointment Scheduling", score: 4.9, improvement: "+12%" },
-                      { metric: "Communication Clarity", score: 4.7, improvement: "+8%" },
-                      { metric: "Wait Time Experience", score: 4.6, improvement: "+15%" },
-                      { metric: "Follow-up Process", score: 4.8, improvement: "+10%" }
+                      {
+                        metric: "Appointment Scheduling",
+                        score: 4.9,
+                        improvement: "+12%",
+                      },
+                      {
+                        metric: "Communication Clarity",
+                        score: 4.7,
+                        improvement: "+8%",
+                      },
+                      {
+                        metric: "Wait Time Experience",
+                        score: 4.6,
+                        improvement: "+15%",
+                      },
+                      {
+                        metric: "Follow-up Process",
+                        score: 4.8,
+                        improvement: "+10%",
+                      },
                     ].map((item, index) => (
-                      <div key={index} className="flex justify-between items-center text-sm">
-                        <span className="text-muted-foreground">{item.metric}</span>
+                      <div
+                        key={index}
+                        className="flex justify-between items-center text-sm"
+                      >
+                        <span className="text-muted-foreground">
+                          {item.metric}
+                        </span>
                         <div className="flex items-center gap-2">
                           <span className="font-medium">{item.score}/5</span>
                           <Badge className="bg-green-100 text-green-800 text-xs">
@@ -779,7 +1045,9 @@ export function WorkflowAutomation() {
                   <Settings className="w-5 h-5" />
                   General Settings
                 </CardTitle>
-                <CardDescription>Configure default workflow behaviors</CardDescription>
+                <CardDescription>
+                  Configure default workflow behaviors
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
@@ -798,12 +1066,14 @@ export function WorkflowAutomation() {
                   <Label htmlFor="notifications">Real-time notifications</Label>
                   <Switch id="notifications" defaultChecked />
                 </div>
-                
+
                 <div className="space-y-2">
-                  <Label htmlFor="defaultTimeout">Default timeout (minutes)</Label>
+                  <Label htmlFor="defaultTimeout">
+                    Default timeout (minutes)
+                  </Label>
                   <Input id="defaultTimeout" type="number" defaultValue="30" />
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="retryAttempts">Max retry attempts</Label>
                   <Input id="retryAttempts" type="number" defaultValue="3" />
@@ -818,7 +1088,9 @@ export function WorkflowAutomation() {
                   <Bell className="w-5 h-5" />
                   Notification Preferences
                 </CardTitle>
-                <CardDescription>Configure how you receive workflow alerts</CardDescription>
+                <CardDescription>
+                  Configure how you receive workflow alerts
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
@@ -837,7 +1109,7 @@ export function WorkflowAutomation() {
                   <Label htmlFor="pushNotifs">Push notifications</Label>
                   <Switch id="pushNotifs" defaultChecked />
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label>Notification frequency</Label>
                   <Select defaultValue="immediate">
@@ -862,29 +1134,56 @@ export function WorkflowAutomation() {
                   <Link className="w-5 h-5" />
                   Integration Settings
                 </CardTitle>
-                <CardDescription>Connect with external systems and services</CardDescription>
+                <CardDescription>
+                  Connect with external systems and services
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 {[
                   { name: "EHR System", status: "connected", type: "FHIR" },
-                  { name: "Payment Gateway", status: "connected", type: "Stripe" },
+                  {
+                    name: "Payment Gateway",
+                    status: "connected",
+                    type: "Stripe",
+                  },
                   { name: "SMS Service", status: "connected", type: "Twilio" },
-                  { name: "Email Service", status: "connected", type: "SendGrid" },
-                  { name: "Calendar Sync", status: "disconnected", type: "Google" },
-                  { name: "Analytics", status: "connected", type: "Mixpanel" }
+                  {
+                    name: "Email Service",
+                    status: "connected",
+                    type: "SendGrid",
+                  },
+                  {
+                    name: "Calendar Sync",
+                    status: "disconnected",
+                    type: "Google",
+                  },
+                  { name: "Analytics", status: "connected", type: "Mixpanel" },
                 ].map((integration, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                  <div
+                    key={index}
+                    className="flex items-center justify-between p-3 border rounded-lg"
+                  >
                     <div className="flex items-center gap-3">
-                      <div className={`w-3 h-3 rounded-full ${
-                        integration.status === 'connected' ? 'bg-green-500' : 'bg-gray-300'
-                      }`} />
+                      <div
+                        className={`w-3 h-3 rounded-full ${
+                          integration.status === "connected"
+                            ? "bg-green-500"
+                            : "bg-gray-300"
+                        }`}
+                      />
                       <div>
-                        <p className="font-medium text-sm">{integration.name}</p>
-                        <p className="text-xs text-muted-foreground">{integration.type}</p>
+                        <p className="font-medium text-sm">
+                          {integration.name}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {integration.type}
+                        </p>
                       </div>
                     </div>
                     <Button variant="outline" size="sm">
-                      {integration.status === 'connected' ? 'Configure' : 'Connect'}
+                      {integration.status === "connected"
+                        ? "Configure"
+                        : "Connect"}
                     </Button>
                   </div>
                 ))}
@@ -898,7 +1197,9 @@ export function WorkflowAutomation() {
                   <Shield className="w-5 h-5" />
                   Security & Compliance
                 </CardTitle>
-                <CardDescription>Ensure workflows meet security requirements</CardDescription>
+                <CardDescription>
+                  Ensure workflows meet security requirements
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
@@ -917,7 +1218,7 @@ export function WorkflowAutomation() {
                   <Label htmlFor="hipaaMode">HIPAA compliance mode</Label>
                   <Switch id="hipaaMode" defaultChecked />
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label>Data retention period</Label>
                   <Select defaultValue="7years">
@@ -932,7 +1233,7 @@ export function WorkflowAutomation() {
                     </SelectContent>
                   </Select>
                 </div>
-                
+
                 <Button className="w-full" variant="outline">
                   <Download className="w-4 h-4 mr-2" />
                   Download Compliance Report

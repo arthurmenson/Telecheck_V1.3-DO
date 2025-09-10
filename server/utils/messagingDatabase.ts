@@ -1,4 +1,4 @@
-import { db as database } from '../utils/databaseAdapter';
+import { db as database } from "../utils/databaseAdapter";
 
 export async function initializeMessagingTables(): Promise<void> {
   try {
@@ -195,17 +195,17 @@ export async function initializeMessagingTables(): Promise<void> {
 
     // Insert default configuration if none exists
     const existingConfig = await database.query(
-      'SELECT COUNT(*) as count FROM messaging_config'
+      "SELECT COUNT(*) as count FROM messaging_config",
     );
 
     if (!existingConfig || existingConfig[0]?.count === 0) {
       const defaultConfig = {
-        primaryProvider: 'telnyx',
+        primaryProvider: "telnyx",
         enableSMS: true,
         enableVoice: false,
         enableScheduled: true,
-        quietHoursStart: '22:00',
-        quietHoursEnd: '07:00',
+        quietHoursStart: "22:00",
+        quietHoursEnd: "07:00",
         maxRetries: 3,
         retryDelay: 5,
         auditLogging: true,
@@ -218,85 +218,97 @@ export async function initializeMessagingTables(): Promise<void> {
           heartRateLow: 50,
           temperatureHigh: 101.5,
           temperatureLow: 95.0,
-          oxygenSatLow: 88
+          oxygenSatLow: 88,
         },
         careTeam: {
           enableAlerts: true,
           escalationTimeout: 15,
-          maxEscalationLevels: 3
-        }
+          maxEscalationLevels: 3,
+        },
       };
 
       await database.query(
         `INSERT INTO messaging_config (config_data, updated_by) 
          VALUES (?, 'system')`,
-        [JSON.stringify(defaultConfig)]
+        [JSON.stringify(defaultConfig)],
       );
     }
 
     // Insert default message templates if none exist
     const existingTemplates = await database.query(
-      'SELECT COUNT(*) as count FROM message_templates'
+      "SELECT COUNT(*) as count FROM message_templates",
     );
 
     if (!existingTemplates || existingTemplates[0]?.count === 0) {
       const defaultTemplates = [
         {
-          id: 'med_reminder',
-          type: 'medication_reminder',
-          name: 'Medication Reminder',
-          content: 'Reminder: It\'s time to take your {{medication}} ({{dosage}}). {{instructions}}',
-          variables: JSON.stringify(['medication', 'dosage', 'instructions']),
-          is_default: 1
+          id: "med_reminder",
+          type: "medication_reminder",
+          name: "Medication Reminder",
+          content:
+            "Reminder: It's time to take your {{medication}} ({{dosage}}). {{instructions}}",
+          variables: JSON.stringify(["medication", "dosage", "instructions"]),
+          is_default: 1,
         },
         {
-          id: 'glucose_check',
-          type: 'glucose_check',
-          name: 'Glucose Check Reminder',
-          content: 'Time for your glucose check! Please test your blood sugar and log the results in your patient portal.',
+          id: "glucose_check",
+          type: "glucose_check",
+          name: "Glucose Check Reminder",
+          content:
+            "Time for your glucose check! Please test your blood sugar and log the results in your patient portal.",
           variables: JSON.stringify([]),
-          is_default: 1
+          is_default: 1,
         },
         {
-          id: 'appointment_24h',
-          type: 'appointment_reminder',
-          name: 'Appointment Reminder (24h)',
-          content: 'Reminder: You have an appointment with {{provider}} tomorrow at {{time}}. Location: {{location}}. Please arrive 15 minutes early.',
-          variables: JSON.stringify(['provider', 'time', 'location']),
-          is_default: 1
+          id: "appointment_24h",
+          type: "appointment_reminder",
+          name: "Appointment Reminder (24h)",
+          content:
+            "Reminder: You have an appointment with {{provider}} tomorrow at {{time}}. Location: {{location}}. Please arrive 15 minutes early.",
+          variables: JSON.stringify(["provider", "time", "location"]),
+          is_default: 1,
         },
         {
-          id: 'appointment_2h',
-          type: 'appointment_reminder',
-          name: 'Appointment Reminder (2h)',
-          content: 'Your appointment with {{provider}} is in 2 hours at {{time}}. Location: {{location}}. Don\'t forget to bring your insurance card and medication list.',
-          variables: JSON.stringify(['provider', 'time', 'location']),
-          is_default: 1
+          id: "appointment_2h",
+          type: "appointment_reminder",
+          name: "Appointment Reminder (2h)",
+          content:
+            "Your appointment with {{provider}} is in 2 hours at {{time}}. Location: {{location}}. Don't forget to bring your insurance card and medication list.",
+          variables: JSON.stringify(["provider", "time", "location"]),
+          is_default: 1,
         },
         {
-          id: 'daily_update',
-          type: 'daily_update',
-          name: 'Daily Update',
-          content: 'Good morning! Please remember to:\\n- Take your medications\\n- Check your glucose levels\\n- Log your meals and activities\\n- Contact us with any concerns: {{contact_number}}',
-          variables: JSON.stringify(['contact_number']),
-          is_default: 1
+          id: "daily_update",
+          type: "daily_update",
+          name: "Daily Update",
+          content:
+            "Good morning! Please remember to:\\n- Take your medications\\n- Check your glucose levels\\n- Log your meals and activities\\n- Contact us with any concerns: {{contact_number}}",
+          variables: JSON.stringify(["contact_number"]),
+          is_default: 1,
         },
         {
-          id: 'critical_alert',
-          type: 'care_team_alert',
-          name: 'Critical Alert',
-          content: 'Patient {{patient_name}} (ID: {{patient_id}}) requires attention: {{alert_reason}}. Last reading: {{last_reading}}. Please review and respond.',
-          variables: JSON.stringify(['patient_name', 'patient_id', 'alert_reason', 'last_reading']),
-          is_default: 1
+          id: "critical_alert",
+          type: "care_team_alert",
+          name: "Critical Alert",
+          content:
+            "Patient {{patient_name}} (ID: {{patient_id}}) requires attention: {{alert_reason}}. Last reading: {{last_reading}}. Please review and respond.",
+          variables: JSON.stringify([
+            "patient_name",
+            "patient_id",
+            "alert_reason",
+            "last_reading",
+          ]),
+          is_default: 1,
         },
         {
-          id: 'wellness_check',
-          type: 'wellness_check',
-          name: 'Wellness Check',
-          content: 'Hi {{patient_name}}, how are you feeling today? Reply with a number 1-10 (1=very poor, 10=excellent) to rate your overall wellness.',
-          variables: JSON.stringify(['patient_name']),
-          is_default: 1
-        }
+          id: "wellness_check",
+          type: "wellness_check",
+          name: "Wellness Check",
+          content:
+            "Hi {{patient_name}}, how are you feeling today? Reply with a number 1-10 (1=very poor, 10=excellent) to rate your overall wellness.",
+          variables: JSON.stringify(["patient_name"]),
+          is_default: 1,
+        },
       ];
 
       for (const template of defaultTemplates) {
@@ -310,88 +322,88 @@ export async function initializeMessagingTables(): Promise<void> {
             template.name,
             template.content,
             template.variables,
-            template.is_default
-          ]
+            template.is_default,
+          ],
         );
       }
     }
 
     // Insert default care team members if none exist
     const existingCareTeam = await database.query(
-      'SELECT COUNT(*) as count FROM care_team_members'
+      "SELECT COUNT(*) as count FROM care_team_members",
     );
 
     if (!existingCareTeam || existingCareTeam[0]?.count === 0) {
       const defaultCareTeam = [
         {
-          id: 'primary_nurse_1',
-          name: 'Sarah Johnson, RN',
-          role: 'Primary Nurse',
-          phone: '+1234567890',
-          email: 'sarah.johnson@healthcare.com',
+          id: "primary_nurse_1",
+          name: "Sarah Johnson, RN",
+          role: "Primary Nurse",
+          phone: "+1234567890",
+          email: "sarah.johnson@healthcare.com",
           priority_level: 1,
           availability_schedule: JSON.stringify({
-            monday: { start: '07:00', end: '19:00', available: true },
-            tuesday: { start: '07:00', end: '19:00', available: true },
-            wednesday: { start: '07:00', end: '19:00', available: true },
-            thursday: { start: '07:00', end: '19:00', available: true },
-            friday: { start: '07:00', end: '19:00', available: true },
-            saturday: { start: '00:00', end: '00:00', available: false },
-            sunday: { start: '00:00', end: '00:00', available: false }
+            monday: { start: "07:00", end: "19:00", available: true },
+            tuesday: { start: "07:00", end: "19:00", available: true },
+            wednesday: { start: "07:00", end: "19:00", available: true },
+            thursday: { start: "07:00", end: "19:00", available: true },
+            friday: { start: "07:00", end: "19:00", available: true },
+            saturday: { start: "00:00", end: "00:00", available: false },
+            sunday: { start: "00:00", end: "00:00", available: false },
           }),
           notification_preferences: JSON.stringify({
             sms: true,
             voice: false,
             email: true,
-            urgentOnly: false
-          })
+            urgentOnly: false,
+          }),
         },
         {
-          id: 'supervising_rn_1',
-          name: 'Michael Chen, RN',
-          role: 'Supervising RN',
-          phone: '+1234567891',
-          email: 'michael.chen@healthcare.com',
+          id: "supervising_rn_1",
+          name: "Michael Chen, RN",
+          role: "Supervising RN",
+          phone: "+1234567891",
+          email: "michael.chen@healthcare.com",
           priority_level: 2,
           availability_schedule: JSON.stringify({
-            monday: { start: '19:00', end: '07:00', available: true },
-            tuesday: { start: '19:00', end: '07:00', available: true },
-            wednesday: { start: '19:00', end: '07:00', available: true },
-            thursday: { start: '19:00', end: '07:00', available: true },
-            friday: { start: '19:00', end: '07:00', available: true },
-            saturday: { start: '00:00', end: '23:59', available: true },
-            sunday: { start: '00:00', end: '23:59', available: true }
+            monday: { start: "19:00", end: "07:00", available: true },
+            tuesday: { start: "19:00", end: "07:00", available: true },
+            wednesday: { start: "19:00", end: "07:00", available: true },
+            thursday: { start: "19:00", end: "07:00", available: true },
+            friday: { start: "19:00", end: "07:00", available: true },
+            saturday: { start: "00:00", end: "23:59", available: true },
+            sunday: { start: "00:00", end: "23:59", available: true },
           }),
           notification_preferences: JSON.stringify({
             sms: true,
             voice: true,
             email: true,
-            urgentOnly: false
-          })
+            urgentOnly: false,
+          }),
         },
         {
-          id: 'attending_physician_1',
-          name: 'Dr. Emma Rodriguez, MD',
-          role: 'Attending Physician',
-          phone: '+1234567892',
-          email: 'emma.rodriguez@healthcare.com',
+          id: "attending_physician_1",
+          name: "Dr. Emma Rodriguez, MD",
+          role: "Attending Physician",
+          phone: "+1234567892",
+          email: "emma.rodriguez@healthcare.com",
           priority_level: 3,
           availability_schedule: JSON.stringify({
-            monday: { start: '08:00', end: '17:00', available: true },
-            tuesday: { start: '08:00', end: '17:00', available: true },
-            wednesday: { start: '08:00', end: '17:00', available: true },
-            thursday: { start: '08:00', end: '17:00', available: true },
-            friday: { start: '08:00', end: '17:00', available: true },
-            saturday: { start: '00:00', end: '00:00', available: false },
-            sunday: { start: '00:00', end: '00:00', available: false }
+            monday: { start: "08:00", end: "17:00", available: true },
+            tuesday: { start: "08:00", end: "17:00", available: true },
+            wednesday: { start: "08:00", end: "17:00", available: true },
+            thursday: { start: "08:00", end: "17:00", available: true },
+            friday: { start: "08:00", end: "17:00", available: true },
+            saturday: { start: "00:00", end: "00:00", available: false },
+            sunday: { start: "00:00", end: "00:00", available: false },
           }),
           notification_preferences: JSON.stringify({
             sms: false,
             voice: true,
             email: true,
-            urgentOnly: true
-          })
-        }
+            urgentOnly: true,
+          }),
+        },
       ];
 
       for (const member of defaultCareTeam) {
@@ -407,15 +419,15 @@ export async function initializeMessagingTables(): Promise<void> {
             member.email,
             member.priority_level,
             member.availability_schedule,
-            member.notification_preferences
-          ]
+            member.notification_preferences,
+          ],
         );
       }
     }
 
     // Insert default escalation rules if none exist
     const existingRules = await database.query(
-      'SELECT COUNT(*) as count FROM escalation_rules'
+      "SELECT COUNT(*) as count FROM escalation_rules",
     );
 
     if (!existingRules || existingRules[0]?.count === 0) {
@@ -423,41 +435,38 @@ export async function initializeMessagingTables(): Promise<void> {
         {
           level: 1,
           timeout_minutes: 15,
-          criteria: JSON.stringify({ 
-            severity: ['medium', 'high', 'critical'],
-            timeOfDay: 'business_hours'
+          criteria: JSON.stringify({
+            severity: ["medium", "high", "critical"],
+            timeOfDay: "business_hours",
           }),
-          actions: JSON.stringify([
-            'notify_primary_nurse',
-            'send_sms'
-          ])
+          actions: JSON.stringify(["notify_primary_nurse", "send_sms"]),
         },
         {
           level: 2,
           timeout_minutes: 30,
-          criteria: JSON.stringify({ 
-            severity: ['high', 'critical'],
-            timeOfDay: 'after_hours'
+          criteria: JSON.stringify({
+            severity: ["high", "critical"],
+            timeOfDay: "after_hours",
           }),
           actions: JSON.stringify([
-            'notify_supervising_rn',
-            'send_sms',
-            'send_voice_call'
-          ])
+            "notify_supervising_rn",
+            "send_sms",
+            "send_voice_call",
+          ]),
         },
         {
           level: 3,
           timeout_minutes: 60,
-          criteria: JSON.stringify({ 
-            severity: ['critical'],
-            noResponse: true
+          criteria: JSON.stringify({
+            severity: ["critical"],
+            noResponse: true,
           }),
           actions: JSON.stringify([
-            'notify_attending_physician',
-            'send_voice_call',
-            'page_emergency_contact'
-          ])
-        }
+            "notify_attending_physician",
+            "send_voice_call",
+            "page_emergency_contact",
+          ]),
+        },
       ];
 
       for (const rule of defaultRules) {
@@ -465,20 +474,14 @@ export async function initializeMessagingTables(): Promise<void> {
           `INSERT OR IGNORE INTO escalation_rules
            (level, timeout_minutes, criteria, actions)
            VALUES (?, ?, ?, ?)`,
-          [
-            rule.level,
-            rule.timeout_minutes,
-            rule.criteria,
-            rule.actions
-          ]
+          [rule.level, rule.timeout_minutes, rule.criteria, rule.actions],
         );
       }
     }
 
-    console.log('Messaging database tables initialized successfully');
-
+    console.log("Messaging database tables initialized successfully");
   } catch (error) {
-    console.error('Error initializing messaging database tables:', error);
+    console.error("Error initializing messaging database tables:", error);
     throw error;
   }
 }

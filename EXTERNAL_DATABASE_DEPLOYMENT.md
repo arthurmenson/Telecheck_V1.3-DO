@@ -15,6 +15,7 @@ This guide will help you deploy TeleCheck with external PostgreSQL and Redis ser
 ### **Option A: DigitalOcean Managed Databases (Recommended)**
 
 1. **Create PostgreSQL Database**
+
    ```bash
    # In DigitalOcean dashboard:
    # 1. Go to Databases → Create Database Cluster
@@ -41,6 +42,7 @@ This guide will help you deploy TeleCheck with external PostgreSQL and Redis ser
 ### **Option B: AWS RDS PostgreSQL**
 
 1. **Create RDS Instance**
+
    ```bash
    # In AWS Console:
    # 1. Go to RDS → Create Database
@@ -60,6 +62,7 @@ This guide will help you deploy TeleCheck with external PostgreSQL and Redis ser
 ### **Option C: Supabase (Free Tier)**
 
 1. **Create Supabase Project**
+
    ```bash
    # 1. Go to supabase.com
    # 2. Create new project
@@ -76,6 +79,7 @@ This guide will help you deploy TeleCheck with external PostgreSQL and Redis ser
 ### **Option A: DigitalOcean Managed Redis**
 
 1. **Create Redis Database**
+
    ```bash
    # 1. Go to Databases → Create Database Cluster
    # 2. Choose Redis 7
@@ -90,6 +94,7 @@ This guide will help you deploy TeleCheck with external PostgreSQL and Redis ser
 ### **Option B: Redis Cloud (Free Tier)**
 
 1. **Create Free Account**
+
    ```bash
    # 1. Go to redis.com
    # 2. Sign up for free tier (30MB)
@@ -104,6 +109,7 @@ This guide will help you deploy TeleCheck with external PostgreSQL and Redis ser
 ## 📋 **Step 3: Update Environment Configuration**
 
 1. **Copy Production Environment File**
+
    ```bash
    cp production.env .env
    ```
@@ -120,6 +126,7 @@ This guide will help you deploy TeleCheck with external PostgreSQL and Redis ser
 ## 📋 **Step 4: Initialize External Database**
 
 1. **Run Database Migration**
+
    ```bash
    # The schema will be created automatically when you first connect
    # Or manually run:
@@ -127,10 +134,11 @@ This guide will help you deploy TeleCheck with external PostgreSQL and Redis ser
    ```
 
 2. **Test Connection**
+
    ```bash
    # Start your application
    npm start
-   
+
    # Check health endpoint
    curl http://localhost:3000/api/health
    ```
@@ -140,6 +148,7 @@ This guide will help you deploy TeleCheck with external PostgreSQL and Redis ser
 ### **Option A: DigitalOcean App Platform**
 
 1. **Create App**
+
    ```bash
    # 1. Go to Apps → Create App
    # 2. Connect your GitHub repository
@@ -156,11 +165,13 @@ This guide will help you deploy TeleCheck with external PostgreSQL and Redis ser
 ### **Option B: Heroku**
 
 1. **Create Heroku App**
+
    ```bash
    heroku create your-telecheck-app
    ```
 
 2. **Add PostgreSQL Addon**
+
    ```bash
    heroku addons:create heroku-postgresql:mini
    ```
@@ -175,8 +186,9 @@ This guide will help you deploy TeleCheck with external PostgreSQL and Redis ser
 ### **Option C: Docker Deployment**
 
 1. **Update docker-compose.prod.yml**
+
    ```yaml
-   version: '3.8'
+   version: "3.8"
    services:
      app:
        build: .
@@ -197,6 +209,7 @@ This guide will help you deploy TeleCheck with external PostgreSQL and Redis ser
 ## 🔒 **Security Best Practices**
 
 1. **Database Security**
+
    ```bash
    # Use strong passwords
    # Enable SSL connections
@@ -205,6 +218,7 @@ This guide will help you deploy TeleCheck with external PostgreSQL and Redis ser
    ```
 
 2. **Environment Variables**
+
    ```bash
    # Never commit .env files to git
    # Use encrypted environment variables in production
@@ -221,6 +235,7 @@ This guide will help you deploy TeleCheck with external PostgreSQL and Redis ser
 ## 📊 **Monitoring and Maintenance**
 
 1. **Health Checks**
+
    ```bash
    # Your app includes health endpoints:
    GET /api/health
@@ -228,6 +243,7 @@ This guide will help you deploy TeleCheck with external PostgreSQL and Redis ser
    ```
 
 2. **Database Monitoring**
+
    ```bash
    # Use your provider's monitoring tools
    # Set up alerts for:
@@ -248,6 +264,7 @@ This guide will help you deploy TeleCheck with external PostgreSQL and Redis ser
 ### **Common Issues**
 
 1. **Connection Refused**
+
    ```bash
    # Check firewall rules
    # Verify connection string
@@ -255,6 +272,7 @@ This guide will help you deploy TeleCheck with external PostgreSQL and Redis ser
    ```
 
 2. **Authentication Failed**
+
    ```bash
    # Verify username/password
    # Check if user exists

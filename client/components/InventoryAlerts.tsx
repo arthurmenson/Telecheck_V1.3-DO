@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Button } from './ui/button';
-import { Badge } from './ui/badge';
-import { Switch } from './ui/switch';
-import { Label } from './ui/label';
-import { Input } from './ui/input';
+import React, { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Button } from "./ui/button";
+import { Badge } from "./ui/badge";
+import { Switch } from "./ui/switch";
+import { Label } from "./ui/label";
+import { Input } from "./ui/input";
 import {
   Dialog,
   DialogContent,
@@ -12,7 +12,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from './ui/dialog';
+} from "./ui/dialog";
 import {
   AlertTriangle,
   Bell,
@@ -31,21 +31,26 @@ import {
   Plus,
   Edit,
   Trash2,
-  RefreshCw
-} from 'lucide-react';
-import { SAMPLE_PRODUCTS } from '../data/products';
+  RefreshCw,
+} from "lucide-react";
+import { SAMPLE_PRODUCTS } from "../data/products";
 
 interface InventoryAlert {
   id: string;
   productId: string;
   productName: string;
-  alertType: 'low_stock' | 'out_of_stock' | 'expiring' | 'overstock' | 'reorder_needed';
+  alertType:
+    | "low_stock"
+    | "out_of_stock"
+    | "expiring"
+    | "overstock"
+    | "reorder_needed";
   threshold: number;
   currentValue: number;
-  priority: 'low' | 'medium' | 'high' | 'critical';
+  priority: "low" | "medium" | "high" | "critical";
   message: string;
   isActive: boolean;
-  notificationMethods: ('email' | 'sms' | 'push' | 'dashboard')[];
+  notificationMethods: ("email" | "sms" | "push" | "dashboard")[];
   createdAt: string;
   triggeredAt?: string;
   resolvedAt?: string;
@@ -56,98 +61,98 @@ interface AlertRule {
   id: string;
   name: string;
   description: string;
-  alertType: InventoryAlert['alertType'];
-  condition: 'less_than' | 'greater_than' | 'equals' | 'between';
+  alertType: InventoryAlert["alertType"];
+  condition: "less_than" | "greater_than" | "equals" | "between";
   threshold: number;
   secondaryThreshold?: number;
   isActive: boolean;
-  notificationMethods: ('email' | 'sms' | 'push' | 'dashboard')[];
+  notificationMethods: ("email" | "sms" | "push" | "dashboard")[];
   recipients: string[];
-  frequency: 'immediate' | 'hourly' | 'daily' | 'weekly';
+  frequency: "immediate" | "hourly" | "daily" | "weekly";
 }
 
 const SAMPLE_ALERTS: InventoryAlert[] = [
   {
-    id: 'alert_1',
-    productId: 'atorvastatin_20mg',
-    productName: 'Atorvastatin 20mg',
-    alertType: 'low_stock',
+    id: "alert_1",
+    productId: "atorvastatin_20mg",
+    productName: "Atorvastatin 20mg",
+    alertType: "low_stock",
     threshold: 50,
     currentValue: 25,
-    priority: 'high',
-    message: 'Stock level has fallen below minimum threshold',
+    priority: "high",
+    message: "Stock level has fallen below minimum threshold",
     isActive: true,
-    notificationMethods: ['email', 'dashboard'],
-    createdAt: '2024-02-15T10:30:00Z',
-    triggeredAt: '2024-02-17T14:20:00Z'
+    notificationMethods: ["email", "dashboard"],
+    createdAt: "2024-02-15T10:30:00Z",
+    triggeredAt: "2024-02-17T14:20:00Z",
   },
   {
-    id: 'alert_2',
-    productId: 'metformin_500mg',
-    productName: 'Metformin 500mg',
-    alertType: 'reorder_needed',
+    id: "alert_2",
+    productId: "metformin_500mg",
+    productName: "Metformin 500mg",
+    alertType: "reorder_needed",
     threshold: 100,
     currentValue: 95,
-    priority: 'medium',
-    message: 'Product has reached reorder point',
+    priority: "medium",
+    message: "Product has reached reorder point",
     isActive: true,
-    notificationMethods: ['email', 'push'],
-    createdAt: '2024-02-16T09:15:00Z',
-    triggeredAt: '2024-02-18T11:45:00Z'
+    notificationMethods: ["email", "push"],
+    createdAt: "2024-02-16T09:15:00Z",
+    triggeredAt: "2024-02-18T11:45:00Z",
   },
   {
-    id: 'alert_3',
-    productId: 'omega3_1000mg',
-    productName: 'Omega-3 Fish Oil 1000mg',
-    alertType: 'expiring',
+    id: "alert_3",
+    productId: "omega3_1000mg",
+    productName: "Omega-3 Fish Oil 1000mg",
+    alertType: "expiring",
     threshold: 30,
     currentValue: 15,
-    priority: 'critical',
-    message: 'Products expiring in 15 days',
+    priority: "critical",
+    message: "Products expiring in 15 days",
     isActive: true,
-    notificationMethods: ['email', 'sms', 'dashboard'],
-    createdAt: '2024-02-10T08:00:00Z',
-    triggeredAt: '2024-02-18T09:30:00Z'
-  }
+    notificationMethods: ["email", "sms", "dashboard"],
+    createdAt: "2024-02-10T08:00:00Z",
+    triggeredAt: "2024-02-18T09:30:00Z",
+  },
 ];
 
 const SAMPLE_ALERT_RULES: AlertRule[] = [
   {
-    id: 'rule_1',
-    name: 'Low Stock Alert',
-    description: 'Trigger when stock falls below minimum threshold',
-    alertType: 'low_stock',
-    condition: 'less_than',
+    id: "rule_1",
+    name: "Low Stock Alert",
+    description: "Trigger when stock falls below minimum threshold",
+    alertType: "low_stock",
+    condition: "less_than",
     threshold: 50,
     isActive: true,
-    notificationMethods: ['email', 'dashboard'],
-    recipients: ['inventory@company.com', 'manager@company.com'],
-    frequency: 'immediate'
+    notificationMethods: ["email", "dashboard"],
+    recipients: ["inventory@company.com", "manager@company.com"],
+    frequency: "immediate",
   },
   {
-    id: 'rule_2',
-    name: 'Reorder Point Alert',
-    description: 'Trigger when stock reaches reorder point',
-    alertType: 'reorder_needed',
-    condition: 'less_than',
+    id: "rule_2",
+    name: "Reorder Point Alert",
+    description: "Trigger when stock reaches reorder point",
+    alertType: "reorder_needed",
+    condition: "less_than",
     threshold: 100,
     isActive: true,
-    notificationMethods: ['email', 'push'],
-    recipients: ['purchasing@company.com'],
-    frequency: 'immediate'
+    notificationMethods: ["email", "push"],
+    recipients: ["purchasing@company.com"],
+    frequency: "immediate",
   },
   {
-    id: 'rule_3',
-    name: 'Expiration Warning',
-    description: 'Alert when products are expiring soon',
-    alertType: 'expiring',
-    condition: 'less_than',
+    id: "rule_3",
+    name: "Expiration Warning",
+    description: "Alert when products are expiring soon",
+    alertType: "expiring",
+    condition: "less_than",
     threshold: 30,
     isActive: true,
-    notificationMethods: ['email', 'sms'],
-    recipients: ['pharmacy@company.com', 'manager@company.com'],
-    frequency: 'daily'
-  }
+    notificationMethods: ["email", "sms"],
+    recipients: ["pharmacy@company.com", "manager@company.com"],
+    frequency: "daily",
+  },
 ];
 
 interface InventoryAlertsProps {
@@ -155,65 +160,92 @@ interface InventoryAlertsProps {
   onClose?: () => void;
 }
 
-export function InventoryAlerts({ isOpen = true, onClose }: InventoryAlertsProps) {
+export function InventoryAlerts({
+  isOpen = true,
+  onClose,
+}: InventoryAlertsProps) {
   const [alerts, setAlerts] = useState<InventoryAlert[]>(SAMPLE_ALERTS);
   const [alertRules, setAlertRules] = useState<AlertRule[]>(SAMPLE_ALERT_RULES);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [priorityFilter, setPriorityFilter] = useState('all');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [selectedAlert, setSelectedAlert] = useState<InventoryAlert | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [priorityFilter, setPriorityFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [selectedAlert, setSelectedAlert] = useState<InventoryAlert | null>(
+    null,
+  );
   const [isRuleDialogOpen, setIsRuleDialogOpen] = useState(false);
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
   const [editingRule, setEditingRule] = useState<AlertRule | null>(null);
 
   // Filter alerts
-  const filteredAlerts = alerts.filter(alert => {
-    const matchesSearch = alert.productName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         alert.message.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesPriority = priorityFilter === 'all' || alert.priority === priorityFilter;
-    const matchesStatus = statusFilter === 'all' || 
-                         (statusFilter === 'active' && alert.isActive && !alert.resolvedAt) ||
-                         (statusFilter === 'resolved' && alert.resolvedAt);
-    
+  const filteredAlerts = alerts.filter((alert) => {
+    const matchesSearch =
+      alert.productName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      alert.message.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesPriority =
+      priorityFilter === "all" || alert.priority === priorityFilter;
+    const matchesStatus =
+      statusFilter === "all" ||
+      (statusFilter === "active" && alert.isActive && !alert.resolvedAt) ||
+      (statusFilter === "resolved" && alert.resolvedAt);
+
     return matchesSearch && matchesPriority && matchesStatus;
   });
 
-  const getPriorityColor = (priority: InventoryAlert['priority']) => {
+  const getPriorityColor = (priority: InventoryAlert["priority"]) => {
     switch (priority) {
-      case 'critical': return 'text-red-600 bg-red-100';
-      case 'high': return 'text-orange-600 bg-orange-100';
-      case 'medium': return 'text-yellow-600 bg-yellow-100';
-      case 'low': return 'text-blue-600 bg-blue-100';
-      default: return 'text-gray-600 bg-gray-100';
+      case "critical":
+        return "text-red-600 bg-red-100";
+      case "high":
+        return "text-orange-600 bg-orange-100";
+      case "medium":
+        return "text-yellow-600 bg-yellow-100";
+      case "low":
+        return "text-blue-600 bg-blue-100";
+      default:
+        return "text-gray-600 bg-gray-100";
     }
   };
 
-  const getAlertTypeIcon = (type: InventoryAlert['alertType']) => {
+  const getAlertTypeIcon = (type: InventoryAlert["alertType"]) => {
     switch (type) {
-      case 'low_stock': return <TrendingDown className="w-4 h-4" />;
-      case 'out_of_stock': return <XCircle className="w-4 h-4" />;
-      case 'expiring': return <Clock className="w-4 h-4" />;
-      case 'reorder_needed': return <RefreshCw className="w-4 h-4" />;
-      case 'overstock': return <Package className="w-4 h-4" />;
-      default: return <AlertTriangle className="w-4 h-4" />;
+      case "low_stock":
+        return <TrendingDown className="w-4 h-4" />;
+      case "out_of_stock":
+        return <XCircle className="w-4 h-4" />;
+      case "expiring":
+        return <Clock className="w-4 h-4" />;
+      case "reorder_needed":
+        return <RefreshCw className="w-4 h-4" />;
+      case "overstock":
+        return <Package className="w-4 h-4" />;
+      default:
+        return <AlertTriangle className="w-4 h-4" />;
     }
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString() + ' ' + 
-           new Date(dateString).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return (
+      new Date(dateString).toLocaleDateString() +
+      " " +
+      new Date(dateString).toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    );
   };
 
   const resolveAlert = (alertId: string) => {
-    setAlerts(prev => prev.map(alert => 
-      alert.id === alertId 
-        ? { ...alert, resolvedAt: new Date().toISOString(), isActive: false }
-        : alert
-    ));
+    setAlerts((prev) =>
+      prev.map((alert) =>
+        alert.id === alertId
+          ? { ...alert, resolvedAt: new Date().toISOString(), isActive: false }
+          : alert,
+      ),
+    );
   };
 
   const dismissAlert = (alertId: string) => {
-    setAlerts(prev => prev.filter(alert => alert.id !== alertId));
+    setAlerts((prev) => prev.filter((alert) => alert.id !== alertId));
   };
 
   return (
@@ -247,9 +279,11 @@ export function InventoryAlerts({ isOpen = true, onClose }: InventoryAlertsProps
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Active Alerts</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Active Alerts
+                </p>
                 <p className="text-2xl font-bold text-red-600">
-                  {alerts.filter(a => a.isActive && !a.resolvedAt).length}
+                  {alerts.filter((a) => a.isActive && !a.resolvedAt).length}
                 </p>
               </div>
               <div className="p-3 rounded-lg bg-red-100 dark:bg-red-900/20">
@@ -263,9 +297,15 @@ export function InventoryAlerts({ isOpen = true, onClose }: InventoryAlertsProps
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Critical</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Critical
+                </p>
                 <p className="text-2xl font-bold text-red-600">
-                  {alerts.filter(a => a.priority === 'critical' && a.isActive).length}
+                  {
+                    alerts.filter(
+                      (a) => a.priority === "critical" && a.isActive,
+                    ).length
+                  }
                 </p>
               </div>
               <div className="p-3 rounded-lg bg-red-100 dark:bg-red-900/20">
@@ -279,10 +319,18 @@ export function InventoryAlerts({ isOpen = true, onClose }: InventoryAlertsProps
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Resolved Today</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Resolved Today
+                </p>
                 <p className="text-2xl font-bold text-green-600">
-                  {alerts.filter(a => a.resolvedAt && 
-                    new Date(a.resolvedAt).toDateString() === new Date().toDateString()).length}
+                  {
+                    alerts.filter(
+                      (a) =>
+                        a.resolvedAt &&
+                        new Date(a.resolvedAt).toDateString() ===
+                          new Date().toDateString(),
+                    ).length
+                  }
                 </p>
               </div>
               <div className="p-3 rounded-lg bg-green-100 dark:bg-green-900/20">
@@ -296,9 +344,11 @@ export function InventoryAlerts({ isOpen = true, onClose }: InventoryAlertsProps
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Alert Rules</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Alert Rules
+                </p>
                 <p className="text-2xl font-bold text-blue-600">
-                  {alertRules.filter(r => r.isActive).length}
+                  {alertRules.filter((r) => r.isActive).length}
                 </p>
               </div>
               <div className="p-3 rounded-lg bg-blue-100 dark:bg-blue-900/20">
@@ -364,7 +414,9 @@ export function InventoryAlerts({ isOpen = true, onClose }: InventoryAlertsProps
                   className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50"
                 >
                   <div className="flex items-center gap-4">
-                    <div className={`p-2 rounded-lg ${getPriorityColor(alert.priority)}`}>
+                    <div
+                      className={`p-2 rounded-lg ${getPriorityColor(alert.priority)}`}
+                    >
                       {getAlertTypeIcon(alert.alertType)}
                     </div>
                     <div>
@@ -375,11 +427,15 @@ export function InventoryAlerts({ isOpen = true, onClose }: InventoryAlertsProps
                         {alert.message}
                       </p>
                       <div className="flex items-center gap-2 mt-1">
-                        <Badge className={`text-xs ${getPriorityColor(alert.priority)}`}>
+                        <Badge
+                          className={`text-xs ${getPriorityColor(alert.priority)}`}
+                        >
                           {alert.priority.toUpperCase()}
                         </Badge>
                         <span className="text-xs text-gray-500">
-                          {alert.triggeredAt ? `Triggered: ${formatDate(alert.triggeredAt)}` : 'Pending'}
+                          {alert.triggeredAt
+                            ? `Triggered: ${formatDate(alert.triggeredAt)}`
+                            : "Pending"}
                         </span>
                       </div>
                     </div>
@@ -424,10 +480,11 @@ export function InventoryAlerts({ isOpen = true, onClose }: InventoryAlertsProps
                 No alerts found
               </h3>
               <p className="text-gray-600 dark:text-gray-400">
-                {searchQuery || priorityFilter !== 'all' || statusFilter !== 'all'
-                  ? 'Try adjusting your search or filter criteria'
-                  : 'All systems are running smoothly'
-                }
+                {searchQuery ||
+                priorityFilter !== "all" ||
+                statusFilter !== "all"
+                  ? "Try adjusting your search or filter criteria"
+                  : "All systems are running smoothly"}
               </p>
             </div>
           )}
@@ -444,7 +501,8 @@ export function InventoryAlerts({ isOpen = true, onClose }: InventoryAlertsProps
                 Alert Details
               </DialogTitle>
               <DialogDescription>
-                {selectedAlert.productName} - {selectedAlert.alertType.replace('_', ' ')}
+                {selectedAlert.productName} -{" "}
+                {selectedAlert.alertType.replace("_", " ")}
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
@@ -473,7 +531,7 @@ export function InventoryAlerts({ isOpen = true, onClose }: InventoryAlertsProps
                 </div>
                 <div>
                   <Label>Status</Label>
-                  <p>{selectedAlert.resolvedAt ? 'Resolved' : 'Active'}</p>
+                  <p>{selectedAlert.resolvedAt ? "Resolved" : "Active"}</p>
                 </div>
               </div>
               <div>
@@ -487,10 +545,14 @@ export function InventoryAlerts({ isOpen = true, onClose }: InventoryAlertsProps
                 <div className="flex gap-2 mt-1">
                   {selectedAlert.notificationMethods.map((method) => (
                     <Badge key={method} variant="outline">
-                      {method === 'email' && <Mail className="w-3 h-3 mr-1" />}
-                      {method === 'sms' && <Smartphone className="w-3 h-3 mr-1" />}
-                      {method === 'push' && <Bell className="w-3 h-3 mr-1" />}
-                      {method === 'dashboard' && <Settings className="w-3 h-3 mr-1" />}
+                      {method === "email" && <Mail className="w-3 h-3 mr-1" />}
+                      {method === "sms" && (
+                        <Smartphone className="w-3 h-3 mr-1" />
+                      )}
+                      {method === "push" && <Bell className="w-3 h-3 mr-1" />}
+                      {method === "dashboard" && (
+                        <Settings className="w-3 h-3 mr-1" />
+                      )}
                       {method}
                     </Badge>
                   ))}
@@ -498,14 +560,19 @@ export function InventoryAlerts({ isOpen = true, onClose }: InventoryAlertsProps
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setIsDetailDialogOpen(false)}>
+              <Button
+                variant="outline"
+                onClick={() => setIsDetailDialogOpen(false)}
+              >
                 Close
               </Button>
               {selectedAlert.isActive && !selectedAlert.resolvedAt && (
-                <Button onClick={() => {
-                  resolveAlert(selectedAlert.id);
-                  setIsDetailDialogOpen(false);
-                }}>
+                <Button
+                  onClick={() => {
+                    resolveAlert(selectedAlert.id);
+                    setIsDetailDialogOpen(false);
+                  }}
+                >
                   Mark as Resolved
                 </Button>
               )}

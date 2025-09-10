@@ -32,7 +32,7 @@ import {
   Bell,
   Target,
   BarChart3,
-  Download
+  Download,
 } from "lucide-react";
 
 export function RPMCommandCenter() {
@@ -54,8 +54,8 @@ export function RPMCommandCenter() {
       readings: {
         glucose: { value: "185 mg/dL", status: "high", time: "5 min ago" },
         bp: { value: "142/88 mmHg", status: "elevated", time: "2 hours ago" },
-        weight: { value: "164.2 lbs", status: "normal", time: "1 day ago" }
-      }
+        weight: { value: "164.2 lbs", status: "normal", time: "1 day ago" },
+      },
     },
     {
       id: "PT-002",
@@ -70,8 +70,8 @@ export function RPMCommandCenter() {
       readings: {
         bp: { value: "165/95 mmHg", status: "high", time: "12 min ago" },
         weight: { value: "198.5 lbs", status: "elevated", time: "30 min ago" },
-        hr: { value: "88 bpm", status: "normal", time: "45 min ago" }
-      }
+        hr: { value: "88 bpm", status: "normal", time: "45 min ago" },
+      },
     },
     {
       id: "PT-003",
@@ -85,8 +85,8 @@ export function RPMCommandCenter() {
       compliance: 98,
       readings: {
         glucose: { value: "142 mg/dL", status: "normal", time: "1 hour ago" },
-        bp: { value: "118/76 mmHg", status: "normal", time: "3 hours ago" }
-      }
+        bp: { value: "118/76 mmHg", status: "normal", time: "3 hours ago" },
+      },
     },
     {
       id: "PT-004",
@@ -100,9 +100,9 @@ export function RPMCommandCenter() {
       compliance: 92,
       readings: {
         glucose: { value: "128 mg/dL", status: "normal", time: "3 min ago" },
-        weight: { value: "189.8 lbs", status: "normal", time: "2 hours ago" }
-      }
-    }
+        weight: { value: "189.8 lbs", status: "normal", time: "2 hours ago" },
+      },
+    },
   ];
 
   const systemStats = {
@@ -111,7 +111,7 @@ export function RPMCommandCenter() {
     criticalAlerts: 12,
     deviceConnectivity: 94.2,
     complianceRate: 89.7,
-    avgReadingsPerDay: 3.4
+    avgReadingsPerDay: 3.4,
   };
 
   const recentAlerts = [
@@ -123,7 +123,7 @@ export function RPMCommandCenter() {
       threshold: "180 mg/dL",
       time: "5 min ago",
       severity: "medium",
-      acknowledged: false
+      acknowledged: false,
     },
     {
       patientId: "PT-002",
@@ -133,7 +133,7 @@ export function RPMCommandCenter() {
       threshold: "160/90 mmHg",
       time: "12 min ago",
       severity: "high",
-      acknowledged: true
+      acknowledged: true,
     },
     {
       patientId: "PT-005",
@@ -143,55 +143,65 @@ export function RPMCommandCenter() {
       threshold: "2 lbs",
       time: "1 hour ago",
       severity: "medium",
-      acknowledged: false
-    }
+      acknowledged: false,
+    },
   ];
 
   const getFilteredPatients = () => {
     let filtered = rpmPatients;
-    
+
     if (activeFilter !== "all") {
-      filtered = filtered.filter(patient => {
+      filtered = filtered.filter((patient) => {
         if (activeFilter === "alerts") return patient.alerts > 0;
-        if (activeFilter === "offline") return patient.deviceStatus === "offline";
+        if (activeFilter === "offline")
+          return patient.deviceStatus === "offline";
         if (activeFilter === "high-risk") return patient.riskLevel === "high";
         return true;
       });
     }
-    
+
     if (searchTerm) {
-      filtered = filtered.filter(patient => 
-        patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        patient.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        patient.condition.toLowerCase().includes(searchTerm.toLowerCase())
+      filtered = filtered.filter(
+        (patient) =>
+          patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          patient.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          patient.condition.toLowerCase().includes(searchTerm.toLowerCase()),
       );
     }
-    
+
     return filtered;
   };
 
   const getRiskLevelColor = (level: string) => {
     switch (level) {
-      case "high": return "text-red-600 bg-red-50 border-red-200";
-      case "medium": return "text-yellow-600 bg-yellow-50 border-yellow-200";
-      case "low": return "text-green-600 bg-green-50 border-green-200";
-      default: return "text-gray-600 bg-gray-50 border-gray-200";
+      case "high":
+        return "text-red-600 bg-red-50 border-red-200";
+      case "medium":
+        return "text-yellow-600 bg-yellow-50 border-yellow-200";
+      case "low":
+        return "text-green-600 bg-green-50 border-green-200";
+      default:
+        return "text-gray-600 bg-gray-50 border-gray-200";
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "high": case "elevated": return "text-red-600";
-      case "normal": return "text-green-600";
-      case "low": return "text-blue-600";
-      default: return "text-gray-600";
+      case "high":
+      case "elevated":
+        return "text-red-600";
+      case "normal":
+        return "text-green-600";
+      case "low":
+        return "text-blue-600";
+      default:
+        return "text-gray-600";
     }
   };
 
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-7xl mx-auto space-y-6">
-        
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
@@ -199,7 +209,9 @@ export function RPMCommandCenter() {
               <Monitor className="w-8 h-8 text-primary" />
               RPM Command Center
             </h1>
-            <p className="text-muted-foreground">Real-time remote patient monitoring dashboard</p>
+            <p className="text-muted-foreground">
+              Real-time remote patient monitoring dashboard
+            </p>
           </div>
           <div className="flex items-center gap-3">
             <Button variant="outline">
@@ -219,68 +231,90 @@ export function RPMCommandCenter() {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Total Patients</p>
-                  <p className="text-2xl font-bold">{systemStats.totalPatients}</p>
+                  <p className="text-sm text-muted-foreground">
+                    Total Patients
+                  </p>
+                  <p className="text-2xl font-bold">
+                    {systemStats.totalPatients}
+                  </p>
                 </div>
                 <Users className="w-6 h-6 text-blue-500" />
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Active Today</p>
-                  <p className="text-2xl font-bold text-green-600">{systemStats.activePatients}</p>
+                  <p className="text-2xl font-bold text-green-600">
+                    {systemStats.activePatients}
+                  </p>
                 </div>
                 <Activity className="w-6 h-6 text-green-500" />
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Critical Alerts</p>
-                  <p className="text-2xl font-bold text-red-600">{systemStats.criticalAlerts}</p>
+                  <p className="text-sm text-muted-foreground">
+                    Critical Alerts
+                  </p>
+                  <p className="text-2xl font-bold text-red-600">
+                    {systemStats.criticalAlerts}
+                  </p>
                 </div>
                 <AlertTriangle className="w-6 h-6 text-red-500" />
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Device Connectivity</p>
-                  <p className="text-2xl font-bold">{systemStats.deviceConnectivity}%</p>
+                  <p className="text-sm text-muted-foreground">
+                    Device Connectivity
+                  </p>
+                  <p className="text-2xl font-bold">
+                    {systemStats.deviceConnectivity}%
+                  </p>
                 </div>
                 <Wifi className="w-6 h-6 text-purple-500" />
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Compliance Rate</p>
-                  <p className="text-2xl font-bold">{systemStats.complianceRate}%</p>
+                  <p className="text-sm text-muted-foreground">
+                    Compliance Rate
+                  </p>
+                  <p className="text-2xl font-bold">
+                    {systemStats.complianceRate}%
+                  </p>
                 </div>
                 <Target className="w-6 h-6 text-orange-500" />
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Avg Readings/Day</p>
-                  <p className="text-2xl font-bold">{systemStats.avgReadingsPerDay}</p>
+                  <p className="text-sm text-muted-foreground">
+                    Avg Readings/Day
+                  </p>
+                  <p className="text-2xl font-bold">
+                    {systemStats.avgReadingsPerDay}
+                  </p>
                 </div>
                 <BarChart3 className="w-6 h-6 text-indigo-500" />
               </div>
@@ -299,22 +333,30 @@ export function RPMCommandCenter() {
           <CardContent>
             <div className="space-y-3">
               {recentAlerts.map((alert, index) => (
-                <Alert key={index} className={
-                  alert.severity === "high" ? "border-red-200 bg-red-50" :
-                  "border-yellow-200 bg-yellow-50"
-                }>
+                <Alert
+                  key={index}
+                  className={
+                    alert.severity === "high"
+                      ? "border-red-200 bg-red-50"
+                      : "border-yellow-200 bg-yellow-50"
+                  }
+                >
                   <AlertTriangle className="h-4 w-4" />
                   <AlertDescription>
                     <div className="flex items-center justify-between">
                       <div>
-                        <span className="font-medium">{alert.patientName}</span> - {alert.type.replace('_', ' ')}
+                        <span className="font-medium">{alert.patientName}</span>{" "}
+                        - {alert.type.replace("_", " ")}
                         <span className="block text-sm text-muted-foreground">
-                          {alert.value} (threshold: {alert.threshold}) • {alert.time}
+                          {alert.value} (threshold: {alert.threshold}) •{" "}
+                          {alert.time}
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
                         {alert.acknowledged ? (
-                          <Badge className="bg-green-100 text-green-800">Acknowledged</Badge>
+                          <Badge className="bg-green-100 text-green-800">
+                            Acknowledged
+                          </Badge>
                         ) : (
                           <Button size="sm">Acknowledge</Button>
                         )}
@@ -363,7 +405,9 @@ export function RPMCommandCenter() {
                         All
                       </Button>
                       <Button
-                        variant={activeFilter === "alerts" ? "default" : "outline"}
+                        variant={
+                          activeFilter === "alerts" ? "default" : "outline"
+                        }
                         size="sm"
                         onClick={() => setActiveFilter("alerts")}
                       >
@@ -371,14 +415,18 @@ export function RPMCommandCenter() {
                         Alerts
                       </Button>
                       <Button
-                        variant={activeFilter === "offline" ? "default" : "outline"}
+                        variant={
+                          activeFilter === "offline" ? "default" : "outline"
+                        }
                         size="sm"
                         onClick={() => setActiveFilter("offline")}
                       >
                         Offline
                       </Button>
                       <Button
-                        variant={activeFilter === "high-risk" ? "default" : "outline"}
+                        variant={
+                          activeFilter === "high-risk" ? "default" : "outline"
+                        }
                         size="sm"
                         onClick={() => setActiveFilter("high-risk")}
                       >
@@ -395,21 +443,33 @@ export function RPMCommandCenter() {
                       <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-4">
                           <div>
-                            <h3 className="font-semibold text-lg">{patient.name}</h3>
+                            <h3 className="font-semibold text-lg">
+                              {patient.name}
+                            </h3>
                             <p className="text-sm text-muted-foreground">
-                              {patient.id} • Age {patient.age} • {patient.condition}
+                              {patient.id} • Age {patient.age} •{" "}
+                              {patient.condition}
                             </p>
                           </div>
                           <div className="flex items-center gap-2">
-                            <Badge className={getRiskLevelColor(patient.riskLevel)}>
+                            <Badge
+                              className={getRiskLevelColor(patient.riskLevel)}
+                            >
                               {patient.riskLevel} risk
                             </Badge>
-                            <Badge variant={patient.deviceStatus === "connected" ? "secondary" : "destructive"}>
+                            <Badge
+                              variant={
+                                patient.deviceStatus === "connected"
+                                  ? "secondary"
+                                  : "destructive"
+                              }
+                            >
                               {patient.deviceStatus}
                             </Badge>
                             {patient.alerts > 0 && (
                               <Badge className="bg-red-100 text-red-800">
-                                {patient.alerts} alert{patient.alerts > 1 ? 's' : ''}
+                                {patient.alerts} alert
+                                {patient.alerts > 1 ? "s" : ""}
                               </Badge>
                             )}
                           </div>
@@ -428,30 +488,42 @@ export function RPMCommandCenter() {
                           </Button>
                         </div>
                       </div>
-                      
+
                       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                         <div className="space-y-2">
                           <p className="text-sm font-medium">Recent Readings</p>
                           <div className="space-y-1">
-                            {Object.entries(patient.readings).map(([type, reading]) => (
-                              <div key={type} className="flex items-center justify-between text-sm">
-                                <span className="capitalize">{type}:</span>
-                                <span className={getStatusColor(reading.status)}>
-                                  {reading.value}
-                                </span>
-                              </div>
-                            ))}
+                            {Object.entries(patient.readings).map(
+                              ([type, reading]) => (
+                                <div
+                                  key={type}
+                                  className="flex items-center justify-between text-sm"
+                                >
+                                  <span className="capitalize">{type}:</span>
+                                  <span
+                                    className={getStatusColor(reading.status)}
+                                  >
+                                    {reading.value}
+                                  </span>
+                                </div>
+                              ),
+                            )}
                           </div>
                         </div>
-                        
+
                         <div className="space-y-2">
                           <p className="text-sm font-medium">Compliance</p>
                           <div className="flex items-center gap-2">
-                            <Progress value={patient.compliance} className="flex-1" />
-                            <span className="text-sm font-medium">{patient.compliance}%</span>
+                            <Progress
+                              value={patient.compliance}
+                              className="flex-1"
+                            />
+                            <span className="text-sm font-medium">
+                              {patient.compliance}%
+                            </span>
                           </div>
                         </div>
-                        
+
                         <div className="space-y-2">
                           <p className="text-sm font-medium">Device Status</p>
                           <div className="flex items-center gap-2">
@@ -460,10 +532,12 @@ export function RPMCommandCenter() {
                             ) : (
                               <XCircle className="w-4 h-4 text-red-600" />
                             )}
-                            <span className="text-sm">{patient.deviceStatus}</span>
+                            <span className="text-sm">
+                              {patient.deviceStatus}
+                            </span>
                           </div>
                         </div>
-                        
+
                         <div className="space-y-2">
                           <p className="text-sm font-medium">Quick Actions</p>
                           <div className="flex gap-1">
@@ -495,7 +569,9 @@ export function RPMCommandCenter() {
               <CardContent>
                 <div className="text-center py-12">
                   <Smartphone className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-medium mb-2">Device Management</h3>
+                  <h3 className="text-lg font-medium mb-2">
+                    Device Management
+                  </h3>
                   <p className="text-muted-foreground mb-4">
                     Monitor and manage connected RPM devices
                   </p>
@@ -517,7 +593,9 @@ export function RPMCommandCenter() {
               <CardContent>
                 <div className="text-center py-12">
                   <BarChart3 className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-medium mb-2">Performance Analytics</h3>
+                  <h3 className="text-lg font-medium mb-2">
+                    Performance Analytics
+                  </h3>
                   <p className="text-muted-foreground mb-4">
                     View detailed analytics and performance metrics
                   </p>
@@ -536,7 +614,9 @@ export function RPMCommandCenter() {
               <CardContent>
                 <div className="text-center py-12">
                   <BarChart3 className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-medium mb-2">Billing Management</h3>
+                  <h3 className="text-lg font-medium mb-2">
+                    Billing Management
+                  </h3>
                   <p className="text-muted-foreground mb-4">
                     Track RPM billing codes and reimbursements
                   </p>

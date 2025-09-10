@@ -14,7 +14,13 @@ import { Alert, AlertDescription } from "../ui/alert";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Textarea } from "../ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 import { Checkbox } from "../ui/checkbox";
 import {
   Calendar,
@@ -49,7 +55,7 @@ import {
   Zap,
   Shield,
   Award,
-  Bell
+  Bell,
 } from "lucide-react";
 
 interface CCMPatient {
@@ -122,26 +128,26 @@ const mockCCMPatients: CCMPatient[] = [
         progress: 70,
         dueDate: "2024-03-01",
         status: "needs-attention",
-        interventions: ["Medication adjustment", "Nutrition counseling"]
+        interventions: ["Medication adjustment", "Nutrition counseling"],
       },
       {
-        id: "goal_2", 
+        id: "goal_2",
         description: "Weight loss 10 lbs",
         target: "165 lbs",
         current: "172 lbs",
         progress: 30,
         dueDate: "2024-04-01",
         status: "on-track",
-        interventions: ["Diet modification", "Exercise plan"]
-      }
+        interventions: ["Diet modification", "Exercise plan"],
+      },
     ],
     medications: 8,
     vitals: {
       bloodPressure: "138/82",
       weight: "172 lbs",
       heartRate: 78,
-      lastUpdated: "2024-01-15"
-    }
+      lastUpdated: "2024-01-15",
+    },
   },
   {
     id: "ccm_002",
@@ -163,37 +169,46 @@ const mockCCMPatients: CCMPatient[] = [
         progress: 80,
         dueDate: "2024-06-01",
         status: "on-track",
-        interventions: ["Medication adherence", "Home monitoring"]
-      }
+        interventions: ["Medication adherence", "Home monitoring"],
+      },
     ],
     medications: 12,
     vitals: {
       bloodPressure: "128/75",
       weight: "185 lbs",
       heartRate: 82,
-      lastUpdated: "2024-01-14"
-    }
-  }
+      lastUpdated: "2024-01-14",
+    },
+  },
 ];
 
 const billingCodes = {
   "99490": "CCM services; first 20 minutes",
   "99491": "CCM services; each additional 20 minutes",
-  "99487": "Complex CCM; first 60 minutes", 
-  "99489": "Complex CCM; each additional 30 minutes"
+  "99487": "Complex CCM; first 60 minutes",
+  "99489": "Complex CCM; each additional 30 minutes",
 };
 
 export function CCMWorkflow() {
   const [activeTab, setActiveTab] = useState("overview");
-  const [selectedPatient, setSelectedPatient] = useState<CCMPatient | null>(null);
+  const [selectedPatient, setSelectedPatient] = useState<CCMPatient | null>(
+    null,
+  );
   const [patients, setPatients] = useState<CCMPatient[]>(mockCCMPatients);
   const [encounters, setEncounters] = useState<CCMEncounter[]>([]);
   const [newEncounter, setNewEncounter] = useState<Partial<CCMEncounter>>({});
 
   const totalPatients = patients.length;
-  const highRiskPatients = patients.filter(p => p.riskLevel === "high").length;
-  const avgMonthlyMinutes = patients.reduce((sum, p) => sum + p.monthlyMinutes, 0) / patients.length;
-  const billingCompliance = Math.round((patients.filter(p => p.billingStatus === "completed").length / patients.length) * 100);
+  const highRiskPatients = patients.filter(
+    (p) => p.riskLevel === "high",
+  ).length;
+  const avgMonthlyMinutes =
+    patients.reduce((sum, p) => sum + p.monthlyMinutes, 0) / patients.length;
+  const billingCompliance = Math.round(
+    (patients.filter((p) => p.billingStatus === "completed").length /
+      patients.length) *
+      100,
+  );
 
   const handleStartEncounter = (patient: CCMPatient) => {
     setSelectedPatient(patient);
@@ -210,7 +225,7 @@ export function CCMWorkflow() {
       care_plan_updated: false,
       patient_education: [],
       next_steps: [],
-      billingCode: "99490"
+      billingCode: "99490",
     });
     setActiveTab("encounter");
   };
@@ -227,17 +242,23 @@ export function CCMWorkflow() {
         care_plan_updated: newEncounter.care_plan_updated || false,
         patient_education: newEncounter.patient_education || [],
         next_steps: newEncounter.next_steps || [],
-        billingCode: newEncounter.billingCode || "99490"
+        billingCode: newEncounter.billingCode || "99490",
       } as CCMEncounter;
 
       setEncounters([...encounters, encounter]);
-      
+
       // Update patient
-      setPatients(patients.map(p => 
-        p.id === selectedPatient.id 
-          ? { ...p, lastContact: encounter.date, monthlyMinutes: p.monthlyMinutes + encounter.duration }
-          : p
-      ));
+      setPatients(
+        patients.map((p) =>
+          p.id === selectedPatient.id
+            ? {
+                ...p,
+                lastContact: encounter.date,
+                monthlyMinutes: p.monthlyMinutes + encounter.duration,
+              }
+            : p,
+        ),
+      );
 
       setSelectedPatient(null);
       setNewEncounter({});
@@ -275,7 +296,9 @@ export function CCMWorkflow() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Total Patients</p>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Total Patients
+                </p>
                 <div className="text-2xl font-bold">{totalPatients}</div>
                 <p className="text-sm text-green-600">+3 this month</p>
               </div>
@@ -288,9 +311,15 @@ export function CCMWorkflow() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">High Risk</p>
-                <div className="text-2xl font-bold text-red-600">{highRiskPatients}</div>
-                <p className="text-sm text-muted-foreground">Require attention</p>
+                <p className="text-sm font-medium text-muted-foreground">
+                  High Risk
+                </p>
+                <div className="text-2xl font-bold text-red-600">
+                  {highRiskPatients}
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Require attention
+                </p>
               </div>
               <AlertTriangle className="h-8 w-8 text-red-500" />
             </div>
@@ -301,8 +330,12 @@ export function CCMWorkflow() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Avg Minutes/Month</p>
-                <div className="text-2xl font-bold">{Math.round(avgMonthlyMinutes)}</div>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Avg Minutes/Month
+                </p>
+                <div className="text-2xl font-bold">
+                  {Math.round(avgMonthlyMinutes)}
+                </div>
                 <p className="text-sm text-blue-600">Above CMS minimum</p>
               </div>
               <Clock className="h-8 w-8 text-purple-500" />
@@ -314,9 +347,15 @@ export function CCMWorkflow() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Billing Compliance</p>
-                <div className="text-2xl font-bold text-green-600">{billingCompliance}%</div>
-                <p className="text-sm text-muted-foreground">Documentation complete</p>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Billing Compliance
+                </p>
+                <div className="text-2xl font-bold text-green-600">
+                  {billingCompliance}%
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Documentation complete
+                </p>
               </div>
               <Award className="h-8 w-8 text-green-500" />
             </div>
@@ -325,7 +364,11 @@ export function CCMWorkflow() {
       </div>
 
       {/* Main Content */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+      <Tabs
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className="space-y-4"
+      >
         <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="patients">Patients</TabsTrigger>
@@ -339,26 +382,44 @@ export function CCMWorkflow() {
             <Card>
               <CardHeader>
                 <CardTitle>Today's Schedule</CardTitle>
-                <CardDescription>Upcoming CCM encounters and check-ins</CardDescription>
+                <CardDescription>
+                  Upcoming CCM encounters and check-ins
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 {patients.slice(0, 3).map((patient) => (
-                  <div key={patient.id} className="flex items-center justify-between p-3 border rounded-lg">
+                  <div
+                    key={patient.id}
+                    className="flex items-center justify-between p-3 border rounded-lg"
+                  >
                     <div className="flex items-center space-x-3">
-                      <div className={`w-3 h-3 rounded-full ${
-                        patient.riskLevel === "high" ? "bg-red-500" :
-                        patient.riskLevel === "moderate" ? "bg-yellow-500" : "bg-green-500"
-                      }`} />
+                      <div
+                        className={`w-3 h-3 rounded-full ${
+                          patient.riskLevel === "high"
+                            ? "bg-red-500"
+                            : patient.riskLevel === "moderate"
+                              ? "bg-yellow-500"
+                              : "bg-green-500"
+                        }`}
+                      />
                       <div>
                         <p className="font-medium">{patient.name}</p>
                         <p className="text-sm text-muted-foreground">
-                          {new Date(patient.nextScheduled).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          {new Date(patient.nextScheduled).toLocaleTimeString(
+                            [],
+                            { hour: "2-digit", minute: "2-digit" },
+                          )}
                         </p>
                       </div>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <Badge variant="outline">{patient.monthlyMinutes} min</Badge>
-                      <Button size="sm" onClick={() => handleStartEncounter(patient)}>
+                      <Badge variant="outline">
+                        {patient.monthlyMinutes} min
+                      </Badge>
+                      <Button
+                        size="sm"
+                        onClick={() => handleStartEncounter(patient)}
+                      >
                         Start
                       </Button>
                     </div>
@@ -370,20 +431,24 @@ export function CCMWorkflow() {
             <Card>
               <CardHeader>
                 <CardTitle>Care Gaps & Alerts</CardTitle>
-                <CardDescription>Patients requiring immediate attention</CardDescription>
+                <CardDescription>
+                  Patients requiring immediate attention
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
                 <Alert className="border-red-200 bg-red-50 dark:bg-red-900/20">
                   <AlertTriangle className="h-4 w-4 text-red-600" />
                   <AlertDescription className="text-red-800 dark:text-red-200">
-                    <strong>Margaret Thompson</strong> - A1C above target (7.8%), missed last appointment
+                    <strong>Margaret Thompson</strong> - A1C above target
+                    (7.8%), missed last appointment
                   </AlertDescription>
                 </Alert>
 
                 <Alert className="border-yellow-200 bg-yellow-50 dark:bg-yellow-900/20">
                   <Clock className="h-4 w-4 text-yellow-600" />
                   <AlertDescription className="text-yellow-800 dark:text-yellow-200">
-                    <strong>Robert Chen</strong> - Monthly minutes below CMS requirement (32/60 min)
+                    <strong>Robert Chen</strong> - Monthly minutes below CMS
+                    requirement (32/60 min)
                   </AlertDescription>
                 </Alert>
 
@@ -402,7 +467,9 @@ export function CCMWorkflow() {
           <Card>
             <CardHeader>
               <CardTitle>CCM Patient Registry</CardTitle>
-              <CardDescription>Enrolled patients and their care status</CardDescription>
+              <CardDescription>
+                Enrolled patients and their care status
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -410,10 +477,15 @@ export function CCMWorkflow() {
                   <Card key={patient.id} className="p-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-4">
-                        <div className={`w-4 h-4 rounded-full ${
-                          patient.riskLevel === "high" ? "bg-red-500" :
-                          patient.riskLevel === "moderate" ? "bg-yellow-500" : "bg-green-500"
-                        }`} />
+                        <div
+                          className={`w-4 h-4 rounded-full ${
+                            patient.riskLevel === "high"
+                              ? "bg-red-500"
+                              : patient.riskLevel === "moderate"
+                                ? "bg-yellow-500"
+                                : "bg-green-500"
+                          }`}
+                        />
                         <div>
                           <h4 className="font-medium">{patient.name}</h4>
                           <p className="text-sm text-muted-foreground">
@@ -422,10 +494,22 @@ export function CCMWorkflow() {
                         </div>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <Badge variant={patient.riskLevel === "high" ? "destructive" : "outline"}>
+                        <Badge
+                          variant={
+                            patient.riskLevel === "high"
+                              ? "destructive"
+                              : "outline"
+                          }
+                        >
                           {patient.riskLevel} risk
                         </Badge>
-                        <Badge variant={patient.billingStatus === "completed" ? "default" : "secondary"}>
+                        <Badge
+                          variant={
+                            patient.billingStatus === "completed"
+                              ? "default"
+                              : "secondary"
+                          }
+                        >
                           {patient.billingStatus}
                         </Badge>
                       </div>
@@ -433,29 +517,49 @@ export function CCMWorkflow() {
 
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
                       <div>
-                        <Label className="text-sm text-muted-foreground">Care Coordinator</Label>
+                        <Label className="text-sm text-muted-foreground">
+                          Care Coordinator
+                        </Label>
                         <p className="font-medium">{patient.careCoordinator}</p>
                       </div>
                       <div>
-                        <Label className="text-sm text-muted-foreground">Monthly Minutes</Label>
+                        <Label className="text-sm text-muted-foreground">
+                          Monthly Minutes
+                        </Label>
                         <div className="flex items-center space-x-2">
-                          <p className="font-medium">{patient.monthlyMinutes}/60</p>
-                          <Progress value={(patient.monthlyMinutes / 60) * 100} className="flex-1 h-2" />
+                          <p className="font-medium">
+                            {patient.monthlyMinutes}/60
+                          </p>
+                          <Progress
+                            value={(patient.monthlyMinutes / 60) * 100}
+                            className="flex-1 h-2"
+                          />
                         </div>
                       </div>
                       <div>
-                        <Label className="text-sm text-muted-foreground">Active Goals</Label>
-                        <p className="font-medium">{patient.goals.length} goals</p>
+                        <Label className="text-sm text-muted-foreground">
+                          Active Goals
+                        </Label>
+                        <p className="font-medium">
+                          {patient.goals.length} goals
+                        </p>
                       </div>
                       <div>
-                        <Label className="text-sm text-muted-foreground">Last Contact</Label>
-                        <p className="font-medium">{new Date(patient.lastContact).toLocaleDateString()}</p>
+                        <Label className="text-sm text-muted-foreground">
+                          Last Contact
+                        </Label>
+                        <p className="font-medium">
+                          {new Date(patient.lastContact).toLocaleDateString()}
+                        </p>
                       </div>
                     </div>
 
                     <div className="flex justify-between items-center mt-4 pt-4 border-t">
                       <div className="flex space-x-2">
-                        <Button size="sm" onClick={() => handleStartEncounter(patient)}>
+                        <Button
+                          size="sm"
+                          onClick={() => handleStartEncounter(patient)}
+                        >
                           <Phone className="w-4 h-4 mr-2" />
                           Contact
                         </Button>
@@ -465,7 +569,8 @@ export function CCMWorkflow() {
                         </Button>
                       </div>
                       <div className="text-sm text-muted-foreground">
-                        Next: {new Date(patient.nextScheduled).toLocaleDateString()}
+                        Next:{" "}
+                        {new Date(patient.nextScheduled).toLocaleDateString()}
                       </div>
                     </div>
                   </Card>
@@ -488,12 +593,18 @@ export function CCMWorkflow() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
                     <Label htmlFor="encounterType">Encounter Type</Label>
-                    <Select onValueChange={(value) => setNewEncounter({...newEncounter, type: value as any})}>
+                    <Select
+                      onValueChange={(value) =>
+                        setNewEncounter({ ...newEncounter, type: value as any })
+                      }
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="Select type" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="scheduled">Scheduled Check-in</SelectItem>
+                        <SelectItem value="scheduled">
+                          Scheduled Check-in
+                        </SelectItem>
                         <SelectItem value="urgent">Urgent Contact</SelectItem>
                         <SelectItem value="followup">Follow-up Call</SelectItem>
                       </SelectContent>
@@ -501,16 +612,22 @@ export function CCMWorkflow() {
                   </div>
                   <div>
                     <Label htmlFor="billingCode">Billing Code</Label>
-                    <Select onValueChange={(value) => setNewEncounter({...newEncounter, billingCode: value})}>
+                    <Select
+                      onValueChange={(value) =>
+                        setNewEncounter({ ...newEncounter, billingCode: value })
+                      }
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="Select code" />
                       </SelectTrigger>
                       <SelectContent>
-                        {Object.entries(billingCodes).map(([code, description]) => (
-                          <SelectItem key={code} value={code}>
-                            {code} - {description}
-                          </SelectItem>
-                        ))}
+                        {Object.entries(billingCodes).map(
+                          ([code, description]) => (
+                            <SelectItem key={code} value={code}>
+                              {code} - {description}
+                            </SelectItem>
+                          ),
+                        )}
                       </SelectContent>
                     </Select>
                   </div>
@@ -519,36 +636,57 @@ export function CCMWorkflow() {
                     <div className="flex items-center space-x-2 mt-1">
                       <Timer className="w-4 h-4" />
                       <span className="font-medium">25 minutes</span>
-                      <Button size="sm" variant="outline">Start Timer</Button>
+                      <Button size="sm" variant="outline">
+                        Start Timer
+                      </Button>
                     </div>
                   </div>
                 </div>
 
                 <div className="space-y-4">
-                  <h4 className="font-medium">Care Activities (Check all completed)</h4>
+                  <h4 className="font-medium">
+                    Care Activities (Check all completed)
+                  </h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-3">
                       <div className="flex items-center space-x-2">
-                        <Checkbox 
-                          id="vitals" 
+                        <Checkbox
+                          id="vitals"
                           checked={newEncounter.vitals_reviewed}
-                          onCheckedChange={(checked) => setNewEncounter({...newEncounter, vitals_reviewed: !!checked})}
+                          onCheckedChange={(checked) =>
+                            setNewEncounter({
+                              ...newEncounter,
+                              vitals_reviewed: !!checked,
+                            })
+                          }
                         />
                         <Label htmlFor="vitals">Vital signs reviewed</Label>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <Checkbox 
-                          id="medications" 
+                        <Checkbox
+                          id="medications"
                           checked={newEncounter.medications_reconciled}
-                          onCheckedChange={(checked) => setNewEncounter({...newEncounter, medications_reconciled: !!checked})}
+                          onCheckedChange={(checked) =>
+                            setNewEncounter({
+                              ...newEncounter,
+                              medications_reconciled: !!checked,
+                            })
+                          }
                         />
-                        <Label htmlFor="medications">Medication reconciliation</Label>
+                        <Label htmlFor="medications">
+                          Medication reconciliation
+                        </Label>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <Checkbox 
-                          id="carePlan" 
+                        <Checkbox
+                          id="carePlan"
                           checked={newEncounter.care_plan_updated}
-                          onCheckedChange={(checked) => setNewEncounter({...newEncounter, care_plan_updated: !!checked})}
+                          onCheckedChange={(checked) =>
+                            setNewEncounter({
+                              ...newEncounter,
+                              care_plan_updated: !!checked,
+                            })
+                          }
                         />
                         <Label htmlFor="carePlan">Care plan updated</Label>
                       </div>
@@ -556,13 +694,22 @@ export function CCMWorkflow() {
                     <div className="space-y-3">
                       <div>
                         <Label>Goals Reviewed</Label>
-                        <Select onValueChange={(value) => setNewEncounter({...newEncounter, goals_reviewed: parseInt(value)})}>
+                        <Select
+                          onValueChange={(value) =>
+                            setNewEncounter({
+                              ...newEncounter,
+                              goals_reviewed: parseInt(value),
+                            })
+                          }
+                        >
                           <SelectTrigger>
                             <SelectValue placeholder="Number of goals" />
                           </SelectTrigger>
                           <SelectContent>
-                            {[0, 1, 2, 3, 4, 5].map(num => (
-                              <SelectItem key={num} value={num.toString()}>{num} goals</SelectItem>
+                            {[0, 1, 2, 3, 4, 5].map((num) => (
+                              <SelectItem key={num} value={num.toString()}>
+                                {num} goals
+                              </SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
@@ -573,29 +720,52 @@ export function CCMWorkflow() {
 
                 <div>
                   <Label htmlFor="encounterNotes">Encounter Notes</Label>
-                  <Textarea 
+                  <Textarea
                     id="encounterNotes"
                     placeholder="Document patient conversation, care activities, and clinical observations..."
                     className="min-h-[120px]"
                     value={newEncounter.notes}
-                    onChange={(e) => setNewEncounter({...newEncounter, notes: e.target.value})}
+                    onChange={(e) =>
+                      setNewEncounter({
+                        ...newEncounter,
+                        notes: e.target.value,
+                      })
+                    }
                   />
                 </div>
 
                 <div>
                   <Label>Patient Education Topics</Label>
                   <div className="grid grid-cols-2 gap-2 mt-2">
-                    {["Medication adherence", "Diet modification", "Exercise plan", "Symptom monitoring", "Emergency protocols", "Device usage"].map((topic) => (
+                    {[
+                      "Medication adherence",
+                      "Diet modification",
+                      "Exercise plan",
+                      "Symptom monitoring",
+                      "Emergency protocols",
+                      "Device usage",
+                    ].map((topic) => (
                       <div key={topic} className="flex items-center space-x-2">
-                        <Checkbox 
+                        <Checkbox
                           id={topic}
-                          checked={newEncounter.patient_education?.includes(topic)}
+                          checked={newEncounter.patient_education?.includes(
+                            topic,
+                          )}
                           onCheckedChange={(checked) => {
-                            const education = newEncounter.patient_education || [];
+                            const education =
+                              newEncounter.patient_education || [];
                             if (checked) {
-                              setNewEncounter({...newEncounter, patient_education: [...education, topic]});
+                              setNewEncounter({
+                                ...newEncounter,
+                                patient_education: [...education, topic],
+                              });
                             } else {
-                              setNewEncounter({...newEncounter, patient_education: education.filter(t => t !== topic)});
+                              setNewEncounter({
+                                ...newEncounter,
+                                patient_education: education.filter(
+                                  (t) => t !== topic,
+                                ),
+                              });
                             }
                           }}
                         />
@@ -606,7 +776,10 @@ export function CCMWorkflow() {
                 </div>
 
                 <div className="flex justify-between pt-4 border-t">
-                  <Button variant="outline" onClick={() => setActiveTab("overview")}>
+                  <Button
+                    variant="outline"
+                    onClick={() => setActiveTab("overview")}
+                  >
                     Cancel
                   </Button>
                   <Button onClick={completeEncounter}>
@@ -620,9 +793,12 @@ export function CCMWorkflow() {
             <Card>
               <CardContent className="p-12 text-center">
                 <Users className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-xl font-semibold mb-2">No Active Encounter</h3>
+                <h3 className="text-xl font-semibold mb-2">
+                  No Active Encounter
+                </h3>
                 <p className="text-muted-foreground mb-4">
-                  Select a patient from the overview or patients tab to start a CCM encounter.
+                  Select a patient from the overview or patients tab to start a
+                  CCM encounter.
                 </p>
                 <Button onClick={() => setActiveTab("patients")}>
                   View Patients
@@ -636,37 +812,55 @@ export function CCMWorkflow() {
           <Card>
             <CardHeader>
               <CardTitle>Patient Goals & Outcomes</CardTitle>
-              <CardDescription>Track progress on care plan goals across all CCM patients</CardDescription>
+              <CardDescription>
+                Track progress on care plan goals across all CCM patients
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               {patients.map((patient) => (
                 <div key={patient.id} className="border rounded-lg p-4">
                   <div className="flex items-center justify-between mb-4">
                     <h4 className="font-medium">{patient.name}</h4>
-                    <Badge variant="outline">{patient.goals.length} active goals</Badge>
+                    <Badge variant="outline">
+                      {patient.goals.length} active goals
+                    </Badge>
                   </div>
-                  
+
                   <div className="space-y-3">
                     {patient.goals.map((goal) => (
-                      <div key={goal.id} className="border-l-4 border-blue-500 pl-4 py-2">
+                      <div
+                        key={goal.id}
+                        className="border-l-4 border-blue-500 pl-4 py-2"
+                      >
                         <div className="flex items-center justify-between mb-2">
                           <h5 className="font-medium">{goal.description}</h5>
-                          <Badge variant={
-                            goal.status === "achieved" ? "default" :
-                            goal.status === "on-track" ? "secondary" : "destructive"
-                          }>
+                          <Badge
+                            variant={
+                              goal.status === "achieved"
+                                ? "default"
+                                : goal.status === "on-track"
+                                  ? "secondary"
+                                  : "destructive"
+                            }
+                          >
                             {goal.status}
                           </Badge>
                         </div>
                         <div className="flex items-center space-x-4 text-sm text-muted-foreground mb-2">
                           <span>Target: {goal.target}</span>
                           <span>Current: {goal.current}</span>
-                          <span>Due: {new Date(goal.dueDate).toLocaleDateString()}</span>
+                          <span>
+                            Due: {new Date(goal.dueDate).toLocaleDateString()}
+                          </span>
                         </div>
                         <Progress value={goal.progress} className="h-2 mb-2" />
                         <div className="flex flex-wrap gap-1">
                           {goal.interventions.map((intervention, idx) => (
-                            <Badge key={idx} variant="outline" className="text-xs">
+                            <Badge
+                              key={idx}
+                              variant="outline"
+                              className="text-xs"
+                            >
                               {intervention}
                             </Badge>
                           ))}
@@ -685,38 +879,64 @@ export function CCMWorkflow() {
             <Card>
               <CardHeader>
                 <CardTitle>Monthly Billing Summary</CardTitle>
-                <CardDescription>January 2024 CCM billing overview</CardDescription>
+                <CardDescription>
+                  January 2024 CCM billing overview
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="text-center p-3 border rounded">
-                    <div className="text-2xl font-bold text-green-600">$1,245</div>
-                    <div className="text-sm text-muted-foreground">Total Billed</div>
+                    <div className="text-2xl font-bold text-green-600">
+                      $1,245
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      Total Billed
+                    </div>
                   </div>
                   <div className="text-center p-3 border rounded">
                     <div className="text-2xl font-bold">18</div>
-                    <div className="text-sm text-muted-foreground">Billable Encounters</div>
+                    <div className="text-sm text-muted-foreground">
+                      Billable Encounters
+                    </div>
                   </div>
                   <div className="text-center p-3 border rounded">
                     <div className="text-2xl font-bold text-blue-600">92%</div>
-                    <div className="text-sm text-muted-foreground">Compliance Rate</div>
+                    <div className="text-sm text-muted-foreground">
+                      Compliance Rate
+                    </div>
                   </div>
                   <div className="text-center p-3 border rounded">
-                    <div className="text-2xl font-bold text-purple-600">580</div>
-                    <div className="text-sm text-muted-foreground">Total Minutes</div>
+                    <div className="text-2xl font-bold text-purple-600">
+                      580
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      Total Minutes
+                    </div>
                   </div>
                 </div>
 
                 <div className="space-y-3">
                   <h5 className="font-medium">Billing Code Distribution</h5>
                   {Object.entries(billingCodes).map(([code, description]) => (
-                    <div key={code} className="flex justify-between items-center py-2 border-b">
+                    <div
+                      key={code}
+                      className="flex justify-between items-center py-2 border-b"
+                    >
                       <div>
                         <span className="font-medium">{code}</span>
-                        <p className="text-sm text-muted-foreground">{description}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {description}
+                        </p>
                       </div>
                       <Badge variant="outline">
-                        {code === "99490" ? "12" : code === "99491" ? "6" : code === "99487" ? "2" : "1"} uses
+                        {code === "99490"
+                          ? "12"
+                          : code === "99491"
+                            ? "6"
+                            : code === "99487"
+                              ? "2"
+                              : "1"}{" "}
+                        uses
                       </Badge>
                     </div>
                   ))}
@@ -727,13 +947,16 @@ export function CCMWorkflow() {
             <Card>
               <CardHeader>
                 <CardTitle>Billing Compliance</CardTitle>
-                <CardDescription>CMS requirements and documentation status</CardDescription>
+                <CardDescription>
+                  CMS requirements and documentation status
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <Alert className="border-green-200 bg-green-50 dark:bg-green-900/20">
                   <CheckCircle className="h-4 w-4 text-green-600" />
                   <AlertDescription className="text-green-800 dark:text-green-200">
-                    <strong>Compliant:</strong> All patients have &gt;20 minutes monthly contact and documented care plans.
+                    <strong>Compliant:</strong> All patients have &gt;20 minutes
+                    monthly contact and documented care plans.
                   </AlertDescription>
                 </Alert>
 
@@ -776,14 +999,23 @@ export function CCMWorkflow() {
   );
 }
 
-function Label({ children, className, htmlFor, ...props }: { 
-  children: React.ReactNode; 
-  className?: string; 
+function Label({
+  children,
+  className,
+  htmlFor,
+  ...props
+}: {
+  children: React.ReactNode;
+  className?: string;
   htmlFor?: string;
   [key: string]: any;
 }) {
   return (
-    <label htmlFor={htmlFor} className={`text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 ${className}`} {...props}>
+    <label
+      htmlFor={htmlFor}
+      className={`text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 ${className}`}
+      {...props}
+    >
       {children}
     </label>
   );

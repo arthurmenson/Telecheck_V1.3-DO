@@ -13,39 +13,43 @@ import medicationRoutes from "./routes/medications";
 import { handleDemo } from "./routes/demo";
 import { handleChat, getChatHistory } from "./routes/chat";
 import { getVitalSigns, addVitalSigns, getVitalTrends } from "./routes/vitals";
-import { getHealthInsights, dismissInsight, generateInsights } from "./routes/insights";
+import {
+  getHealthInsights,
+  dismissInsight,
+  generateInsights,
+} from "./routes/insights";
 import multer from "multer";
-import { 
-  assessCardiovascularRisk, 
-  analyzeAdvancedInteractions, 
+import {
+  assessCardiovascularRisk,
+  analyzeAdvancedInteractions,
   generatePredictiveAnalytics,
   analyzeMedicalImage,
   analyzeMiddleware,
   assessSymptoms,
   calculateAdvancedHealthScore,
-  getClinicalRecommendations
+  getClinicalRecommendations,
 } from "./routes/advanced-ai";
-import { 
-  syncAppleHealth, 
-  syncFitbit, 
-  syncCGM, 
+import {
+  syncAppleHealth,
+  syncFitbit,
+  syncCGM,
   getAggregatedWearableData,
   registerWearableDevice,
-  getConnectedDevices
+  getConnectedDevices,
 } from "./routes/wearables";
-import { 
-  getAvailableProviders, 
-  scheduleAppointment, 
+import {
+  getAvailableProviders,
+  scheduleAppointment,
   getUserAppointments,
   createConsultationRoom,
   generateConsultationSummary,
-  triageEmergency
+  triageEmergency,
 } from "./routes/telemedicine";
 import {
   exportFHIRData,
   importFHIRData,
   getFHIRPatient,
-  getFHIRObservations
+  getFHIRObservations,
 } from "./routes/fhir";
 import {
   sendMessage,
@@ -57,7 +61,7 @@ import {
   sendDeviceAlert,
   sendCarePlanUpdate,
   testMessagingService,
-  getMessagingStatus
+  getMessagingStatus,
 } from "./routes/messaging";
 import {
   handleTelnyxSMSWebhook,
@@ -66,7 +70,7 @@ import {
   handleTwilioCallWebhook,
   generateTwiMLVoice,
   verifyTelnyxSignature,
-  verifyTwilioSignature
+  verifyTwilioSignature,
 } from "./routes/webhooks";
 import {
   getMessagingConfig,
@@ -80,7 +84,7 @@ import {
   getCareTeamConfig,
   updateCareTeamMember,
   getMessagingAuditLogs,
-  sendWellnessCheck
+  sendWellnessCheck,
 } from "./routes/messaging-admin";
 import {
   getThresholdTypes,
@@ -91,14 +95,14 @@ import {
   bulkUpdatePatientThresholds,
   testThresholdCheck,
   searchPatients,
-  getThresholdReport
+  getThresholdReport,
 } from "./routes/patient-thresholds";
 import {
   submitVitalReading,
   getPatientVitals,
   simulateVitalReading,
   comparePatientThresholds,
-  getThresholdAlertsHistory
+  getThresholdAlertsHistory,
 } from "./routes/vital-monitoring";
 
 // Configure multer for file uploads
@@ -108,42 +112,44 @@ const upload = multer({
     fileSize: 10 * 1024 * 1024, // 10MB limit
   },
   fileFilter: (req, file, cb) => {
-    const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png'];
+    const allowedTypes = ["application/pdf", "image/jpeg", "image/png"];
     if (allowedTypes.includes(file.mimetype)) {
       cb(null, true);
     } else {
-      cb(new Error('Invalid file type'));
+      cb(new Error("Invalid file type"));
     }
-  }
+  },
 });
 
 export async function createServer() {
   // Initialize database connections
   await initializeDatabase();
-  
+
   const app = express();
 
   // Security middleware
   app.use(helmet());
-  app.use(cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
-    credentials: true
-  }));
+  app.use(
+    cors({
+      origin: process.env.FRONTEND_URL || "http://localhost:5173",
+      credentials: true,
+    }),
+  );
 
   // Rate limiting
   const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
     max: 100, // limit each IP to 100 requests per windowMs
     message: {
-      error: 'Too many requests from this IP',
-      code: 'RATE_LIMIT_EXCEEDED'
-    }
+      error: "Too many requests from this IP",
+      code: "RATE_LIMIT_EXCEEDED",
+    },
   });
-  app.use('/api/', limiter);
+  app.use("/api/", limiter);
 
   // Body parsing middleware
-  app.use(express.json({ limit: '10mb' }));
-  app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+  app.use(express.json({ limit: "10mb" }));
+  app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
   // Health check routes
   app.use("/api", healthRoutes);
@@ -173,12 +179,12 @@ export async function createServer() {
 
   app.post("/api/chat", handleChat);
   app.get("/api/chat/history/:userId?", getChatHistory);
-  
+
   // Vital signs routes
   app.get("/api/vitals/:userId?", getVitalSigns);
   app.post("/api/vitals", addVitalSigns);
   app.get("/api/vitals/trends/:userId?", getVitalTrends);
-  
+
   // Health insights routes
   app.get("/api/insights/:userId?", getHealthInsights);
   app.post("/api/insights/:id/dismiss", dismissInsight);
@@ -191,7 +197,10 @@ export async function createServer() {
   app.post("/api/ai/analyze-image", analyzeMiddleware, analyzeMedicalImage);
   app.post("/api/ai/assess-symptoms", assessSymptoms);
   app.get("/api/ai/health-score/:userId?", calculateAdvancedHealthScore);
-  app.get("/api/ai/clinical-recommendations/:userId?", getClinicalRecommendations);
+  app.get(
+    "/api/ai/clinical-recommendations/:userId?",
+    getClinicalRecommendations,
+  );
 
   // Wearable integration routes
   app.get("/api/wearables/apple-health/:userId?", syncAppleHealth);
@@ -228,12 +237,28 @@ export async function createServer() {
   app.get("/api/messaging/status", getMessagingStatus);
 
   // Webhook routes for Telnyx
-  app.post("/api/webhooks/telnyx/sms", verifyTelnyxSignature, handleTelnyxSMSWebhook);
-  app.post("/api/webhooks/telnyx/call", verifyTelnyxSignature, handleTelnyxCallWebhook);
+  app.post(
+    "/api/webhooks/telnyx/sms",
+    verifyTelnyxSignature,
+    handleTelnyxSMSWebhook,
+  );
+  app.post(
+    "/api/webhooks/telnyx/call",
+    verifyTelnyxSignature,
+    handleTelnyxCallWebhook,
+  );
 
   // Webhook routes for Twilio
-  app.post("/api/webhooks/twilio/sms", verifyTwilioSignature, handleTwilioSMSWebhook);
-  app.post("/api/webhooks/twilio/call", verifyTwilioSignature, handleTwilioCallWebhook);
+  app.post(
+    "/api/webhooks/twilio/sms",
+    verifyTwilioSignature,
+    handleTwilioSMSWebhook,
+  );
+  app.post(
+    "/api/webhooks/twilio/call",
+    verifyTwilioSignature,
+    handleTwilioCallWebhook,
+  );
 
   // TwiML generation for Twilio voice
   app.get("/api/twiml/voice", generateTwiMLVoice);
@@ -258,10 +283,22 @@ export async function createServer() {
   app.get("/api/admin/thresholds/patients/search", searchPatients);
   app.get("/api/admin/thresholds/patients/:patientId", getPatientThresholds);
   app.post("/api/admin/thresholds/patients/:patientId", setPatientThreshold);
-  app.delete("/api/admin/thresholds/patients/:patientId/:thresholdType", removePatientThreshold);
-  app.post("/api/admin/thresholds/patients/:patientId/bulk", bulkUpdatePatientThresholds);
-  app.post("/api/admin/thresholds/patients/:patientId/test", testThresholdCheck);
-  app.get("/api/admin/thresholds/patients/:patientId/report", getThresholdReport);
+  app.delete(
+    "/api/admin/thresholds/patients/:patientId/:thresholdType",
+    removePatientThreshold,
+  );
+  app.post(
+    "/api/admin/thresholds/patients/:patientId/bulk",
+    bulkUpdatePatientThresholds,
+  );
+  app.post(
+    "/api/admin/thresholds/patients/:patientId/test",
+    testThresholdCheck,
+  );
+  app.get(
+    "/api/admin/thresholds/patients/:patientId/report",
+    getThresholdReport,
+  );
 
   // Vital monitoring routes with threshold checking
   app.post("/api/vitals/submit", submitVitalReading);

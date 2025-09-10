@@ -6,18 +6,23 @@ export class AuditLogger {
   // Enable/disable audit logging
   static setEnabled(enabled: boolean) {
     this.isEnabled = enabled;
-    console.log(`📋 Audit logging ${enabled ? 'enabled' : 'disabled'}`);
+    console.log(`📋 Audit logging ${enabled ? "enabled" : "disabled"}`);
   }
 
   // Log user access to PHI data
-  static logDataAccess(userId: string, dataType: string, action: string, details?: any) {
+  static logDataAccess(
+    userId: string,
+    dataType: string,
+    action: string,
+    details?: any,
+  ) {
     if (!this.isEnabled) return;
 
     const auditEntry = {
       id: this.generateAuditId(),
       timestamp: new Date().toISOString(),
       userId,
-      action: 'DATA_ACCESS',
+      action: "DATA_ACCESS",
       dataType,
       operation: action,
       details: details || {},
@@ -27,8 +32,8 @@ export class AuditLogger {
       compliance: {
         hipaa: true,
         gdpr: true,
-        sox: false
-      }
+        sox: false,
+      },
     };
 
     this.addAuditEntry(userId, auditEntry);
@@ -36,24 +41,28 @@ export class AuditLogger {
   }
 
   // Log authentication events
-  static logAuthentication(userId: string, action: 'LOGIN' | 'LOGOUT' | 'FAILED_LOGIN', details?: any) {
+  static logAuthentication(
+    userId: string,
+    action: "LOGIN" | "LOGOUT" | "FAILED_LOGIN",
+    details?: any,
+  ) {
     if (!this.isEnabled) return;
 
     const auditEntry = {
       id: this.generateAuditId(),
       timestamp: new Date().toISOString(),
       userId,
-      action: 'AUTHENTICATION',
+      action: "AUTHENTICATION",
       operation: action,
       details: details || {},
       ipAddress: this.getCurrentIP(),
       userAgent: this.getCurrentUserAgent(),
-      success: action !== 'FAILED_LOGIN',
+      success: action !== "FAILED_LOGIN",
       compliance: {
         hipaa: true,
         gdpr: true,
-        sox: true
-      }
+        sox: true,
+      },
     };
 
     this.addAuditEntry(userId, auditEntry);
@@ -67,31 +76,36 @@ export class AuditLogger {
     const auditEntry = {
       id: this.generateAuditId(),
       timestamp: new Date().toISOString(),
-      userId: 'SYSTEM',
-      action: 'SYSTEM_EVENT',
+      userId: "SYSTEM",
+      action: "SYSTEM_EVENT",
       operation,
       event,
       details: details || {},
       compliance: {
         hipaa: true,
         gdpr: false,
-        sox: true
-      }
+        sox: true,
+      },
     };
 
-    this.addAuditEntry('SYSTEM', auditEntry);
+    this.addAuditEntry("SYSTEM", auditEntry);
     console.log(`⚙️ System: ${event} - ${operation}`);
   }
 
   // Log communication events (SMS, voice, email)
-  static logCommunication(userId: string, type: 'sms' | 'voice' | 'email', direction: 'inbound' | 'outbound' | 'outbound_result', details?: any) {
+  static logCommunication(
+    userId: string,
+    type: "sms" | "voice" | "email",
+    direction: "inbound" | "outbound" | "outbound_result",
+    details?: any,
+  ) {
     if (!this.isEnabled) return;
 
     const auditEntry = {
       id: this.generateAuditId(),
       timestamp: new Date().toISOString(),
       userId,
-      action: 'COMMUNICATION',
+      action: "COMMUNICATION",
       operation: `${direction}_${type}`,
       communicationType: type,
       direction,
@@ -100,8 +114,8 @@ export class AuditLogger {
       compliance: {
         hipaa: true,
         gdpr: true,
-        sox: false
-      }
+        sox: false,
+      },
     };
 
     this.addAuditEntry(userId, auditEntry);
@@ -116,15 +130,15 @@ export class AuditLogger {
       id: this.generateAuditId(),
       timestamp: new Date().toISOString(),
       userId,
-      action: 'MEDICAL_EVENT',
+      action: "MEDICAL_EVENT",
       operation: eventType,
       details: details || {},
       ipAddress: this.getCurrentIP(),
       compliance: {
         hipaa: true,
         gdpr: true,
-        sox: false
-      }
+        sox: false,
+      },
     };
 
     this.addAuditEntry(userId, auditEntry);
@@ -132,14 +146,19 @@ export class AuditLogger {
   }
 
   // Log medication events
-  static logMedicationEvent(userId: string, action: string, medication: string, details?: any) {
+  static logMedicationEvent(
+    userId: string,
+    action: string,
+    medication: string,
+    details?: any,
+  ) {
     if (!this.isEnabled) return;
 
     const auditEntry = {
       id: this.generateAuditId(),
       timestamp: new Date().toISOString(),
       userId,
-      action: 'MEDICATION_EVENT',
+      action: "MEDICATION_EVENT",
       operation: action,
       medication,
       details: details || {},
@@ -147,8 +166,8 @@ export class AuditLogger {
       compliance: {
         hipaa: true,
         gdpr: true,
-        fda: true
-      }
+        fda: true,
+      },
     };
 
     this.addAuditEntry(userId, auditEntry);
@@ -156,70 +175,85 @@ export class AuditLogger {
   }
 
   // Log AI/ML model usage
-  static logAIModelUsage(userId: string, modelType: string, input: any, output: any, confidence?: number) {
+  static logAIModelUsage(
+    userId: string,
+    modelType: string,
+    input: any,
+    output: any,
+    confidence?: number,
+  ) {
     if (!this.isEnabled) return;
 
     const auditEntry = {
       id: this.generateAuditId(),
       timestamp: new Date().toISOString(),
       userId,
-      action: 'AI_MODEL_USAGE',
+      action: "AI_MODEL_USAGE",
       operation: modelType,
       details: {
         modelType,
         inputHash: this.hashSensitiveData(JSON.stringify(input)),
         outputHash: this.hashSensitiveData(JSON.stringify(output)),
         confidence,
-        processingTime: Date.now() // Would be calculated in real implementation
+        processingTime: Date.now(), // Would be calculated in real implementation
       },
       compliance: {
         hipaa: true,
         fda: true,
-        ai_ethics: true
-      }
+        ai_ethics: true,
+      },
     };
 
     this.addAuditEntry(userId, auditEntry);
-    console.log(`🤖 AI Model: ${userId} used ${modelType} (confidence: ${confidence}%)`);
+    console.log(
+      `🤖 AI Model: ${userId} used ${modelType} (confidence: ${confidence}%)`,
+    );
   }
 
   // Log data export/sharing events
-  static logDataExport(userId: string, exportType: string, recipient: string, dataTypes: string[]) {
+  static logDataExport(
+    userId: string,
+    exportType: string,
+    recipient: string,
+    dataTypes: string[],
+  ) {
     if (!this.isEnabled) return;
 
     const auditEntry = {
       id: this.generateAuditId(),
       timestamp: new Date().toISOString(),
       userId,
-      action: 'DATA_EXPORT',
+      action: "DATA_EXPORT",
       operation: exportType,
       details: {
         recipient,
         dataTypes,
-        exportFormat: 'FHIR_R4',
-        encryptionUsed: true
+        exportFormat: "FHIR_R4",
+        encryptionUsed: true,
       },
       ipAddress: this.getCurrentIP(),
       compliance: {
         hipaa: true,
         gdpr: true,
-        interoperability: true
-      }
+        interoperability: true,
+      },
     };
 
     this.addAuditEntry(userId, auditEntry);
-    console.log(`📤 Export: ${userId} exported ${dataTypes.join(', ')} to ${recipient}`);
+    console.log(
+      `📤 Export: ${userId} exported ${dataTypes.join(", ")} to ${recipient}`,
+    );
   }
 
   // Get audit logs for a user
   static getAuditLogs(userId: string, startDate?: Date, endDate?: Date): any[] {
     const userLogs = this.logs.get(userId) || [];
-    
+
     if (!startDate && !endDate) {
       return userLogs;
     }
 
-    return userLogs.filter(log => {
+    return userLogs.filter((log) => {
       const logDate = new Date(log.timestamp);
       if (startDate && logDate < startDate) return false;
       if (endDate && logDate > endDate) return false;
@@ -228,28 +262,40 @@ export class AuditLogger {
   }
 
   // Generate compliance report
-  static generateComplianceReport(startDate: Date, endDate: Date): {
+  static generateComplianceReport(
+    startDate: Date,
+    endDate: Date,
+  ): {
     summary: any;
     violations: any[];
     recommendations: string[];
   } {
     const allLogs: any[] = [];
-    this.logs.forEach(userLogs => {
-      allLogs.push(...userLogs.filter(log => {
-        const logDate = new Date(log.timestamp);
-        return logDate >= startDate && logDate <= endDate;
-      }));
+    this.logs.forEach((userLogs) => {
+      allLogs.push(
+        ...userLogs.filter((log) => {
+          const logDate = new Date(log.timestamp);
+          return logDate >= startDate && logDate <= endDate;
+        }),
+      );
     });
 
     const summary = {
       totalEvents: allLogs.length,
-      dataAccessEvents: allLogs.filter(log => log.action === 'DATA_ACCESS').length,
-      authenticationEvents: allLogs.filter(log => log.action === 'AUTHENTICATION').length,
-      systemEvents: allLogs.filter(log => log.action === 'SYSTEM_EVENT').length,
-      aiModelUsage: allLogs.filter(log => log.action === 'AI_MODEL_USAGE').length,
-      dataExports: allLogs.filter(log => log.action === 'DATA_EXPORT').length,
-      failedLogins: allLogs.filter(log => log.operation === 'FAILED_LOGIN').length,
-      criticalEvents: allLogs.filter(log => log.severity === 'CRITICAL').length
+      dataAccessEvents: allLogs.filter((log) => log.action === "DATA_ACCESS")
+        .length,
+      authenticationEvents: allLogs.filter(
+        (log) => log.action === "AUTHENTICATION",
+      ).length,
+      systemEvents: allLogs.filter((log) => log.action === "SYSTEM_EVENT")
+        .length,
+      aiModelUsage: allLogs.filter((log) => log.action === "AI_MODEL_USAGE")
+        .length,
+      dataExports: allLogs.filter((log) => log.action === "DATA_EXPORT").length,
+      failedLogins: allLogs.filter((log) => log.operation === "FAILED_LOGIN")
+        .length,
+      criticalEvents: allLogs.filter((log) => log.severity === "CRITICAL")
+        .length,
     };
 
     const violations: any[] = [];
@@ -258,40 +304,43 @@ export class AuditLogger {
     // Check for potential compliance violations
     if (summary.failedLogins > 10) {
       violations.push({
-        type: 'SECURITY_CONCERN',
-        description: 'High number of failed login attempts detected',
+        type: "SECURITY_CONCERN",
+        description: "High number of failed login attempts detected",
         count: summary.failedLogins,
-        severity: 'HIGH'
+        severity: "HIGH",
       });
-      recommendations.push('Implement account lockout policies');
-      recommendations.push('Enable multi-factor authentication');
+      recommendations.push("Implement account lockout policies");
+      recommendations.push("Enable multi-factor authentication");
     }
 
     if (summary.criticalEvents > 0) {
       violations.push({
-        type: 'SYSTEM_CRITICAL',
-        description: 'Critical system events detected',
+        type: "SYSTEM_CRITICAL",
+        description: "Critical system events detected",
         count: summary.criticalEvents,
-        severity: 'CRITICAL'
+        severity: "CRITICAL",
       });
-      recommendations.push('Review critical system events immediately');
+      recommendations.push("Review critical system events immediately");
     }
 
     // Check for unusual data access patterns
     const dataAccessByUser = new Map();
-    allLogs.filter(log => log.action === 'DATA_ACCESS').forEach(log => {
-      const count = dataAccessByUser.get(log.userId) || 0;
-      dataAccessByUser.set(log.userId, count + 1);
-    });
+    allLogs
+      .filter((log) => log.action === "DATA_ACCESS")
+      .forEach((log) => {
+        const count = dataAccessByUser.get(log.userId) || 0;
+        dataAccessByUser.set(log.userId, count + 1);
+      });
 
     dataAccessByUser.forEach((count, userId) => {
-      if (count > 100) { // Threshold for unusual access
+      if (count > 100) {
+        // Threshold for unusual access
         violations.push({
-          type: 'UNUSUAL_ACCESS',
+          type: "UNUSUAL_ACCESS",
           description: `User ${userId} accessed data ${count} times`,
           userId,
           count,
-          severity: 'MEDIUM'
+          severity: "MEDIUM",
         });
         recommendations.push(`Review data access patterns for user ${userId}`);
       }
@@ -301,18 +350,18 @@ export class AuditLogger {
   }
 
   // Export audit logs for compliance
-  static exportAuditLogs(format: 'JSON' | 'CSV' | 'XML' = 'JSON'): string {
+  static exportAuditLogs(format: "JSON" | "CSV" | "XML" = "JSON"): string {
     const allLogs: any[] = [];
-    this.logs.forEach(userLogs => {
+    this.logs.forEach((userLogs) => {
       allLogs.push(...userLogs);
     });
 
     switch (format) {
-      case 'JSON':
+      case "JSON":
         return JSON.stringify(allLogs, null, 2);
-      case 'CSV':
+      case "CSV":
         return this.convertToCSV(allLogs);
-      case 'XML':
+      case "XML":
         return this.convertToXML(allLogs);
       default:
         return JSON.stringify(allLogs, null, 2);
@@ -324,10 +373,10 @@ export class AuditLogger {
     if (!this.logs.has(userId)) {
       this.logs.set(userId, []);
     }
-    
+
     const userLogs = this.logs.get(userId)!;
     userLogs.push(entry);
-    
+
     // Keep only last 1000 entries per user to prevent memory issues
     if (userLogs.length > 1000) {
       userLogs.splice(0, userLogs.length - 1000);
@@ -340,12 +389,12 @@ export class AuditLogger {
 
   private static getCurrentIP(): string {
     // In a real implementation, this would get the actual client IP
-    return '127.0.0.1';
+    return "127.0.0.1";
   }
 
   private static getCurrentUserAgent(): string {
     // In a real implementation, this would get the actual user agent
-    return 'Telecheck/1.0';
+    return "Telecheck/1.0";
   }
 
   private static getCurrentSessionId(): string {
@@ -354,34 +403,36 @@ export class AuditLogger {
   }
 
   private static hashSensitiveData(data: string): string {
-    return require('crypto').createHash('sha256').update(data).digest('hex');
+    return require("crypto").createHash("sha256").update(data).digest("hex");
   }
 
   private static convertToCSV(logs: any[]): string {
-    if (logs.length === 0) return '';
-    
-    const headers = Object.keys(logs[0]).join(',');
-    const rows = logs.map(log => 
-      Object.values(log).map(value => 
-        typeof value === 'object' ? JSON.stringify(value) : value
-      ).join(',')
+    if (logs.length === 0) return "";
+
+    const headers = Object.keys(logs[0]).join(",");
+    const rows = logs.map((log) =>
+      Object.values(log)
+        .map((value) =>
+          typeof value === "object" ? JSON.stringify(value) : value,
+        )
+        .join(","),
     );
-    
-    return [headers, ...rows].join('\n');
+
+    return [headers, ...rows].join("\n");
   }
 
   private static convertToXML(logs: any[]): string {
     let xml = '<?xml version="1.0" encoding="UTF-8"?>\n<audit_logs>\n';
-    
-    logs.forEach(log => {
-      xml += '  <log>\n';
+
+    logs.forEach((log) => {
+      xml += "  <log>\n";
       Object.entries(log).forEach(([key, value]) => {
-        xml += `    <${key}>${typeof value === 'object' ? JSON.stringify(value) : value}</${key}>\n`;
+        xml += `    <${key}>${typeof value === "object" ? JSON.stringify(value) : value}</${key}>\n`;
       });
-      xml += '  </log>\n';
+      xml += "  </log>\n";
     });
-    
-    xml += '</audit_logs>';
+
+    xml += "</audit_logs>";
     return xml;
   }
 }

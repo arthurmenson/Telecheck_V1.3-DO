@@ -3,12 +3,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import {
   BarChart,
@@ -29,7 +29,7 @@ import {
   Pill,
   Target,
   AlertTriangle,
-  CheckCircle
+  CheckCircle,
 } from "lucide-react";
 
 export function Reporting() {
@@ -43,7 +43,7 @@ export function Reporting() {
       change: "+12.5%",
       trend: "up",
       icon: Users,
-      color: "text-blue-600"
+      color: "text-blue-600",
     },
     {
       title: "Monthly Revenue",
@@ -51,7 +51,7 @@ export function Reporting() {
       change: "+8.2%",
       trend: "up",
       icon: DollarSign,
-      color: "text-green-600"
+      color: "text-green-600",
     },
     {
       title: "Average Wait Time",
@@ -59,7 +59,7 @@ export function Reporting() {
       change: "-3.2%",
       trend: "down",
       icon: Clock,
-      color: "text-orange-600"
+      color: "text-orange-600",
     },
     {
       title: "Patient Satisfaction",
@@ -67,8 +67,8 @@ export function Reporting() {
       change: "+0.2",
       trend: "up",
       icon: Heart,
-      color: "text-red-600"
-    }
+      color: "text-red-600",
+    },
   ];
 
   const reports = [
@@ -77,43 +77,43 @@ export function Reporting() {
       description: "Detailed breakdown of patient age, gender, and location",
       category: "Population Health",
       lastRun: "2 hours ago",
-      status: "Ready"
+      status: "Ready",
     },
     {
       name: "Financial Performance",
       description: "Revenue analysis, billing metrics, and payment trends",
       category: "Financial",
       lastRun: "1 day ago",
-      status: "Ready"
+      status: "Ready",
     },
     {
       name: "Clinical Quality Metrics",
       description: "Quality indicators, outcomes, and compliance measures",
       category: "Quality",
       lastRun: "4 hours ago",
-      status: "Running"
+      status: "Running",
     },
     {
       name: "Medication Adherence",
       description: "Patient medication compliance and prescription analytics",
       category: "Clinical",
       lastRun: "6 hours ago",
-      status: "Ready"
+      status: "Ready",
     },
     {
       name: "Appointment Analytics",
       description: "Scheduling efficiency and no-show analysis",
       category: "Operations",
       lastRun: "3 hours ago",
-      status: "Ready"
+      status: "Ready",
     },
     {
       name: "Provider Performance",
       description: "Provider productivity and patient outcome metrics",
       category: "Performance",
       lastRun: "1 day ago",
-      status: "Ready"
-    }
+      status: "Ready",
+    },
   ];
 
   const chartData = {
@@ -123,32 +123,40 @@ export function Reporting() {
       { month: "Mar", visits: 392 },
       { month: "Apr", visits: 410 },
       { month: "May", visits: 445 },
-      { month: "Jun", visits: 489 }
+      { month: "Jun", visits: 489 },
     ],
     diagnosisDistribution: [
       { diagnosis: "Hypertension", count: 145, percentage: 28 },
       { diagnosis: "Diabetes", count: 89, percentage: 17 },
       { diagnosis: "Depression", count: 76, percentage: 15 },
       { diagnosis: "Anxiety", count: 67, percentage: 13 },
-      { diagnosis: "Other", count: 138, percentage: 27 }
-    ]
+      { diagnosis: "Other", count: 138, percentage: 27 },
+    ],
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'Ready': return 'bg-green-100 text-green-800';
-      case 'Running': return 'bg-blue-100 text-blue-800';
-      case 'Error': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case "Ready":
+        return "bg-green-100 text-green-800";
+      case "Running":
+        return "bg-blue-100 text-blue-800";
+      case "Error":
+        return "bg-red-100 text-red-800";
+      default:
+        return "bg-gray-100 text-gray-800";
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'Ready': return CheckCircle;
-      case 'Running': return Activity;
-      case 'Error': return AlertTriangle;
-      default: return Clock;
+      case "Ready":
+        return CheckCircle;
+      case "Running":
+        return Activity;
+      case "Error":
+        return AlertTriangle;
+      default:
+        return Clock;
     }
   };
 
@@ -201,19 +209,23 @@ export function Reporting() {
                     {kpi.value}
                   </p>
                 </div>
-                <div className={`w-12 h-12 rounded-lg bg-gray-50 dark:bg-gray-800 flex items-center justify-center ${kpi.color}`}>
+                <div
+                  className={`w-12 h-12 rounded-lg bg-gray-50 dark:bg-gray-800 flex items-center justify-center ${kpi.color}`}
+                >
                   <kpi.icon className="w-6 h-6" />
                 </div>
               </div>
               <div className="mt-4 flex items-center">
-                {kpi.trend === 'up' ? (
+                {kpi.trend === "up" ? (
                   <TrendingUp className="w-4 h-4 text-green-500 mr-1" />
                 ) : (
                   <TrendingDown className="w-4 h-4 text-red-500 mr-1" />
                 )}
-                <span className={`text-sm font-medium ${
-                  kpi.trend === 'up' ? 'text-green-600' : 'text-red-600'
-                }`}>
+                <span
+                  className={`text-sm font-medium ${
+                    kpi.trend === "up" ? "text-green-600" : "text-red-600"
+                  }`}
+                >
                   {kpi.change}
                 </span>
                 <span className="text-sm text-gray-600 dark:text-gray-400 ml-1">
@@ -240,9 +252,14 @@ export function Reporting() {
                 <div key={index} className="flex items-center justify-between">
                   <span className="text-sm font-medium w-12">{data.month}</span>
                   <div className="flex-1 mx-4">
-                    <Progress value={(data.visits / 500) * 100} className="h-2" />
+                    <Progress
+                      value={(data.visits / 500) * 100}
+                      className="h-2"
+                    />
                   </div>
-                  <span className="text-sm font-bold w-12 text-right">{data.visits}</span>
+                  <span className="text-sm font-bold w-12 text-right">
+                    {data.visits}
+                  </span>
                 </div>
               ))}
             </div>
@@ -262,8 +279,12 @@ export function Reporting() {
               {chartData.diagnosisDistribution.map((item, index) => (
                 <div key={index} className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className={`w-3 h-3 rounded-full bg-blue-${(index + 1) * 100}`} />
-                    <span className="text-sm font-medium">{item.diagnosis}</span>
+                    <div
+                      className={`w-3 h-3 rounded-full bg-blue-${(index + 1) * 100}`}
+                    />
+                    <span className="text-sm font-medium">
+                      {item.diagnosis}
+                    </span>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-sm text-gray-600">{item.count}</span>
@@ -289,7 +310,10 @@ export function Reporting() {
             {reports.map((report, index) => {
               const StatusIcon = getStatusIcon(report.status);
               return (
-                <Card key={index} className="border hover:shadow-md transition-shadow cursor-pointer">
+                <Card
+                  key={index}
+                  className="border hover:shadow-md transition-shadow cursor-pointer"
+                >
                   <CardContent className="p-4">
                     <div className="space-y-3">
                       <div className="flex items-start justify-between">
@@ -335,15 +359,36 @@ export function Reporting() {
         <CardContent>
           <div className="space-y-4">
             {[
-              { action: "Financial Performance report generated", time: "2 hours ago", user: "Dr. Smith" },
-              { action: "Patient Demographics report exported", time: "4 hours ago", user: "Admin User" },
-              { action: "Quality Metrics report scheduled", time: "6 hours ago", user: "Quality Team" },
-              { action: "Medication Adherence report shared", time: "1 day ago", user: "Dr. Johnson" }
+              {
+                action: "Financial Performance report generated",
+                time: "2 hours ago",
+                user: "Dr. Smith",
+              },
+              {
+                action: "Patient Demographics report exported",
+                time: "4 hours ago",
+                user: "Admin User",
+              },
+              {
+                action: "Quality Metrics report scheduled",
+                time: "6 hours ago",
+                user: "Quality Team",
+              },
+              {
+                action: "Medication Adherence report shared",
+                time: "1 day ago",
+                user: "Dr. Johnson",
+              },
             ].map((activity, index) => (
-              <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+              <div
+                key={index}
+                className="flex items-center justify-between p-3 border rounded-lg"
+              >
                 <div>
                   <div className="font-medium text-sm">{activity.action}</div>
-                  <div className="text-xs text-gray-500">by {activity.user}</div>
+                  <div className="text-xs text-gray-500">
+                    by {activity.user}
+                  </div>
                 </div>
                 <div className="text-xs text-gray-500">{activity.time}</div>
               </div>

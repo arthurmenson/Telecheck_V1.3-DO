@@ -1,10 +1,5 @@
 import React, { useState } from "react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "./ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { Progress } from "./ui/progress";
@@ -50,16 +45,16 @@ const journeySteps: JourneyStep[] = [
       "Compelling value proposition",
       "Clear feature showcase",
       "Social proof and testimonials",
-      "Call-to-action buttons"
+      "Call-to-action buttons",
     ],
     verificationCriteria: [
       "Hero section with value prop ✓",
-      "6 core features displayed ✓", 
+      "6 core features displayed ✓",
       "3 testimonials with ratings ✓",
-      "Multiple CTA buttons ✓"
+      "Multiple CTA buttons ✓",
     ],
     estimatedTime: "2-5 minutes",
-    icon: Home
+    icon: Home,
   },
   {
     id: "how-it-works",
@@ -72,16 +67,16 @@ const journeySteps: JourneyStep[] = [
       "Comprehensive feature explanations",
       "Interactive workflow demos",
       "Technical specifications",
-      "Architecture overview"
+      "Architecture overview",
     ],
     verificationCriteria: [
       "8 advanced features explained ✓",
       "Interactive demos available ✓",
       "4-tab navigation system ✓",
-      "Technical details provided ✓"
+      "Technical details provided ✓",
     ],
     estimatedTime: "5-15 minutes",
-    icon: FileText
+    icon: FileText,
   },
   {
     id: "registration",
@@ -94,16 +89,16 @@ const journeySteps: JourneyStep[] = [
       "8-step registration form",
       "Progressive disclosure",
       "Validation and error handling",
-      "HIPAA consent forms"
+      "HIPAA consent forms",
     ],
     verificationCriteria: [
       "8-step registration process ✓",
       "Progress indicator ✓",
       "Form validation ✓",
-      "HIPAA consent included ✓"
+      "HIPAA consent included ✓",
     ],
     estimatedTime: "8-15 minutes",
-    icon: UserPlus
+    icon: UserPlus,
   },
   {
     id: "onboarding",
@@ -116,16 +111,16 @@ const journeySteps: JourneyStep[] = [
       "8-step automated process",
       "Insurance verification",
       "Care team assignment",
-      "Portal access setup"
+      "Portal access setup",
     ],
     verificationCriteria: [
       "8 automated steps defined ✓",
       "Retry logic and timeouts ✓",
       "Progress tracking ✓",
-      "Escalation protocols ✓"
+      "Escalation protocols ✓",
     ],
     estimatedTime: "1-3 days (automated)",
-    icon: Activity
+    icon: Activity,
   },
   {
     id: "intake",
@@ -138,16 +133,16 @@ const journeySteps: JourneyStep[] = [
       "5-step intake process",
       "Medical history collection",
       "Insurance information",
-      "Consent forms"
+      "Consent forms",
     ],
     verificationCriteria: [
       "Multi-step intake forms ✓",
       "Template-based system ✓",
       "Progress tracking ✓",
-      "Provider integration ✓"
+      "Provider integration ✓",
     ],
     estimatedTime: "15-30 minutes",
-    icon: FileText
+    icon: FileText,
   },
   {
     id: "portal-access",
@@ -160,24 +155,26 @@ const journeySteps: JourneyStep[] = [
       "Patient dashboard",
       "Health data visualization",
       "AI insights",
-      "Feature navigation"
+      "Feature navigation",
     ],
     verificationCriteria: [
       "Comprehensive dashboard ✓",
       "Health score display ✓",
       "Goal tracking ✓",
-      "AI recommendations ✓"
+      "AI recommendations ✓",
     ],
     estimatedTime: "Immediate",
-    icon: Shield
-  }
+    icon: Shield,
+  },
 ];
 
 export function PatientJourneyVerification() {
   const [selectedStep, setSelectedStep] = useState<string | null>(null);
   const [testingMode, setTestingMode] = useState(false);
 
-  const completedSteps = journeySteps.filter(step => step.status === "verified").length;
+  const completedSteps = journeySteps.filter(
+    (step) => step.status === "verified",
+  ).length;
   const progressPercentage = (completedSteps / journeySteps.length) * 100;
 
   const getStatusColor = (status: string) => {
@@ -221,15 +218,18 @@ export function PatientJourneyVerification() {
                 <Star className="w-6 h-6 text-blue-600" />
               </div>
               <div>
-                <CardTitle className="text-xl">Phase 1: Discovery & Registration Verification</CardTitle>
+                <CardTitle className="text-xl">
+                  Phase 1: Discovery & Registration Verification
+                </CardTitle>
                 <p className="text-sm text-muted-foreground">
-                  Patient journey from first contact through onboarding completion
+                  Patient journey from first contact through onboarding
+                  completion
                 </p>
               </div>
             </div>
             <div className="flex gap-2">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 size="sm"
                 onClick={() => setTestingMode(!testingMode)}
               >
@@ -245,27 +245,41 @@ export function PatientJourneyVerification() {
         <CardContent>
           <div className="space-y-4">
             <div className="flex justify-between items-center">
-              <span className="text-sm font-medium text-muted-foreground">Overall Progress</span>
-              <span className="text-sm font-bold">{completedSteps}/{journeySteps.length} steps verified</span>
+              <span className="text-sm font-medium text-muted-foreground">
+                Overall Progress
+              </span>
+              <span className="text-sm font-bold">
+                {completedSteps}/{journeySteps.length} steps verified
+              </span>
             </div>
             <Progress value={progressPercentage} className="h-3" />
-            
+
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
               <div className="text-center">
-                <div className="text-2xl font-bold text-green-600">{progressPercentage.toFixed(0)}%</div>
-                <div className="text-sm text-muted-foreground">Completion Rate</div>
+                <div className="text-2xl font-bold text-green-600">
+                  {progressPercentage.toFixed(0)}%
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  Completion Rate
+                </div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-blue-600">8-15 min</div>
-                <div className="text-sm text-muted-foreground">Registration Time</div>
+                <div className="text-sm text-muted-foreground">
+                  Registration Time
+                </div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-purple-600">6</div>
-                <div className="text-sm text-muted-foreground">Journey Steps</div>
+                <div className="text-sm text-muted-foreground">
+                  Journey Steps
+                </div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-orange-600">100%</div>
-                <div className="text-sm text-muted-foreground">Verification Rate</div>
+                <div className="text-sm text-muted-foreground">
+                  Verification Rate
+                </div>
               </div>
             </div>
           </div>
@@ -277,12 +291,12 @@ export function PatientJourneyVerification() {
         {journeySteps.map((step, index) => {
           const Icon = step.icon;
           const isSelected = selectedStep === step.id;
-          
+
           return (
-            <Card 
-              key={step.id} 
+            <Card
+              key={step.id}
               className={`transition-all cursor-pointer hover-lift ${
-                isSelected ? 'ring-2 ring-primary shadow-lg' : 'hover:shadow-md'
+                isSelected ? "ring-2 ring-primary shadow-lg" : "hover:shadow-md"
               }`}
               onClick={() => setSelectedStep(isSelected ? null : step.id)}
             >
@@ -299,7 +313,9 @@ export function PatientJourneyVerification() {
                   {/* Step Content */}
                   <div className="flex-1">
                     <div className="flex items-center justify-between mb-2">
-                      <h3 className="font-semibold text-foreground">{step.title}</h3>
+                      <h3 className="font-semibold text-foreground">
+                        {step.title}
+                      </h3>
                       <div className="flex items-center gap-2">
                         <Badge className={getStatusColor(step.status)}>
                           {step.status}
@@ -322,7 +338,9 @@ export function PatientJourneyVerification() {
                         )}
                       </div>
                     </div>
-                    <p className="text-sm text-muted-foreground mb-2">{step.description}</p>
+                    <p className="text-sm text-muted-foreground mb-2">
+                      {step.description}
+                    </p>
                     <div className="flex items-center gap-4 text-xs text-muted-foreground">
                       <span className="flex items-center gap-1">
                         <FileText className="w-3 h-3" />
@@ -346,7 +364,10 @@ export function PatientJourneyVerification() {
                         <h4 className="font-medium mb-3">Requirements</h4>
                         <div className="space-y-2">
                           {step.requirements.map((requirement, reqIndex) => (
-                            <div key={reqIndex} className="flex items-center gap-2 text-sm">
+                            <div
+                              key={reqIndex}
+                              className="flex items-center gap-2 text-sm"
+                            >
                               <CheckCircle className="w-4 h-4 text-blue-600" />
                               <span>{requirement}</span>
                             </div>
@@ -354,14 +375,21 @@ export function PatientJourneyVerification() {
                         </div>
                       </div>
                       <div>
-                        <h4 className="font-medium mb-3">Verification Status</h4>
+                        <h4 className="font-medium mb-3">
+                          Verification Status
+                        </h4>
                         <div className="space-y-2 text-sm">
-                          {step.verificationCriteria.map((criteria, criteriaIndex) => (
-                            <div key={criteriaIndex} className="flex items-center gap-2">
-                              <CheckCircle className="w-4 h-4 text-green-600" />
-                              <span>{criteria}</span>
-                            </div>
-                          ))}
+                          {step.verificationCriteria.map(
+                            (criteria, criteriaIndex) => (
+                              <div
+                                key={criteriaIndex}
+                                className="flex items-center gap-2"
+                              >
+                                <CheckCircle className="w-4 h-4 text-green-600" />
+                                <span>{criteria}</span>
+                              </div>
+                            ),
+                          )}
                         </div>
                       </div>
                     </div>
@@ -397,7 +425,7 @@ export function PatientJourneyVerification() {
               Phase 1 Verification Complete ✓
             </h3>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <h4 className="font-medium text-green-800 dark:text-green-200 mb-2">
@@ -412,7 +440,7 @@ export function PatientJourneyVerification() {
                 <li>• Patient dashboard and portal access</li>
               </ul>
             </div>
-            
+
             <div>
               <h4 className="font-medium text-green-800 dark:text-green-200 mb-2">
                 🎯 Key Achievements
@@ -427,12 +455,13 @@ export function PatientJourneyVerification() {
               </ul>
             </div>
           </div>
-          
+
           <div className="mt-4 p-3 bg-green-100 dark:bg-green-800/30 rounded-lg">
             <p className="text-sm text-green-800 dark:text-green-200">
-              <strong>Next Steps:</strong> Phase 1 is complete and fully functional. 
-              Patients can now discover Telecheck, register for an account, and complete 
-              the automated onboarding process. Ready to proceed to Phase 2: Initial Care Setup.
+              <strong>Next Steps:</strong> Phase 1 is complete and fully
+              functional. Patients can now discover Telecheck, register for an
+              account, and complete the automated onboarding process. Ready to
+              proceed to Phase 2: Initial Care Setup.
             </p>
           </div>
         </CardContent>

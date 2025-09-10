@@ -6,7 +6,13 @@ import React, {
   ReactNode,
 } from "react";
 
-export type UserRole = "patient" | "doctor" | "nurse" | "caregiver" | "pharmacist" | "admin";
+export type UserRole =
+  | "patient"
+  | "doctor"
+  | "nurse"
+  | "caregiver"
+  | "pharmacist"
+  | "admin";
 
 export interface User {
   id: string;
@@ -185,19 +191,25 @@ export function AuthProvider({ children }: AuthProviderProps) {
             email: parsedUser.email,
             role: parsedUser.role,
             permissions: parsedUser.permissions,
-            exp: Date.now() + (24 * 60 * 60 * 1000) // 24 hours
+            exp: Date.now() + 24 * 60 * 60 * 1000, // 24 hours
           };
           const mockToken = btoa(JSON.stringify(tokenPayload));
-          console.log(`[AuthContext] Generated startup token for ${parsedUser.email}:`, {
-            tokenPayload,
-            tokenLength: mockToken.length
-          });
+          console.log(
+            `[AuthContext] Generated startup token for ${parsedUser.email}:`,
+            {
+              tokenPayload,
+              tokenLength: mockToken.length,
+            },
+          );
           localStorage.setItem("auth_token", mockToken);
         } else {
-          console.log(`[AuthContext] Using existing token for ${parsedUser.email}:`, {
-            tokenLength: storedToken.length,
-            tokenPreview: storedToken.substring(0, 50) + '...'
-          });
+          console.log(
+            `[AuthContext] Using existing token for ${parsedUser.email}:`,
+            {
+              tokenLength: storedToken.length,
+              tokenPreview: storedToken.substring(0, 50) + "...",
+            },
+          );
         }
       } catch (error) {
         console.error("Failed to parse stored user:", error);
@@ -230,14 +242,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
         email: user.email,
         role: user.role,
         permissions: user.permissions,
-        exp: Date.now() + (24 * 60 * 60 * 1000) // 24 hours
+        exp: Date.now() + 24 * 60 * 60 * 1000, // 24 hours
       };
       const mockToken = btoa(JSON.stringify(tokenPayload));
 
       console.log(`[AuthContext] Generated token for user ${user.email}:`, {
         tokenPayload,
         tokenLength: mockToken.length,
-        tokenPreview: mockToken.substring(0, 50) + '...'
+        tokenPreview: mockToken.substring(0, 50) + "...",
       });
 
       setUser(user);

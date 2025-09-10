@@ -27,7 +27,7 @@ import {
   BarChart3,
   Lightbulb,
   Award,
-  Shield
+  Shield,
 } from "lucide-react";
 
 export function GLP1QuestionnaireTemplate() {
@@ -44,50 +44,56 @@ export function GLP1QuestionnaireTemplate() {
     satisfactionScore: 4.8,
     clinicalAccuracy: 96,
     languages: 3,
-    deployments: 147
+    deployments: 147,
   };
 
   // Question categories breakdown
-  const questionCategories = questionnaire.questions.reduce((acc, question) => {
-    acc[question.category] = (acc[question.category] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
+  const questionCategories = questionnaire.questions.reduce(
+    (acc, question) => {
+      acc[question.category] = (acc[question.category] || 0) + 1;
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
 
   // AI Logic features
   const aiFeatures = [
     {
       name: "Smart Medication Scoring",
-      description: "AI evaluates 15+ factors to recommend optimal GLP-1 medication",
+      description:
+        "AI evaluates 15+ factors to recommend optimal GLP-1 medication",
       icon: Brain,
-      confidence: 94
+      confidence: 94,
     },
     {
       name: "Safety Contraindication Checks",
       description: "Real-time analysis against 25+ medical contraindications",
       icon: Shield,
-      confidence: 99
+      confidence: 99,
     },
     {
       name: "Personalized Dosing Logic",
       description: "BMI, medical history, and goals determine starting doses",
       icon: Target,
-      confidence: 87
+      confidence: 87,
     },
     {
       name: "Empathetic Response System",
       description: "Context-aware supportive messaging throughout assessment",
       icon: Heart,
-      confidence: 91
-    }
+      confidence: 91,
+    },
   ];
 
   // Educational content highlights
-  const educationalHighlights = questionnaire.educationalInserts.map(insert => ({
-    title: insert.title,
-    content: insert.content.slice(0, 100) + "...",
-    type: insert.type,
-    icon: insert.icon
-  }));
+  const educationalHighlights = questionnaire.educationalInserts.map(
+    (insert) => ({
+      title: insert.title,
+      content: insert.content.slice(0, 100) + "...",
+      type: insert.type,
+      icon: insert.icon,
+    }),
+  );
 
   const handleQuestionnaireComplete = (result: any) => {
     console.log("GLP1 Assessment Result:", result);
@@ -110,12 +116,13 @@ export function GLP1QuestionnaireTemplate() {
               GLP-1 Weight Loss Assessment Template
             </h1>
             <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
-              A comprehensive, AI-powered questionnaire template designed to evaluate patients for GLP-1 
-              medications with empathetic care and clinical precision.
+              A comprehensive, AI-powered questionnaire template designed to
+              evaluate patients for GLP-1 medications with empathetic care and
+              clinical precision.
             </p>
           </div>
           <div className="flex justify-center gap-4">
-            <Button 
+            <Button
               size="lg"
               onClick={() => setShowQuestionnaire(true)}
               className="bg-gradient-to-r from-green-500 to-emerald-600 text-white border-0 hover:from-green-600 hover:to-emerald-700"
@@ -252,14 +259,16 @@ export function GLP1QuestionnaireTemplate() {
                   <div key={category} className="space-y-2">
                     <div className="flex justify-between items-center">
                       <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                        {category.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                        {category
+                          .replace("_", " ")
+                          .replace(/\b\w/g, (l) => l.toUpperCase())}
                       </span>
                       <span className="text-sm text-gray-600 dark:text-gray-400">
                         {count} questions
                       </span>
                     </div>
-                    <Progress 
-                      value={(count / templateStats.totalQuestions) * 100} 
+                    <Progress
+                      value={(count / templateStats.totalQuestions) * 100}
                       className="h-2"
                     />
                   </div>
@@ -317,7 +326,11 @@ export function GLP1QuestionnaireTemplate() {
                     </div>
                     <div className="flex flex-wrap gap-1">
                       {medication.dosages.map((dosage, dIndex) => (
-                        <Badge key={dIndex} variant="outline" className="text-xs">
+                        <Badge
+                          key={dIndex}
+                          variant="outline"
+                          className="text-xs"
+                        >
                           {dosage}
                         </Badge>
                       ))}
@@ -397,11 +410,9 @@ export function GLP1QuestionnaireTemplate() {
                       )}
                       <div className="mt-3 flex items-center gap-4 text-xs">
                         <Badge variant="outline">
-                          {question.type.replace('_', ' ')}
+                          {question.type.replace("_", " ")}
                         </Badge>
-                        <Badge variant="outline">
-                          {question.category}
-                        </Badge>
+                        <Badge variant="outline">{question.category}</Badge>
                         {question.required && (
                           <Badge className="bg-red-100 text-red-700">
                             Required
@@ -417,10 +428,11 @@ export function GLP1QuestionnaireTemplate() {
               ))}
               <div className="text-center py-4">
                 <p className="text-gray-600 dark:text-gray-400">
-                  ... and {questionnaire.questions.length - 3} more comprehensive questions
+                  ... and {questionnaire.questions.length - 3} more
+                  comprehensive questions
                 </p>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   className="mt-2"
                   onClick={() => setShowQuestionnaire(true)}
                 >
@@ -493,8 +505,24 @@ const Star = ({ className, ...props }: any) => (
 );
 
 const Settings = ({ className, ...props }: any) => (
-  <svg className={className} {...props} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+  <svg
+    className={className}
+    {...props}
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+    />
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+    />
   </svg>
 );

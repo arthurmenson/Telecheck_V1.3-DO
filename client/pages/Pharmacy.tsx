@@ -56,8 +56,8 @@ import {
   GLP1_QUESTIONNAIRE,
   MENS_ED_QUESTIONNAIRE,
   SKIN_CARE_QUESTIONNAIRE,
-  HAIR_GROWTH_QUESTIONNAIRE
-} from '../data/dynamicQuestionnaires';
+  HAIR_GROWTH_QUESTIONNAIRE,
+} from "../data/dynamicQuestionnaires";
 import { useToast } from "../hooks/use-toast";
 
 export function Pharmacy() {
@@ -65,13 +65,16 @@ export function Pharmacy() {
   const [selectedTab, setSelectedTab] = useState("shop");
   const [selectedMedication, setSelectedMedication] = useState<any>(null);
   const [showTelehealth, setShowTelehealth] = useState(false);
-  const [showEmpatheticConsultation, setShowEmpatheticConsultation] = useState(false);
-  const [showDynamicQuestionnaire, setShowDynamicQuestionnaire] = useState(false);
+  const [showEmpatheticConsultation, setShowEmpatheticConsultation] =
+    useState(false);
+  const [showDynamicQuestionnaire, setShowDynamicQuestionnaire] =
+    useState(false);
   const [selectedQuestionnaire, setSelectedQuestionnaire] = useState<any>(null);
   const [orders, setOrders] = useState<any[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
-  const [productQuestionnaireAssignments, setProductQuestionnaireAssignments] = useState<any[]>([]);
+  const [productQuestionnaireAssignments, setProductQuestionnaireAssignments] =
+    useState<any[]>([]);
   const { state: cartState, openCart, closeCart } = useCart();
   const { toast } = useToast();
 
@@ -211,7 +214,7 @@ export function Pharmacy() {
 
     // Check if there's a specific questionnaire assignment for this medication
     const assignment = productQuestionnaireAssignments.find(
-      a => a.productId === medication.id && a.isActive
+      (a) => a.productId === medication.id && a.isActive,
     );
 
     if (medication.requiresConsultation || assignment) {
@@ -220,16 +223,16 @@ export function Pharmacy() {
       if (assignment) {
         // Use the assigned questionnaire
         switch (assignment.questionnaireId) {
-          case 'glp1_weight_loss':
+          case "glp1_weight_loss":
             questionnaire = GLP1_QUESTIONNAIRE;
             break;
-          case 'mens_ed_treatment':
+          case "mens_ed_treatment":
             questionnaire = MENS_ED_QUESTIONNAIRE;
             break;
-          case 'prescription_skincare':
+          case "prescription_skincare":
             questionnaire = SKIN_CARE_QUESTIONNAIRE;
             break;
-          case 'hair_growth_treatment':
+          case "hair_growth_treatment":
             questionnaire = HAIR_GROWTH_QUESTIONNAIRE;
             break;
           default:
@@ -261,14 +264,14 @@ export function Pharmacy() {
 
   const getCategoryBasedQuestionnaire = (category: string) => {
     switch (category) {
-      case 'Weight Loss':
-      case 'Diabetes':
+      case "Weight Loss":
+      case "Diabetes":
         return GLP1_QUESTIONNAIRE;
-      case 'Men\'s Health':
+      case "Men's Health":
         return MENS_ED_QUESTIONNAIRE;
-      case 'Dermatology':
+      case "Dermatology":
         return SKIN_CARE_QUESTIONNAIRE;
-      case 'Hair Loss':
+      case "Hair Loss":
         return HAIR_GROWTH_QUESTIONNAIRE;
       default:
         return GLP1_QUESTIONNAIRE; // fallback
@@ -289,7 +292,7 @@ export function Pharmacy() {
       medication: selectedMedication,
       questionnaire: selectedQuestionnaire,
       aiResult: result,
-      status: result.type === 'approved' ? 'approved' : 'consultation_required',
+      status: result.type === "approved" ? "approved" : "consultation_required",
       orderId: `DQ-${Date.now()}`,
       timestamp: new Date().toISOString(),
     };
@@ -326,7 +329,10 @@ export function Pharmacy() {
                 Cart
                 {cartState.items.length > 0 && (
                   <Badge className="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center p-0">
-                    {cartState.items.reduce((total, item) => total + item.quantity, 0)}
+                    {cartState.items.reduce(
+                      (total, item) => total + item.quantity,
+                      0,
+                    )}
                   </Badge>
                 )}
               </Button>
@@ -348,29 +354,32 @@ export function Pharmacy() {
           {/* Search and Tabs */}
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div className="flex space-x-2 flex-wrap">
-              {["shop", "rebates", "current", "history", "refills", "locations"].map(
-                (tab) => (
-                  <Button
-                    key={tab}
-                    variant={selectedTab === tab ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setSelectedTab(tab)}
-                    className={
-                      selectedTab === tab
-                        ? "gradient-bg text-white border-0"
-                        : ""
-                    }
-                  >
-                    {tab === "shop" && <Store className="w-4 h-4 mr-1" />}
-                    {tab === "rebates" && <Percent className="w-4 h-4 mr-1" />}
-                    {tab === "current" && <Package className="w-4 h-4 mr-1" />}
-                    {tab === "history" && <Clock className="w-4 h-4 mr-1" />}
-                    {tab === "refills" && <RefreshCw className="w-4 h-4 mr-1" />}
-                    {tab === "locations" && <MapPin className="w-4 h-4 mr-1" />}
-                    {tab.charAt(0).toUpperCase() + tab.slice(1)}
-                  </Button>
-                ),
-              )}
+              {[
+                "shop",
+                "rebates",
+                "current",
+                "history",
+                "refills",
+                "locations",
+              ].map((tab) => (
+                <Button
+                  key={tab}
+                  variant={selectedTab === tab ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setSelectedTab(tab)}
+                  className={
+                    selectedTab === tab ? "gradient-bg text-white border-0" : ""
+                  }
+                >
+                  {tab === "shop" && <Store className="w-4 h-4 mr-1" />}
+                  {tab === "rebates" && <Percent className="w-4 h-4 mr-1" />}
+                  {tab === "current" && <Package className="w-4 h-4 mr-1" />}
+                  {tab === "history" && <Clock className="w-4 h-4 mr-1" />}
+                  {tab === "refills" && <RefreshCw className="w-4 h-4 mr-1" />}
+                  {tab === "locations" && <MapPin className="w-4 h-4 mr-1" />}
+                  {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                </Button>
+              ))}
             </div>
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -485,7 +494,8 @@ export function Pharmacy() {
                           </Badge>
                         </CardTitle>
                         <p className="text-lg text-muted-foreground mt-1">
-                          Real-world clinical questionnaires with intelligent prescription recommendations
+                          Real-world clinical questionnaires with intelligent
+                          prescription recommendations
                         </p>
                         <div className="flex items-center gap-4 mt-2 text-sm">
                           <div className="flex items-center gap-1 text-emerald-600">
@@ -535,7 +545,9 @@ export function Pharmacy() {
                     Compassionate AI Care
                   </h3>
                   <p className="text-sm text-muted-foreground">
-                    Empathetic health assessments designed to make you feel heard, understood, and supported throughout your care journey
+                    Empathetic health assessments designed to make you feel
+                    heard, understood, and supported throughout your care
+                    journey
                   </p>
                 </CardContent>
               </Card>
@@ -549,7 +561,9 @@ export function Pharmacy() {
                     Safety-First Approach
                   </h3>
                   <p className="text-sm text-muted-foreground">
-                    Evidence-based risk assessments ensure you get the right care recommendation, whether it's self-treatment or professional consultation
+                    Evidence-based risk assessments ensure you get the right
+                    care recommendation, whether it's self-treatment or
+                    professional consultation
                   </p>
                 </CardContent>
               </Card>
@@ -563,7 +577,9 @@ export function Pharmacy() {
                     Personalized Experience
                   </h3>
                   <p className="text-sm text-muted-foreground">
-                    Each assessment adapts to your unique situation with supportive guidance and clear next steps tailored just for you
+                    Each assessment adapts to your unique situation with
+                    supportive guidance and clear next steps tailored just for
+                    you
                   </p>
                 </CardContent>
               </Card>
@@ -577,54 +593,104 @@ export function Pharmacy() {
                   <CardTitle className="flex items-center gap-3">
                     <Activity className="w-6 h-6 text-green-500" />
                     Medical Weight Loss (GLP-1s)
-                    <Badge className="bg-green-100 text-green-700">Popular</Badge>
+                    <Badge className="bg-green-100 text-green-700">
+                      Popular
+                    </Badge>
                   </CardTitle>
-                  <p className="text-sm text-muted-foreground">FDA-approved GLP-1 receptor agonists for weight management</p>
+                  <p className="text-sm text-muted-foreground">
+                    FDA-approved GLP-1 receptor agonists for weight management
+                  </p>
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     {[
-                      { name: "Semaglutide", brand: "Ozempic/Wegovy", price: "$850", dosage: "0.25-2.4mg weekly", requiresConsultation: true, category: "Weight Loss", id: "semaglutide_1mg" },
-                      { name: "Tirzepatide", brand: "Mounjaro", price: "$950", dosage: "2.5-15mg weekly", requiresConsultation: true, category: "Weight Loss", id: "tirzepatide_2.5mg" },
-                      { name: "Liraglutide", brand: "Saxenda", price: "$750", dosage: "0.6-3.0mg daily", requiresConsultation: true, category: "Weight Loss", id: "liraglutide_3mg" },
-                      { name: "Dulaglutide", brand: "Trulicity", price: "$800", dosage: "0.75-4.5mg weekly", requiresConsultation: true, category: "Diabetes", id: "dulaglutide_0.75mg" }
+                      {
+                        name: "Semaglutide",
+                        brand: "Ozempic/Wegovy",
+                        price: "$850",
+                        dosage: "0.25-2.4mg weekly",
+                        requiresConsultation: true,
+                        category: "Weight Loss",
+                        id: "semaglutide_1mg",
+                      },
+                      {
+                        name: "Tirzepatide",
+                        brand: "Mounjaro",
+                        price: "$950",
+                        dosage: "2.5-15mg weekly",
+                        requiresConsultation: true,
+                        category: "Weight Loss",
+                        id: "tirzepatide_2.5mg",
+                      },
+                      {
+                        name: "Liraglutide",
+                        brand: "Saxenda",
+                        price: "$750",
+                        dosage: "0.6-3.0mg daily",
+                        requiresConsultation: true,
+                        category: "Weight Loss",
+                        id: "liraglutide_3mg",
+                      },
+                      {
+                        name: "Dulaglutide",
+                        brand: "Trulicity",
+                        price: "$800",
+                        dosage: "0.75-4.5mg weekly",
+                        requiresConsultation: true,
+                        category: "Diabetes",
+                        id: "dulaglutide_0.75mg",
+                      },
                     ].map((med, idx) => {
-                      const hasAssignment = productQuestionnaireAssignments.find(
-                        a => a.productId === med.id && a.isActive
-                      );
+                      const hasAssignment =
+                        productQuestionnaireAssignments.find(
+                          (a) => a.productId === med.id && a.isActive,
+                        );
 
                       return (
-                      <div key={idx} className="p-4 border rounded-lg hover:shadow-md transition-shadow cursor-pointer hover:border-emerald-300 group relative">
-                        {hasAssignment && (
-                          <div className="absolute -top-2 -right-2 w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center z-10">
-                            <Brain className="w-3 h-3 text-white" />
-                          </div>
-                        )}
-                        <div className="flex items-center justify-between mb-2">
-                          <h4 className="font-semibold text-sm">{med.name}</h4>
-                          <div className="flex items-center gap-1">
-                            <Badge className="bg-emerald-100 text-emerald-800 border-emerald-200">AI Assessment</Badge>
-                            {hasAssignment && (
-                              <Badge className="bg-purple-100 text-purple-800 border-purple-200 text-xs">
-                                Linked
+                        <div
+                          key={idx}
+                          className="p-4 border rounded-lg hover:shadow-md transition-shadow cursor-pointer hover:border-emerald-300 group relative"
+                        >
+                          {hasAssignment && (
+                            <div className="absolute -top-2 -right-2 w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center z-10">
+                              <Brain className="w-3 h-3 text-white" />
+                            </div>
+                          )}
+                          <div className="flex items-center justify-between mb-2">
+                            <h4 className="font-semibold text-sm">
+                              {med.name}
+                            </h4>
+                            <div className="flex items-center gap-1">
+                              <Badge className="bg-emerald-100 text-emerald-800 border-emerald-200">
+                                AI Assessment
                               </Badge>
-                            )}
+                              {hasAssignment && (
+                                <Badge className="bg-purple-100 text-purple-800 border-purple-200 text-xs">
+                                  Linked
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+                          <p className="text-xs text-muted-foreground mb-2">
+                            {med.brand}
+                          </p>
+                          <p className="text-xs text-muted-foreground mb-3">
+                            {med.dosage}
+                          </p>
+                          <div className="flex items-center justify-between">
+                            <span className="text-lg font-bold text-primary">
+                              {med.price}
+                            </span>
+                            <Button
+                              size="sm"
+                              onClick={() => handleMedicationSelect(med)}
+                              className="bg-gradient-to-r from-emerald-500 to-blue-500 text-white border-0 hover:from-emerald-600 hover:to-blue-600 group-hover:scale-105 transition-transform"
+                            >
+                              <Brain className="w-3 h-3 mr-1" />
+                              AI Assessment
+                            </Button>
                           </div>
                         </div>
-                        <p className="text-xs text-muted-foreground mb-2">{med.brand}</p>
-                        <p className="text-xs text-muted-foreground mb-3">{med.dosage}</p>
-                        <div className="flex items-center justify-between">
-                          <span className="text-lg font-bold text-primary">{med.price}</span>
-                          <Button
-                            size="sm"
-                            onClick={() => handleMedicationSelect(med)}
-                            className="bg-gradient-to-r from-emerald-500 to-blue-500 text-white border-0 hover:from-emerald-600 hover:to-blue-600 group-hover:scale-105 transition-transform"
-                          >
-                            <Brain className="w-3 h-3 mr-1" />
-                            AI Assessment
-                          </Button>
-                        </div>
-                      </div>
                       );
                     })}
                   </div>
@@ -637,54 +703,104 @@ export function Pharmacy() {
                   <CardTitle className="flex items-center gap-3">
                     <Heart className="w-6 h-6 text-red-500" />
                     Men's ED Treatment
-                    <Badge className="bg-blue-100 text-blue-700">Confidential</Badge>
+                    <Badge className="bg-blue-100 text-blue-700">
+                      Confidential
+                    </Badge>
                   </CardTitle>
-                  <p className="text-sm text-muted-foreground">Effective treatments for erectile dysfunction</p>
+                  <p className="text-sm text-muted-foreground">
+                    Effective treatments for erectile dysfunction
+                  </p>
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     {[
-                      { name: "Sildenafil", brand: "Viagra", price: "$120", dosage: "25-100mg as needed", requiresConsultation: true, category: "Men's Health", id: "sildenafil_50mg" },
-                      { name: "Tadalafil", brand: "Cialis", price: "$140", dosage: "5-20mg as needed", requiresConsultation: true, category: "Men's Health", id: "tadalafil_20mg" },
-                      { name: "Vardenafil", brand: "Levitra", price: "$130", dosage: "5-20mg as needed", requiresConsultation: true, category: "Men's Health", id: "vardenafil_20mg" },
-                      { name: "Avanafil", brand: "Stendra", price: "$150", dosage: "50-200mg as needed", requiresConsultation: true, category: "Men's Health", id: "avanafil_100mg" }
+                      {
+                        name: "Sildenafil",
+                        brand: "Viagra",
+                        price: "$120",
+                        dosage: "25-100mg as needed",
+                        requiresConsultation: true,
+                        category: "Men's Health",
+                        id: "sildenafil_50mg",
+                      },
+                      {
+                        name: "Tadalafil",
+                        brand: "Cialis",
+                        price: "$140",
+                        dosage: "5-20mg as needed",
+                        requiresConsultation: true,
+                        category: "Men's Health",
+                        id: "tadalafil_20mg",
+                      },
+                      {
+                        name: "Vardenafil",
+                        brand: "Levitra",
+                        price: "$130",
+                        dosage: "5-20mg as needed",
+                        requiresConsultation: true,
+                        category: "Men's Health",
+                        id: "vardenafil_20mg",
+                      },
+                      {
+                        name: "Avanafil",
+                        brand: "Stendra",
+                        price: "$150",
+                        dosage: "50-200mg as needed",
+                        requiresConsultation: true,
+                        category: "Men's Health",
+                        id: "avanafil_100mg",
+                      },
                     ].map((med, idx) => {
-                      const hasAssignment = productQuestionnaireAssignments.find(
-                        a => a.productId === med.id && a.isActive
-                      );
+                      const hasAssignment =
+                        productQuestionnaireAssignments.find(
+                          (a) => a.productId === med.id && a.isActive,
+                        );
 
                       return (
-                      <div key={idx} className="p-4 border rounded-lg hover:shadow-md transition-shadow cursor-pointer hover:border-emerald-300 group relative">
-                        {hasAssignment && (
-                          <div className="absolute -top-2 -right-2 w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center z-10">
-                            <Brain className="w-3 h-3 text-white" />
-                          </div>
-                        )}
-                        <div className="flex items-center justify-between mb-2">
-                          <h4 className="font-semibold text-sm">{med.name}</h4>
-                          <div className="flex items-center gap-1">
-                            <Badge className="bg-emerald-100 text-emerald-800 border-emerald-200">AI Assessment</Badge>
-                            {hasAssignment && (
-                              <Badge className="bg-purple-100 text-purple-800 border-purple-200 text-xs">
-                                Linked
+                        <div
+                          key={idx}
+                          className="p-4 border rounded-lg hover:shadow-md transition-shadow cursor-pointer hover:border-emerald-300 group relative"
+                        >
+                          {hasAssignment && (
+                            <div className="absolute -top-2 -right-2 w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center z-10">
+                              <Brain className="w-3 h-3 text-white" />
+                            </div>
+                          )}
+                          <div className="flex items-center justify-between mb-2">
+                            <h4 className="font-semibold text-sm">
+                              {med.name}
+                            </h4>
+                            <div className="flex items-center gap-1">
+                              <Badge className="bg-emerald-100 text-emerald-800 border-emerald-200">
+                                AI Assessment
                               </Badge>
-                            )}
+                              {hasAssignment && (
+                                <Badge className="bg-purple-100 text-purple-800 border-purple-200 text-xs">
+                                  Linked
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+                          <p className="text-xs text-muted-foreground mb-2">
+                            {med.brand}
+                          </p>
+                          <p className="text-xs text-muted-foreground mb-3">
+                            {med.dosage}
+                          </p>
+                          <div className="flex items-center justify-between">
+                            <span className="text-lg font-bold text-primary">
+                              {med.price}
+                            </span>
+                            <Button
+                              size="sm"
+                              onClick={() => handleMedicationSelect(med)}
+                              className="bg-gradient-to-r from-emerald-500 to-blue-500 text-white border-0 hover:from-emerald-600 hover:to-blue-600 group-hover:scale-105 transition-transform"
+                            >
+                              <Brain className="w-3 h-3 mr-1" />
+                              AI Assessment
+                            </Button>
                           </div>
                         </div>
-                        <p className="text-xs text-muted-foreground mb-2">{med.brand}</p>
-                        <p className="text-xs text-muted-foreground mb-3">{med.dosage}</p>
-                        <div className="flex items-center justify-between">
-                          <span className="text-lg font-bold text-primary">{med.price}</span>
-                          <Button
-                            size="sm"
-                            onClick={() => handleMedicationSelect(med)}
-                            className="bg-gradient-to-r from-emerald-500 to-blue-500 text-white border-0 hover:from-emerald-600 hover:to-blue-600 group-hover:scale-105 transition-transform"
-                          >
-                            <Brain className="w-3 h-3 mr-1" />
-                            AI Assessment
-                          </Button>
-                        </div>
-                      </div>
                       );
                     })}
                   </div>
@@ -697,28 +813,64 @@ export function Pharmacy() {
                   <CardTitle className="flex items-center gap-3">
                     <Zap className="w-6 h-6 text-yellow-500" />
                     NAD+ Supplements
-                    <Badge className="bg-yellow-100 text-yellow-700">Anti-Aging</Badge>
+                    <Badge className="bg-yellow-100 text-yellow-700">
+                      Anti-Aging
+                    </Badge>
                   </CardTitle>
-                  <p className="text-sm text-muted-foreground">Cellular energy and longevity support supplements</p>
+                  <p className="text-sm text-muted-foreground">
+                    Cellular energy and longevity support supplements
+                  </p>
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     {[
-                      { name: "IV Therapy", brand: "NAD+ Infusion", price: "$300", dosage: "250-500mg IV" },
-                      { name: "Nicotinamide Riboside", brand: "NR Supplement", price: "$80", dosage: "300mg daily" },
-                      { name: "Sublingual", brand: "NAD+ Drops", price: "$120", dosage: "50mg sublingual" },
-                      { name: "NMN", brand: "Nicotinamide Mononucleotide", price: "$100", dosage: "250mg daily" }
+                      {
+                        name: "IV Therapy",
+                        brand: "NAD+ Infusion",
+                        price: "$300",
+                        dosage: "250-500mg IV",
+                      },
+                      {
+                        name: "Nicotinamide Riboside",
+                        brand: "NR Supplement",
+                        price: "$80",
+                        dosage: "300mg daily",
+                      },
+                      {
+                        name: "Sublingual",
+                        brand: "NAD+ Drops",
+                        price: "$120",
+                        dosage: "50mg sublingual",
+                      },
+                      {
+                        name: "NMN",
+                        brand: "Nicotinamide Mononucleotide",
+                        price: "$100",
+                        dosage: "250mg daily",
+                      },
                     ].map((med, idx) => (
-                      <div key={idx} className="p-4 border rounded-lg hover:shadow-md transition-shadow cursor-pointer">
+                      <div
+                        key={idx}
+                        className="p-4 border rounded-lg hover:shadow-md transition-shadow cursor-pointer"
+                      >
                         <div className="flex items-center justify-between mb-2">
                           <h4 className="font-semibold text-sm">{med.name}</h4>
                           <Badge variant="outline">Supplement</Badge>
                         </div>
-                        <p className="text-xs text-muted-foreground mb-2">{med.brand}</p>
-                        <p className="text-xs text-muted-foreground mb-3">{med.dosage}</p>
+                        <p className="text-xs text-muted-foreground mb-2">
+                          {med.brand}
+                        </p>
+                        <p className="text-xs text-muted-foreground mb-3">
+                          {med.dosage}
+                        </p>
                         <div className="flex items-center justify-between">
-                          <span className="text-lg font-bold text-primary">{med.price}</span>
-                          <Button size="sm" onClick={() => handleMedicationSelect(med)}>
+                          <span className="text-lg font-bold text-primary">
+                            {med.price}
+                          </span>
+                          <Button
+                            size="sm"
+                            onClick={() => handleMedicationSelect(med)}
+                          >
                             Order
                           </Button>
                         </div>
@@ -734,54 +886,104 @@ export function Pharmacy() {
                   <CardTitle className="flex items-center gap-3">
                     <Sparkles className="w-6 h-6 text-purple-500" />
                     Prescription Skin Care
-                    <Badge className="bg-purple-100 text-purple-700">Dermatology</Badge>
+                    <Badge className="bg-purple-100 text-purple-700">
+                      Dermatology
+                    </Badge>
                   </CardTitle>
-                  <p className="text-sm text-muted-foreground">Professional-grade skincare treatments</p>
+                  <p className="text-sm text-muted-foreground">
+                    Professional-grade skincare treatments
+                  </p>
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     {[
-                      { name: "Tretinoin", brand: "Retin-A", price: "$60", dosage: "0.025-0.1% cream", requiresConsultation: true, category: "Dermatology", id: "tretinoin_0.1" },
-                      { name: "Hydroquinone", brand: "Tri-Luma", price: "$45", dosage: "2-4% cream", requiresConsultation: true, category: "Dermatology", id: "hydroquinone_4" },
-                      { name: "Clindamycin", brand: "Cleocin T", price: "$35", dosage: "1% gel/solution", requiresConsultation: true, category: "Dermatology", id: "clindamycin_1" },
-                      { name: "Azelaic Acid", brand: "Finacea", price: "$50", dosage: "15-20% gel", requiresConsultation: true, category: "Dermatology", id: "azelaic_acid_15" }
+                      {
+                        name: "Tretinoin",
+                        brand: "Retin-A",
+                        price: "$60",
+                        dosage: "0.025-0.1% cream",
+                        requiresConsultation: true,
+                        category: "Dermatology",
+                        id: "tretinoin_0.1",
+                      },
+                      {
+                        name: "Hydroquinone",
+                        brand: "Tri-Luma",
+                        price: "$45",
+                        dosage: "2-4% cream",
+                        requiresConsultation: true,
+                        category: "Dermatology",
+                        id: "hydroquinone_4",
+                      },
+                      {
+                        name: "Clindamycin",
+                        brand: "Cleocin T",
+                        price: "$35",
+                        dosage: "1% gel/solution",
+                        requiresConsultation: true,
+                        category: "Dermatology",
+                        id: "clindamycin_1",
+                      },
+                      {
+                        name: "Azelaic Acid",
+                        brand: "Finacea",
+                        price: "$50",
+                        dosage: "15-20% gel",
+                        requiresConsultation: true,
+                        category: "Dermatology",
+                        id: "azelaic_acid_15",
+                      },
                     ].map((med, idx) => {
-                      const hasAssignment = productQuestionnaireAssignments.find(
-                        a => a.productId === med.id && a.isActive
-                      );
+                      const hasAssignment =
+                        productQuestionnaireAssignments.find(
+                          (a) => a.productId === med.id && a.isActive,
+                        );
 
                       return (
-                      <div key={idx} className="p-4 border rounded-lg hover:shadow-md transition-shadow cursor-pointer hover:border-emerald-300 group relative">
-                        {hasAssignment && (
-                          <div className="absolute -top-2 -right-2 w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center z-10">
-                            <Brain className="w-3 h-3 text-white" />
-                          </div>
-                        )}
-                        <div className="flex items-center justify-between mb-2">
-                          <h4 className="font-semibold text-sm">{med.name}</h4>
-                          <div className="flex items-center gap-1">
-                            <Badge className="bg-emerald-100 text-emerald-800 border-emerald-200">AI Assessment</Badge>
-                            {hasAssignment && (
-                              <Badge className="bg-purple-100 text-purple-800 border-purple-200 text-xs">
-                                Linked
+                        <div
+                          key={idx}
+                          className="p-4 border rounded-lg hover:shadow-md transition-shadow cursor-pointer hover:border-emerald-300 group relative"
+                        >
+                          {hasAssignment && (
+                            <div className="absolute -top-2 -right-2 w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center z-10">
+                              <Brain className="w-3 h-3 text-white" />
+                            </div>
+                          )}
+                          <div className="flex items-center justify-between mb-2">
+                            <h4 className="font-semibold text-sm">
+                              {med.name}
+                            </h4>
+                            <div className="flex items-center gap-1">
+                              <Badge className="bg-emerald-100 text-emerald-800 border-emerald-200">
+                                AI Assessment
                               </Badge>
-                            )}
+                              {hasAssignment && (
+                                <Badge className="bg-purple-100 text-purple-800 border-purple-200 text-xs">
+                                  Linked
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+                          <p className="text-xs text-muted-foreground mb-2">
+                            {med.brand}
+                          </p>
+                          <p className="text-xs text-muted-foreground mb-3">
+                            {med.dosage}
+                          </p>
+                          <div className="flex items-center justify-between">
+                            <span className="text-lg font-bold text-primary">
+                              {med.price}
+                            </span>
+                            <Button
+                              size="sm"
+                              onClick={() => handleMedicationSelect(med)}
+                              className="bg-gradient-to-r from-emerald-500 to-blue-500 text-white border-0 hover:from-emerald-600 hover:to-blue-600 group-hover:scale-105 transition-transform"
+                            >
+                              <Brain className="w-3 h-3 mr-1" />
+                              AI Assessment
+                            </Button>
                           </div>
                         </div>
-                        <p className="text-xs text-muted-foreground mb-2">{med.brand}</p>
-                        <p className="text-xs text-muted-foreground mb-3">{med.dosage}</p>
-                        <div className="flex items-center justify-between">
-                          <span className="text-lg font-bold text-primary">{med.price}</span>
-                          <Button
-                            size="sm"
-                            onClick={() => handleMedicationSelect(med)}
-                            className="bg-gradient-to-r from-emerald-500 to-blue-500 text-white border-0 hover:from-emerald-600 hover:to-blue-600 group-hover:scale-105 transition-transform"
-                          >
-                            <Brain className="w-3 h-3 mr-1" />
-                            AI Assessment
-                          </Button>
-                        </div>
-                      </div>
                       );
                     })}
                   </div>
@@ -794,62 +996,125 @@ export function Pharmacy() {
                   <CardTitle className="flex items-center gap-3">
                     <Shield className="w-6 h-6 text-cyan-500" />
                     Hair Growth Treatment
-                    <Badge className="bg-cyan-100 text-cyan-700">Hair Restoration</Badge>
+                    <Badge className="bg-cyan-100 text-cyan-700">
+                      Hair Restoration
+                    </Badge>
                   </CardTitle>
-                  <p className="text-sm text-muted-foreground">Proven treatments for hair loss and growth</p>
+                  <p className="text-sm text-muted-foreground">
+                    Proven treatments for hair loss and growth
+                  </p>
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     {[
-                      { name: "Finasteride", brand: "Propecia", price: "$25", dosage: "1mg daily", requiresConsultation: true, category: "Hair Loss", id: "finasteride_1mg" },
-                      { name: "Minoxidil", brand: "Rogaine", price: "$30", dosage: "5% solution BID", requiresConsultation: true, category: "Hair Loss", id: "minoxidil_5" },
-                      { name: "Dutasteride", brand: "Avodart", price: "$35", dosage: "0.5mg daily", requiresConsultation: true, category: "Hair Loss", id: "dutasteride_0.5mg" },
-                      { name: "Biotin Complex", brand: "Hair Vitamins", price: "$20", dosage: "5000mcg daily", requiresConsultation: false, category: "Supplements", id: "biotin_5000mcg" }
+                      {
+                        name: "Finasteride",
+                        brand: "Propecia",
+                        price: "$25",
+                        dosage: "1mg daily",
+                        requiresConsultation: true,
+                        category: "Hair Loss",
+                        id: "finasteride_1mg",
+                      },
+                      {
+                        name: "Minoxidil",
+                        brand: "Rogaine",
+                        price: "$30",
+                        dosage: "5% solution BID",
+                        requiresConsultation: true,
+                        category: "Hair Loss",
+                        id: "minoxidil_5",
+                      },
+                      {
+                        name: "Dutasteride",
+                        brand: "Avodart",
+                        price: "$35",
+                        dosage: "0.5mg daily",
+                        requiresConsultation: true,
+                        category: "Hair Loss",
+                        id: "dutasteride_0.5mg",
+                      },
+                      {
+                        name: "Biotin Complex",
+                        brand: "Hair Vitamins",
+                        price: "$20",
+                        dosage: "5000mcg daily",
+                        requiresConsultation: false,
+                        category: "Supplements",
+                        id: "biotin_5000mcg",
+                      },
                     ].map((med, idx) => {
-                      const hasAssignment = productQuestionnaireAssignments.find(
-                        a => a.productId === med.id && a.isActive
-                      );
+                      const hasAssignment =
+                        productQuestionnaireAssignments.find(
+                          (a) => a.productId === med.id && a.isActive,
+                        );
 
                       return (
-                      <div key={idx} className="p-4 border rounded-lg hover:shadow-md transition-shadow cursor-pointer hover:border-emerald-300 group relative">
-                        {hasAssignment && (
-                          <div className="absolute -top-2 -right-2 w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center z-10">
-                            <Brain className="w-3 h-3 text-white" />
-                          </div>
-                        )}
-                        <div className="flex items-center justify-between mb-2">
-                          <h4 className="font-semibold text-sm">{med.name}</h4>
-                          <div className="flex items-center gap-1">
-                            <Badge className={med.requiresConsultation ? "bg-emerald-100 text-emerald-800 border-emerald-200" : "bg-blue-100 text-blue-800 border-blue-200"}>
-                              {med.requiresConsultation ? "AI Assessment" : "Direct Order"}
-                            </Badge>
-                            {hasAssignment && (
-                              <Badge className="bg-purple-100 text-purple-800 border-purple-200 text-xs">
-                                Linked
+                        <div
+                          key={idx}
+                          className="p-4 border rounded-lg hover:shadow-md transition-shadow cursor-pointer hover:border-emerald-300 group relative"
+                        >
+                          {hasAssignment && (
+                            <div className="absolute -top-2 -right-2 w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center z-10">
+                              <Brain className="w-3 h-3 text-white" />
+                            </div>
+                          )}
+                          <div className="flex items-center justify-between mb-2">
+                            <h4 className="font-semibold text-sm">
+                              {med.name}
+                            </h4>
+                            <div className="flex items-center gap-1">
+                              <Badge
+                                className={
+                                  med.requiresConsultation
+                                    ? "bg-emerald-100 text-emerald-800 border-emerald-200"
+                                    : "bg-blue-100 text-blue-800 border-blue-200"
+                                }
+                              >
+                                {med.requiresConsultation
+                                  ? "AI Assessment"
+                                  : "Direct Order"}
                               </Badge>
-                            )}
+                              {hasAssignment && (
+                                <Badge className="bg-purple-100 text-purple-800 border-purple-200 text-xs">
+                                  Linked
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+                          <p className="text-xs text-muted-foreground mb-2">
+                            {med.brand}
+                          </p>
+                          <p className="text-xs text-muted-foreground mb-3">
+                            {med.dosage}
+                          </p>
+                          <div className="flex items-center justify-between">
+                            <span className="text-lg font-bold text-primary">
+                              {med.price}
+                            </span>
+                            <Button
+                              size="sm"
+                              onClick={() => handleMedicationSelect(med)}
+                              className={
+                                med.requiresConsultation
+                                  ? "bg-gradient-to-r from-emerald-500 to-blue-500 text-white border-0 hover:from-emerald-600 hover:to-blue-600 group-hover:scale-105 transition-transform"
+                                  : "bg-blue-500 text-white border-0 hover:bg-blue-600 group-hover:scale-105 transition-transform"
+                              }
+                            >
+                              {med.requiresConsultation ? (
+                                <>
+                                  <Heart className="w-3 h-3 mr-1" />
+                                  Start Care
+                                </>
+                              ) : (
+                                <>
+                                  <ShoppingCart className="w-3 h-3 mr-1" />
+                                  Add to Cart
+                                </>
+                              )}
+                            </Button>
                           </div>
                         </div>
-                        <p className="text-xs text-muted-foreground mb-2">{med.brand}</p>
-                        <p className="text-xs text-muted-foreground mb-3">{med.dosage}</p>
-                        <div className="flex items-center justify-between">
-                          <span className="text-lg font-bold text-primary">{med.price}</span>
-                          <Button
-                            size="sm"
-                            onClick={() => handleMedicationSelect(med)}
-                            className={med.requiresConsultation ?
-                              "bg-gradient-to-r from-emerald-500 to-blue-500 text-white border-0 hover:from-emerald-600 hover:to-blue-600 group-hover:scale-105 transition-transform" :
-                              "bg-blue-500 text-white border-0 hover:bg-blue-600 group-hover:scale-105 transition-transform"
-                            }
-                          >
-                            {med.requiresConsultation ? (
-                              <><Heart className="w-3 h-3 mr-1" />Start Care</>
-                            ) : (
-                              <><ShoppingCart className="w-3 h-3 mr-1" />Add to Cart</>
-                            )}
-                          </Button>
-                        </div>
-                      </div>
                       );
                     })}
                   </div>
@@ -873,7 +1138,11 @@ export function Pharmacy() {
                   <div className="space-y-6">
                     {/* New MCQ-Assessed Orders */}
                     {orders
-                      .filter((order) => order.status === "approved" || order.status === "consultation_required")
+                      .filter(
+                        (order) =>
+                          order.status === "approved" ||
+                          order.status === "consultation_required",
+                      )
                       .map((order) => (
                         <div
                           key={order.orderId}
@@ -914,13 +1183,21 @@ export function Pharmacy() {
                                 )}
                               </div>
                               <p className="text-muted-foreground text-sm mb-1">
-                                {order.medication.brand} • {order.medication.category} •
-                                {order.status === "approved" ? " Empathetic Assessment Completed" : " Professional Review Needed"}
+                                {order.medication.brand} •{" "}
+                                {order.medication.category} •
+                                {order.status === "approved"
+                                  ? " Empathetic Assessment Completed"
+                                  : " Professional Review Needed"}
                               </p>
                               <p className="text-muted-foreground text-xs">
                                 Order #{order.orderId} • AI Confidence:{" "}
-                                {Math.round(order.consultation?.assessment?.confidence || 95)}% •
-                                Risk Level: {order.consultation?.assessment?.riskLevel || 'low'}
+                                {Math.round(
+                                  order.consultation?.assessment?.confidence ||
+                                    95,
+                                )}
+                                % • Risk Level:{" "}
+                                {order.consultation?.assessment?.riskLevel ||
+                                  "low"}
                               </p>
                             </div>
                             <div className="mt-4 lg:mt-0 lg:text-right">
@@ -928,7 +1205,8 @@ export function Pharmacy() {
                                 Total Cost
                               </div>
                               <div className="text-2xl font-bold text-foreground">
-                                {order.consultation?.assessment?.totalCost || order.medication.price}
+                                {order.consultation?.assessment?.totalCost ||
+                                  order.medication.price}
                               </div>
                             </div>
                           </div>
@@ -943,7 +1221,10 @@ export function Pharmacy() {
                                     Your Health & Safety First
                                   </h5>
                                   <p className="text-xs text-orange-700 dark:text-orange-300">
-                                    Based on your responses, we recommend a professional consultation to ensure the safest treatment plan for your unique situation.
+                                    Based on your responses, we recommend a
+                                    professional consultation to ensure the
+                                    safest treatment plan for your unique
+                                    situation.
                                   </p>
                                 </div>
                               </div>
@@ -1485,7 +1766,6 @@ export function Pharmacy() {
           isOpen={isCheckoutOpen}
           onClose={() => setIsCheckoutOpen(false)}
         />
-
       </div>
     </div>
   );

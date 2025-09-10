@@ -1,10 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "./ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
@@ -53,7 +48,7 @@ export function CompactAIScribe({
   onTranscriptionComplete,
   className = "",
   isExpanded = false,
-  onToggleExpand
+  onToggleExpand,
 }: CompactAIScribeProps) {
   const [isRecording, setIsRecording] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
@@ -68,7 +63,7 @@ export function CompactAIScribe({
     let interval: NodeJS.Timeout;
     if (isRecording && !isPaused) {
       interval = setInterval(() => {
-        setRecordingTime(prev => prev + 1);
+        setRecordingTime((prev) => prev + 1);
       }, 1000);
     }
     return () => clearInterval(interval);
@@ -77,7 +72,7 @@ export function CompactAIScribe({
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
   const startRecording = () => {
@@ -97,11 +92,11 @@ export function CompactAIScribe({
     setIsRecording(false);
     setIsPaused(false);
     setIsProcessing(true);
-    
+
     // Simulate AI processing
     setTimeout(() => {
       const mockTranscript = `Patient ${patientName} presents with chief complaint of chest pain that started this morning. Pain is described as sharp, 7/10 intensity, located in the center of the chest. No radiation to arms or jaw. Associated with shortness of breath but no nausea or diaphoresis. No recent trauma or exertional triggers noted. Patient appears anxious but cooperative. Vital signs stable.`;
-      
+
       const mockSOAP = `SUBJECTIVE:
 ${patientName} presents with acute chest pain onset this morning. Pain described as sharp, 7/10 severity, central chest location. No radiation. Associated SOB, denies N/V/diaphoresis. No recent trauma or exertion.
 
@@ -122,7 +117,7 @@ PLAN:
       setGeneratedSOAP(mockSOAP);
       setConfidence(96);
       setIsProcessing(false);
-      
+
       // Call callback if provided
       onTranscriptionComplete?.(mockTranscript, mockSOAP);
     }, 2000);
@@ -149,16 +144,16 @@ PLAN:
                   description="Record and transcribe your patient consultation with automatic SOAP note generation."
                   features={[
                     "Real-time speech-to-text",
-                    "Medical terminology recognition", 
+                    "Medical terminology recognition",
                     "Auto SOAP note generation",
                     "EHR integration",
-                    "High accuracy (96%+)"
+                    "High accuracy (96%+)",
                   ]}
                   benefits={[
                     "Focus on patient instead of notes",
                     "Reduce documentation time",
                     "Improve note accuracy",
-                    "Generate billing codes"
+                    "Generate billing codes",
                   ]}
                   size="sm"
                 />
@@ -176,18 +171,22 @@ PLAN:
             </div>
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <span>{patientName}</span>
-              <Badge variant="outline" className="text-xs">{appointmentType}</Badge>
+              <Badge variant="outline" className="text-xs">
+                {appointmentType}
+              </Badge>
             </div>
           </CardHeader>
-          
+
           <CardContent className="pt-0">
             {/* Recording Controls */}
             <div className="flex items-center justify-center mb-3">
-              <div className={`w-16 h-16 rounded-full flex items-center justify-center border-2 transition-all ${
-                isRecording 
-                  ? 'border-red-500 bg-red-50 dark:bg-red-900/20' 
-                  : 'border-gray-300 bg-gray-50 dark:bg-gray-800'
-              }`}>
+              <div
+                className={`w-16 h-16 rounded-full flex items-center justify-center border-2 transition-all ${
+                  isRecording
+                    ? "border-red-500 bg-red-50 dark:bg-red-900/20"
+                    : "border-gray-300 bg-gray-50 dark:bg-gray-800"
+                }`}
+              >
                 {isRecording ? (
                   <div className="text-center">
                     <Mic className="w-5 h-5 text-red-500 mx-auto" />
@@ -203,16 +202,28 @@ PLAN:
 
             <div className="flex items-center justify-center gap-2 mb-3">
               {!isRecording ? (
-                <Button onClick={startRecording} size="sm" className="bg-red-600 hover:bg-red-700">
+                <Button
+                  onClick={startRecording}
+                  size="sm"
+                  className="bg-red-600 hover:bg-red-700"
+                >
                   <Mic className="w-3 h-3 mr-1" />
                   Start
                 </Button>
               ) : (
                 <>
                   <Button onClick={pauseRecording} variant="outline" size="sm">
-                    {isPaused ? <Play className="w-3 h-3" /> : <Pause className="w-3 h-3" />}
+                    {isPaused ? (
+                      <Play className="w-3 h-3" />
+                    ) : (
+                      <Pause className="w-3 h-3" />
+                    )}
                   </Button>
-                  <Button onClick={stopRecording} variant="destructive" size="sm">
+                  <Button
+                    onClick={stopRecording}
+                    variant="destructive"
+                    size="sm"
+                  >
                     <Square className="w-3 h-3" />
                   </Button>
                 </>
@@ -223,7 +234,7 @@ PLAN:
             {isRecording && (
               <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground mb-2">
                 <div className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></div>
-                {isPaused ? 'Paused' : 'Recording'}
+                {isPaused ? "Paused" : "Recording"}
               </div>
             )}
 
@@ -246,13 +257,21 @@ PLAN:
                 <div className="text-xs text-muted-foreground bg-muted/30 p-2 rounded max-h-16 overflow-hidden">
                   {currentTranscript.substring(0, 100)}...
                 </div>
-                
+
                 <div className="flex gap-1">
-                  <Button variant="outline" size="sm" className="flex-1 text-xs h-7">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1 text-xs h-7"
+                  >
                     <Copy className="w-3 h-3 mr-1" />
                     Copy
                   </Button>
-                  <Button size="sm" className="flex-1 text-xs h-7" onClick={saveToEHR}>
+                  <Button
+                    size="sm"
+                    className="flex-1 text-xs h-7"
+                    onClick={saveToEHR}
+                  >
                     <Save className="w-3 h-3 mr-1" />
                     Save
                   </Button>
@@ -275,11 +294,7 @@ PLAN:
             AI Medical Scribe - {patientName}
           </CardTitle>
           <div className="flex gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onToggleExpand}
-            >
+            <Button variant="ghost" size="sm" onClick={onToggleExpand}>
               <Minimize2 className="w-4 h-4" />
             </Button>
             <Button variant="outline" size="sm">
@@ -298,15 +313,17 @@ PLAN:
           {/* Recording Panel */}
           <div className="space-y-4">
             <h4 className="font-medium">Live Recording</h4>
-            
+
             {/* Recording Controls */}
             <div className="text-center space-y-4">
               <div className="flex items-center justify-center">
-                <div className={`w-24 h-24 rounded-full flex items-center justify-center border-4 transition-all ${
-                  isRecording 
-                    ? 'border-red-500 bg-red-50 dark:bg-red-900/20' 
-                    : 'border-gray-300 bg-gray-50 dark:bg-gray-800'
-                }`}>
+                <div
+                  className={`w-24 h-24 rounded-full flex items-center justify-center border-4 transition-all ${
+                    isRecording
+                      ? "border-red-500 bg-red-50 dark:bg-red-900/20"
+                      : "border-gray-300 bg-gray-50 dark:bg-gray-800"
+                  }`}
+                >
                   {isRecording ? (
                     <div className="text-center">
                       <Mic className="w-6 h-6 text-red-500 mx-auto mb-1" />
@@ -322,15 +339,22 @@ PLAN:
 
               <div className="flex items-center justify-center gap-3">
                 {!isRecording ? (
-                  <Button onClick={startRecording} className="bg-red-600 hover:bg-red-700">
+                  <Button
+                    onClick={startRecording}
+                    className="bg-red-600 hover:bg-red-700"
+                  >
                     <Mic className="w-4 h-4 mr-2" />
                     Start Recording
                   </Button>
                 ) : (
                   <>
                     <Button onClick={pauseRecording} variant="outline">
-                      {isPaused ? <Play className="w-4 h-4" /> : <Pause className="w-4 h-4" />}
-                      {isPaused ? 'Resume' : 'Pause'}
+                      {isPaused ? (
+                        <Play className="w-4 h-4" />
+                      ) : (
+                        <Pause className="w-4 h-4" />
+                      )}
+                      {isPaused ? "Resume" : "Pause"}
                     </Button>
                     <Button onClick={stopRecording} variant="destructive">
                       <Square className="w-4 h-4" />
@@ -353,11 +377,15 @@ PLAN:
                         {confidence}% Confidence
                       </Badge>
                     </div>
-                    <p className="text-sm leading-relaxed">{currentTranscript}</p>
+                    <p className="text-sm leading-relaxed">
+                      {currentTranscript}
+                    </p>
                   </div>
                 ) : (
                   <p className="text-muted-foreground text-center text-sm">
-                    {isRecording ? 'Listening for speech...' : 'Start recording to see live transcription'}
+                    {isRecording
+                      ? "Listening for speech..."
+                      : "Start recording to see live transcription"}
                   </p>
                 )}
               </div>
@@ -367,7 +395,7 @@ PLAN:
           {/* SOAP Note Generation */}
           <div className="space-y-4">
             <h4 className="font-medium">Generated SOAP Note</h4>
-            
+
             {isProcessing && (
               <div className="flex items-center justify-center gap-2 text-primary p-4">
                 <Brain className="w-5 h-5 animate-pulse" />
@@ -383,7 +411,7 @@ PLAN:
                   className="min-h-64 font-mono text-sm"
                   placeholder="SOAP note will appear here..."
                 />
-                
+
                 <div className="flex gap-2">
                   <Button variant="outline" size="sm" className="flex-1">
                     <Copy className="w-4 h-4 mr-2" />
@@ -403,7 +431,9 @@ PLAN:
               <div className="min-h-64 p-4 border rounded-lg bg-muted/30 flex items-center justify-center">
                 <div className="text-center text-muted-foreground">
                   <FileText className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                  <p className="text-sm">SOAP note will be generated after recording</p>
+                  <p className="text-sm">
+                    SOAP note will be generated after recording
+                  </p>
                 </div>
               </div>
             )}
