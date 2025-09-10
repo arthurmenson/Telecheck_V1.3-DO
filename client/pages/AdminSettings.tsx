@@ -188,7 +188,7 @@ export function AdminSettings() {
     complianceFramework: "fda",
 
     // Messaging Settings
-    telnyxApiKey: "KEY0198A5D18F95AD830214D06580B577C1_BAGmVUWXSZR6P6V6TZbCRf",
+    telnyxApiKey: "YOUR_TELNYX_API_KEY_HERE",
     twilioAccountSid: "",
     twilioAuthToken: "",
     twilioPhoneNumber: "",
