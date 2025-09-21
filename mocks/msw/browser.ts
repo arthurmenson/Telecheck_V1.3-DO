@@ -14,3 +14,12 @@ export const worker = setupWorker(
   ...pharmacyHandlers,
   ...schedulingHandlers,
 );
+
+export const mswStartOptions = {
+  onUnhandledRequest: ({ request }: any) => {
+    try {
+      const u = new URL(request.url);
+      if (u.hostname.endsWith('builder.io') || u.hostname.endsWith('cdn.builder.io')) return;
+    } catch {}
+  },
+} as const;
