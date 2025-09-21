@@ -12,8 +12,8 @@
   },
   "scripts": {
     "dev": "vite",
-    "dev:mock": "cross-env VITE_MODE=MOCK VITE_API_BASE=/api vite",
-    "dev:sandbox": "cross-env VITE_MODE=SANDBOX VITE_API_BASE=https://api-uat.telecheck.health vite",
+    "dev:mock": "cross-env VITE_MODE=MOCK VITE_API_BASE=/api PORT=8080 vite",
+    "dev:sandbox": "cross-env VITE_MODE=SANDBOX VITE_API_BASE=https://api-uat.telecheck.health PORT=8080 vite",
     "build": "npm run build:client && npm run build:server",
     "build:client": "vite build",
     "build:server": "vite build --config vite.config.server.ts",
@@ -35,7 +35,8 @@
     "format:check": "prettier --check .",
     "format.fix": "prettier --write .",
     "typecheck": "tsc",
-    "deploy:check": "npm run typecheck && npm run build:prod && npm run test"
+    "deploy:check": "npm run typecheck && npm run build:prod && npm run test",
+    "test:contract": "vitest run contracts/pact/**/*.pact.test.ts"
   },
   "dependencies": {
     "@types/bcrypt": "^6.0.0",
