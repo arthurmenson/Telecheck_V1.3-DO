@@ -28,7 +28,7 @@ export default defineConfig(({ mode }) => ({
         }
       : undefined,
     fs: {
-      allow: ["./client", "./shared"],
+      allow: ["./client", "./shared", "./lib"],
       deny: [".env", ".env.*", "*.{crt,pem}", "**/.git/**", "server/**"],
     },
   },
