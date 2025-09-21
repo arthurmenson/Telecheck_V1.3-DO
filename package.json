@@ -14,6 +14,8 @@
     "dev": "vite",
     "dev:mock": "cross-env VITE_MODE=MOCK VITE_API_BASE=/api PORT=8080 vite",
     "dev:sandbox": "cross-env VITE_MODE=SANDBOX VITE_API_BASE=https://api-uat.telecheck.health PORT=8080 vite",
+    "gen:sdk": "openapi-typescript contracts/*.openapi.yaml -o lib/sdk/index.ts",
+    "gen:mocks": "openapi-msw contracts/*.openapi.yaml -o mocks/msw/generated",
     "build": "npm run build:client && npm run build:server",
     "build:client": "vite build",
     "build:server": "vite build --config vite.config.server.ts",
@@ -152,6 +154,8 @@
     "vaul": "^0.9.3",
     "vite": "^6.3.5",
     "vitest": "^3.1.4",
-    "@pact-foundation/pact": "^12.4.0"
+    "@pact-foundation/pact": "^12.4.0",
+    "openapi-typescript": "^7.4.0",
+    "openapi-msw": "^0.7.0"
   }
 }
