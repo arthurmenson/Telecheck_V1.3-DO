@@ -3,8 +3,8 @@ import "./builder/registry";
 
 if ((import.meta as any).env?.VITE_MODE === "MOCK") {
   // @ts-ignore
-  import("../mocks/msw/browser").then(({ worker }) =>
-    worker.start({ onUnhandledRequest: "bypass" }),
+  import("../mocks/msw/browser").then(({ worker, mswStartOptions }) =>
+    worker.start(mswStartOptions as any),
   );
 }
 
