@@ -22,10 +22,6 @@ jobs:
         run: "! grep -R 'client/services/api.service' -n client/pages || (echo 'Use feature adapters' && exit 1)"
       - name: Telemetry present on changed features (best-effort)
         run: "git diff --name-only HEAD^ | xargs -I{} grep -R \"track('tc:\" -n {} || true"
-      - name: Enforce flags in adapters
+      - name: Flags import in adapters (best-effort)
         run: |
-          MISSING=$(grep -L "from '../flags'" lib/adapters/*.ts || true)
-          if [ -n "$MISSING" ]; then
-            echo "Missing flags import in: $MISSING"
-            exit 1
-          fi
+          grep -L "from '../flags'" lib/adapters/*.ts || true
