@@ -99,6 +99,106 @@ CREATE TABLE IF NOT EXISTS appointments (
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Appointment slots table for scheduling service
+CREATE TABLE IF NOT EXISTS appointment_slots (
+  id TEXT PRIMARY KEY,
+  provider_id TEXT NOT NULL,
+  location_id TEXT,
+  start_time TIMESTAMP WITH TIME ZONE NOT NULL,
+  end_time TIMESTAMP WITH TIME ZONE NOT NULL,
+  status VARCHAR(20) NOT NULL DEFAULT 'available' CHECK (status IN ('available', 'held', 'booked', 'cancelled')),
+  patient_id TEXT,
+  booking_reference TEXT,
+  seed_reference TEXT,
+  metadata JSONB,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_appointment_slots_unique ON appointment_slots(provider_id, start_time);
+
+INSERT INTO appointment_slots (id, provider_id, location_id, start_time, end_time, status, seed_reference, metadata)
+VALUES (
+  's1',
+  'provider-demo',
+  'main',
+  '2025-01-02 09:00:00+00',
+  '2025-01-02 09:30:00+00',
+  'available',
+  'apt1',
+  '{"source":"seed"}'
+)
+ON CONFLICT (id) DO NOTHING;
+
+-- RPM vitals table
+CREATE TABLE IF NOT EXISTS rpm_vitals (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  patient_id TEXT NOT NULL,
+  metric TEXT NOT NULL,
+  unit TEXT,
+  value NUMERIC(10,2) NOT NULL,
+  recorded_at TIMESTAMP WITH TIME ZONE NOT NULL,
+  metadata JSONB,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_rpm_vitals_patient_metric_time ON rpm_vitals(patient_id, metric, recorded_at);
+
+-- RPM thresholds table
+CREATE TABLE IF NOT EXISTS rpm_thresholds (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  patient_id TEXT NOT NULL,
+  metric TEXT NOT NULL,
+  unit TEXT,
+  min_value NUMERIC(10,2),
+  max_value NUMERIC(10,2),
+  metadata JSONB,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(patient_id, metric)
+);
+
+-- RPM alerts table
+CREATE TABLE IF NOT EXISTS rpm_alerts (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  patient_id TEXT NOT NULL,
+  metric TEXT NOT NULL,
+  severity TEXT NOT NULL,
+  status TEXT NOT NULL,
+  message TEXT NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  resolved_at TIMESTAMP WITH TIME ZONE,
+  context JSONB
+);
+
+CREATE INDEX IF NOT EXISTS idx_rpm_alerts_patient_status ON rpm_alerts(patient_id, status, created_at DESC);
+
+INSERT INTO rpm_vitals (patient_id, metric, unit, value, recorded_at, metadata)
+VALUES
+  ('rpm-demo', 'heart_rate', 'bpm', 72, '2025-01-01 08:00:00+00', '{"source":"bluetooth"}'),
+  ('rpm-demo', 'heart_rate', 'bpm', 76, '2025-01-02 08:00:00+00', '{"source":"bluetooth"}'),
+  ('rpm-demo', 'blood_pressure_systolic', 'mmHg', 120, '2025-01-02 08:00:00+00', '{"source":"manual"}')
+ON CONFLICT DO NOTHING;
+
+INSERT INTO rpm_thresholds (patient_id, metric, unit, min_value, max_value, metadata, updated_at)
+VALUES
+  ('rpm-demo', 'heart_rate', 'bpm', 55, 110, '{"escalation":"notify-clinician"}', '2025-01-01 07:00:00+00'),
+  ('rpm-demo', 'blood_pressure_systolic', 'mmHg', 90, 140, '{"escalation":"notify-rn"}', '2025-01-01 07:00:00+00')
+ON CONFLICT (patient_id, metric) DO NOTHING;
+
+INSERT INTO rpm_alerts (id, patient_id, metric, severity, status, message, created_at, resolved_at, context)
+VALUES (
+  'alert-demo-1',
+  'rpm-demo',
+  'heart_rate',
+  'medium',
+  'open',
+  'Heart rate exceeded threshold',
+  '2025-01-02 08:30:00+00',
+  NULL,
+  '{"value":120,"unit":"bpm"}'
+)
+ON CONFLICT (id) DO NOTHING;
+
 -- Vital signs table
 CREATE TABLE IF NOT EXISTS vital_signs (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),

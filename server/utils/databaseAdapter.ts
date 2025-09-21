@@ -1,4 +1,66 @@
-import { dbPool } from "../config/database";
+import { createRequire } from "node:module";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import path from "node:path";
+import initSqlJs, { Database as SqlJsDatabase, SqlJsStatic } from "sql.js";
+import { dbPool, databaseDriver } from "../config/database";
+
+const require = createRequire(import.meta.url);
+const sqlJsPackagePath = require.resolve("sql.js/package.json");
+const sqlJsDistPath = path.join(path.dirname(sqlJsPackagePath), "dist");
+const sqliteFilePath = path.resolve(
+  process.cwd(),
+  process.env.SQLITE_DB_PATH ?? "telecheck.db",
+);
+
+let sqliteInstance: SqlJsStatic | null = null;
+let sqliteDb: SqlJsDatabase | null = null;
+let sqliteInitPromise: Promise<void> | null = null;
+
+const usingSQLiteFallback = databaseDriver === "sqlite";
+
+const isSelectStatement = (sql: string) => /^\s*select/i.test(sql);
+
+const persistSqliteDatabase = () => {
+  if (!sqliteDb) {
+    return;
+  }
+  try {
+    const binaryArray = sqliteDb.export();
+    const buffer = Buffer.from(binaryArray);
+    writeFileSync(sqliteFilePath, buffer);
+  } catch (error) {
+    console.warn("⚠️  Unable to persist SQLite fallback database:", error);
+  }
+};
+
+const ensureSqlite = async () => {
+  if (!usingSQLiteFallback) {
+    return;
+  }
+
+  if (sqliteDb) {
+    return;
+  }
+
+  if (!sqliteInitPromise) {
+    sqliteInitPromise = (async () => {
+      sqliteInstance = await initSqlJs({
+        locateFile: (file: string) => path.join(sqlJsDistPath, file),
+      });
+
+      if (sqliteInstance) {
+        if (existsSync(sqliteFilePath)) {
+          const fileBuffer = readFileSync(sqliteFilePath);
+          sqliteDb = new sqliteInstance.Database(fileBuffer);
+        } else {
+          sqliteDb = new sqliteInstance.Database();
+        }
+      }
+    })();
+  }
+
+  await sqliteInitPromise;
+};
 
 /**
  * PostgreSQL Database Adapter
@@ -6,23 +68,59 @@ import { dbPool } from "../config/database";
  */
 class DatabaseAdapter {
   async initialize(): Promise<void> {
-    if (!dbPool) {
-      throw new Error("PostgreSQL pool not configured");
+    if (dbPool) {
+      await dbPool.query("SELECT NOW()");
+      console.log("✅ PostgreSQL database adapter initialized");
+      return;
     }
-    // Test connection
-    await dbPool.query("SELECT NOW()");
-    console.log("✅ PostgreSQL database adapter initialized");
+
+    await ensureSqlite();
+
+    if (sqliteDb) {
+      console.log("✅ SQLite fallback database initialized");
+      return;
+    }
+
+    throw new Error("SQLite fallback database could not be initialized");
   }
 
   async query(sql: string, params: any[] = []): Promise<any> {
-    if (!dbPool) {
-      throw new Error("PostgreSQL pool not configured");
+    if (dbPool) {
+      try {
+        const result = await dbPool.query(sql, params);
+        return result.rows;
+      } catch (error) {
+        console.error("Database query failed:", error);
+        throw error;
+      }
     }
+
+    await ensureSqlite();
+
+    if (!sqliteDb) {
+      throw new Error("SQLite fallback database not available");
+    }
+
     try {
-      const result = await dbPool.query(sql, params);
-      return result.rows;
+      const statement = sqliteDb.prepare(sql);
+      if (params && params.length > 0) {
+        statement.bind(params);
+      }
+
+      const rows: any[] = [];
+      while (statement.step()) {
+        rows.push(statement.getAsObject());
+      }
+
+      statement.free();
+
+      if (!isSelectStatement(sql)) {
+        persistSqliteDatabase();
+      }
+
+      return rows;
     } catch (error) {
-      console.error("Database query failed:", error);
+      console.error("SQLite query failed:", error);
       throw error;
     }
   }
@@ -39,17 +137,26 @@ class DatabaseAdapter {
 
   getConnectionInfo(): any {
     return {
-      type: "PostgreSQL",
-      status: dbPool ? "active" : "not_configured",
-      url: process.env.DATABASE_URL
-        ? "[REDACTED]"
-        : `${process.env.DB_HOST}:${process.env.DB_PORT || 5432}`,
+      type: dbPool ? "PostgreSQL" : "SQLite",
+      status: dbPool || sqliteDb ? "active" : "not_configured",
+      url: dbPool
+        ? process.env.DATABASE_URL
+          ? "[REDACTED]"
+          : `${process.env.DB_HOST}:${process.env.DB_PORT || 5432}`
+        : sqliteFilePath,
     };
   }
 
   async close(): Promise<void> {
     if (dbPool) {
       await dbPool.end();
+    }
+    if (sqliteDb) {
+      persistSqliteDatabase();
+      sqliteDb.close();
+      sqliteDb = null;
+      sqliteInstance = null;
+      sqliteInitPromise = null;
     }
   }
 

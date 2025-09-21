@@ -39,6 +39,9 @@ export const teardownTestDatabase = async () => {
 export const clearTestData = async () => {
   if (testPool) {
     const tables = [
+      "rpm_alerts",
+      "rpm_thresholds",
+      "rpm_vitals",
       "users",
       "patients",
       "lab_reports",

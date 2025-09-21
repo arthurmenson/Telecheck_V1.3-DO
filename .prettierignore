@@ -1,0 +1,17 @@
+node_modules
+build
+dist
+coverage
+public
+client
+server
+lib
+mocks
+docs
+.github
+contracts
+e2e
+scripts
+tests
+vite.config.ts
+.eslintrc.cjs

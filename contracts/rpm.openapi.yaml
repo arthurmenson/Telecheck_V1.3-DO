@@ -1,0 +1,240 @@
+openapi: 3.0.3
+info:
+  title: Telecheck RPM API
+  version: 1.0.0
+servers:
+  - url: /api
+paths:
+  /rpm/patients/{id}/vitals:
+    get:
+      summary: Get patient vitals for RPM dashboard
+      operationId: getRpmPatientVitals
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: days
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 90
+      responses:
+        '200':
+          description: Patient vitals summary
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RpmVitalsResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+  /rpm/patients/{id}/alerts:
+    get:
+      summary: Get patient RPM alerts
+      operationId: getRpmPatientAlerts
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Patient alerts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RpmAlertsResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+  /rpm/patients/{id}/thresholds:
+    get:
+      summary: Get RPM thresholds for patient
+      operationId: getRpmPatientThresholds
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Patient thresholds
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RpmThresholdsResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+components:
+  schemas:
+    VitalSample:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        value:
+          type: number
+        metadata:
+          type: object
+          additionalProperties: true
+          nullable: true
+      required:
+        - timestamp
+        - value
+    VitalSeries:
+      type: object
+      properties:
+        metric:
+          type: string
+        unit:
+          type: string
+          nullable: true
+        values:
+          type: array
+          items:
+            $ref: '#/components/schemas/VitalSample'
+      required:
+        - metric
+        - values
+    RpmVitalsResponse:
+      type: object
+      properties:
+        patientId:
+          type: string
+        days:
+          type: integer
+        vitals:
+          type: array
+          items:
+            $ref: '#/components/schemas/VitalSeries'
+        summary:
+          type: object
+          properties:
+            totalRecords:
+              type: integer
+            metrics:
+              type: array
+              items:
+                type: object
+                properties:
+                  metric:
+                    type: string
+                  count:
+                    type: integer
+                required:
+                  - metric
+                  - count
+          required:
+            - totalRecords
+            - metrics
+      required:
+        - patientId
+        - days
+        - vitals
+        - summary
+    AlertRecord:
+      type: object
+      properties:
+        id:
+          type: string
+        metric:
+          type: string
+        severity:
+          type: string
+          enum: [low, medium, high, critical]
+        status:
+          type: string
+          enum: [open, acknowledged, resolved]
+        message:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        resolvedAt:
+          type: string
+          format: date-time
+          nullable: true
+        context:
+          type: object
+          additionalProperties: true
+          nullable: true
+      required:
+        - id
+        - metric
+        - severity
+        - status
+        - message
+        - createdAt
+    RpmAlertsResponse:
+      type: object
+      properties:
+        patientId:
+          type: string
+        alerts:
+          type: array
+          items:
+            $ref: '#/components/schemas/AlertRecord'
+      required:
+        - patientId
+        - alerts
+    ThresholdRecord:
+      type: object
+      properties:
+        metric:
+          type: string
+        unit:
+          type: string
+          nullable: true
+        minValue:
+          type: number
+          nullable: true
+        maxValue:
+          type: number
+          nullable: true
+        metadata:
+          type: object
+          additionalProperties: true
+          nullable: true
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - metric
+        - updatedAt
+    RpmThresholdsResponse:
+      type: object
+      properties:
+        patientId:
+          type: string
+        thresholds:
+          type: array
+          items:
+            $ref: '#/components/schemas/ThresholdRecord'
+      required:
+        - patientId
+        - thresholds
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        code:
+          type: string
+        details:
+          type: object
+          additionalProperties: true
+      required:
+        - error
+        - code
+  responses:
+    ValidationError:
+      description: Validation error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
