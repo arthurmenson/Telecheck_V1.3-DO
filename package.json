@@ -162,7 +162,7 @@
     "@pact-foundation/pact": "^12.4.0",
     "openapi-typescript": "^7.4.0",
     "openapi-msw": "^0.7.0",
-    "openapi-diff": "^3.4.0",
+    "openapi-diff": "^0.24.1",
     "@cyclonedx/cyclonedx-npm": "^1.17.0",
     "husky": "^9.1.6"
   }
