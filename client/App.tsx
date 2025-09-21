@@ -1,4 +1,5 @@
 import "./global.css";
+import "./builder/registry";
 
 if ((import.meta as any).env?.VITE_MODE === "MOCK") {
   // @ts-ignore
