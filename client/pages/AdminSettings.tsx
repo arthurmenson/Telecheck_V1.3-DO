@@ -392,3 +392,5 @@ export default function AdminSettings() {
     </div>
   );
 }
+
+export { AdminSettings };
