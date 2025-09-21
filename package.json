@@ -12,6 +12,8 @@
   },
   "scripts": {
     "dev": "vite",
+    "dev:mock": "cross-env VITE_MODE=MOCK VITE_API_BASE=/api vite",
+    "dev:sandbox": "cross-env VITE_MODE=SANDBOX VITE_API_BASE=https://api-uat.telecheck.health vite",
     "build": "npm run build:client && npm run build:server",
     "build:client": "vite build",
     "build:server": "vite build --config vite.config.server.ts",
@@ -21,6 +23,7 @@
     "test": "vitest --run",
     "test:watch": "vitest",
     "test:coverage": "vitest --coverage",
+    "test:e2e": "playwright test --reporter=list",
     "test:api": "vitest --run tests/api/",
     "test:unit": "vitest --run tests/unit/",
     "test:integration": "vitest --run tests/integration/",
