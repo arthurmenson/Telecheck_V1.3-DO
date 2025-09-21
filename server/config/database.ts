@@ -3,6 +3,8 @@ import { createClient } from "redis";
 
 // PostgreSQL is required in production, optional in development
 const usePostgreSQL = !!(process.env.DATABASE_URL || process.env.DB_HOST);
+export const databaseDriver = usePostgreSQL ? "postgres" : "sqlite";
+export const isPostgresEnabled = usePostgreSQL;
 
 // Enforce PostgreSQL in production
 if (process.env.NODE_ENV === "production" && !usePostgreSQL) {
@@ -101,9 +103,15 @@ export const initializeDatabase = async () => {
         maxConnections: connectionInfo.max,
       });
     } else {
-      throw new Error(
-        "PostgreSQL is required. Please set database environment variables.",
-      );
+      if (process.env.NODE_ENV !== "production") {
+        console.log(
+          "ℹ️  PostgreSQL not configured. Using embedded SQLite dataset for development tasks.",
+        );
+      } else {
+        throw new Error(
+          "PostgreSQL is required. Please set database environment variables.",
+        );
+      }
     }
 
     // Connect to Redis if available
@@ -145,8 +153,6 @@ export const healthCheck = async () => {
   try {
     if (usePostgreSQL && dbPool) {
       await dbPool.query("SELECT 1");
-    } else {
-      throw new Error("PostgreSQL not configured");
     }
 
     const redisStatus = redisClient
@@ -158,7 +164,7 @@ export const healthCheck = async () => {
 
     return {
       status: "healthy",
-      database: "postgresql",
+      database: usePostgreSQL ? "postgresql" : "sqlite",
       redis: redisStatus,
       timestamp: new Date().toISOString(),
     };

@@ -1,0 +1,238 @@
+openapi: 3.0.3
+info:
+  title: Telecheck EHR Scheduling API
+  version: 1.0.0
+servers:
+  - url: /api
+paths:
+  /ehr/scheduling/slots:
+    get:
+      summary: List available scheduling slots
+      operationId: listSchedulingSlots
+      parameters:
+        - name: providerId
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: from
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: to
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SchedulingSlotsResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+  /ehr/scheduling/book:
+    post:
+      summary: Book a scheduling slot
+      operationId: bookSchedulingSlot
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookSchedulingRequest'
+      responses:
+        '200':
+          description: Slot booked
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          description: Slot already booked
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /ehr/scheduling/{appointmentId}/reschedule:
+    post:
+      summary: Reschedule an appointment
+      operationId: rescheduleAppointment
+      parameters:
+        - name: appointmentId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RescheduleRequest'
+      responses:
+        '200':
+          description: Appointment rescheduled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /ehr/scheduling/{appointmentId}/cancel:
+    post:
+      summary: Cancel an appointment
+      operationId: cancelAppointment
+      parameters:
+        - name: appointmentId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CancelRequest'
+      responses:
+        '200':
+          description: Appointment canceled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CancelResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+components:
+  schemas:
+    SchedulingSlot:
+      type: object
+      properties:
+        id:
+          type: string
+        providerId:
+          type: string
+        locationId:
+          type: string
+          nullable: true
+        start:
+          type: string
+          format: date-time
+        end:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum: [available, booked, held, cancelled]
+      required:
+        - id
+        - providerId
+        - start
+        - end
+        - status
+    SchedulingSlotsResponse:
+      type: object
+      properties:
+        slots:
+          type: array
+          items:
+            $ref: '#/components/schemas/SchedulingSlot'
+      required:
+        - slots
+    BookSchedulingRequest:
+      type: object
+      properties:
+        slotId:
+          type: string
+        patientId:
+          type: string
+        reason:
+          type: string
+        metadata:
+          type: object
+          additionalProperties: true
+      required:
+        - slotId
+        - patientId
+    BookingResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        status:
+          type: string
+          enum: [booked, rescheduled]
+        slot:
+          $ref: '#/components/schemas/SchedulingSlot'
+      required:
+        - id
+        - status
+        - slot
+    RescheduleRequest:
+      type: object
+      properties:
+        to:
+          type: string
+          format: date-time
+      required:
+        - to
+    CancelRequest:
+      type: object
+      properties:
+        reason:
+          type: string
+      additionalProperties: false
+    CancelResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        status:
+          type: string
+          enum: [canceled]
+      required:
+        - id
+        - status
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        code:
+          type: string
+        details:
+          type: object
+          additionalProperties: true
+    ValidationError:
+      allOf:
+        - $ref: '#/components/schemas/ErrorResponse'
+    NotFoundError:
+      allOf:
+        - $ref: '#/components/schemas/ErrorResponse'
+  responses:
+    ValidationError:
+      description: Validation error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ValidationError'
+    NotFoundError:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/NotFoundError'

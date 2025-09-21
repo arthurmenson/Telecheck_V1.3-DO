@@ -10,6 +10,8 @@ import userRoutes from "./routes/users";
 import patientRoutes from "./routes/patients";
 import labRoutes from "./routes/labs";
 import medicationRoutes from "./routes/medications";
+import ehrSchedulingRoutes from "./routes/ehrScheduling";
+import rpmRoutes from "./routes/rpm";
 import { handleDemo } from "./routes/demo";
 import { handleChat, getChatHistory } from "./routes/chat";
 import { getVitalSigns, addVitalSigns, getVitalTrends } from "./routes/vitals";
@@ -176,6 +178,12 @@ export async function createServer() {
 
   // Medication routes
   app.use("/api/medications", medicationRoutes);
+
+  // Scheduling routes
+  app.use("/api/ehr/scheduling", ehrSchedulingRoutes);
+
+  // RPM routes
+  app.use("/api/rpm", rpmRoutes);
 
   app.post("/api/chat", handleChat);
   app.get("/api/chat/history/:userId?", getChatHistory);

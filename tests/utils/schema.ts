@@ -111,6 +111,58 @@ export const createTables = async (pool: Pool) => {
     )
   `);
 
+  // RPM vitals table
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS rpm_vitals (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      patient_id TEXT NOT NULL,
+      metric TEXT NOT NULL,
+      unit TEXT,
+      value NUMERIC(10,2) NOT NULL,
+      recorded_at TIMESTAMPTZ NOT NULL,
+      metadata JSONB,
+      created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+  await pool.query(
+    `CREATE INDEX IF NOT EXISTS idx_rpm_vitals_patient_metric_time ON rpm_vitals(patient_id, metric, recorded_at)`,
+  );
+
+  // RPM thresholds table
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS rpm_thresholds (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      patient_id TEXT NOT NULL,
+      metric TEXT NOT NULL,
+      unit TEXT,
+      min_value NUMERIC(10,2),
+      max_value NUMERIC(10,2),
+      metadata JSONB,
+      updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+      UNIQUE(patient_id, metric)
+    )
+  `);
+
+  // RPM alerts table
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS rpm_alerts (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      patient_id TEXT NOT NULL,
+      metric TEXT NOT NULL,
+      severity TEXT NOT NULL,
+      status TEXT NOT NULL,
+      message TEXT NOT NULL,
+      created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+      resolved_at TIMESTAMPTZ,
+      context JSONB
+    )
+  `);
+
+  await pool.query(
+    `CREATE INDEX IF NOT EXISTS idx_rpm_alerts_patient_status ON rpm_alerts(patient_id, status, created_at DESC)`,
+  );
+
   // Vital signs table
   await pool.query(`
     CREATE TABLE IF NOT EXISTS vital_signs (
@@ -175,6 +227,9 @@ export const createTables = async (pool: Pool) => {
 
 export const dropTables = async (pool: Pool) => {
   const tables = [
+    "rpm_alerts",
+    "rpm_thresholds",
+    "rpm_vitals",
     "notifications",
     "vital_signs",
     "appointments",
