@@ -1,6 +1,6 @@
 export const FLAGS = {
-  enableAIScribe: { default: true, owners: ["ehr"] },
-  enablePharmacopia: { default: true, owners: ["commerce"] },
-  enableThresholdsV2: { default: false, owners: ["rpm"] },
-  enableScheduling: { default: true, owners: ["ehr"] },
+  enableAIScribe: { default: true, owners: ["ehr"], sunset: "2025-12-31" },
+  enablePharmacopia: { default: true, owners: ["commerce"], sunset: "2025-12-31" },
+  enableThresholdsV2: { default: false, owners: ["rpm"], sunset: "2025-06-30" },
+  enableScheduling: { default: true, owners: ["ehr"], sunset: "2025-12-31" },
 } as const;

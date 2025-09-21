@@ -1,0 +1,22 @@
+name: Pact Provider Verify
+on:
+  workflow_dispatch:
+    inputs:
+      api_base:
+        description: "Provider base URL (e.g., https://api-uat.telecheck.health)"
+        required: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    env:
+      API_BASE: ${{ inputs.api_base }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm ci
+      - name: Verify provider against consumer pacts
+        run: |
+          if ls contracts/pact/*.json 1> /dev/null 2>&1; then
+            npm run pact:verify
+          else
+            echo "No pact JSON files found; skipping."
+          fi

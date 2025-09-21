@@ -16,6 +16,10 @@
     "dev:sandbox": "cross-env VITE_MODE=SANDBOX VITE_API_BASE=https://api-uat.telecheck.health PORT=8080 vite",
     "gen:sdk": "openapi-typescript contracts/*.openapi.yaml -o lib/sdk/index.ts",
     "gen:mocks": "openapi-msw contracts/*.openapi.yaml -o mocks/msw/generated",
+    "check:openapi": "openapi-diff contracts/main.yaml contracts/next.yaml --fail-on-changed",
+    "pact:verify": "pact-provider-verifier --provider-base-url=$API_BASE --publish-verification-results=false contracts/pact/*.json",
+    "sbom": "cyclonedx-npm --json -o sbom.json",
+    "prepare": "husky install",
     "build": "npm run build:client && npm run build:server",
     "build:client": "vite build",
     "build:server": "vite build --config vite.config.server.ts",
@@ -156,6 +160,9 @@
     "vitest": "^3.1.4",
     "@pact-foundation/pact": "^12.4.0",
     "openapi-typescript": "^7.4.0",
-    "openapi-msw": "^0.7.0"
+    "openapi-msw": "^0.7.0",
+    "openapi-diff": "^3.4.0",
+    "@cyclonedx/cyclonedx-npm": "^1.17.0",
+    "husky": "^9.1.6"
   }
 }

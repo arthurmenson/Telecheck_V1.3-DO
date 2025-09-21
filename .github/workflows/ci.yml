@@ -16,6 +16,14 @@ jobs:
       - run: npm run test:e2e
       - name: Verify wiring
         run: node scripts/verify-wiring.ts
+      - name: OpenAPI breaking change gate (when contracts change)
+        run: |
+          CHANGED=$(git diff --name-only origin/${GITHUB_BASE_REF:-main}... | grep '^contracts/' || true)
+          if [ -n "$CHANGED" ]; then
+            npm run check:openapi
+          else
+            echo "No contracts changes"
+          fi
       - name: Ban localhost
         run: "! grep -R 'http://localhost:' -n --include=*.{ts,tsx,js,jsx} || (echo 'localhost found' && exit 1)"
       - name: Enforce adapters (no direct api.service)
