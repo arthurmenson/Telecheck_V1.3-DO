@@ -22,6 +22,11 @@ export default defineConfig(({ mode }) => ({
     hmr: {
       overlay: false,
     },
+    proxy: process.env.VITE_MODE === "SANDBOX"
+      ? {
+          "/api": { target: process.env.UAT_API || "https://api-uat.telecheck.health", changeOrigin: true, secure: true }
+        }
+      : undefined,
     fs: {
       allow: ["./client", "./shared"],
       deny: [".env", ".env.*", "*.{crt,pem}", "**/.git/**", "server/**"],
