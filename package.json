@@ -45,6 +45,7 @@
     "test:contract": "vitest run contracts/pact/**/*.pact.test.ts"
   },
   "dependencies": {
+    "@builder.io/react": "^4.0.0",
     "@types/bcrypt": "^6.0.0",
     "@types/bcryptjs": "^2.4.6",
     "@types/jsonwebtoken": "^9.0.10",
