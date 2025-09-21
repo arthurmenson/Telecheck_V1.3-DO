@@ -18,7 +18,8 @@ jobs:
         run: node scripts/verify-wiring.ts
       - name: OpenAPI breaking change gate (when contracts change)
         run: |
-          CHANGED=$(git diff --name-only origin/${GITHUB_BASE_REF:-main}... | grep '^contracts/' || true)
+          git fetch origin ${GITHUB_BASE_REF:-main}
+          CHANGED=$(git diff --name-only FETCH_HEAD... | grep '^contracts/' || true)
           if [ -n "$CHANGED" ]; then
             npm run check:openapi
           else
