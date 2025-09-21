@@ -1,6 +1,7 @@
 import { CFG } from "../config";
 import { apiClient } from "../http/apiClient";
 import { track } from "../telemetry";
+import { withRetry } from "../http/retry";
 
 export const labsAdapter = {
   async getResults() {
@@ -11,7 +12,7 @@ export const labsAdapter = {
       return data;
     }
     try {
-      const res = await apiClient.get(`/labs/results`);
+      const res = await withRetry(() => apiClient.get(`/labs/results`));
       track("tc:labs:success", { op: "getResults" });
       return res as any;
     } catch (e: any) {
@@ -47,7 +48,7 @@ export const labsAdapter = {
       return out;
     }
     try {
-      const res = await apiClient.get(`/labs/analysis?id=${encodeURIComponent(id)}`);
+      const res = await withRetry(() => apiClient.get(`/labs/analysis?id=${encodeURIComponent(id)}`));
       track("tc:labs:success", { op: "getAnalysis" });
       return res as any;
     } catch (e: any) {
@@ -63,7 +64,7 @@ export const labsAdapter = {
       return out;
     }
     try {
-      const res = await apiClient.upload(`/labs/upload`, file);
+      const res = await withRetry(() => apiClient.upload(`/labs/upload`, file));
       track("tc:labs:success", { op: "uploadReport" });
       return res as any;
     } catch (e: any) {
@@ -80,7 +81,7 @@ export const labsAdapter = {
     }
     const qs = params ? `?${new URLSearchParams(params as any).toString()}` : "";
     try {
-      const res = await apiClient.get(`/labs/trends${qs}`);
+      const res = await withRetry(() => apiClient.get(`/labs/trends${qs}`));
       track("tc:trends:success", { op: "getLabTrends" });
       return res as any;
     } catch (e: any) {

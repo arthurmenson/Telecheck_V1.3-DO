@@ -1,6 +1,7 @@
 import { CFG } from "../config";
 import { apiClient } from "../http/apiClient";
 import { track } from "../telemetry";
+import { withRetry } from "../http/retry";
 
 export const medicationsAdapter = {
   async list() {
@@ -11,7 +12,7 @@ export const medicationsAdapter = {
       return data;
     }
     try {
-      const res = await apiClient.get(`/medications`);
+      const res = await withRetry(() => apiClient.get(`/medications`));
       track("tc:meds:success", { op: "list" });
       return res as any;
     } catch (e: any) {
@@ -27,7 +28,7 @@ export const medicationsAdapter = {
       return out;
     }
     try {
-      const res = await apiClient.post(`/medications`, payload);
+      const res = await withRetry(() => apiClient.post(`/medications`, payload));
       track("tc:meds:success", { op: "add" });
       return res as any;
     } catch (e: any) {
@@ -43,7 +44,7 @@ export const medicationsAdapter = {
       return out;
     }
     try {
-      const res = await apiClient.put(`/medications/${id}`, payload);
+      const res = await withRetry(() => apiClient.put(`/medications/${id}`, payload));
       track("tc:meds:success", { op: "update" });
       return res as any;
     } catch (e: any) {
@@ -59,7 +60,7 @@ export const medicationsAdapter = {
       return out;
     }
     try {
-      const res = await apiClient.delete(`/medications/${id}`);
+      const res = await withRetry(() => apiClient.delete(`/medications/${id}`));
       track("tc:meds:success", { op: "remove" });
       return res as any;
     } catch (e: any) {
@@ -76,7 +77,7 @@ export const medicationsAdapter = {
     }
     const qs = params ? `?${new URLSearchParams(params as any).toString()}` : "";
     try {
-      const res = await apiClient.get(`/medications/interactions${qs}`);
+      const res = await withRetry(() => apiClient.get(`/medications/interactions${qs}`));
       track("tc:meds:success", { op: "interactions" });
       return res as any;
     } catch (e: any) {
@@ -92,7 +93,7 @@ export const medicationsAdapter = {
       return out;
     }
     try {
-      const res = await apiClient.get(`/medications/search?q=${encodeURIComponent(q)}`);
+      const res = await withRetry(() => apiClient.get(`/medications/search?q=${encodeURIComponent(q)}`));
       track("tc:meds:success", { op: "search" });
       return res as any;
     } catch (e: any) {
@@ -108,7 +109,7 @@ export const medicationsAdapter = {
       return out;
     }
     try {
-      const res = await apiClient.get(`/medications/reminders`);
+      const res = await withRetry(() => apiClient.get(`/medications/reminders`));
       track("tc:meds:success", { op: "reminders" });
       return res as any;
     } catch (e: any) {
