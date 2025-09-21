@@ -1,0 +1,716 @@
+openapi: 3.0.3
+info:
+  title: Telecheck Medications Service API
+  description: Medication management service for tracking prescriptions, interactions, and reminders
+  version: 1.0.0
+  contact:
+    name: Telecheck API Team
+    email: api@telecheck.health
+
+servers:
+  - url: /api/medications
+    description: Medications service endpoint
+
+components:
+  schemas:
+    Medication:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        userId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        name:
+          type: string
+          example: "Lisinopril"
+        genericName:
+          type: string
+          example: "lisinopril"
+        brandName:
+          type: string
+          example: "Prinivil"
+        dosage:
+          type: string
+          example: "10mg"
+        frequency:
+          type: string
+          example: "Once daily"
+        route:
+          type: string
+          enum: ["oral", "topical", "injection", "inhalation", "sublingual"]
+          example: "oral"
+        startDate:
+          type: string
+          format: date
+          example: "2025-01-01"
+        endDate:
+          type: string
+          format: date
+          nullable: true
+          example: null
+        prescribedBy:
+          type: string
+          example: "Dr. John Smith"
+        prescribedById:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        instructions:
+          type: string
+          example: "Take with food"
+        sideEffects:
+          type: array
+          items:
+            type: string
+          example: ["dizziness", "dry cough"]
+        isActive:
+          type: boolean
+          example: true
+        createdAt:
+          type: string
+          format: date-time
+          example: "2025-01-01T12:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2025-01-01T12:00:00Z"
+
+    MedicationListResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Medication'
+        pagination:
+          type: object
+          properties:
+            page:
+              type: integer
+              example: 1
+            limit:
+              type: integer
+              example: 20
+            total:
+              type: integer
+              example: 100
+            totalPages:
+              type: integer
+              example: 5
+
+    CreateMedicationRequest:
+      type: object
+      required:
+        - name
+        - dosage
+        - frequency
+        - startDate
+      properties:
+        name:
+          type: string
+          example: "Lisinopril"
+        genericName:
+          type: string
+          example: "lisinopril"
+        brandName:
+          type: string
+          example: "Prinivil"
+        dosage:
+          type: string
+          example: "10mg"
+        frequency:
+          type: string
+          example: "Once daily"
+        route:
+          type: string
+          enum: ["oral", "topical", "injection", "inhalation", "sublingual"]
+          example: "oral"
+        startDate:
+          type: string
+          format: date
+          example: "2025-01-01"
+        endDate:
+          type: string
+          format: date
+          nullable: true
+          example: null
+        prescribedBy:
+          type: string
+          example: "Dr. John Smith"
+        instructions:
+          type: string
+          example: "Take with food"
+
+    CreateMedicationResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "m1"
+        status:
+          type: string
+          example: "created"
+        message:
+          type: string
+          example: "Medication added successfully"
+
+    UpdateMedicationRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "Lisinopril"
+        dosage:
+          type: string
+          example: "10mg"
+        frequency:
+          type: string
+          example: "Once daily"
+        instructions:
+          type: string
+          example: "Take with food"
+        isActive:
+          type: boolean
+          example: true
+
+    UpdateMedicationResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "m1"
+        status:
+          type: string
+          example: "updated"
+        message:
+          type: string
+          example: "Medication updated successfully"
+
+    DeleteMedicationResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "m1"
+        status:
+          type: string
+          example: "deleted"
+        message:
+          type: string
+          example: "Medication deleted successfully"
+
+    MedicationSearchResult:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "lipitor"
+        name:
+          type: string
+          example: "Lipitor"
+        generic:
+          type: string
+          example: "atorvastatin"
+        brandNames:
+          type: array
+          items:
+            type: string
+          example: ["Lipitor", "Atorvastatin"]
+        dosageForms:
+          type: array
+          items:
+            type: string
+          example: ["10mg tablet", "20mg tablet", "40mg tablet"]
+        category:
+          type: string
+          example: "Statin"
+        description:
+          type: string
+          example: "Used to lower cholesterol levels"
+
+    MedicationSearchResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/MedicationSearchResult'
+        q:
+          type: string
+          example: "lipitor"
+        count:
+          type: integer
+          example: 1
+
+    DrugInteraction:
+      type: object
+      properties:
+        pair:
+          type: array
+          items:
+            type: string
+          example: ["lipitor", "warfarin"]
+        severity:
+          type: string
+          enum: ["minor", "moderate", "major", "severe"]
+          example: "major"
+        note:
+          type: string
+          example: "Monitor INR closely"
+        description:
+          type: string
+          example: "Atorvastatin may increase the anticoagulant effect of warfarin"
+        management:
+          type: string
+          example: "Monitor INR more frequently when starting, stopping, or changing atorvastatin dose"
+
+    InteractionsResponse:
+      type: object
+      properties:
+        interactions:
+          type: array
+          items:
+            $ref: '#/components/schemas/DrugInteraction'
+        drugCount:
+          type: integer
+          example: 2
+        checked:
+          type: array
+          items:
+            type: string
+          example: ["lipitor", "warfarin"]
+
+    MedicationReminder:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        medicationId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        medicationName:
+          type: string
+          example: "Lisinopril"
+        dosage:
+          type: string
+          example: "10mg"
+        scheduledTime:
+          type: string
+          format: time
+          example: "08:00"
+        frequency:
+          type: string
+          example: "daily"
+        isActive:
+          type: boolean
+          example: true
+        lastTaken:
+          type: string
+          format: date-time
+          nullable: true
+          example: "2025-01-01T08:00:00Z"
+        nextDue:
+          type: string
+          format: date-time
+          example: "2025-01-02T08:00:00Z"
+
+    RemindersResponse:
+      type: object
+      properties:
+        reminders:
+          type: array
+          items:
+            $ref: '#/components/schemas/MedicationReminder'
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+          example: "Medication not found"
+        message:
+          type: string
+          example: "chaos"
+        code:
+          type: string
+          example: "MEDICATION_NOT_FOUND"
+        details:
+          type: object
+          additionalProperties: true
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - BearerAuth: []
+
+paths:
+  /:
+    get:
+      summary: Get all medications
+      description: Retrieve all medications for the authenticated user
+      operationId: getMedications
+      tags:
+        - Medications
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          example: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+          example: 20
+        - name: active
+          in: query
+          schema:
+            type: boolean
+          example: true
+          description: Filter by active status
+        - name: chaos
+          in: query
+          schema:
+            type: string
+          example: "1"
+          description: Test parameter to trigger error scenarios
+      responses:
+        '200':
+          description: Medications retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MedicationListResponse'
+              example:
+                items: []
+        '401':
+          description: Unauthorized (chaos mode)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: "chaos"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: "chaos"
+
+    post:
+      summary: Add a new medication
+      description: Add a new medication to the user's medication list
+      operationId: createMedication
+      tags:
+        - Medications
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateMedicationRequest'
+      responses:
+        '201':
+          description: Medication created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateMedicationResponse'
+              example:
+                id: "m1"
+                status: "created"
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /{id}:
+    put:
+      summary: Update a medication
+      description: Update an existing medication
+      operationId: updateMedication
+      tags:
+        - Medications
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          example: "m1"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateMedicationRequest'
+      responses:
+        '200':
+          description: Medication updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateMedicationResponse'
+              example:
+                id: "m1"
+                status: "updated"
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Medication not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      summary: Delete a medication
+      description: Delete a medication from the user's medication list
+      operationId: deleteMedication
+      tags:
+        - Medications
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          example: "m1"
+      responses:
+        '200':
+          description: Medication deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteMedicationResponse'
+              example:
+                id: "m1"
+                status: "deleted"
+        '404':
+          description: Medication not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /search:
+    get:
+      summary: Search medications
+      description: Search for medications in the database
+      operationId: searchMedications
+      tags:
+        - Search
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+          example: "lipitor"
+          description: Search query
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+          example: 20
+      responses:
+        '200':
+          description: Search results retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MedicationSearchResponse'
+              example:
+                items:
+                  - id: "lipitor"
+                    name: "Lipitor"
+                    generic: "atorvastatin"
+                q: "lipitor"
+                count: 1
+        '400':
+          description: Invalid search query
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /interactions:
+    get:
+      summary: Check drug interactions
+      description: Check for interactions between medications
+      operationId: checkDrugInteractions
+      tags:
+        - Interactions
+      parameters:
+        - name: drugA
+          in: query
+          schema:
+            type: string
+          example: "lipitor"
+          description: First medication to check
+        - name: drugB
+          in: query
+          schema:
+            type: string
+          example: "warfarin"
+          description: Second medication to check
+        - name: ids
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: false
+          example: ["med1", "med2", "med3"]
+          description: List of medication IDs to check for interactions
+        - name: chaos
+          in: query
+          schema:
+            type: string
+          example: "1"
+          description: Test parameter to trigger error scenarios
+      responses:
+        '200':
+          description: Drug interactions retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InteractionsResponse'
+              example:
+                interactions:
+                  - pair: ["lipitor", "warfarin"]
+                    severity: "major"
+                    note: "Monitor INR closely"
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized (chaos mode)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: "chaos"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: "chaos"
+
+  /reminders:
+    get:
+      summary: Get medication reminders
+      description: Get scheduled medication reminders for the user
+      operationId: getMedicationReminders
+      tags:
+        - Reminders
+      responses:
+        '200':
+          description: Medication reminders retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RemindersResponse'
+              example:
+                reminders: []
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /error:
+    get:
+      summary: Medication error test endpoint
+      description: Test endpoint that always returns an error
+      operationId: medicationError
+      tags:
+        - Testing
+      responses:
+        '500':
+          description: Medication error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: "Medication error"
+
+tags:
+  - name: Medications
+    description: Medication management operations
+  - name: Search
+    description: Medication search operations
+  - name: Interactions
+    description: Drug interaction checking operations
+  - name: Reminders
+    description: Medication reminder operations
+  - name: Testing
+    description: Testing and debugging endpoints

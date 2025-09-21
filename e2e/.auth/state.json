@@ -1,0 +1,18 @@
+{
+  "cookies": [],
+  "origins": [
+    {
+      "origin": "http://localhost:8082",
+      "localStorage": [
+        {
+          "name": "telecheck_user",
+          "value": "{\"id\":\"2\",\"email\":\"doctor@telecheck.com\",\"name\":\"Dr. Sarah Wilson\",\"role\":\"doctor\",\"permissions\":[\"view_all_patients\",\"prescribe_medications\",\"review_labs\",\"telehealth_consults\",\"approve_treatments\"],\"isActive\":true}"
+        },
+        {
+          "name": "auth_token",
+          "value": "eyJ1c2VySWQiOiIyIiwiZW1haWwiOiJkb2N0b3JAdGVsZWNoZWNrLmNvbSIsInJvbGUiOiJkb2N0b3IiLCJwZXJtaXNzaW9ucyI6WyJ2aWV3X2FsbF9wYXRpZW50cyIsInByZXNjcmliZV9tZWRpY2F0aW9ucyIsInJldmlld19sYWJzIiwidGVsZWhlYWx0aF9jb25zdWx0cyIsImFwcHJvdmVfdHJlYXRtZW50cyJdLCJleHAiOjE3NTg1NjUwMTYzMTl9"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,843 @@
+openapi: 3.0.3
+info:
+  title: Telecheck EHR Service API
+  description: Electronic Health Records service for patient management, scheduling, and messaging
+  version: 1.0.0
+  contact:
+    name: Telecheck API Team
+    email: api@telecheck.health
+
+servers:
+  - url: /api/ehr
+    description: EHR service endpoint
+
+components:
+  schemas:
+    Patient:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        name:
+          type: string
+          example: "Jane Doe"
+        firstName:
+          type: string
+          example: "Jane"
+        lastName:
+          type: string
+          example: "Doe"
+        dateOfBirth:
+          type: string
+          format: date
+          example: "1990-01-01"
+        email:
+          type: string
+          format: email
+          example: "jane.doe@example.com"
+        phone:
+          type: string
+          example: "+1-555-0123"
+        address:
+          $ref: '#/components/schemas/Address'
+        emergencyContact:
+          $ref: '#/components/schemas/EmergencyContact'
+        insuranceInfo:
+          $ref: '#/components/schemas/InsuranceInfo'
+        createdAt:
+          type: string
+          format: date-time
+          example: "2024-01-01T12:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2025-01-01T12:00:00Z"
+
+    Address:
+      type: object
+      properties:
+        street:
+          type: string
+          example: "123 Main St"
+        city:
+          type: string
+          example: "Boston"
+        state:
+          type: string
+          example: "MA"
+        zipCode:
+          type: string
+          example: "02101"
+        country:
+          type: string
+          example: "USA"
+
+    EmergencyContact:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "John Doe"
+        phone:
+          type: string
+          example: "+1-555-0124"
+        relationship:
+          type: string
+          example: "Spouse"
+
+    InsuranceInfo:
+      type: object
+      properties:
+        provider:
+          type: string
+          example: "Blue Cross Blue Shield"
+        policyNumber:
+          type: string
+          example: "BC123456789"
+        groupNumber:
+          type: string
+          example: "GRP001"
+
+    IntakeForm:
+      type: object
+      required:
+        - patientId
+        - chiefComplaint
+      properties:
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        chiefComplaint:
+          type: string
+          example: "Persistent headaches for 2 weeks"
+        symptoms:
+          type: array
+          items:
+            type: string
+          example: ["headache", "nausea", "dizziness"]
+        currentMedications:
+          type: array
+          items:
+            type: string
+          example: ["Ibuprofen 200mg", "Multivitamin"]
+        allergies:
+          type: array
+          items:
+            type: string
+          example: ["Penicillin", "Shellfish"]
+        medicalHistory:
+          type: array
+          items:
+            type: string
+          example: ["Hypertension", "Diabetes Type 2"]
+        socialHistory:
+          type: object
+          properties:
+            smoking:
+              type: string
+              enum: ["never", "former", "current"]
+              example: "never"
+            alcohol:
+              type: string
+              enum: ["none", "occasional", "moderate", "heavy"]
+              example: "occasional"
+            exercise:
+              type: string
+              example: "3 times per week"
+
+    IntakeResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: ["saved", "completed", "pending"]
+          example: "saved"
+        message:
+          type: string
+          example: "Intake form saved successfully"
+
+    TimeSlot:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "slot_123"
+        start:
+          type: string
+          format: date-time
+          example: "2025-01-02T09:00:00Z"
+        end:
+          type: string
+          format: date-time
+          example: "2025-01-02T09:30:00Z"
+        providerId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        providerName:
+          type: string
+          example: "Dr. Smith"
+        available:
+          type: boolean
+          example: true
+        appointmentType:
+          type: string
+          enum: ["consultation", "follow-up", "urgent", "annual"]
+          example: "consultation"
+
+    SlotsResponse:
+      type: object
+      properties:
+        slots:
+          type: array
+          items:
+            $ref: '#/components/schemas/TimeSlot'
+
+    BookingRequest:
+      type: object
+      required:
+        - slotId
+        - patientId
+      properties:
+        slotId:
+          type: string
+          example: "slot_123"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        appointmentType:
+          type: string
+          enum: ["consultation", "follow-up", "urgent", "annual"]
+          example: "consultation"
+        notes:
+          type: string
+          example: "First time patient consultation"
+
+    AppointmentResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "apt_123"
+        status:
+          type: string
+          enum: ["booked", "confirmed", "canceled", "rescheduled", "completed"]
+          example: "booked"
+        slotId:
+          type: string
+          example: "slot_123"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        providerId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        scheduledTime:
+          type: string
+          format: date-time
+          example: "2025-01-02T09:00:00Z"
+        message:
+          type: string
+          example: "Appointment booked successfully"
+
+    RescheduleRequest:
+      type: object
+      required:
+        - to
+      properties:
+        to:
+          type: string
+          format: date-time
+          example: "2025-01-02T10:00:00Z"
+        reason:
+          type: string
+          example: "Patient conflict"
+
+    Provider:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        name:
+          type: string
+          example: "Dr. John Smith"
+        specialty:
+          type: string
+          example: "Internal Medicine"
+        email:
+          type: string
+          format: email
+          example: "dr.smith@telecheck.health"
+        phone:
+          type: string
+          example: "+1-555-0125"
+        isActive:
+          type: boolean
+          example: true
+
+    ProvidersResponse:
+      type: object
+      properties:
+        providers:
+          type: array
+          items:
+            $ref: '#/components/schemas/Provider'
+
+    MessageRequest:
+      type: object
+      required:
+        - recipientId
+        - content
+      properties:
+        recipientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        content:
+          type: string
+          example: "Hello, I have a question about my prescription"
+        subject:
+          type: string
+          example: "Prescription inquiry"
+        priority:
+          type: string
+          enum: ["low", "normal", "high", "urgent"]
+          example: "normal"
+        attachments:
+          type: array
+          items:
+            type: string
+          example: ["file_123", "file_456"]
+
+    MessageResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: ["sent", "delivered", "read"]
+          example: "sent"
+        message:
+          type: string
+          example: "Message sent successfully"
+
+    Conversation:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        participants:
+          type: array
+          items:
+            type: string
+          example: ["patient_123", "provider_456"]
+        subject:
+          type: string
+          example: "Prescription inquiry"
+        lastMessage:
+          type: string
+          example: "Thank you for your response"
+        lastMessageAt:
+          type: string
+          format: date-time
+          example: "2025-01-01T12:00:00Z"
+        unreadCount:
+          type: integer
+          example: 2
+        status:
+          type: string
+          enum: ["active", "archived", "closed"]
+          example: "active"
+
+    ConversationsResponse:
+      type: object
+      properties:
+        conversations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Conversation'
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+          example: "Resource not found"
+        message:
+          type: string
+          example: "Failed"
+        code:
+          type: string
+          example: "RESOURCE_NOT_FOUND"
+        details:
+          type: object
+          additionalProperties: true
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - BearerAuth: []
+
+paths:
+  /patients/{id}:
+    get:
+      summary: Get patient by ID
+      description: Retrieve patient information by patient ID
+      operationId: getPatient
+      tags:
+        - Patients
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+      responses:
+        '200':
+          description: Patient information retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Patient'
+        '404':
+          description: Patient not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /patients/empty:
+    get:
+      summary: Get empty patient (test endpoint)
+      description: Test endpoint that returns null for empty patient scenarios
+      operationId: getEmptyPatient
+      tags:
+        - Patients
+      responses:
+        '200':
+          description: Empty patient response
+          content:
+            application/json:
+              schema:
+                type: object
+                nullable: true
+                example: null
+
+  /intake:
+    post:
+      summary: Submit patient intake form
+      description: Submit a new patient intake form
+      operationId: submitIntake
+      tags:
+        - Intake
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IntakeForm'
+      responses:
+        '201':
+          description: Intake form submitted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IntakeResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                message: "Failed"
+
+  /providers:
+    get:
+      summary: Get all providers
+      description: Retrieve list of all healthcare providers
+      operationId: getProviders
+      tags:
+        - Providers
+      responses:
+        '200':
+          description: Providers retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProvidersResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /scheduling/slots:
+    get:
+      summary: Get available appointment slots
+      description: Retrieve available appointment slots for scheduling
+      operationId: getAvailableSlots
+      tags:
+        - Scheduling
+      parameters:
+        - name: providerId
+          in: query
+          schema:
+            type: string
+            format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        - name: date
+          in: query
+          schema:
+            type: string
+            format: date
+          example: "2025-01-02"
+        - name: appointmentType
+          in: query
+          schema:
+            type: string
+            enum: ["consultation", "follow-up", "urgent", "annual"]
+          example: "consultation"
+        - name: chaos
+          in: query
+          schema:
+            type: string
+          example: "1"
+          description: Test parameter to trigger error scenarios
+      responses:
+        '200':
+          description: Available slots retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SlotsResponse'
+              example:
+                slots:
+                  - id: "s1"
+                    start: "2025-01-02T09:00:00Z"
+                    end: "2025-01-02T09:30:00Z"
+                    providerId: "550e8400-e29b-41d4-a716-446655440000"
+                    providerName: "Dr. Smith"
+                    available: true
+                    appointmentType: "consultation"
+        '401':
+          description: Unauthorized (chaos mode)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: "chaos"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: "chaos"
+
+  /scheduling/book:
+    post:
+      summary: Book an appointment
+      description: Book an appointment for a patient
+      operationId: bookAppointment
+      tags:
+        - Scheduling
+      parameters:
+        - name: chaos
+          in: query
+          schema:
+            type: string
+          example: "1"
+          description: Test parameter to trigger error scenarios
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookingRequest'
+      responses:
+        '201':
+          description: Appointment booked successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppointmentResponse'
+              example:
+                id: "apt1"
+                status: "booked"
+                slotId: "s1"
+                patientId: "550e8400-e29b-41d4-a716-446655440000"
+                message: "Appointment booked successfully"
+        '400':
+          description: Invalid request or slot unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized (chaos mode)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: "chaos"
+        '409':
+          description: Appointment slot already booked
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: "chaos"
+
+  /scheduling/{id}/cancel:
+    post:
+      summary: Cancel an appointment
+      description: Cancel an existing appointment
+      operationId: cancelAppointment
+      tags:
+        - Scheduling
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          example: "apt1"
+        - name: chaos
+          in: query
+          schema:
+            type: string
+          example: "1"
+          description: Test parameter to trigger error scenarios
+      responses:
+        '200':
+          description: Appointment canceled successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppointmentResponse'
+              example:
+                id: "apt1"
+                status: "canceled"
+                message: "Appointment canceled successfully"
+        '401':
+          description: Unauthorized (chaos mode)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: "chaos"
+        '404':
+          description: Appointment not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: "chaos"
+
+  /scheduling/{id}/reschedule:
+    post:
+      summary: Reschedule an appointment
+      description: Reschedule an existing appointment to a new time
+      operationId: rescheduleAppointment
+      tags:
+        - Scheduling
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          example: "apt1"
+        - name: chaos
+          in: query
+          schema:
+            type: string
+          example: "1"
+          description: Test parameter to trigger error scenarios
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RescheduleRequest'
+      responses:
+        '200':
+          description: Appointment rescheduled successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppointmentResponse'
+              example:
+                id: "apt1"
+                status: "rescheduled"
+                message: "Appointment rescheduled successfully"
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized (chaos mode)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: "chaos"
+        '404':
+          description: Appointment not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: "chaos"
+
+  /scheduling/error:
+    get:
+      summary: Scheduling error test endpoint
+      description: Test endpoint that always returns an error
+      operationId: schedulingError
+      tags:
+        - Scheduling
+      responses:
+        '500':
+          description: Scheduling error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: "Scheduling error"
+
+  /messaging/send:
+    post:
+      summary: Send a message
+      description: Send a message to another user
+      operationId: sendMessage
+      tags:
+        - Messaging
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MessageRequest'
+      responses:
+        '201':
+          description: Message sent successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /messaging/conversations:
+    get:
+      summary: Get user conversations
+      description: Retrieve all conversations for the current user
+      operationId: getConversations
+      tags:
+        - Messaging
+      responses:
+        '200':
+          description: Conversations retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationsResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+tags:
+  - name: Patients
+    description: Patient management operations
+  - name: Intake
+    description: Patient intake form operations
+  - name: Providers
+    description: Healthcare provider operations
+  - name: Scheduling
+    description: Appointment scheduling operations
+  - name: Messaging
+    description: Patient-provider messaging operations

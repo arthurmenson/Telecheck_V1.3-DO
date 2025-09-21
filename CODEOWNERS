@@ -1,0 +1,18 @@
+# Contracts
+contracts/*            @team-contracts
+
+# Gateway
+services/gateway/**    @team-gateway
+
+# Services
+services/auth/**       @team-auth
+services/ehr/**        @team-ehr
+services/rpm/**        @team-rpm
+services/labs/**       @team-labs
+services/medications/** @team-meds
+services/billing/**    @team-billing
+services/messaging-admin/** @team-messaging
+
+# Frontend (locked from changes by backend agents)
+client/**              @team-frontend
+mocks/**               @team-frontend

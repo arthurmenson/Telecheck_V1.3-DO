@@ -1,0 +1,537 @@
+openapi: 3.0.3
+info:
+  title: Telecheck RPM Service API
+  description: Remote Patient Monitoring service for vitals tracking and alerts
+  version: 1.0.0
+  contact:
+    name: Telecheck API Team
+    email: api@telecheck.health
+
+servers:
+  - url: /api
+    description: RPM service endpoint (mounted on main API)
+
+components:
+  schemas:
+    VitalSigns:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        heartRate:
+          type: number
+          minimum: 30
+          maximum: 220
+          example: 72
+        bloodPressureSystolic:
+          type: number
+          minimum: 60
+          maximum: 250
+          example: 120
+        bloodPressureDiastolic:
+          type: number
+          minimum: 40
+          maximum: 150
+          example: 80
+        temperature:
+          type: number
+          minimum: 90
+          maximum: 110
+          example: 98.6
+        oxygenSaturation:
+          type: number
+          minimum: 0
+          maximum: 100
+          example: 98
+        weight:
+          type: number
+          minimum: 0
+          maximum: 1000
+          example: 150.5
+        height:
+          type: number
+          minimum: 0
+          maximum: 300
+          example: 68.5
+        recordedAt:
+          type: string
+          format: date-time
+          example: "2025-01-01T12:00:00Z"
+        source:
+          type: string
+          enum: ["manual", "device", "wearable"]
+          example: "device"
+
+    VitalsListResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/VitalSigns'
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        days:
+          type: string
+          example: "7"
+
+    VitalsTrendsData:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "heartRate"
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              timestamp:
+                type: string
+                format: date-time
+                example: "2025-01-01T12:00:00Z"
+              value:
+                type: number
+                example: 72
+          example:
+            - timestamp: "2025-01-01T12:00:00Z"
+              value: 72
+            - timestamp: "2025-01-01T18:00:00Z"
+              value: 75
+
+    VitalsTrendsResponse:
+      type: object
+      properties:
+        series:
+          type: array
+          items:
+            $ref: '#/components/schemas/VitalsTrendsData'
+        timeframe:
+          type: string
+          example: "7d"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+
+    Alert:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        type:
+          type: string
+          enum: ["vitals", "medication", "appointment", "threshold"]
+          example: "vitals"
+        severity:
+          type: string
+          enum: ["low", "medium", "high", "critical"]
+          example: "high"
+        title:
+          type: string
+          example: "High Blood Pressure Alert"
+        message:
+          type: string
+          example: "Blood pressure reading of 180/110 detected"
+        triggeredAt:
+          type: string
+          format: date-time
+          example: "2025-01-01T12:00:00Z"
+        acknowledged:
+          type: boolean
+          example: false
+        acknowledgedAt:
+          type: string
+          format: date-time
+          nullable: true
+          example: null
+        acknowledgedBy:
+          type: string
+          format: uuid
+          nullable: true
+          example: null
+        resolved:
+          type: boolean
+          example: false
+        resolvedAt:
+          type: string
+          format: date-time
+          nullable: true
+          example: null
+
+    AlertsResponse:
+      type: object
+      properties:
+        alerts:
+          type: array
+          items:
+            $ref: '#/components/schemas/Alert'
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+
+    Threshold:
+      type: object
+      properties:
+        vital:
+          type: string
+          enum: ["heartRate", "bloodPressure", "temperature", "oxygenSaturation", "weight"]
+          example: "heartRate"
+        min:
+          type: number
+          nullable: true
+          example: 60
+        max:
+          type: number
+          nullable: true
+          example: 100
+        enabled:
+          type: boolean
+          example: true
+
+    ThresholdsResponse:
+      type: object
+      properties:
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        fsr:
+          type: object
+          additionalProperties: true
+          example: {}
+        hr:
+          type: object
+          additionalProperties: true
+          example: {}
+        thresholds:
+          type: array
+          items:
+            $ref: '#/components/schemas/Threshold'
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+          example: "Resource not found"
+        message:
+          type: string
+          example: "Server error"
+        code:
+          type: string
+          example: "RESOURCE_NOT_FOUND"
+        details:
+          type: object
+          additionalProperties: true
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - BearerAuth: []
+
+paths:
+  /vitals/trends:
+    get:
+      summary: Get vitals trends
+      description: Retrieve vitals trends data for analysis and charting
+      operationId: getVitalsTrends
+      tags:
+        - Vitals
+      parameters:
+        - name: patientId
+          in: query
+          schema:
+            type: string
+            format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        - name: timeframe
+          in: query
+          schema:
+            type: string
+            enum: ["7d", "30d", "90d", "1y"]
+            default: "7d"
+          example: "7d"
+        - name: vitals
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+              enum: ["heartRate", "bloodPressure", "temperature", "oxygenSaturation", "weight"]
+          style: form
+          explode: false
+          example: ["heartRate", "bloodPressure"]
+      responses:
+        '200':
+          description: Vitals trends retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VitalsTrendsResponse'
+              example:
+                series:
+                  - name: "glucose"
+                    data: []
+                timeframe: "7d"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /vitals:
+    get:
+      summary: Get vitals data
+      description: Retrieve vitals data for a patient
+      operationId: getVitals
+      tags:
+        - Vitals
+      parameters:
+        - name: patientId
+          in: query
+          schema:
+            type: string
+            format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+          example: 20
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+          example: 0
+      responses:
+        '200':
+          description: Vitals retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VitalsListResponse'
+              example:
+                items: []
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /vitals/empty:
+    get:
+      summary: Get empty vitals (test endpoint)
+      description: Test endpoint that returns empty vitals array
+      operationId: getEmptyVitals
+      tags:
+        - Vitals
+      responses:
+        '200':
+          description: Empty vitals response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VitalsListResponse'
+              example:
+                items: []
+
+  /vitals/error:
+    get:
+      summary: Vitals error test endpoint
+      description: Test endpoint that always returns an error
+      operationId: vitalsError
+      tags:
+        - Vitals
+      responses:
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: "Server error"
+
+  /rpm/patients/{id}/vitals:
+    get:
+      summary: Get patient vitals
+      description: Retrieve vitals data for a specific patient
+      operationId: getPatientVitals
+      tags:
+        - RPM
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        - name: days
+          in: query
+          schema:
+            type: string
+            enum: ["7", "30", "90", "365"]
+            default: "7"
+          example: "7"
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+          example: 20
+      responses:
+        '200':
+          description: Patient vitals retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VitalsListResponse'
+              example:
+                patientId: "550e8400-e29b-41d4-a716-446655440000"
+                days: "7"
+                vitals: []
+        '404':
+          description: Patient not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /rpm/patients/{id}/alerts:
+    get:
+      summary: Get patient alerts
+      description: Retrieve alerts for a specific patient
+      operationId: getPatientAlerts
+      tags:
+        - RPM
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        - name: severity
+          in: query
+          schema:
+            type: string
+            enum: ["low", "medium", "high", "critical"]
+          example: "high"
+        - name: acknowledged
+          in: query
+          schema:
+            type: boolean
+          example: false
+        - name: resolved
+          in: query
+          schema:
+            type: boolean
+          example: false
+      responses:
+        '200':
+          description: Patient alerts retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AlertsResponse'
+              example:
+                patientId: "550e8400-e29b-41d4-a716-446655440000"
+                alerts: []
+        '404':
+          description: Patient not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /rpm/patients/{id}/thresholds:
+    get:
+      summary: Get patient thresholds
+      description: Retrieve monitoring thresholds for a specific patient
+      operationId: getPatientThresholds
+      tags:
+        - RPM
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+      responses:
+        '200':
+          description: Patient thresholds retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ThresholdsResponse'
+              example:
+                patientId: "550e8400-e29b-41d4-a716-446655440000"
+                fsr: {}
+                hr: {}
+                thresholds: []
+        '404':
+          description: Patient not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+tags:
+  - name: Vitals
+    description: Vital signs monitoring operations
+  - name: RPM
+    description: Remote Patient Monitoring operations

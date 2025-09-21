@@ -1,0 +1,385 @@
+import "dotenv/config";
+import express from "express";
+import cors from "cors";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
+import { initializeDatabase, healthCheck } from "./config/database";
+import healthRoutes from "./routes/health";
+import authRoutes from "./routes/auth";
+import userRoutes from "./routes/users";
+import patientRoutes from "./routes/patients";
+import labRoutes from "./routes/labs";
+import medicationRoutes from "./routes/medications";
+import { handleDemo } from "./routes/demo";
+import { handleChat, getChatHistory } from "./routes/chat";
+import { getVitalSigns, addVitalSigns, getVitalTrends } from "./routes/vitals";
+import {
+  getHealthInsights,
+  dismissInsight,
+  generateInsights,
+} from "./routes/insights";
+import multer from "multer";
+import {
+  assessCardiovascularRisk,
+  analyzeAdvancedInteractions,
+  generatePredictiveAnalytics,
+  analyzeMedicalImage,
+  analyzeMiddleware,
+  assessSymptoms,
+  calculateAdvancedHealthScore,
+  getClinicalRecommendations,
+} from "./routes/advanced-ai";
+import {
+  syncAppleHealth,
+  syncFitbit,
+  syncCGM,
+  getAggregatedWearableData,
+  registerWearableDevice,
+  getConnectedDevices,
+} from "./routes/wearables";
+import {
+  getAvailableProviders,
+  scheduleAppointment,
+  getUserAppointments,
+  createConsultationRoom,
+  generateConsultationSummary,
+  triageEmergency,
+} from "./routes/telemedicine";
+import {
+  exportFHIRData,
+  importFHIRData,
+  getFHIRPatient,
+  getFHIRObservations,
+  fhirRouter,
+} from "./routes/fhir";
+import smartRoutes from "./routes/smart";
+import hl7Routes from "./routes/hl7";
+import billingRoutes from "./routes/billing";
+import eligibilityRoutes from "./routes/eligibility";
+import advancedSchedulingRoutes from "./routes/scheduling-advanced";
+import telehealthAdvancedRoutes from "./routes/telehealth-advanced";
+import cdsRoutes from "./routes/cds";
+import portalRoutes from "./routes/portal";
+import securityRoutes from "./routes/security";
+import reportingRoutes from "./routes/reporting";
+import labsHl7Routes from "./routes/labs-hl7";
+import imagingRoutes from "./routes/imaging";
+import erxRoutes from "./routes/erx";
+import conditionsRoutes from "./routes/conditions";
+import allergiesRoutes from "./routes/allergies";
+import immunizationsRoutes from "./routes/immunizations";
+import encountersRoutes from "./routes/encounters";
+import ordersRoutes from "./routes/orders";
+import {
+  sendMessage,
+  sendCriticalAlert,
+  sendDailyReminders,
+  sendAppointmentReminders,
+  getMessageStatus,
+  sendMedicationReminder,
+  sendDeviceAlert,
+  sendCarePlanUpdate,
+  testMessagingService,
+  getMessagingStatus,
+} from "./routes/messaging";
+import {
+  handleTelnyxSMSWebhook,
+  handleTelnyxCallWebhook,
+  handleTwilioSMSWebhook,
+  handleTwilioCallWebhook,
+  generateTwiMLVoice,
+  verifyTelnyxSignature,
+  verifyTwilioSignature,
+} from "./routes/webhooks";
+import {
+  getMessagingConfig,
+  updateMessagingConfig,
+  testMessagingService as testMessagingAdmin,
+  getMessagingAnalytics,
+  getPatientSchedules,
+  updatePatientSchedule,
+  getMessageTemplates,
+  updateMessageTemplate,
+  getCareTeamConfig,
+  updateCareTeamMember,
+  getMessagingAuditLogs,
+  sendWellnessCheck,
+} from "./routes/messaging-admin";
+import {
+  getThresholdTypes,
+  getPatientThresholds,
+  setPatientThreshold,
+  removePatientThreshold,
+  getPatientsWithCustomThresholds,
+  bulkUpdatePatientThresholds,
+  testThresholdCheck,
+  searchPatients,
+  getThresholdReport,
+} from "./routes/patient-thresholds";
+import {
+  submitVitalReading,
+  getPatientVitals,
+  simulateVitalReading,
+  comparePatientThresholds,
+  getThresholdAlertsHistory,
+} from "./routes/vital-monitoring";
+
+// Configure multer for file uploads
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = ["application/pdf", "image/jpeg", "image/png"];
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error("Invalid file type"));
+    }
+  },
+});
+
+export async function createServer() {
+  // Initialize database connections
+  await initializeDatabase();
+
+  const app = express();
+
+  // Security middleware
+  app.use(helmet());
+  app.use(
+    cors({
+      origin: process.env.FRONTEND_URL || "http://localhost:5173",
+      credentials: true,
+    }),
+  );
+
+  // Rate limiting
+  const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // limit each IP to 100 requests per windowMs
+    message: {
+      error: "Too many requests from this IP",
+      code: "RATE_LIMIT_EXCEEDED",
+    },
+  });
+  app.use("/api/", limiter);
+
+  // Body parsing middleware
+  app.use(express.json({ limit: "10mb" }));
+  app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+
+  // Health check routes
+  app.use("/api", healthRoutes);
+
+  // Example API routes
+  app.get("/api/ping", (_req, res) => {
+    const ping = process.env.PING_MESSAGE ?? "ping";
+    res.json({ message: ping });
+  });
+
+  app.get("/api/demo", handleDemo);
+
+  // Authentication routes
+  app.use("/api/auth", authRoutes);
+
+  // User management routes
+  app.use("/api/users", userRoutes);
+
+  // Patient routes
+  app.use("/api/patients", patientRoutes);
+
+  // Lab routes
+  app.use("/api/labs", labRoutes);
+
+  // Medication routes
+  app.use("/api/medications", medicationRoutes);
+
+  // e-Prescribing routes (stub)
+  app.use("/api/erx", erxRoutes);
+
+  // Clinical: Conditions (stub)
+  app.use("/api/ehr/conditions", conditionsRoutes);
+  app.use("/api/ehr/allergies", allergiesRoutes);
+  app.use("/api/ehr/immunizations", immunizationsRoutes);
+  app.use("/api/ehr/encounters", encountersRoutes);
+  app.use("/api/ehr/orders", ordersRoutes);
+
+  app.post("/api/chat", handleChat);
+  app.get("/api/chat/history/:userId?", getChatHistory);
+
+  // Vital signs routes
+  app.get("/api/vitals/:userId?", getVitalSigns);
+  app.post("/api/vitals", addVitalSigns);
+  app.get("/api/vitals/trends/:userId?", getVitalTrends);
+
+  // Health insights routes
+  app.get("/api/insights/:userId?", getHealthInsights);
+  app.post("/api/insights/:id/dismiss", dismissInsight);
+  app.post("/api/insights/generate/:userId?", generateInsights);
+
+  // Advanced AI routes
+  app.get("/api/ai/cardiovascular-risk/:userId?", assessCardiovascularRisk);
+  app.get("/api/ai/drug-interactions/:userId?", analyzeAdvancedInteractions);
+  app.get("/api/ai/predictive-analytics/:userId?", generatePredictiveAnalytics);
+  app.post("/api/ai/analyze-image", analyzeMiddleware, analyzeMedicalImage);
+  app.post("/api/ai/assess-symptoms", assessSymptoms);
+  app.get("/api/ai/health-score/:userId?", calculateAdvancedHealthScore);
+  app.get(
+    "/api/ai/clinical-recommendations/:userId?",
+    getClinicalRecommendations,
+  );
+
+  // Wearable integration routes
+  app.get("/api/wearables/apple-health/:userId?", syncAppleHealth);
+  app.get("/api/wearables/fitbit/:userId?", syncFitbit);
+  app.get("/api/wearables/cgm/:userId?", syncCGM);
+  app.get("/api/wearables/aggregate/:userId?", getAggregatedWearableData);
+  app.post("/api/wearables/register", registerWearableDevice);
+  app.get("/api/wearables/devices/:userId?", getConnectedDevices);
+
+  // Telemedicine routes
+  app.get("/api/telemedicine/providers", getAvailableProviders);
+  app.post("/api/telemedicine/schedule", scheduleAppointment);
+  app.get("/api/telemedicine/appointments/:userId?", getUserAppointments);
+  app.post("/api/telemedicine/room", createConsultationRoom);
+  app.get("/api/telemedicine/summary/:roomId", generateConsultationSummary);
+  app.post("/api/telemedicine/triage", triageEmergency);
+
+  // EHR Telehealth alias routes (for client API_ENDPOINTS.EHR.TELEHEALTH)
+  app.get("/api/ehr/telehealth/sessions", (_req, res) => {
+    const rooms = (require("./utils/telemedicine") as any).TelemedicineService.listActiveConsultationRooms();
+    res.json({ success: true, data: rooms });
+  });
+  app.post("/api/ehr/telehealth/create-room", async (req, res) => {
+    const { appointmentId } = req.body || {};
+    try {
+      const svc = (require("./utils/telemedicine") as any).TelemedicineService;
+      const room = await svc.createConsultationRoom(appointmentId || `appt_${Date.now()}`);
+      res.json({ success: true, data: room });
+    } catch (e) {
+      res.status(500).json({ success: false, error: "Failed to create room" });
+    }
+  });
+  app.post("/api/ehr/telehealth/:id/join", (req, res) => {
+    const { id } = req.params as any;
+    const svc = (require("./utils/telemedicine") as any).TelemedicineService;
+    const room = svc.getConsultationRoom(id);
+    if (!room) return res.status(404).json({ success: false, error: "Room not found" });
+    res.json({ success: true, data: { roomId: id, joinUrl: `https://telecheck.com/room/${id}` } });
+  });
+  app.post("/api/ehr/telehealth/:id/end", (req, res) => {
+    const { id } = req.params as any;
+    const svc = (require("./utils/telemedicine") as any).TelemedicineService;
+    const result = svc.endConsultationRoom(id);
+    if (result.status === "not_found") return res.status(404).json({ success: false, error: "Room not found" });
+    res.json({ success: true, data: result });
+  });
+
+  // FHIR integration routes
+  app.use("/api/fhir", fhirRouter);
+
+  // SMART on FHIR routes (stubs)
+  app.use("/api/smart", smartRoutes);
+
+  // HL7 v2 interface (stubs)
+  app.use("/api/hl7", hl7Routes);
+
+  // Billing & Eligibility (stubs)
+  app.use("/api/billing", billingRoutes);
+  app.use("/api/eligibility", eligibilityRoutes);
+  app.use("/api/scheduling-advanced", advancedSchedulingRoutes);
+  app.use("/api/telehealth-advanced", telehealthAdvancedRoutes);
+  app.use("/api/cds", cdsRoutes);
+  app.use("/api/portal", portalRoutes);
+  app.use("/api/security", securityRoutes);
+  app.use("/api/reporting", reportingRoutes);
+  app.use("/api/labs-hl7", labsHl7Routes);
+  app.use("/api/imaging", imagingRoutes);
+
+  // Messaging routes
+  app.post("/api/messaging/send", sendMessage);
+  app.post("/api/messaging/critical-alert", sendCriticalAlert);
+  app.post("/api/messaging/daily-reminders", sendDailyReminders);
+  app.post("/api/messaging/appointment-reminders", sendAppointmentReminders);
+  app.get("/api/messaging/status/:messageId/:provider", getMessageStatus);
+  app.post("/api/messaging/medication-reminder", sendMedicationReminder);
+  app.post("/api/messaging/device-alert", sendDeviceAlert);
+  app.post("/api/messaging/care-plan-update", sendCarePlanUpdate);
+  app.post("/api/messaging/test", testMessagingService);
+  app.get("/api/messaging/status", getMessagingStatus);
+
+  // Webhook routes for Telnyx
+  app.post(
+    "/api/webhooks/telnyx/sms",
+    verifyTelnyxSignature,
+    handleTelnyxSMSWebhook,
+  );
+  app.post(
+    "/api/webhooks/telnyx/call",
+    verifyTelnyxSignature,
+    handleTelnyxCallWebhook,
+  );
+
+  // Webhook routes for Twilio
+  app.post(
+    "/api/webhooks/twilio/sms",
+    verifyTwilioSignature,
+    handleTwilioSMSWebhook,
+  );
+  app.post(
+    "/api/webhooks/twilio/call",
+    verifyTwilioSignature,
+    handleTwilioCallWebhook,
+  );
+
+  // TwiML generation for Twilio voice
+  app.get("/api/twiml/voice", generateTwiMLVoice);
+
+  // Messaging administration routes
+  app.get("/api/admin/messaging/config", getMessagingConfig);
+  app.post("/api/admin/messaging/config", updateMessagingConfig);
+  app.post("/api/admin/messaging/test", testMessagingAdmin);
+  app.get("/api/admin/messaging/analytics", getMessagingAnalytics);
+  app.get("/api/admin/messaging/schedules", getPatientSchedules);
+  app.post("/api/admin/messaging/schedules/:patientId", updatePatientSchedule);
+  app.get("/api/admin/messaging/templates", getMessageTemplates);
+  app.post("/api/admin/messaging/templates/:templateId", updateMessageTemplate);
+  app.get("/api/admin/messaging/care-team", getCareTeamConfig);
+  app.post("/api/admin/messaging/care-team/:memberId", updateCareTeamMember);
+  app.get("/api/admin/messaging/audit-logs", getMessagingAuditLogs);
+  app.post("/api/admin/messaging/wellness-check", sendWellnessCheck);
+
+  // Patient thresholds routes
+  app.get("/api/admin/thresholds/types", getThresholdTypes);
+  app.get("/api/admin/thresholds/patients", getPatientsWithCustomThresholds);
+  app.get("/api/admin/thresholds/patients/search", searchPatients);
+  app.get("/api/admin/thresholds/patients/:patientId", getPatientThresholds);
+  app.post("/api/admin/thresholds/patients/:patientId", setPatientThreshold);
+  app.delete(
+    "/api/admin/thresholds/patients/:patientId/:thresholdType",
+    removePatientThreshold,
+  );
+  app.post(
+    "/api/admin/thresholds/patients/:patientId/bulk",
+    bulkUpdatePatientThresholds,
+  );
+  app.post(
+    "/api/admin/thresholds/patients/:patientId/test",
+    testThresholdCheck,
+  );
+  app.get(
+    "/api/admin/thresholds/patients/:patientId/report",
+    getThresholdReport,
+  );
+
+  // Vital monitoring routes with threshold checking
+  app.post("/api/vitals/submit", submitVitalReading);
+  app.get("/api/vitals/patients/:patientId", getPatientVitals);
+  app.post("/api/vitals/simulate", simulateVitalReading);
+  app.post("/api/vitals/compare-thresholds", comparePatientThresholds);
+  app.get("/api/vitals/alerts-history", getThresholdAlertsHistory);
+
+  return app;
+}

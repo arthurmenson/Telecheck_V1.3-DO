@@ -1,0 +1,18 @@
+name: Reset UAT
+on:
+  workflow_dispatch:
+    inputs:
+      base:
+        description: "UAT API base URL"
+        required: false
+jobs:
+  reset:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: chmod +x scripts/reset-uat.sh
+      - name: Reset + seed UAT
+        env:
+          UAT_API: ${{ inputs.base || secrets.UAT_API }}
+          UAT_TOKEN: ${{ secrets.UAT_TOKEN }}
+        run: ./scripts/reset-uat.sh

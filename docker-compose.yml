@@ -1,0 +1,251 @@
+version: "3.8"
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: telecheck_postgres
+    environment:
+      POSTGRES_DB: telecheck
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./server/config/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - telecheck_network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: telecheck_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - telecheck_network
+
+  # Main Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: telecheck_app
+    environment:
+      NODE_ENV: development
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: telecheck
+      DB_USER: postgres
+      DB_PASSWORD: password
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: your-super-secret-jwt-key-change-this-in-production
+      PORT: 3000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./uploads:/app/uploads
+      - ./logs:/app/logs
+    networks:
+      - telecheck_network
+
+  # Test Database
+  postgres_test:
+    image: postgres:15-alpine
+    container_name: telecheck_postgres_test
+    environment:
+      POSTGRES_DB: telecheck_test
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_test_data:/var/lib/postgresql/data
+    networks:
+      - telecheck_network
+
+  # Test Redis
+  redis_test:
+    image: redis:7-alpine
+    container_name: telecheck_redis_test
+    ports:
+      - "6380:6379"
+    command: redis-server --appendonly yes --save 60 1
+    networks:
+      - telecheck_network
+
+  # Development with hot reload
+  app_dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: telecheck_app_dev
+    environment:
+      NODE_ENV: development
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: telecheck
+      DB_USER: postgres
+      DB_PASSWORD: password
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: your-super-secret-jwt-key-change-this-in-production
+      PORT: 3000
+    ports:
+      - "3001:3000"
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - ./uploads:/app/uploads
+      - ./logs:/app/logs
+    networks:
+      - telecheck_network
+    command: npm run dev
+
+  # API Gateway
+  gateway:
+    build:
+      context: ./services/gateway
+    container_name: telecheck_gateway
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      JWT_SECRET: your-super-secret-jwt-key-change-this-in-production
+      REDIS_URL: redis://redis:6379
+      SKIP_AUTH: "true"
+      AUTH_SERVICE_URL: http://auth:3001
+      EHR_SERVICE_URL: http://ehr:3002
+      RPM_SERVICE_URL: http://rpm:3003
+      LABS_SERVICE_URL: http://labs:3004
+      MEDICATIONS_SERVICE_URL: http://medications:3005
+      ANALYTICS_SERVICE_URL: http://analytics:3006
+      MESSAGING_SERVICE_URL: http://messaging:3007
+      FILES_SERVICE_URL: http://files:3008
+      BILLING_SERVICE_URL: http://billing:3009
+      MESSAGING_ADMIN_SERVICE_URL: http://messaging_admin:3010
+    ports:
+      - "8080:3000"
+    depends_on:
+      - auth
+      - ehr
+      - rpm
+      - labs
+      - medications
+      - billing
+      - messaging_admin
+      - redis
+    networks:
+      - telecheck_network
+
+  auth:
+    build:
+      context: ./services/auth
+    container_name: telecheck_auth
+    environment:
+      NODE_ENV: development
+      PORT: 3001
+    expose:
+      - "3001"
+    networks:
+      - telecheck_network
+
+  ehr:
+    build:
+      context: ./services/ehr
+    container_name: telecheck_ehr
+    environment:
+      NODE_ENV: development
+      PORT: 3002
+      DATABASE_URL: postgres://postgres:password@postgres:5432/telecheck_ehr
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: your-super-secret-jwt-key-change-this-in-production
+    expose:
+      - "3002"
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - telecheck_network
+
+  rpm:
+    build:
+      context: ./services/rpm
+    container_name: telecheck_rpm
+    environment:
+      NODE_ENV: development
+      PORT: 3003
+      DATABASE_URL: postgres://postgres:password@postgres:5432/telecheck_rpm
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: your-super-secret-jwt-key-change-this-in-production
+    expose:
+      - "3003"
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - telecheck_network
+
+  labs:
+    build:
+      context: ./services/labs
+    container_name: telecheck_labs
+    environment:
+      NODE_ENV: development
+      PORT: 3004
+    expose:
+      - "3004"
+    networks:
+      - telecheck_network
+
+  medications:
+    build:
+      context: ./services/medications
+    container_name: telecheck_medications
+    environment:
+      NODE_ENV: development
+      PORT: 3005
+    expose:
+      - "3005"
+    networks:
+      - telecheck_network
+
+  billing:
+    build:
+      context: ./services/billing
+    container_name: telecheck_billing
+    environment:
+      NODE_ENV: development
+      PORT: 3009
+    expose:
+      - "3009"
+    networks:
+      - telecheck_network
+
+  messaging_admin:
+    build:
+      context: ./services/messaging-admin
+    container_name: telecheck_messaging_admin
+    environment:
+      NODE_ENV: development
+      PORT: 3010
+    expose:
+      - "3010"
+    networks:
+      - telecheck_network
+
+volumes:
+  postgres_data:
+  postgres_test_data:
+  redis_data:
+
+networks:
+  telecheck_network:
+    driver: bridge

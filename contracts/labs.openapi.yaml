@@ -1,0 +1,665 @@
+openapi: 3.0.3
+info:
+  title: Telecheck Labs Service API
+  description: Laboratory analysis and results service for processing lab reports and providing insights
+  version: 1.0.0
+  contact:
+    name: Telecheck API Team
+    email: api@telecheck.health
+
+servers:
+  - url: /api/labs
+    description: Labs service endpoint
+
+components:
+  schemas:
+    LabResult:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        userId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        testName:
+          type: string
+          example: "Complete Blood Count"
+        value:
+          type: number
+          example: 4.5
+        unit:
+          type: string
+          example: "10^6/uL"
+        referenceRange:
+          type: string
+          example: "4.5-5.5"
+        status:
+          type: string
+          enum: ["normal", "borderline", "high", "low", "critical"]
+          example: "normal"
+        testDate:
+          type: string
+          format: date-time
+          example: "2025-01-01T12:00:00Z"
+        labName:
+          type: string
+          example: "Quest Diagnostics"
+        doctorNotes:
+          type: string
+          example: "Results within normal limits"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2025-01-01T12:00:00Z"
+
+    LabResultsResponse:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/LabResult'
+        pagination:
+          type: object
+          properties:
+            page:
+              type: integer
+              example: 1
+            limit:
+              type: integer
+              example: 20
+            total:
+              type: integer
+              example: 100
+            totalPages:
+              type: integer
+              example: 5
+
+    AnalysisRequest:
+      type: object
+      required:
+        - file
+      properties:
+        file:
+          type: string
+          format: binary
+          description: Lab report file (PDF, image, etc.)
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        metadata:
+          type: object
+          properties:
+            testDate:
+              type: string
+              format: date
+              example: "2025-01-01"
+            labName:
+              type: string
+              example: "Quest Diagnostics"
+            testType:
+              type: string
+              example: "Complete Blood Count"
+
+    AnalysisResponse:
+      type: object
+      properties:
+        analysisId:
+          type: string
+          example: "a1"
+        status:
+          type: string
+          enum: ["ok", "pending", "processing", "completed", "failed"]
+          example: "ok"
+        message:
+          type: string
+          example: "Analysis started successfully"
+        estimatedCompletionTime:
+          type: string
+          format: date-time
+          example: "2025-01-01T12:05:00Z"
+
+    AnalysisStatus:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "a1"
+        status:
+          type: string
+          enum: ["pending", "processing", "completed", "failed"]
+          example: "ready"
+        findings:
+          type: array
+          items:
+            $ref: '#/components/schemas/Finding'
+        progress:
+          type: integer
+          minimum: 0
+          maximum: 100
+          example: 100
+        startedAt:
+          type: string
+          format: date-time
+          example: "2025-01-01T12:00:00Z"
+        completedAt:
+          type: string
+          format: date-time
+          example: "2025-01-01T12:05:00Z"
+        errorMessage:
+          type: string
+          nullable: true
+          example: null
+
+    Finding:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        testName:
+          type: string
+          example: "Glucose"
+        value:
+          type: number
+          example: 95
+        unit:
+          type: string
+          example: "mg/dL"
+        referenceRange:
+          type: string
+          example: "70-100"
+        status:
+          type: string
+          enum: ["normal", "borderline", "high", "low", "critical"]
+          example: "normal"
+        confidence:
+          type: number
+          minimum: 0
+          maximum: 1
+          example: 0.95
+        aiInterpretation:
+          type: string
+          example: "Glucose level is within normal range"
+
+    UploadResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "u1"
+        status:
+          type: string
+          enum: ["uploaded", "processing", "completed", "failed"]
+          example: "uploaded"
+        fileName:
+          type: string
+          example: "lab_report_2025_01_01.pdf"
+        fileSize:
+          type: integer
+          example: 1024000
+        uploadedAt:
+          type: string
+          format: date-time
+          example: "2025-01-01T12:00:00Z"
+
+    TrendsData:
+      type: object
+      properties:
+        testName:
+          type: string
+          example: "Glucose"
+        unit:
+          type: string
+          example: "mg/dL"
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              date:
+                type: string
+                format: date
+                example: "2025-01-01"
+              value:
+                type: number
+                example: 95
+              status:
+                type: string
+                enum: ["normal", "borderline", "high", "low", "critical"]
+                example: "normal"
+
+    TrendsResponse:
+      type: object
+      properties:
+        series:
+          type: array
+          items:
+            $ref: '#/components/schemas/TrendsData'
+        timeframe:
+          type: string
+          example: "90d"
+        patientId:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+          example: "Analysis failed"
+        message:
+          type: string
+          example: "chaos"
+        code:
+          type: string
+          example: "ANALYSIS_FAILED"
+        details:
+          type: object
+          additionalProperties: true
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - BearerAuth: []
+
+paths:
+  /results:
+    get:
+      summary: Get lab results
+      description: Retrieve lab results for the authenticated user
+      operationId: getLabResults
+      tags:
+        - Results
+      parameters:
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: ["pgx", "cbc", "chemistry", "lipid"]
+          example: "pgx"
+          description: Filter by test type
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          example: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+          example: 20
+        - name: chaos
+          in: query
+          schema:
+            type: string
+          example: "1"
+          description: Test parameter to trigger error scenarios
+      responses:
+        '200':
+          description: Lab results retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LabResultsResponse'
+              example:
+                results: []
+        '401':
+          description: Unauthorized (chaos mode)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: "chaos"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: "chaos"
+
+  /analyze:
+    post:
+      summary: Analyze lab report
+      description: Upload and analyze a lab report file using AI
+      operationId: analyzeLabReport
+      tags:
+        - Analysis
+      parameters:
+        - name: chaos
+          in: query
+          schema:
+            type: string
+          example: "1"
+          description: Test parameter to trigger error scenarios
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Lab report file
+                patientId:
+                  type: string
+                  format: uuid
+                  example: "550e8400-e29b-41d4-a716-446655440000"
+                metadata:
+                  type: string
+                  description: JSON metadata about the lab report
+      responses:
+        '201':
+          description: Analysis started successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnalysisResponse'
+              example:
+                analysisId: "a1"
+                status: "ok"
+                message: "Analysis started successfully"
+        '400':
+          description: Invalid file or request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized (chaos mode)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: "chaos"
+        '413':
+          description: File too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: "chaos"
+
+  /analysis:
+    get:
+      summary: Get analysis status
+      description: Get the status and results of a lab analysis
+      operationId: getAnalysisStatus
+      tags:
+        - Analysis
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: string
+          example: "a1"
+          description: Analysis ID
+      responses:
+        '200':
+          description: Analysis status retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnalysisStatus'
+              example:
+                id: "a1"
+                status: "ready"
+                findings: []
+                progress: 100
+        '404':
+          description: Analysis not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /upload:
+    post:
+      summary: Upload lab file
+      description: Upload a lab report file for processing
+      operationId: uploadLabFile
+      tags:
+        - Upload
+      parameters:
+        - name: chaos
+          in: query
+          schema:
+            type: string
+          example: "1"
+          description: Test parameter to trigger error scenarios
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Lab report file
+      responses:
+        '201':
+          description: File uploaded successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UploadResponse'
+              example:
+                id: "u1"
+                status: "uploaded"
+                fileName: "lab_report.pdf"
+        '400':
+          description: Invalid file
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized (chaos mode)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: "chaos"
+        '413':
+          description: File too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: "chaos"
+
+  /trends:
+    get:
+      summary: Get lab trends
+      description: Get trending data for lab results over time
+      operationId: getLabTrends
+      tags:
+        - Trends
+      parameters:
+        - name: days
+          in: query
+          schema:
+            type: integer
+            enum: [7, 30, 90, 365]
+            default: 30
+          example: 30
+          description: Number of days to include in trends
+        - name: testNames
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: false
+          example: ["Glucose", "Cholesterol"]
+          description: Specific test names to include
+        - name: chaos
+          in: query
+          schema:
+            type: string
+          example: "1"
+          description: Test parameter to trigger error scenarios
+      responses:
+        '200':
+          description: Lab trends retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrendsResponse'
+              example:
+                series: []
+                timeframe: "30d"
+        '401':
+          description: Unauthorized (chaos mode)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: "chaos"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: "chaos"
+
+  /error:
+    get:
+      summary: Lab error test endpoint
+      description: Test endpoint that always returns an error
+      operationId: labError
+      tags:
+        - Testing
+      responses:
+        '500':
+          description: Lab error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: "Lab error"
+
+# Additional endpoint for compatibility with frontend adapters
+  /analyze-lab:
+    post:
+      summary: Analyze lab report (legacy endpoint)
+      description: Legacy endpoint for lab analysis - redirects to /analyze
+      operationId: analyzeLabReportLegacy
+      tags:
+        - Analysis
+      parameters:
+        - name: chaos
+          in: query
+          schema:
+            type: string
+          example: "1"
+          description: Test parameter to trigger error scenarios
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Lab report file
+      responses:
+        '201':
+          description: Analysis started successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnalysisResponse'
+              example:
+                analysisId: "a1"
+                status: "ok"
+        '401':
+          description: Unauthorized (chaos mode)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: "chaos"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: "chaos"
+
+tags:
+  - name: Results
+    description: Lab results retrieval operations
+  - name: Analysis
+    description: AI-powered lab analysis operations
+  - name: Upload
+    description: File upload operations
+  - name: Trends
+    description: Lab trends and historical data operations
+  - name: Testing
+    description: Testing and debugging endpoints

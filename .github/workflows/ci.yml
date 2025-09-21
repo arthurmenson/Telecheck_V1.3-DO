@@ -1,0 +1,72 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+
+jobs:
+  contracts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+      - run: npm run gen:sdk
+
+  services:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [ auth, ehr, rpm, labs, medications, billing, messaging-admin ]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+      - name: Install service deps
+        run: |
+          cd services/${{ matrix.service }}
+          npm install
+      - name: Unit tests
+        run: |
+          USE_DB=false npx vitest run services/${{ matrix.service }}/tests/unit --reporter=dot
+
+  pact:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+      - run: npm run test:contract
+
+  e2e_mock:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+      - run: npx playwright install --with-deps
+      - name: Run Playwright (MOCK)
+        env:
+          VITE_MODE: MOCK
+          ENABLE_EXPRESS: "0"
+        run: npm run test:e2e
+
+  sbom:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+      - run: npm run sbom

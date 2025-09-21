@@ -1,0 +1,21 @@
+apis:
+  auth:
+    root: ./auth.openapi.yaml
+    x-openapi-ts:
+      output: ../lib/sdk/auth.ts
+  ehr:
+    root: ./ehr.openapi.yaml
+    x-openapi-ts:
+      output: ../lib/sdk/ehr.ts
+  rpm:
+    root: ./rpm.openapi.yaml
+    x-openapi-ts:
+      output: ../lib/sdk/rpm.ts
+  labs:
+    root: ./labs.openapi.yaml
+    x-openapi-ts:
+      output: ../lib/sdk/labs.ts
+  medications:
+    root: ./medications.openapi.yaml
+    x-openapi-ts:
+      output: ../lib/sdk/medications.ts
