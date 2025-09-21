@@ -20,6 +20,9 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: mode === "production" ? "0.0.0.0" : "::",
     port: parseInt(process.env.PORT || "8080"),
+    hmr: {
+      overlay: false,
+    },
     fs: {
       allow: ["./client", "./shared"],
       deny: [".env", ".env.*", "*.{crt,pem}", "**/.git/**", "server/**"],

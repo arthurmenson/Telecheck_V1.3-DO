@@ -1,0 +1,32 @@
+name: Nightly UAT Smoke
+on:
+  schedule:
+    - cron: "0 8 * * *"
+  workflow_dispatch: {}
+jobs:
+  uat-smoke:
+    runs-on: ubuntu-latest
+    env:
+      PW_BASE_URL: ${{ secrets.UAT_BASE_URL }}
+      CI: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm ci
+      - run: npx playwright install --with-deps
+      - name: Run UAT smoke tests
+        run: npx playwright test --config=e2e/playwright.uat.config.ts --reporter=line
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report
+      - name: Upload traces
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: traces
+          path: test-results

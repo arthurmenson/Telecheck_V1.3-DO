@@ -19,8 +19,16 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: mode === "production" ? "0.0.0.0" : "::",
     port: parseInt(process.env.PORT || "8080"),
+    hmr: {
+      overlay: false,
+    },
+    proxy: process.env.VITE_MODE === "SANDBOX"
+      ? {
+          "/api": { target: process.env.UAT_API || "https://api-uat.telecheck.health", changeOrigin: true, secure: true }
+        }
+      : undefined,
     fs: {
-      allow: ["./client", "./shared"],
+      allow: ["./client", "./shared", "./lib"],
       deny: [".env", ".env.*", "*.{crt,pem}", "**/.git/**", "server/**"],
     },
   },

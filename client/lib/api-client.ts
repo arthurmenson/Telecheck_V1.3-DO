@@ -9,6 +9,7 @@
  */
 
 import { ApiResponse } from "../../shared/types";
+import { track } from "../../lib/telemetry";
 
 // API Configuration
 const API_CONFIG = {
@@ -202,6 +203,7 @@ export class ApiClient {
 
     // Retry logic
     for (let attempt = 0; attempt <= retries; attempt++) {
+      const t0 = (typeof performance !== "undefined" && performance.now) ? performance.now() : Date.now();
       try {
         let response = await fetch(url, finalConfig);
 
@@ -210,9 +212,13 @@ export class ApiClient {
           response = await interceptor(response);
         }
 
+        const ms = Math.round(((typeof performance !== "undefined" && performance.now) ? performance.now() : Date.now()) - t0);
+        track("tc:http:done", { url, status: response.status, ms });
         clearTimeout(timeoutId);
         return await response.json();
       } catch (error) {
+        const ms = Math.round(((typeof performance !== "undefined" && performance.now) ? performance.now() : Date.now()) - t0);
+        track("tc:http:done", { url, status: undefined, ms });
         clearTimeout(timeoutId);
 
         const apiError =
