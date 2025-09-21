@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -46,21 +47,25 @@ interface MessagingAnalytics {
 export default function AdminSettings() {
   const { toast } = useToast();
 
-    telnyxApiKey: "YOUR_TELNYX_API_KEY_HERE",
-    twilioAccountSid: "",
-    twilioAuthToken: "",
-    twilioPhoneNumber: "",
-    telnyxPhoneNumber: "",
-    primaryMessagingProvider: "telnyx",
-    enableSMSNotifications: true,
-    enableVoiceNotifications: false,
-    enableScheduledMessaging: true,
-    messageAuditLogging: true,
-    messagingQuietHoursStart: "22:00",
-    messagingQuietHoursEnd: "07:00",
-    maxRetryAttempts: 3,
-    retryDelayMinutes: 5,
-  });
+  const [activeTab, setActiveTab] = useState("general");
+
+  const [messagingConfig, setMessagingConfig] =
+    useState<MessagingConfig>({
+      telnyxApiKey: "YOUR_TELNYX_API_KEY_HERE",
+      twilioAccountSid: "",
+      twilioAuthToken: "",
+      twilioPhoneNumber: "",
+      telnyxPhoneNumber: "",
+      primaryMessagingProvider: "telnyx",
+      enableSMSNotifications: true,
+      enableVoiceNotifications: false,
+      enableScheduledMessaging: true,
+      messageAuditLogging: true,
+      messagingQuietHoursStart: "22:00",
+      messagingQuietHoursEnd: "07:00",
+      maxRetryAttempts: 3,
+      retryDelayMinutes: 5,
+    });
 
   const [messagingAnalytics, setMessagingAnalytics] =
     useState<MessagingAnalytics>({
