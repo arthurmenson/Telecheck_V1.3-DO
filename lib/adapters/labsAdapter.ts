@@ -27,9 +27,13 @@ export const labsAdapter = {
       return out;
     }
     try {
-      const res = await apiClient.post(`/labs/analyze`, data);
+      const BASE = (import.meta as any).env?.VITE_API_BASE || "/api";
+      const isFormData = typeof FormData !== "undefined" && data instanceof FormData;
+      const body = isFormData ? (data as FormData) : (() => { const fd = new FormData(); Object.entries(data || {}).forEach(([k,v])=> fd.append(k, String(v))); return fd; })();
+      const res = await fetch(`${BASE}/labs/analyze`, { method: "POST", body });
+      const json = await res.json();
       track("tc:labs:success", { op: "analyzeReport" });
-      return res as any;
+      return json as any;
     } catch (e: any) {
       track("tc:labs:error", { op: "analyzeReport", message: e?.message });
       throw e;
