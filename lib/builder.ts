@@ -15,7 +15,7 @@ export async function ensureBuilder() {
   if (!KEY) builderWarning('[builder] Missing API key env: VITE_BUILDER_API_KEY / NEXT_PUBLIC_BUILDER_API_KEY');
   mod.builder.init(KEY || '');
   try {
-    const cfg = await import('../lib/config');
+    const cfg = await import('./config');
     mod.builder.setUserAttributes({ env: (cfg as any).CFG?.mode });
   } catch {}
   builderRef = mod.builder;
