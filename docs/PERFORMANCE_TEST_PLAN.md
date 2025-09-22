@@ -19,8 +19,9 @@ This plan establishes the baseline workload model, tooling, and evidence expecta
 1. **Authentication ramp** – burst of concurrent login requests validating password hashing, token issuance, and refresh flows.
 2. **Patient CRUD** – create, fetch, and search patient records to stress PostgreSQL write/read paths and audit logging.
 3. **Read-heavy browsing** – paginated patient roster queries to mimic care-team usage during clinic hours.
+4. **Telehealth & messaging readiness** – orchestrates virtual visit scheduling, consultation room spin-up, triage, and messaging health checks to validate real-time coordination services.
 
-Additional scenarios (telehealth session setup, messaging, wearable ingestion) should be added as supporting services harden.
+Additional scenarios (e.g., wearable ingestion) should be added as supporting services harden.
 
 ## Workload Model
 
@@ -55,10 +56,14 @@ Target thresholds:
    export TELECHECK_ADMIN_PASSWORD="REDACTED"
    ```
 
-3. Execute the k6 script:
+3. Execute the desired k6 script:
 
    ```bash
+   # Core auth + patient workflows
    npm run test:load
+
+   # Telehealth session setup and messaging readiness checks
+   npm run test:load:telehealth
    ```
 
 4. Optional: enable k6 summary exports for CI evidence:
@@ -78,6 +83,6 @@ Target thresholds:
 
 ## Next Steps
 
-- Extend coverage to telehealth, messaging, and scheduling APIs as those services are hardened.
+- Capture wearable ingestion and scheduling automation scenarios once those APIs are production-ready.
 - Automate nightly smoke-load runs in staging once the baseline passes consistently.
 - Integrate with CI/CD to block production deploys if load-test thresholds regress beyond agreed budgets.

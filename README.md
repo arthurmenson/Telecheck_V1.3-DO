@@ -364,6 +364,8 @@ npm run test:integration
 npm run test:phase1
 # Execute the k6-based patient API load test plan
 npm run test:load
+# Exercise telehealth + messaging readiness load test
+npm run test:load:telehealth
 # Enforce type safety on readiness-critical server modules
 npm run typecheck:server
 ```
@@ -377,7 +379,7 @@ The targeted server type check compiles the readiness harness (auth, patients, f
 - **API Tests**: Test complete API workflows
 - **E2E Tests**: Test complete user workflows
 - **Phase 1 Readiness Suite**: Uses the focused auth test harness to validate register/login/refresh/logout flows with refresh-token invalidation rules and negative cases without requiring external databases.
-- **Load Testing**: `tests/performance/patient-api-load-test.js` exercises high-concurrency authentication and patient workflows using k6. See [Performance & Load Test Plan](docs/PERFORMANCE_TEST_PLAN.md) for environment requirements and reporting expectations.
+- **Load Testing**: `tests/performance/patient-api-load-test.js` exercises high-concurrency authentication and patient workflows, and `tests/performance/telehealth-messaging-load-test.js` validates virtual care plus messaging readiness via k6. See [Performance & Load Test Plan](docs/PERFORMANCE_TEST_PLAN.md) for environment requirements and reporting expectations.
 
 ## 🚀 Deployment
 
