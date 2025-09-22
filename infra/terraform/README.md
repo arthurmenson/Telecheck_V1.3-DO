@@ -74,9 +74,20 @@ terraform -chdir=infra/terraform apply -var-file=environments/staging.tfvars
 - Database credentials are written to Secrets Manager and can be consumed by the application via the exported `database.secret_arn` output.
 - Load balancer and datastore endpoints are exposed via Terraform outputs for downstream automation and monitoring configuration.
 
+## Continuous Integration Safeguards
+
+Terraform validation now runs automatically in GitHub Actions via `.github/workflows/terraform-readiness.yml`. Each change under
+`infra/terraform/` triggers the workflow to:
+
+1. Enforce formatting with `terraform fmt -check -recursive`.
+2. Run `terraform init -backend=false` to ensure providers and modules download cleanly without requiring remote state access.
+3. Execute `terraform validate` so syntax or module wiring regressions are caught before review.
+
+The workflow keeps the configuration linted and syntactically valid even when engineers do not have Terraform installed locally.
+
 ## Next Steps
 
-- Automate Terraform plan/apply in CI/CD with environment-scoped workspaces and manual approval gates.
+- Expand CI with environment-scoped plan jobs that surface drift and require manual approvals before apply.
 - Tune WAF rule group exclusions and add custom rules for Telecheck-specific APIs once traffic patterns are known.
 - Extend the modules with CloudWatch alarms and CI/CD deployment pipelines for zero-touch rollouts.
 - Wire the generated Secrets Manager ARN into the existing Node.js secret resolution layer (`aws-sm://` provider) to eliminate static credentials.

@@ -1,0 +1,37 @@
+name: Terraform Readiness Checks
+
+on:
+  push:
+    paths:
+      - "infra/terraform/**"
+      - ".github/workflows/terraform-readiness.yml"
+  pull_request:
+    paths:
+      - "infra/terraform/**"
+      - ".github/workflows/terraform-readiness.yml"
+
+jobs:
+  validate:
+    name: Validate Terraform Baseline
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.7.5
+
+      - name: Check formatting
+        working-directory: infra/terraform
+        run: terraform fmt -check -recursive
+
+      - name: Initialize configuration (backend disabled)
+        working-directory: infra/terraform
+        run: terraform init -backend=false -input=false
+
+      - name: Validate configuration
+        working-directory: infra/terraform
+        run: terraform validate -no-color
