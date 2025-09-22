@@ -33,6 +33,7 @@
     "format:check": "prettier --check .",
     "format.fix": "prettier --write .",
     "typecheck": "tsc",
+    "typecheck:server": "tsc -p tsconfig.server.json",
     "deploy:check": "npm run typecheck && npm run build:prod && npm run test",
     "bootstrap:admin": "tsx scripts/bootstrap-admin.ts",
     "seed:test-data": "tsx scripts/seed-test-data.ts",

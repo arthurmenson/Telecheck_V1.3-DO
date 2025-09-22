@@ -61,13 +61,13 @@ const redactKeys = new Set([
   "secret",
 ]);
 
-const sanitize = (value: unknown): unknown => {
+const sanitizeValue = (value: unknown): unknown => {
   if (value === null || value === undefined) {
     return value;
   }
 
   if (Array.isArray(value)) {
-    return value.map(sanitize);
+    return value.map(sanitizeValue);
   }
 
   if (typeof value === "object") {
@@ -78,13 +78,26 @@ const sanitize = (value: unknown): unknown => {
         continue;
       }
 
-      sanitized[key] = sanitize(item);
+      sanitized[key] = sanitizeValue(item);
     }
 
     return sanitized;
   }
 
   return value;
+};
+
+const sanitizeContext = (context?: LogContext): LogContext => {
+  if (!context) {
+    return {};
+  }
+
+  const sanitized: LogContext = {};
+  for (const [key, value] of Object.entries(context)) {
+    sanitized[key] = sanitizeValue(value);
+  }
+
+  return sanitized;
 };
 
 const writeLog = (payload: LogPayload) => {
@@ -135,8 +148,8 @@ const createLogger = (context: LogContext = {}): Logger => {
       eventId: randomUUID(),
       service: process.env.SERVICE_NAME || "telecheck-api",
       environment: env.nodeEnv,
-      ...sanitize(context),
-      ...sanitize(extra),
+      ...sanitizeContext(context),
+      ...sanitizeContext(extra),
     };
 
     writeLog(payload);

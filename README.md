@@ -364,7 +364,11 @@ npm run test:integration
 npm run test:phase1
 # Execute the k6-based patient API load test plan
 npm run test:load
+# Enforce type safety on readiness-critical server modules
+npm run typecheck:server
 ```
+
+The targeted server type check compiles the readiness harness (auth, patients, feature flags, audit logs, metrics middleware, and associated tests) against a curated TypeScript project so regressions surface even while the broader client codebase continues its cleanup.
 
 ### Test Structure
 
