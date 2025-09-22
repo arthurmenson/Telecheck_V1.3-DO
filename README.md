@@ -193,6 +193,14 @@ credentials from a vault instead of storing them in plaintext environment files.
    variables only when no secret reference is supplied. Missing production secrets trigger descriptive errors so deployments
    fail fast instead of silently using insecure defaults.
 
+5. **Validate managed secrets before deploys** – Run `npm run secrets:check` to load the desired environment file (defaults to `production.env`) and confirm every referenced secret resolves via the configured providers. Provide a secrets bundle path with `--secrets` when testing local JSON files:
+
+   ```bash
+   npm run secrets:check -- --env production.env --secrets ./secrets.local.example.json
+   ```
+
+   The script reports any references that fall back to plaintext environment values or cannot be resolved so vault gaps can be closed before promotion.
+
 ## 📁 Project Structure
 
 ```

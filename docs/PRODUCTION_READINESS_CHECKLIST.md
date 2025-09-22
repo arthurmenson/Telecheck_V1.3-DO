@@ -12,7 +12,7 @@ This checklist consolidates the technical, operational, and compliance controls 
 
 - [x] Harden patient APIs by removing the default demo auth bypass and gating it behind the `ENABLE_DEMO_AUTH_BYPASS` flag (defaults to `false`).
 - [x] Replace seeded super-admin credentials with a scripted bootstrap flow that requires secure, environment-scoped secrets. — _Completed: added `npm run bootstrap:admin` to hash env-scoped credentials and removed hard-coded SQL seed._
-- [ ] Stand up centralized secrets management (e.g., Doppler, Vault, AWS Secrets Manager) and wire it into the Node/Express config loader.
+- [~] Stand up centralized secrets management (e.g., Doppler, Vault, AWS Secrets Manager) and wire it into the Node/Express config loader. — _Progress: Added a managed secret validation CLI (`npm run secrets:check`) and wired configuration loaders to secret references; Next: connect to the hosted vault service and enable automated rotation._
 - [ ] Define IaC baselines (Terraform/Pulumi) for staging and production so Phase 1 hardening work has deployment targets.
 - [ ] Draft the ONC certification gap assessment and identify which product capabilities need roadmap commitments.
 
