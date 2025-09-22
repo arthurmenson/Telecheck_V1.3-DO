@@ -88,8 +88,10 @@ import {
 } from "./routes/messaging-admin";
 import auditLogRoutes from "./routes/audit-logs";
 import { requestLogger } from "./middleware/requestLogger";
+import { metricsMiddleware } from "./middleware/metrics";
 import { logger } from "./utils/logger";
 import { featureFlagsMiddleware } from "./middleware/featureFlags";
+import internalRoutes from "./routes/internal";
 import {
   getThresholdTypes,
   getPatientThresholds,
@@ -136,6 +138,7 @@ export async function createServer() {
   });
 
   app.use(requestLogger);
+  app.use(metricsMiddleware);
   app.use(featureFlagsMiddleware);
 
   // Security middleware
@@ -161,6 +164,8 @@ export async function createServer() {
   // Body parsing middleware
   app.use(express.json({ limit: "10mb" }));
   app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+
+  app.use("/internal", internalRoutes);
 
   // Health check routes
   app.use("/api", healthRoutes);

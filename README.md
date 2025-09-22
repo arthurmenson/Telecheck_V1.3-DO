@@ -389,6 +389,12 @@ docker run -p 3000:3000 telecheck
 - When `LOG_FORWARD_ENDPOINT` is set, logs are asynchronously forwarded via HTTPS (with optional bearer token or API key headers) so they can be ingested by a SIEM or observability platform while still streaming to stdout for containerized environments.
 - Every request receives an `x-request-id` header, and downstream code can emit correlated messages via `req.log` exposed by the request logging middleware.
 
+### Metrics & Alerting Hooks
+
+- The Express server exposes a Prometheus-compatible snapshot at `GET /internal/metrics` when `METRICS_ENABLED=true`, capturing request totals, latency summaries, and in-flight gauges per method and normalized route.
+- Secure the endpoint by setting `METRICS_TOKEN` (preferred) or enumerating explicit source IPs via `METRICS_ALLOWED_IPS`; otherwise the endpoint only responds to loopback requests, preventing accidental public exposure.
+- The metrics middleware runs alongside the structured logger so dashboards and alerting rules can share consistent labels (`service`, `environment`, `route`, `method`).
+
 ## 🔒 Security Features
 
 - **Authentication**: JWT-based secure authentication
