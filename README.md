@@ -381,6 +381,19 @@ The targeted server type check compiles the readiness harness (auth, patients, f
 - **Phase 1 Readiness Suite**: Uses the focused auth test harness to validate register/login/refresh/logout flows with refresh-token invalidation rules and negative cases without requiring external databases.
 - **Load Testing**: `tests/performance/patient-api-load-test.js` exercises high-concurrency authentication and patient workflows, and `tests/performance/telehealth-messaging-load-test.js` validates virtual care plus messaging readiness via k6. See [Performance & Load Test Plan](docs/PERFORMANCE_TEST_PLAN.md) for environment requirements and reporting expectations.
 
+## 🤖 Continuous Integration
+
+Telecheck ships a GitHub Actions workflow at `.github/workflows/readiness-ci.yml` that runs on every push and pull request. The job builds promotion-ready artifacts while enforcing the core readiness gates:
+
+1. **Formatting gate** – `npm run lint:ci` executes Prettier in check mode to keep the monorepo formatting baseline stable.
+2. **Full test execution** – `npm run test` runs the unit, integration, and readiness harness suites so regressions surface before review.
+3. **Production build** – `npm run build` compiles the React SPA and the Node.js SSR bundle.
+4. **Artifact publication** – The workflow uploads `spa-dist` and `server-dist` artifacts so release managers can promote the exact build output through staging and production environments.
+5. **Secrets validation** – `npm run secrets:check` resolves managed secret references to catch configuration drift early.
+6. **Dependency scanning** – `npm run security:scan` blocks merges when high/critical vulnerabilities are reported.
+
+Download the published artifacts from the workflow run summary when staging or production deployments require a reviewed, immutable build.
+
 ## 🚀 Deployment
 
 ### Development

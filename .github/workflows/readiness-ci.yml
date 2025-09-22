@@ -31,8 +31,25 @@ jobs:
       - name: Lint formatting baseline
         run: npm run lint:ci
 
-      - name: Run authentication harness
-        run: npm run test -- tests/phase1/auth.test.ts
+      - name: Run full test suite
+        run: npm run test
+
+      - name: Build client and server bundles
+        run: npm run build
+
+      - name: Upload client artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: spa-dist
+          path: dist/spa
+          if-no-files-found: error
+
+      - name: Upload server artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: server-dist
+          path: dist/server
+          if-no-files-found: error
 
       - name: Validate managed secrets
         run: npm run secrets:check

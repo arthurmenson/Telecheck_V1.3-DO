@@ -112,7 +112,7 @@ const mergeConfigUpdates = (
   return next;
 };
 
-export default function AdminSettings() {
+export function AdminSettings() {
   const { toast } = useToast();
 
   const [activeTab, setActiveTab] = useState<
@@ -651,3 +651,5 @@ export default function AdminSettings() {
     </div>
   );
 }
+
+export default AdminSettings;
