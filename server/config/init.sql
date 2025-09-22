@@ -177,13 +177,3 @@ CREATE TRIGGER update_lab_reports_updated_at BEFORE UPDATE ON lab_reports FOR EA
 CREATE TRIGGER update_medications_updated_at BEFORE UPDATE ON medications FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_appointments_updated_at BEFORE UPDATE ON appointments FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
--- Insert default admin user (password: admin123)
-INSERT INTO users (email, password_hash, first_name, last_name, role, is_active) 
-VALUES (
-  'admin@telecheck.com',
-  '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj4J/HS.iK8O',
-  'Admin',
-  'User',
-  'admin',
-  true
-) ON CONFLICT (email) DO NOTHING;

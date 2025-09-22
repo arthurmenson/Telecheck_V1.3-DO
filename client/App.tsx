@@ -91,6 +91,7 @@ import { PatientManagement } from "./pages/PatientManagement";
 import { ClinicalOperations } from "./pages/ClinicalOperations";
 import { RemoteMonitoring } from "./pages/RemoteMonitoring";
 import { Administration } from "./pages/Administration";
+import { PMSDashboard } from "./pages/PMSDashboard";
 import NotFound from "./pages/NotFound";
 import {
   Activity,
@@ -432,6 +433,26 @@ const App = () => (
                 />
                 <Route
                   path="/ehr/scheduling"
+                  element={
+                    <ProtectedRoute allowedRoles={["admin", "doctor", "nurse"]}>
+                      <Layout>
+                        <Scheduling />
+                      </Layout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/pms"
+                  element={
+                    <ProtectedRoute allowedRoles={["admin", "doctor", "nurse"]}>
+                      <Layout>
+                        <PMSDashboard />
+                      </Layout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/pms/scheduling"
                   element={
                     <ProtectedRoute allowedRoles={["admin", "doctor", "nurse"]}>
                       <Layout>

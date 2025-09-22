@@ -62,17 +62,19 @@ export function Layout({ children }: LayoutProps) {
   const [expandedGroups, setExpandedGroups] = useState<string[]>([
     "core",
     "clinical",
-    "patient-management", // Expand Patient Management by default
+    "practice-management",
   ]);
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout, isAuthenticated } = useAuth();
 
-  const toggleGroup = (groupId: string) => {
+  const getGroupKey = (group: { id?: string; name: string }) =>
+    group.id || group.name.toLowerCase().replace(/\s+/g, "-");
+
+  const toggleGroup = (group: { id?: string; name: string }) => {
+    const key = getGroupKey(group);
     setExpandedGroups((prev) =>
-      prev.includes(groupId)
-        ? prev.filter((id) => id !== groupId)
-        : [...prev, groupId],
+      prev.includes(key) ? prev.filter((id) => id !== key) : [...prev, key],
     );
   };
 
@@ -83,6 +85,7 @@ export function Layout({ children }: LayoutProps) {
         id: "core",
         name: "Core Dashboard",
         icon: Shield,
+        isGroup: true,
         items: [
           { name: "Admin Dashboard", href: "/admin-dashboard", icon: Shield },
           { name: "Analytics", href: "/ehr/reporting", icon: BarChart3 },
@@ -92,13 +95,9 @@ export function Layout({ children }: LayoutProps) {
         id: "clinical",
         name: "Clinical Operations",
         icon: Stethoscope,
+        isGroup: true,
         items: [
           { name: "EHR Overview", href: "/ehr", icon: Cloud },
-          {
-            name: "Patient Management",
-            href: "/patient-management",
-            icon: Users,
-          },
           {
             name: "Clinical Operations",
             href: "/clinical-operations",
@@ -109,12 +108,6 @@ export function Layout({ children }: LayoutProps) {
             href: "/remote-monitoring",
             icon: Activity,
           },
-          { name: "Administration", href: "/administration", icon: Settings },
-          {
-            name: "Practice Management",
-            href: "/ehr/scheduling",
-            icon: Building,
-          },
           {
             name: "Patient Engagement",
             href: "/ehr/telehealth",
@@ -123,9 +116,40 @@ export function Layout({ children }: LayoutProps) {
         ],
       },
       {
+        id: "practice-management",
+        name: "Practice Management",
+        icon: Building,
+        isGroup: true,
+        items: [
+          { name: "PMS Hub", href: "/pms", icon: Building },
+          { name: "Visit Scheduling", href: "/pms/scheduling", icon: Calendar },
+          {
+            name: "Patient Management",
+            href: "/patient-management",
+            icon: Users,
+          },
+          {
+            name: "Patient Registry",
+            href: "/patient-registry",
+            icon: ClipboardList,
+          },
+          {
+            name: "Clinical Documentation",
+            href: "/patient-care-coordination",
+            icon: FileText,
+          },
+          {
+            name: "Operations Console",
+            href: "/administration",
+            icon: Settings,
+          },
+        ],
+      },
+      {
         id: "ecommerce",
         name: "E-commerce",
         icon: Store,
+        isGroup: true,
         items: [
           { name: "Product Catalog", href: "/catalog", icon: Store },
           { name: "Order Management", href: "/orders", icon: ShoppingCart },
@@ -142,6 +166,7 @@ export function Layout({ children }: LayoutProps) {
         id: "marketing",
         name: "Marketing & Outreach",
         icon: Megaphone,
+        isGroup: true,
         items: [
           { name: "Campaign Manager", href: "/marketing", icon: Megaphone },
           { name: "Social Media Hub", href: "/marketing/social", icon: Share2 },
@@ -167,6 +192,7 @@ export function Layout({ children }: LayoutProps) {
         id: "business",
         name: "Business Operations",
         icon: Building,
+        isGroup: true,
         items: [
           { name: "Product Admin", href: "/admin/products", icon: Settings },
           { name: "Subscriptions", href: "/subscriptions", icon: RefreshCw },
@@ -216,9 +242,9 @@ export function Layout({ children }: LayoutProps) {
           },
           { name: "EHR Overview", href: "/ehr", icon: Cloud },
           {
-            name: "Patient Management",
-            href: "/patient-management",
-            icon: Users,
+            name: "Practice Management Suite",
+            href: "/pms",
+            icon: Building,
           },
           {
             name: "Clinical Operations",
@@ -259,9 +285,9 @@ export function Layout({ children }: LayoutProps) {
             icon: HeartPulse,
           },
           {
-            name: "Patient Management",
-            href: "/patient-management",
-            icon: Users,
+            name: "Practice Management Suite",
+            href: "/pms",
+            icon: Building,
           },
           {
             name: "Clinical Operations",
@@ -332,8 +358,21 @@ export function Layout({ children }: LayoutProps) {
         "/ehr/providers",
       ].includes(location.pathname);
     }
+    if (href === "/pms") {
+      return [
+        "/pms",
+        "/pms/scheduling",
+        "/patient-management",
+        "/patient-registry",
+        "/patient-care-coordination",
+        "/administration",
+      ].includes(location.pathname);
+    }
+    if (href === "/pms/scheduling") {
+      return ["/pms/scheduling", "/ehr/scheduling"].includes(location.pathname);
+    }
     if (href === "/ehr/scheduling" && location.pathname.startsWith("/ehr/")) {
-      // Practice Management category routes
+      // Practice Management category routes (legacy paths)
       return ["/ehr/scheduling", "/ehr/billing", "/ehr/insurance"].includes(
         location.pathname,
       );
@@ -397,12 +436,13 @@ export function Layout({ children }: LayoutProps) {
         {/* Navigation */}
         <nav className="flex-1 px-4 py-6 space-y-2">
           {navigation.map((item: any) => {
-            // Handle grouped items
-            if (item.isGroup) {
+            const isGroup =
+              item.isGroup ||
+              (Array.isArray(item.items) && item.items.length > 0);
+            if (isGroup) {
               const GroupIcon = item.icon;
-              const isExpanded = expandedGroups.includes(
-                item.name.toLowerCase().replace(" ", "-"),
-              );
+              const groupKey = getGroupKey(item);
+              const isExpanded = expandedGroups.includes(groupKey);
               const hasActiveItem = item.items?.some((subItem: any) =>
                 isActiveRoute(subItem.href),
               );
@@ -411,9 +451,7 @@ export function Layout({ children }: LayoutProps) {
                 <div key={item.name} className="space-y-1">
                   {/* Group Header */}
                   <button
-                    onClick={() =>
-                      toggleGroup(item.name.toLowerCase().replace(" ", "-"))
-                    }
+                    onClick={() => toggleGroup(item)}
                     className={`w-full group flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 hover-lift ${
                       hasActiveItem
                         ? "bg-gradient-to-r from-primary/20 to-primary/10 text-primary border border-primary/20"

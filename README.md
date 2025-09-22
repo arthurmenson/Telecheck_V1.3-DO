@@ -107,6 +107,8 @@ A comprehensive healthcare management platform built with modern web technologie
    # Edit .env with your configuration
    ```
 
+   > **Security Note:** Patient APIs now require authenticated requests by default. Only set `ENABLE_DEMO_AUTH_BYPASS=true` in `.env` for controlled demo environments, and keep it `false` for staging and production.
+
 4. **Set up databases**
 
    ```bash
@@ -118,16 +120,86 @@ A comprehensive healthcare management platform built with modern web technologie
    redis-server
    ```
 
-5. **Start development server**
+5. **Bootstrap an administrator account (one-time per environment)**
+
+   ```bash
+   export ADMIN_BOOTSTRAP_EMAIL="founder@example.com"
+   export ADMIN_BOOTSTRAP_PASSWORD="ChangeMeNow123!"
+   export ADMIN_BOOTSTRAP_FIRST_NAME="Telecheck"
+   export ADMIN_BOOTSTRAP_LAST_NAME="Admin"
+   npm run bootstrap:admin
+   unset ADMIN_BOOTSTRAP_EMAIL ADMIN_BOOTSTRAP_PASSWORD ADMIN_BOOTSTRAP_FIRST_NAME ADMIN_BOOTSTRAP_LAST_NAME
+   ```
+
+   > The bootstrap script reads credentials from environment variables and exits if the account already exists. Set
+   > `ADMIN_BOOTSTRAP_ROTATE=true` when re-issuing credentials. Do **not** commit the secrets to version control and clear the
+   > variables once the script finishes.
+
+6. **Start development server**
 
    ```bash
    npm run dev
    ```
 
-6. **Run tests**
+7. **Run tests**
    ```bash
    npm test
    ```
+
+## 🔐 Secrets Management
+
+Telecheck resolves sensitive configuration values through a pluggable secret manager so production environments can fetch
+credentials from a vault instead of storing them in plaintext environment files.
+
+1. **Select a provider** – Set `SECRETS_PROVIDER` to a comma-separated priority list (e.g., `file,env`). The default falls back
+   to checking a local secrets file before environment variables.
+2. **Provide vault references** – Point configuration variables at secret references using the `_SECRET_REF` suffix. For
+   example, `DB_PASSWORD_SECRET_REF=secret://database/primary#password` or a JSON descriptor such as
+   `DB_PASSWORD_SECRET_REF={"provider":"file","key":"database.primary.password"}`.
+3. **Create a local secrets bundle** – For local development, copy `secrets.local.example.json` to `secrets.local.json` (or the
+   file specified by `SECRETS_FILE`) and populate it with structured data that mirrors your vault layout. A minimal example:
+
+   ```json
+   {
+     "database": {
+       "primary": {
+         "password": "local-db-password",
+         "url": "postgresql://postgres:local-db-password@localhost:5432/telecheck"
+       }
+     },
+     "redis": {
+       "password": "redis-secret"
+     }
+   }
+   ```
+
+4. **Reference secrets in configuration** – Replace plaintext values with references:
+
+   ```bash
+   # database
+   DATABASE_URL_SECRET_REF=secret://database/primary#url
+   DB_PASSWORD_SECRET_REF=secret://database/primary#password
+
+   # redis
+   REDIS_PASSWORD_SECRET_REF=secret://redis#password
+
+   # optional TLS materials
+   DB_SSL_CA_SECRET_REF=secret://database/tls#ca
+   DB_SSL_CERT_SECRET_REF=secret://database/tls#cert
+   DB_SSL_KEY_SECRET_REF=secret://database/tls#key
+   ```
+
+   At runtime the Express config loader resolves each reference via the configured providers, falling back to environment
+   variables only when no secret reference is supplied. Missing production secrets trigger descriptive errors so deployments
+   fail fast instead of silently using insecure defaults.
+
+5. **Validate managed secrets before deploys** – Run `npm run secrets:check` to load the desired environment file (defaults to `production.env`) and confirm every referenced secret resolves via the configured providers. Provide a secrets bundle path with `--secrets` when testing local JSON files:
+
+   ```bash
+   npm run secrets:check -- --env production.env --secrets ./secrets.local.example.json
+   ```
+
+   The script reports any references that fall back to plaintext environment values or cannot be resolved so vault gaps can be closed before promotion.
 
 ## 📁 Project Structure
 
