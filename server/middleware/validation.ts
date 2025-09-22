@@ -26,7 +26,15 @@ export const validateRegister = [
   body("firstName").trim().isLength({ min: 1, max: 100 }),
   body("lastName").trim().isLength({ min: 1, max: 100 }),
   body("role").isIn(["patient", "doctor", "pharmacist", "admin"]),
-  body("phone").optional().isMobilePhone(),
+  body("phone")
+    .optional()
+    .custom((value) => {
+      const normalized = String(value).replace(/[\s()-]/g, "");
+      if (!/^\+?\d{7,15}$/.test(normalized)) {
+        throw new Error("Invalid value");
+      }
+      return true;
+    }),
   handleValidationErrors,
 ];
 
@@ -45,7 +53,15 @@ export const validatePasswordReset = [
 export const validateUpdateProfile = [
   body("firstName").optional().trim().isLength({ min: 1, max: 100 }),
   body("lastName").optional().trim().isLength({ min: 1, max: 100 }),
-  body("phone").optional().isMobilePhone(),
+  body("phone")
+    .optional()
+    .custom((value) => {
+      const normalized = String(value).replace(/[\s()-]/g, "");
+      if (!/^\+?\d{7,15}$/.test(normalized)) {
+        throw new Error("Invalid value");
+      }
+      return true;
+    }),
   handleValidationErrors,
 ];
 

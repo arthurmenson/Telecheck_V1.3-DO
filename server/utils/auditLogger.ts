@@ -1,12 +1,27 @@
+import crypto from "crypto";
+
+import { dbPool } from "../config/database";
+import { logger } from "./logger";
+
+const auditLogger = logger.child({ component: "audit" });
+
+type AuditLogEntry = {
+  id: string;
+  timestamp: string;
+  userId: string;
+  action: string;
+  [key: string]: unknown;
+};
+
 // HIPAA-compliant audit logging service
 export class AuditLogger {
-  private static logs: Map<string, any[]> = new Map();
+  private static logs: Map<string, AuditLogEntry[]> = new Map();
   private static isEnabled = true;
 
   // Enable/disable audit logging
   static setEnabled(enabled: boolean) {
     this.isEnabled = enabled;
-    console.log(`📋 Audit logging ${enabled ? "enabled" : "disabled"}`);
+    auditLogger.info("audit.logging.toggle", { enabled });
   }
 
   // Log user access to PHI data
@@ -37,7 +52,11 @@ export class AuditLogger {
     };
 
     this.addAuditEntry(userId, auditEntry);
-    console.log(`📋 Audit: ${userId} ${action} ${dataType}`);
+    auditLogger.info("audit.event.data_access", {
+      userId,
+      action,
+      dataType,
+    });
   }
 
   // Log authentication events
@@ -66,7 +85,10 @@ export class AuditLogger {
     };
 
     this.addAuditEntry(userId, auditEntry);
-    console.log(`🔐 Auth: ${userId} ${action}`);
+    auditLogger.info("audit.event.authentication", {
+      userId,
+      action,
+    });
   }
 
   // Log system events
@@ -89,7 +111,10 @@ export class AuditLogger {
     };
 
     this.addAuditEntry("SYSTEM", auditEntry);
-    console.log(`⚙️ System: ${event} - ${operation}`);
+    auditLogger.info("audit.event.system", {
+      event,
+      operation,
+    });
   }
 
   // Log communication events (SMS, voice, email)
@@ -119,7 +144,11 @@ export class AuditLogger {
     };
 
     this.addAuditEntry(userId, auditEntry);
-    console.log(`📞 Communication: ${userId} ${direction} ${type}`);
+    auditLogger.info("audit.event.communication", {
+      userId,
+      direction,
+      type,
+    });
   }
 
   // Log medical events (glucose readings, vitals, etc.)
@@ -142,7 +171,90 @@ export class AuditLogger {
     };
 
     this.addAuditEntry(userId, auditEntry);
-    console.log(`🏥 Medical: ${userId} ${eventType}`);
+    auditLogger.info("audit.event.medical", {
+      userId,
+      eventType,
+    });
+  }
+
+  // Generic structured audit event helper used by services
+  static logEvent(params: {
+    userId: string;
+    action: string;
+    resourceType: string;
+    resourceId: string;
+    details?: Record<string, unknown>;
+    severity?: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+  }) {
+    if (!this.isEnabled) return;
+
+    const auditEntry = {
+      id: this.generateAuditId(),
+      timestamp: new Date().toISOString(),
+      userId: params.userId,
+      action: "RESOURCE_EVENT",
+      operation: params.action,
+      resourceType: params.resourceType,
+      resourceId: params.resourceId,
+      details: params.details || {},
+      severity: params.severity || "LOW",
+      ipAddress: this.getCurrentIP(),
+      userAgent: this.getCurrentUserAgent(),
+      compliance: {
+        hipaa: true,
+        gdpr: true,
+        sox: true,
+      },
+    };
+
+    this.addAuditEntry(params.userId, auditEntry);
+    auditLogger.info("audit.event.resource", {
+      userId: params.userId,
+      action: params.action,
+      resourceType: params.resourceType,
+      resourceId: params.resourceId,
+    });
+  }
+
+  // Generic structured logger used throughout legacy services
+  static log(
+    userId: string,
+    action: string,
+    description: string,
+    details: Record<string, unknown> = {},
+    options: {
+      resourceType?: string;
+      resourceId?: string;
+      severity?: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+    } = {},
+  ) {
+    if (!this.isEnabled) return;
+
+    const auditEntry = {
+      id: this.generateAuditId(),
+      timestamp: new Date().toISOString(),
+      userId,
+      action,
+      description,
+      details,
+      resourceType: options.resourceType,
+      resourceId: options.resourceId,
+      severity: options.severity || "LOW",
+      ipAddress: this.getCurrentIP(),
+      userAgent: this.getCurrentUserAgent(),
+      compliance: {
+        hipaa: true,
+        gdpr: true,
+        sox: true,
+      },
+    };
+
+    this.addAuditEntry(userId, auditEntry);
+    auditLogger.info("audit.event.legacy", {
+      userId,
+      action,
+      description,
+    });
   }
 
   // Log medication events
@@ -171,7 +283,11 @@ export class AuditLogger {
     };
 
     this.addAuditEntry(userId, auditEntry);
-    console.log(`💊 Medication: ${userId} ${action} ${medication}`);
+    auditLogger.info("audit.event.medication", {
+      userId,
+      action,
+      medication,
+    });
   }
 
   // Log AI/ML model usage
@@ -205,9 +321,11 @@ export class AuditLogger {
     };
 
     this.addAuditEntry(userId, auditEntry);
-    console.log(
-      `🤖 AI Model: ${userId} used ${modelType} (confidence: ${confidence}%)`,
-    );
+    auditLogger.info("audit.event.ai_model", {
+      userId,
+      modelType,
+      confidence,
+    });
   }
 
   // Log data export/sharing events
@@ -240,9 +358,12 @@ export class AuditLogger {
     };
 
     this.addAuditEntry(userId, auditEntry);
-    console.log(
-      `📤 Export: ${userId} exported ${dataTypes.join(", ")} to ${recipient}`,
-    );
+    auditLogger.info("audit.event.data_export", {
+      userId,
+      exportType,
+      recipient,
+      dataTypes,
+    });
   }
 
   // Get audit logs for a user
@@ -369,7 +490,7 @@ export class AuditLogger {
   }
 
   // Private helper methods
-  private static addAuditEntry(userId: string, entry: any) {
+  private static addAuditEntry(userId: string, entry: AuditLogEntry) {
     if (!this.logs.has(userId)) {
       this.logs.set(userId, []);
     }
@@ -381,10 +502,15 @@ export class AuditLogger {
     if (userLogs.length > 1000) {
       userLogs.splice(0, userLogs.length - 1000);
     }
+    void this.persistAuditEntry(entry).catch((error) => {
+      auditLogger.warn("audit.event.persist_failed", {
+        message: error instanceof Error ? error.message : String(error),
+      });
+    });
   }
 
   private static generateAuditId(): string {
-    return `audit_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    return crypto.randomUUID();
   }
 
   private static getCurrentIP(): string {
@@ -403,7 +529,104 @@ export class AuditLogger {
   }
 
   private static hashSensitiveData(data: string): string {
-    return require("crypto").createHash("sha256").update(data).digest("hex");
+    return crypto.createHash("sha256").update(data).digest("hex");
+  }
+
+  private static sanitizeForJson<T>(value: T): T {
+    if (value === undefined || value === null) {
+      return value;
+    }
+
+    try {
+      return JSON.parse(JSON.stringify(value));
+    } catch (error) {
+      if (value instanceof Error) {
+        return {
+          name: value.name,
+          message: value.message,
+          stack: value.stack,
+        } as unknown as T;
+      }
+
+      return (typeof value === "object"
+        ? { value: String(value) }
+        : String(value)) as unknown as T;
+    }
+  }
+
+  private static buildPayload(entry: AuditLogEntry): Record<string, unknown> {
+    const payload: Record<string, unknown> = {};
+
+    const details = entry.details as Record<string, unknown> | undefined;
+    if (details && Object.keys(details).length > 0) {
+      payload.details = this.sanitizeForJson(details);
+    }
+
+    const optionalFields = [
+      "dataType",
+      "communicationType",
+      "direction",
+      "event",
+      "medication",
+      "success",
+    ];
+
+    for (const field of optionalFields) {
+      const value = entry[field];
+      if (value !== undefined) {
+        payload[field] = this.sanitizeForJson(value);
+      }
+    }
+
+    return Object.keys(payload).length > 0 ? payload : {};
+  }
+
+  private static async persistAuditEntry(entry: AuditLogEntry) {
+    if (!dbPool) {
+      return;
+    }
+
+    const payload = this.buildPayload(entry);
+    const compliance = entry.compliance
+      ? this.sanitizeForJson(entry.compliance)
+      : null;
+
+    await dbPool.query(
+      `
+        INSERT INTO audit_logs (
+          event_id,
+          occurred_at,
+          user_id,
+          event_category,
+          operation,
+          resource_type,
+          resource_id,
+          severity,
+          ip_address,
+          user_agent,
+          session_id,
+          payload,
+          compliance
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+        ON CONFLICT (event_id) DO NOTHING
+      `,
+      [
+        entry.id,
+        new Date(entry.timestamp),
+        entry.userId,
+        entry.action,
+        entry.operation ?? null,
+        entry.resourceType ?? entry.dataType ?? null,
+        entry.resourceId ?? null,
+        entry.severity ?? "LOW",
+        entry.ipAddress ?? null,
+        entry.userAgent ?? null,
+        entry.sessionId ?? null,
+        payload,
+        compliance,
+      ],
+    );
   }
 
   private static convertToCSV(logs: any[]): string {

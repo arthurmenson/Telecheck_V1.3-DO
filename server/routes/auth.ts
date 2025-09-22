@@ -14,6 +14,169 @@ import { authenticateToken, AuthenticatedRequest } from "../middleware/auth";
 
 const router = Router();
 
+const REFRESH_TOKEN_TTL_SECONDS = 7 * 24 * 60 * 60;
+const getJwtSecret = () => process.env.JWT_SECRET || "dev-secret";
+
+type MemoryUserRecord = {
+  id: string;
+  email: string;
+  password_hash: string;
+  first_name: string;
+  last_name: string;
+  role: string;
+  phone?: string | null;
+  avatar_url?: string | null;
+  is_active: boolean;
+  last_login_at: Date | null;
+  password_reset_token: string | null;
+  password_reset_expires: Date | null;
+  created_at: Date;
+  updated_at: Date;
+};
+
+const useInMemoryStore = !dbPool;
+const memoryUsersById = useInMemoryStore
+  ? new Map<string, MemoryUserRecord>()
+  : null;
+const memoryUsersByEmail = useInMemoryStore
+  ? new Map<string, MemoryUserRecord>()
+  : null;
+
+type RefreshTokenStore = {
+  set: (userId: string, token: string) => Promise<void>;
+  validate: (userId: string, token: string) => Promise<boolean>;
+  delete: (userId: string) => Promise<void>;
+  clear?: () => Promise<void>;
+};
+
+const createRefreshTokenStore = (
+  client: typeof redisClient | null,
+): RefreshTokenStore => {
+  if (client && typeof client.setEx === "function") {
+    return {
+      async set(userId: string, token: string) {
+        await client.setEx(
+          `refresh_token:${userId}`,
+          REFRESH_TOKEN_TTL_SECONDS,
+          token,
+        );
+      },
+      async validate(userId: string, token: string) {
+        const stored = await client.get(`refresh_token:${userId}`);
+        return stored === token;
+      },
+      async delete(userId: string) {
+        await client.del(`refresh_token:${userId}`);
+      },
+      async clear() {
+        if (typeof client.keys !== "function") {
+          return;
+        }
+
+        const keys = await client.keys("refresh_token:*");
+        if (keys.length > 0) {
+          await client.del(...keys);
+        }
+      },
+    };
+  }
+
+  const store = new Map<string, Array<{ value: string; expiresAt: number }>>();
+  return {
+    async set(userId: string, token: string) {
+      const entries = store.get(userId) ?? [];
+      entries.push({
+        value: token,
+        expiresAt: Date.now() + REFRESH_TOKEN_TTL_SECONDS * 1000,
+      });
+      store.set(userId, entries);
+    },
+    async validate(userId: string, token: string) {
+      const entries = store.get(userId);
+      if (!entries) {
+        return false;
+      }
+
+      const now = Date.now();
+      const validEntries = entries.filter((entry) => entry.expiresAt > now);
+
+      if (validEntries.length !== entries.length) {
+        store.set(userId, validEntries);
+      }
+
+      return validEntries.some((entry) => entry.value === token);
+    },
+    async delete(userId: string) {
+      store.delete(userId);
+    },
+    async clear() {
+      store.clear();
+    },
+  };
+};
+
+const refreshTokens = createRefreshTokenStore(redisClient ?? null);
+
+const getMemoryUserByEmail = (email: string): MemoryUserRecord | null => {
+  if (!memoryUsersByEmail) {
+    return null;
+  }
+
+  return memoryUsersByEmail.get(email.toLowerCase()) ?? null;
+};
+
+const getMemoryUserById = (id: string): MemoryUserRecord | null => {
+  if (!memoryUsersById) {
+    return null;
+  }
+
+  return memoryUsersById.get(id) ?? null;
+};
+
+const persistMemoryUser = (user: MemoryUserRecord) => {
+  if (!memoryUsersById || !memoryUsersByEmail) {
+    return;
+  }
+
+  memoryUsersById.set(user.id, user);
+  memoryUsersByEmail.set(user.email.toLowerCase(), user);
+};
+
+const toSerializableDate = (value: unknown) =>
+  value instanceof Date ? value.toISOString() : (value ?? null);
+
+const buildPublicUser = (user: MemoryUserRecord | any) => ({
+  id: user.id,
+  email: user.email,
+  firstName: user.first_name,
+  lastName: user.last_name,
+  role: user.role,
+  phone: user.phone ?? null,
+});
+
+const buildProfileUser = (user: MemoryUserRecord | any) => ({
+  id: user.id,
+  email: user.email,
+  firstName: user.first_name,
+  lastName: user.last_name,
+  role: user.role,
+  phone: user.phone ?? null,
+  avatarUrl: user.avatar_url ?? null,
+  lastLoginAt: toSerializableDate(user.last_login_at),
+  createdAt: toSerializableDate(user.created_at),
+  updatedAt: toSerializableDate(user.updated_at),
+});
+
+const signAccessToken = (user: { id: string; email: string; role: string }) =>
+  jwt.sign(
+    { userId: user.id, email: user.email, role: user.role },
+    getJwtSecret(),
+    { expiresIn: "24h" },
+  );
+
+const signRefreshToken = (userId: string) =>
+  jwt.sign({ userId, type: "refresh" }, getJwtSecret(), { expiresIn: "7d" });
+
 // Register new user
 router.post(
   "/register",
@@ -21,11 +184,56 @@ router.post(
   async (req: Request, res: Response) => {
     try {
       const { email, password, firstName, lastName, role, phone } = req.body;
+      const normalizedEmail = String(email).toLowerCase();
 
-      // Check if user already exists
+      const saltRounds = 12;
+      const passwordHash = await bcrypt.hash(password, saltRounds);
+
+      if (!dbPool) {
+        const existingUser = getMemoryUserByEmail(normalizedEmail);
+        if (existingUser) {
+          return res.status(409).json({
+            error: "User already exists",
+            code: "USER_EXISTS",
+          });
+        }
+
+        const now = new Date();
+        const newUser: MemoryUserRecord = {
+          id: uuidv4(),
+          email: normalizedEmail,
+          password_hash: passwordHash,
+          first_name: firstName,
+          last_name: lastName,
+          role,
+          phone: phone ?? null,
+          avatar_url: null,
+          is_active: true,
+          last_login_at: null,
+          password_reset_token: null,
+          password_reset_expires: null,
+          created_at: now,
+          updated_at: now,
+        };
+
+        persistMemoryUser(newUser);
+
+        const token = signAccessToken(newUser);
+        const refreshToken = signRefreshToken(newUser.id);
+        await refreshTokens.set(newUser.id, refreshToken);
+
+        res.status(201).json({
+          message: "User registered successfully",
+          user: buildPublicUser(newUser),
+          token,
+          refreshToken,
+        });
+        return;
+      }
+
       const existingUser = await dbPool.query(
         "SELECT id FROM users WHERE email = $1",
-        [email],
+        [normalizedEmail],
       );
 
       if (existingUser.rows.length > 0) {
@@ -35,50 +243,22 @@ router.post(
         });
       }
 
-      // Hash password
-      const saltRounds = 12;
-      const passwordHash = await bcrypt.hash(password, saltRounds);
-
-      // Create user
       const result = await dbPool.query(
         `INSERT INTO users (email, password_hash, first_name, last_name, role, phone)
        VALUES ($1, $2, $3, $4, $5, $6)
        RETURNING id, email, first_name, last_name, role, created_at`,
-        [email, passwordHash, firstName, lastName, role, phone],
+        [normalizedEmail, passwordHash, firstName, lastName, role, phone],
       );
 
       const user = result.rows[0];
 
-      // Generate JWT token
-      const token = jwt.sign(
-        { userId: user.id, email: user.email, role: user.role },
-        process.env.JWT_SECRET!,
-        { expiresIn: "24h" },
-      );
-
-      // Generate refresh token
-      const refreshToken = jwt.sign(
-        { userId: user.id, type: "refresh" },
-        process.env.JWT_SECRET!,
-        { expiresIn: "7d" },
-      );
-
-      // Store refresh token in Redis
-      await redisClient.setEx(
-        `refresh_token:${user.id}`,
-        7 * 24 * 60 * 60,
-        refreshToken,
-      );
+      const token = signAccessToken(user);
+      const refreshToken = signRefreshToken(user.id);
+      await refreshTokens.set(user.id, refreshToken);
 
       res.status(201).json({
         message: "User registered successfully",
-        user: {
-          id: user.id,
-          email: user.email,
-          firstName: user.first_name,
-          lastName: user.last_name,
-          role: user.role,
-        },
+        user: buildPublicUser(user),
         token,
         refreshToken,
       });
@@ -96,11 +276,58 @@ router.post(
 router.post("/login", validateLogin, async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
+    const normalizedEmail = String(email).toLowerCase();
 
-    // Find user by email
+    if (!dbPool) {
+      const user = getMemoryUserByEmail(normalizedEmail);
+      if (!user) {
+        return res.status(401).json({
+          error: "Invalid credentials",
+          code: "INVALID_CREDENTIALS",
+        });
+      }
+
+      if (!user.is_active) {
+        return res.status(401).json({
+          error: "Account is deactivated",
+          code: "ACCOUNT_DEACTIVATED",
+        });
+      }
+
+      const isValidPassword = await bcrypt.compare(
+        password,
+        user.password_hash,
+      );
+      if (!isValidPassword) {
+        return res.status(401).json({
+          error: "Invalid credentials",
+          code: "INVALID_CREDENTIALS",
+        });
+      }
+
+      const updatedUser: MemoryUserRecord = {
+        ...user,
+        last_login_at: new Date(),
+        updated_at: new Date(),
+      };
+      persistMemoryUser(updatedUser);
+
+      const token = signAccessToken(updatedUser);
+      const refreshToken = signRefreshToken(updatedUser.id);
+      await refreshTokens.set(updatedUser.id, refreshToken);
+
+      res.json({
+        message: "Login successful",
+        user: buildPublicUser(updatedUser),
+        token,
+        refreshToken,
+      });
+      return;
+    }
+
     const result = await dbPool.query(
       "SELECT id, email, password_hash, first_name, last_name, role, is_active FROM users WHERE email = $1",
-      [email],
+      [normalizedEmail],
     );
 
     if (result.rows.length === 0) {
@@ -112,7 +339,6 @@ router.post("/login", validateLogin, async (req: Request, res: Response) => {
 
     const user = result.rows[0];
 
-    // Check if user is active
     if (!user.is_active) {
       return res.status(401).json({
         error: "Account is deactivated",
@@ -120,7 +346,6 @@ router.post("/login", validateLogin, async (req: Request, res: Response) => {
       });
     }
 
-    // Verify password
     const isValidPassword = await bcrypt.compare(password, user.password_hash);
     if (!isValidPassword) {
       return res.status(401).json({
@@ -129,42 +354,18 @@ router.post("/login", validateLogin, async (req: Request, res: Response) => {
       });
     }
 
-    // Update last login
     await dbPool.query(
       "UPDATE users SET last_login_at = CURRENT_TIMESTAMP WHERE id = $1",
       [user.id],
     );
 
-    // Generate JWT token
-    const token = jwt.sign(
-      { userId: user.id, email: user.email, role: user.role },
-      process.env.JWT_SECRET!,
-      { expiresIn: "24h" },
-    );
-
-    // Generate refresh token
-    const refreshToken = jwt.sign(
-      { userId: user.id, type: "refresh" },
-      process.env.JWT_SECRET!,
-      { expiresIn: "7d" },
-    );
-
-    // Store refresh token in Redis
-    await redisClient.setEx(
-      `refresh_token:${user.id}`,
-      7 * 24 * 60 * 60,
-      refreshToken,
-    );
+    const token = signAccessToken(user);
+    const refreshToken = signRefreshToken(user.id);
+    await refreshTokens.set(user.id, refreshToken);
 
     res.json({
       message: "Login successful",
-      user: {
-        id: user.id,
-        email: user.email,
-        firstName: user.first_name,
-        lastName: user.last_name,
-        role: user.role,
-      },
+      user: buildPublicUser(user),
       token,
       refreshToken,
     });
@@ -190,7 +391,7 @@ router.post("/refresh", async (req: Request, res: Response) => {
     }
 
     // Verify refresh token
-    const decoded = jwt.verify(refreshToken, process.env.JWT_SECRET!) as any;
+    const decoded = jwt.verify(refreshToken, getJwtSecret()) as any;
 
     if (decoded.type !== "refresh") {
       return res.status(401).json({
@@ -200,17 +401,34 @@ router.post("/refresh", async (req: Request, res: Response) => {
     }
 
     // Check if refresh token exists in Redis
-    const storedToken = await redisClient.get(
-      `refresh_token:${decoded.userId}`,
+    const isValidRefresh = await refreshTokens.validate(
+      decoded.userId,
+      refreshToken,
     );
-    if (!storedToken || storedToken !== refreshToken) {
+    if (!isValidRefresh) {
       return res.status(401).json({
         error: "Invalid refresh token",
         code: "INVALID_REFRESH_TOKEN",
       });
     }
 
-    // Get user info
+    if (!dbPool) {
+      const user = getMemoryUserById(decoded.userId);
+      if (!user || !user.is_active) {
+        return res.status(401).json({
+          error: "User not found or inactive",
+          code: "USER_INVALID",
+        });
+      }
+
+      const newToken = signAccessToken(user);
+      res.json({
+        message: "Token refreshed successfully",
+        token: newToken,
+      });
+      return;
+    }
+
     const result = await dbPool.query(
       "SELECT id, email, first_name, last_name, role, is_active FROM users WHERE id = $1",
       [decoded.userId],
@@ -225,12 +443,7 @@ router.post("/refresh", async (req: Request, res: Response) => {
 
     const user = result.rows[0];
 
-    // Generate new access token
-    const newToken = jwt.sign(
-      { userId: user.id, email: user.email, role: user.role },
-      process.env.JWT_SECRET!,
-      { expiresIn: "24h" },
-    );
+    const newToken = signAccessToken(user);
 
     res.json({
       message: "Token refreshed successfully",
@@ -253,8 +466,7 @@ router.post(
     try {
       const userId = req.user!.id;
 
-      // Remove refresh token from Redis
-      await redisClient.del(`refresh_token:${userId}`);
+      await refreshTokens.delete(userId);
 
       res.json({
         message: "Logout successful",
@@ -276,15 +488,41 @@ router.post(
   async (req: Request, res: Response) => {
     try {
       const { email } = req.body;
+      const normalizedEmail = String(email).toLowerCase();
 
-      // Check if user exists
+      if (!dbPool) {
+        const user = getMemoryUserByEmail(normalizedEmail);
+        if (!user || !user.is_active) {
+          return res.json({
+            message:
+              "If an account with that email exists, a password reset link has been sent",
+          });
+        }
+
+        const resetToken = uuidv4();
+        const resetTokenHash = await bcrypt.hash(resetToken, 10);
+
+        const updatedUser: MemoryUserRecord = {
+          ...user,
+          password_reset_token: resetTokenHash,
+          password_reset_expires: new Date(Date.now() + 3600000),
+          updated_at: new Date(),
+        };
+        persistMemoryUser(updatedUser);
+
+        res.json({
+          message: "Password reset link sent",
+          resetToken,
+        });
+        return;
+      }
+
       const result = await dbPool.query(
         "SELECT id, email, first_name FROM users WHERE email = $1 AND is_active = true",
-        [email],
+        [normalizedEmail],
       );
 
       if (result.rows.length === 0) {
-        // Don't reveal if user exists or not
         return res.json({
           message:
             "If an account with that email exists, a password reset link has been sent",
@@ -293,21 +531,17 @@ router.post(
 
       const user = result.rows[0];
 
-      // Generate reset token
       const resetToken = uuidv4();
       const resetTokenHash = await bcrypt.hash(resetToken, 10);
 
-      // Store reset token in database with expiration
       await dbPool.query(
         "UPDATE users SET password_reset_token = $1, password_reset_expires = $2 WHERE id = $3",
-        [resetTokenHash, new Date(Date.now() + 3600000), user.id], // 1 hour expiration
+        [resetTokenHash, new Date(Date.now() + 3600000), user.id],
       );
 
-      // TODO: Send email with reset link
-      // For now, just return the token (in production, send via email)
       res.json({
         message: "Password reset link sent",
-        resetToken, // Remove this in production
+        resetToken,
       });
     } catch (error) {
       console.error("Forgot password error:", error);
@@ -331,7 +565,55 @@ router.post("/reset-password", async (req: Request, res: Response) => {
       });
     }
 
-    // Find user with valid reset token
+    if (!dbPool) {
+      const candidates = memoryUsersById
+        ? Array.from(memoryUsersById.values())
+        : [];
+      let matchedUser: MemoryUserRecord | null = null;
+
+      for (const record of candidates) {
+        if (
+          record.password_reset_token &&
+          record.password_reset_expires &&
+          record.password_reset_expires.getTime() > Date.now()
+        ) {
+          const isValid = await bcrypt.compare(
+            token,
+            record.password_reset_token,
+          );
+          if (isValid) {
+            matchedUser = record;
+            break;
+          }
+        }
+      }
+
+      if (!matchedUser) {
+        return res.status(400).json({
+          error: "Invalid or expired reset token",
+          code: "INVALID_RESET_TOKEN",
+        });
+      }
+
+      const saltRounds = 12;
+      const newPasswordHash = await bcrypt.hash(newPassword, saltRounds);
+
+      const updatedUser: MemoryUserRecord = {
+        ...matchedUser,
+        password_hash: newPasswordHash,
+        password_reset_token: null,
+        password_reset_expires: null,
+        updated_at: new Date(),
+      };
+      persistMemoryUser(updatedUser);
+      await refreshTokens.delete(updatedUser.id);
+
+      res.json({
+        message: "Password reset successfully",
+      });
+      return;
+    }
+
     const result = await dbPool.query(
       "SELECT id, password_reset_token FROM users WHERE password_reset_token IS NOT NULL AND password_reset_expires > CURRENT_TIMESTAMP",
       [],
@@ -344,7 +626,6 @@ router.post("/reset-password", async (req: Request, res: Response) => {
       });
     }
 
-    // Find the user with the matching token
     let user = null;
     for (const row of result.rows) {
       const isValidToken = await bcrypt.compare(
@@ -364,18 +645,15 @@ router.post("/reset-password", async (req: Request, res: Response) => {
       });
     }
 
-    // Hash new password
     const saltRounds = 12;
     const newPasswordHash = await bcrypt.hash(newPassword, saltRounds);
 
-    // Update password and clear reset token
     await dbPool.query(
       "UPDATE users SET password_hash = $1, password_reset_token = NULL, password_reset_expires = NULL WHERE id = $2",
       [newPasswordHash, user.id],
     );
 
-    // Invalidate all refresh tokens
-    await redisClient.del(`refresh_token:${user.id}`);
+    await refreshTokens.delete(user.id);
 
     res.json({
       message: "Password reset successfully",
@@ -397,8 +675,23 @@ router.get(
     try {
       const userId = req.user!.id;
 
+      if (!dbPool) {
+        const user = getMemoryUserById(userId);
+        if (!user) {
+          return res.status(404).json({
+            error: "User not found",
+            code: "USER_NOT_FOUND",
+          });
+        }
+
+        res.json({
+          user: buildProfileUser(user),
+        });
+        return;
+      }
+
       const result = await dbPool.query(
-        `SELECT id, email, first_name, last_name, role, phone, avatar_url, 
+        `SELECT id, email, first_name, last_name, role, phone, avatar_url,
               last_login_at, created_at, updated_at
        FROM users WHERE id = $1`,
         [userId],
@@ -414,18 +707,7 @@ router.get(
       const user = result.rows[0];
 
       res.json({
-        user: {
-          id: user.id,
-          email: user.email,
-          firstName: user.first_name,
-          lastName: user.last_name,
-          role: user.role,
-          phone: user.phone,
-          avatarUrl: user.avatar_url,
-          lastLoginAt: user.last_login_at,
-          createdAt: user.created_at,
-          updatedAt: user.updated_at,
-        },
+        user: buildProfileUser(user),
       });
     } catch (error) {
       console.error("Get profile error:", error);
@@ -447,8 +729,33 @@ router.put(
       const userId = req.user!.id;
       const { firstName, lastName, phone } = req.body;
 
+      if (!dbPool) {
+        const user = getMemoryUserById(userId);
+        if (!user) {
+          return res.status(404).json({
+            error: "User not found",
+            code: "USER_NOT_FOUND",
+          });
+        }
+
+        const updatedUser: MemoryUserRecord = {
+          ...user,
+          first_name: firstName ?? user.first_name,
+          last_name: lastName ?? user.last_name,
+          phone: phone ?? user.phone ?? null,
+          updated_at: new Date(),
+        };
+        persistMemoryUser(updatedUser);
+
+        res.json({
+          message: "Profile updated successfully",
+          user: buildProfileUser(updatedUser),
+        });
+        return;
+      }
+
       const result = await dbPool.query(
-        `UPDATE users 
+        `UPDATE users
        SET first_name = COALESCE($1, first_name),
            last_name = COALESCE($2, last_name),
            phone = COALESCE($3, phone),
@@ -469,16 +776,7 @@ router.put(
 
       res.json({
         message: "Profile updated successfully",
-        user: {
-          id: user.id,
-          email: user.email,
-          firstName: user.first_name,
-          lastName: user.last_name,
-          role: user.role,
-          phone: user.phone,
-          avatarUrl: user.avatar_url,
-          updatedAt: user.updated_at,
-        },
+        user: buildProfileUser(user),
       });
     } catch (error) {
       console.error("Update profile error:", error);
@@ -491,3 +789,17 @@ router.put(
 );
 
 export default router;
+
+export async function __resetAuthStateForTests() {
+  if (memoryUsersById) {
+    memoryUsersById.clear();
+  }
+
+  if (memoryUsersByEmail) {
+    memoryUsersByEmail.clear();
+  }
+
+  if (typeof refreshTokens.clear === "function") {
+    await refreshTokens.clear();
+  }
+}

@@ -1,0 +1,41 @@
+name: Readiness CI
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - "**"
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint formatting baseline
+        run: npm run lint:ci
+
+      - name: Run authentication harness
+        run: npm run test -- tests/phase1/auth.test.ts
+
+      - name: Validate managed secrets
+        run: npm run secrets:check
+
+      - name: Scan dependencies for known vulnerabilities
+        run: npm run security:scan

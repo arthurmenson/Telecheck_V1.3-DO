@@ -32,7 +32,11 @@
     "format:check": "prettier --check .",
     "format.fix": "prettier --write .",
     "typecheck": "tsc",
-    "deploy:check": "npm run typecheck && npm run build:prod && npm run test"
+    "deploy:check": "npm run typecheck && npm run build:prod && npm run test",
+    "bootstrap:admin": "tsx scripts/bootstrap-admin.ts",
+    "seed:test-data": "tsx scripts/seed-test-data.ts",
+    "secrets:check": "tsx scripts/validate-secrets.ts --env production.env --secrets secrets.local.example.json",
+    "security:scan": "tsx scripts/security-scan.ts"
   },
   "dependencies": {
     "@types/bcrypt": "^6.0.0",

@@ -22,6 +22,25 @@ CREATE TABLE IF NOT EXISTS users (
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Audit logs table
+CREATE TABLE IF NOT EXISTS audit_logs (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  event_id UUID UNIQUE NOT NULL,
+  occurred_at TIMESTAMPTZ NOT NULL,
+  user_id TEXT,
+  event_category VARCHAR(50) NOT NULL,
+  operation VARCHAR(100),
+  resource_type VARCHAR(100),
+  resource_id VARCHAR(100),
+  severity VARCHAR(10) NOT NULL DEFAULT 'LOW',
+  ip_address VARCHAR(100),
+  user_agent VARCHAR(255),
+  session_id VARCHAR(255),
+  payload JSONB NOT NULL DEFAULT '{}'::jsonb,
+  compliance JSONB,
+  created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Patients table
 CREATE TABLE IF NOT EXISTS patients (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -144,6 +163,10 @@ CREATE TABLE IF NOT EXISTS health_insights (
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
 CREATE INDEX IF NOT EXISTS idx_users_is_active ON users(is_active);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_audit_logs_event_id ON audit_logs(event_id);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_user_id ON audit_logs(user_id);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_occurred_at ON audit_logs(occurred_at);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_category ON audit_logs(event_category);
 CREATE INDEX IF NOT EXISTS idx_patients_user_id ON patients(user_id);
 CREATE INDEX IF NOT EXISTS idx_lab_reports_user_id ON lab_reports(user_id);
 CREATE INDEX IF NOT EXISTS idx_lab_reports_status ON lab_reports(analysis_status);
@@ -177,13 +200,3 @@ CREATE TRIGGER update_lab_reports_updated_at BEFORE UPDATE ON lab_reports FOR EA
 CREATE TRIGGER update_medications_updated_at BEFORE UPDATE ON medications FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_appointments_updated_at BEFORE UPDATE ON appointments FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
--- Insert default admin user (password: admin123)
-INSERT INTO users (email, password_hash, first_name, last_name, role, is_active) 
-VALUES (
-  'admin@telecheck.com',
-  '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj4J/HS.iK8O',
-  'Admin',
-  'User',
-  'admin',
-  true
-) ON CONFLICT (email) DO NOTHING;

@@ -10,6 +10,25 @@ export interface AuthenticatedRequest extends Request {
   };
 }
 
+const canBypassAuth = () => {
+  if (process.env.NODE_ENV === "test") {
+    return false;
+  }
+
+  if (process.env.ENABLE_DEMO_AUTH_BYPASS === "true") {
+    return true;
+  }
+
+  if (
+    process.env.FLY_APP_NAME &&
+    process.env.ENABLE_DEMO_AUTH_BYPASS !== "false"
+  ) {
+    return true;
+  }
+
+  return false;
+};
+
 export const authenticateToken = async (
   req: AuthenticatedRequest,
   res: Response,
@@ -34,11 +53,7 @@ export const authenticateToken = async (
       console.log("[Auth] No token provided");
 
       // For demo deployments or patient routes, provide a demo user instead of failing
-      if (
-        process.env.FLY_APP_NAME ||
-        req.url.includes("/patients") ||
-        process.env.NODE_ENV !== "production"
-      ) {
+      if (canBypassAuth() && req.url.includes("/patients")) {
         console.log("[Auth] Providing demo user for demo deployment");
         req.user = {
           id: "demo-user",
@@ -92,11 +107,7 @@ export const authenticateToken = async (
         });
 
         // For demo deployments, provide a demo user instead of failing
-        if (
-          process.env.FLY_APP_NAME ||
-          req.url.includes("/patients") ||
-          process.env.NODE_ENV !== "production"
-        ) {
+        if (canBypassAuth() && req.url.includes("/patients")) {
           console.log(
             "[Auth] Token validation failed, providing demo user for demo deployment",
           );

@@ -9,6 +9,14 @@ import {
   teardownTestRedis,
   clearTestCache,
 } from "./utils/redis";
+import { createAuthTestServer } from "../server/testServer";
+import { __resetAuthStateForTests } from "../server/routes/auth";
+import { closeDatabase } from "../server/config/database";
+
+declare global {
+  // eslint-disable-next-line no-var
+  var testApp: any;
+}
 
 // Set test environment variables
 process.env.NODE_ENV = "test";
@@ -38,24 +46,45 @@ if (typeof global.localStorage === "undefined") {
 }
 
 // Check if we're running server tests (tests that need database)
-const isServerTest = process.argv.some(
+const lifecycleEvent = process.env.npm_lifecycle_event || "";
+const serverLifecycleEvents = new Set(["test:api", "test:integration", "test"]);
+
+const cliRequestTargetsServer = process.argv.some(
   (arg) =>
     arg.includes("server") ||
     arg.includes("tests/") ||
     arg.includes("auth.test.ts"),
 );
 
+const needsAuthHarness = lifecycleEvent === "test:phase1";
+const shouldBootstrapDatabase =
+  !needsAuthHarness &&
+  (serverLifecycleEvents.has(lifecycleEvent) || cliRequestTargetsServer);
+
+const isServerTest = needsAuthHarness || shouldBootstrapDatabase;
+
 // Global test setup
 beforeAll(async () => {
   // Only setup database for server tests
   if (isServerTest) {
+    if (shouldBootstrapDatabase) {
+      try {
+        await setupTestDatabase();
+        await setupTestRedis();
+      } catch (error) {
+        console.warn(
+          "⚠️ Database setup failed, tests may not work properly:",
+          (error as Error).message,
+        );
+      }
+    }
+
     try {
-      await setupTestDatabase();
-      await setupTestRedis();
+      global.testApp = await createAuthTestServer();
     } catch (error) {
       console.warn(
-        "⚠️ Database setup failed, tests may not work properly:",
-        error.message,
+        "⚠️ Test server bootstrap failed:",
+        (error as Error).message,
       );
     }
   }
@@ -65,11 +94,19 @@ beforeAll(async () => {
 afterAll(async () => {
   // Only cleanup database for server tests
   if (isServerTest) {
+    if (shouldBootstrapDatabase) {
+      try {
+        await teardownTestDatabase();
+        await teardownTestRedis();
+      } catch (error) {
+        console.warn("⚠️ Database cleanup failed:", (error as Error).message);
+      }
+    }
+
     try {
-      await teardownTestDatabase();
-      await teardownTestRedis();
+      await closeDatabase();
     } catch (error) {
-      console.warn("⚠️ Database cleanup failed:", error.message);
+      console.warn("⚠️ Test server shutdown failed:", (error as Error).message);
     }
   }
 });
@@ -81,6 +118,9 @@ beforeEach(async () => {
     try {
       await clearTestData();
       await clearTestCache();
+      if (needsAuthHarness) {
+        await __resetAuthStateForTests();
+      }
     } catch (error) {
       console.warn("⚠️ Data cleanup failed:", error.message);
     }

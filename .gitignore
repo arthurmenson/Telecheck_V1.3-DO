@@ -39,4 +39,10 @@ terraform/*.tfstate.*
 terraform/terraform.tfvars
 terraform/tfplan
 terraform/.terraform/
+infra/terraform/backend.hcl
+infra/terraform/backend.tfvars
+infra/terraform/environments/*.tfvars
+
+# Local secret bundles
+secrets.local.json
 

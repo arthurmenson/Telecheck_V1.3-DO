@@ -1,0 +1,9 @@
+environment         = "production"
+aws_region          = "us-east-1"
+availability_zones  = ["us-east-1a", "us-east-1b"]
+certificate_arn     = "arn:aws:acm:us-east-1:123456789012:certificate/production"
+database_username   = "telecheck"
+database_password   = "change-me"
+app_image           = "123456789012.dkr.ecr.us-east-1.amazonaws.com/telecheck-api:production"
+desired_count       = 4
+allowed_cidr_blocks = ["198.51.100.0/24"]

@@ -86,6 +86,10 @@ import {
   getMessagingAuditLogs,
   sendWellnessCheck,
 } from "./routes/messaging-admin";
+import auditLogRoutes from "./routes/audit-logs";
+import { requestLogger } from "./middleware/requestLogger";
+import { logger } from "./utils/logger";
+import { featureFlagsMiddleware } from "./middleware/featureFlags";
 import {
   getThresholdTypes,
   getPatientThresholds,
@@ -126,6 +130,13 @@ export async function createServer() {
   await initializeDatabase();
 
   const app = express();
+
+  logger.info("server.starting", {
+    environment: process.env.NODE_ENV || "development",
+  });
+
+  app.use(requestLogger);
+  app.use(featureFlagsMiddleware);
 
   // Security middleware
   app.use(helmet());
@@ -189,6 +200,9 @@ export async function createServer() {
   app.get("/api/insights/:userId?", getHealthInsights);
   app.post("/api/insights/:id/dismiss", dismissInsight);
   app.post("/api/insights/generate/:userId?", generateInsights);
+
+  // Audit log routes
+  app.use("/api/audit-logs", auditLogRoutes);
 
   // Advanced AI routes
   app.get("/api/ai/cardiovascular-risk/:userId?", assessCardiovascularRisk);
