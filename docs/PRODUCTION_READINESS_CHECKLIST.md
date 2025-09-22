@@ -157,7 +157,7 @@ _Primary Roadmap Alignment: Phase 4_
 
 _Primary Roadmap Alignment: Phase 4_
 
-- [ ] **Runbooks & SOPs**: Create playbooks for common support scenarios (account issues, sync failures, telehealth outages). — _Next: Draft Tier 1 runbooks for authentication and telehealth troubleshooting._
+- [~] **Runbooks & SOPs**: Create playbooks for common support scenarios (account issues, sync failures, telehealth outages). — _Progress: Documented Tier 1/Tier 2 runbooks, escalation paths, and evidence expectations in `docs/RUNBOOKS_AND_SUPPORT.md`; Next: socialize with Support/Compliance leadership and capture sign-off._
 - [ ] **Support Escalation**: Define tiers, SLAs, and on-call rotations with incident tracking in ITSM tools. — _Next: Select ITSM platform and document escalation matrix with response times._
 - [ ] **Training & Enablement**: Provide role-based training materials, certification programs, and sandbox environments. — _Next: Inventory training needs per persona and outline sandbox data requirements._
 - [ ] **Customer Feedback Loop**: Integrate NPS/CSAT collection and feature request triage into product planning. — _Next: Choose survey tooling and embed response review cadence into product rituals._
