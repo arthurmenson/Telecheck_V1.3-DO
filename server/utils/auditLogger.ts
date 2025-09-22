@@ -145,6 +145,79 @@ export class AuditLogger {
     console.log(`🏥 Medical: ${userId} ${eventType}`);
   }
 
+  // Generic structured audit event helper used by services
+  static logEvent(params: {
+    userId: string;
+    action: string;
+    resourceType: string;
+    resourceId: string;
+    details?: Record<string, unknown>;
+    severity?: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+  }) {
+    if (!this.isEnabled) return;
+
+    const auditEntry = {
+      id: this.generateAuditId(),
+      timestamp: new Date().toISOString(),
+      userId: params.userId,
+      action: "RESOURCE_EVENT",
+      operation: params.action,
+      resourceType: params.resourceType,
+      resourceId: params.resourceId,
+      details: params.details || {},
+      severity: params.severity || "LOW",
+      ipAddress: this.getCurrentIP(),
+      userAgent: this.getCurrentUserAgent(),
+      compliance: {
+        hipaa: true,
+        gdpr: true,
+        sox: true,
+      },
+    };
+
+    this.addAuditEntry(params.userId, auditEntry);
+    console.log(
+      `📋 Audit event: ${params.userId} ${params.action} ${params.resourceType}#${params.resourceId}`,
+    );
+  }
+
+  // Generic structured logger used throughout legacy services
+  static log(
+    userId: string,
+    action: string,
+    description: string,
+    details: Record<string, unknown> = {},
+    options: {
+      resourceType?: string;
+      resourceId?: string;
+      severity?: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+    } = {},
+  ) {
+    if (!this.isEnabled) return;
+
+    const auditEntry = {
+      id: this.generateAuditId(),
+      timestamp: new Date().toISOString(),
+      userId,
+      action,
+      description,
+      details,
+      resourceType: options.resourceType,
+      resourceId: options.resourceId,
+      severity: options.severity || "LOW",
+      ipAddress: this.getCurrentIP(),
+      userAgent: this.getCurrentUserAgent(),
+      compliance: {
+        hipaa: true,
+        gdpr: true,
+        sox: true,
+      },
+    };
+
+    this.addAuditEntry(userId, auditEntry);
+    console.log(`📋 Audit: ${userId} ${action} - ${description}`);
+  }
+
   // Log medication events
   static logMedicationEvent(
     userId: string,

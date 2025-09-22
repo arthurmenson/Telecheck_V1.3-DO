@@ -32,7 +32,8 @@
     "format:check": "prettier --check .",
     "format.fix": "prettier --write .",
     "typecheck": "tsc",
-    "deploy:check": "npm run typecheck && npm run build:prod && npm run test"
+    "deploy:check": "npm run typecheck && npm run build:prod && npm run test",
+    "bootstrap:admin": "tsx scripts/bootstrap-admin.ts"
   },
   "dependencies": {
     "@types/bcrypt": "^6.0.0",

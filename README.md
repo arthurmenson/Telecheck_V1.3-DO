@@ -107,6 +107,8 @@ A comprehensive healthcare management platform built with modern web technologie
    # Edit .env with your configuration
    ```
 
+   > **Security Note:** Patient APIs now require authenticated requests by default. Only set `ENABLE_DEMO_AUTH_BYPASS=true` in `.env` for controlled demo environments, and keep it `false` for staging and production.
+
 4. **Set up databases**
 
    ```bash
@@ -118,13 +120,28 @@ A comprehensive healthcare management platform built with modern web technologie
    redis-server
    ```
 
-5. **Start development server**
+5. **Bootstrap an administrator account (one-time per environment)**
+
+   ```bash
+   export ADMIN_BOOTSTRAP_EMAIL="founder@example.com"
+   export ADMIN_BOOTSTRAP_PASSWORD="ChangeMeNow123!"
+   export ADMIN_BOOTSTRAP_FIRST_NAME="Telecheck"
+   export ADMIN_BOOTSTRAP_LAST_NAME="Admin"
+   npm run bootstrap:admin
+   unset ADMIN_BOOTSTRAP_EMAIL ADMIN_BOOTSTRAP_PASSWORD ADMIN_BOOTSTRAP_FIRST_NAME ADMIN_BOOTSTRAP_LAST_NAME
+   ```
+
+   > The bootstrap script reads credentials from environment variables and exits if the account already exists. Set
+   > `ADMIN_BOOTSTRAP_ROTATE=true` when re-issuing credentials. Do **not** commit the secrets to version control and clear the
+   > variables once the script finishes.
+
+6. **Start development server**
 
    ```bash
    npm run dev
    ```
 
-6. **Run tests**
+7. **Run tests**
    ```bash
    npm test
    ```

@@ -1,7 +1,4 @@
-import { RequestHandler } from "express";
 import { Request, Response } from "express";
-import { dbPool } from "../config/database";
-import { redisClient } from "../config/database";
 import { db } from "../utils/databaseAdapter";
 import { MessagingService } from "../utils/messagingService";
 import { TelnyxService } from "../utils/telnyxService";
@@ -9,6 +6,172 @@ import { TwilioService } from "../utils/twilioService";
 import { ScheduledMessagingService } from "../utils/scheduledMessaging";
 import { CareTeamService } from "../utils/careTeamService";
 import { AuditLogger } from "../utils/auditLogger";
+
+type ProviderCredentials = {
+  telnyx: {
+    apiKeyRef: string;
+    messagingProfileIdRef: string;
+    fromNumber: string;
+  };
+  twilio: {
+    accountSidRef: string;
+    authTokenRef: string;
+    messagingServiceSidRef: string;
+    fromNumber: string;
+  };
+};
+
+type MessagingConfig = {
+  primaryProvider: "telnyx" | "twilio" | "auto";
+  enableSMS: boolean;
+  enableVoice: boolean;
+  enableScheduled: boolean;
+  quietHoursStart: string;
+  quietHoursEnd: string;
+  maxRetries: number;
+  retryDelay: number;
+  auditLogging: boolean;
+  thresholds: {
+    glucoseLow: number;
+    glucoseHigh: number;
+    bpSystolicHigh: number;
+    bpDiastolicHigh: number;
+    heartRateHigh: number;
+    heartRateLow: number;
+    temperatureHigh: number;
+    temperatureLow: number;
+    oxygenSatLow: number;
+  };
+  careTeam: {
+    enableAlerts: boolean;
+    escalationTimeout: number;
+    maxEscalationLevels: number;
+  };
+  providerCredentials: ProviderCredentials;
+};
+
+const createDefaultProviderCredentials = (): ProviderCredentials => ({
+  telnyx: {
+    apiKeyRef: "",
+    messagingProfileIdRef: "",
+    fromNumber: "",
+  },
+  twilio: {
+    accountSidRef: "",
+    authTokenRef: "",
+    messagingServiceSidRef: "",
+    fromNumber: "",
+  },
+});
+
+const DEFAULT_MESSAGING_CONFIG: MessagingConfig = {
+  primaryProvider: "telnyx",
+  enableSMS: true,
+  enableVoice: false,
+  enableScheduled: true,
+  quietHoursStart: "22:00",
+  quietHoursEnd: "07:00",
+  maxRetries: 3,
+  retryDelay: 5,
+  auditLogging: true,
+  thresholds: {
+    glucoseLow: 70,
+    glucoseHigh: 400,
+    bpSystolicHigh: 180,
+    bpDiastolicHigh: 110,
+    heartRateHigh: 120,
+    heartRateLow: 50,
+    temperatureHigh: 101.5,
+    temperatureLow: 95.0,
+    oxygenSatLow: 88,
+  },
+  careTeam: {
+    enableAlerts: true,
+    escalationTimeout: 15,
+    maxEscalationLevels: 3,
+  },
+  providerCredentials: createDefaultProviderCredentials(),
+};
+
+const mergeMessagingConfig = (config: any): MessagingConfig => {
+  const safeConfig = config && typeof config === "object" ? config : {};
+
+  return {
+    ...DEFAULT_MESSAGING_CONFIG,
+    ...safeConfig,
+    primaryProvider:
+      safeConfig.primaryProvider === "twilio"
+        ? "twilio"
+        : safeConfig.primaryProvider === "auto"
+          ? "auto"
+          : "telnyx",
+    enableSMS: Boolean(
+      safeConfig.enableSMS ?? DEFAULT_MESSAGING_CONFIG.enableSMS,
+    ),
+    enableVoice: Boolean(
+      safeConfig.enableVoice ?? DEFAULT_MESSAGING_CONFIG.enableVoice,
+    ),
+    enableScheduled: Boolean(
+      safeConfig.enableScheduled ?? DEFAULT_MESSAGING_CONFIG.enableScheduled,
+    ),
+    auditLogging: Boolean(
+      safeConfig.auditLogging ?? DEFAULT_MESSAGING_CONFIG.auditLogging,
+    ),
+    maxRetries: Number(
+      safeConfig.maxRetries ?? DEFAULT_MESSAGING_CONFIG.maxRetries,
+    ),
+    retryDelay: Number(
+      safeConfig.retryDelay ?? DEFAULT_MESSAGING_CONFIG.retryDelay,
+    ),
+    quietHoursStart:
+      typeof safeConfig.quietHoursStart === "string"
+        ? safeConfig.quietHoursStart
+        : DEFAULT_MESSAGING_CONFIG.quietHoursStart,
+    quietHoursEnd:
+      typeof safeConfig.quietHoursEnd === "string"
+        ? safeConfig.quietHoursEnd
+        : DEFAULT_MESSAGING_CONFIG.quietHoursEnd,
+    thresholds: {
+      ...DEFAULT_MESSAGING_CONFIG.thresholds,
+      ...(safeConfig.thresholds || {}),
+    },
+    careTeam: {
+      ...DEFAULT_MESSAGING_CONFIG.careTeam,
+      ...(safeConfig.careTeam || {}),
+    },
+    providerCredentials: (() => {
+      const defaults = createDefaultProviderCredentials();
+      return {
+        telnyx: {
+          ...defaults.telnyx,
+          ...(safeConfig.providerCredentials?.telnyx || {}),
+        },
+        twilio: {
+          ...defaults.twilio,
+          ...(safeConfig.providerCredentials?.twilio || {}),
+        },
+      };
+    })(),
+  };
+};
+
+const maskCredentialChange = (credentials: ProviderCredentials) => ({
+  telnyx: {
+    apiKeyRef: credentials.telnyx.apiKeyRef ? "set" : "unset",
+    messagingProfileIdRef: credentials.telnyx.messagingProfileIdRef
+      ? "set"
+      : "unset",
+    fromNumber: credentials.telnyx.fromNumber ? "set" : "unset",
+  },
+  twilio: {
+    accountSidRef: credentials.twilio.accountSidRef ? "set" : "unset",
+    authTokenRef: credentials.twilio.authTokenRef ? "set" : "unset",
+    messagingServiceSidRef: credentials.twilio.messagingServiceSidRef
+      ? "set"
+      : "unset",
+    fromNumber: credentials.twilio.fromNumber ? "set" : "unset",
+  },
+});
 
 const messagingService = new MessagingService();
 const scheduledMessagingService = new ScheduledMessagingService();
@@ -18,41 +181,13 @@ const careTeamService = new CareTeamService();
 export async function getMessagingConfig(req: Request, res: Response) {
   try {
     const config = await db.query(
-      "SELECT * FROM messaging_config ORDER BY created_at DESC LIMIT 1",
+      "SELECT config_data FROM messaging_config ORDER BY updated_at DESC, created_at DESC LIMIT 1",
     );
-
-    const defaultConfig = {
-      primaryProvider: "telnyx",
-      enableSMS: true,
-      enableVoice: false,
-      enableScheduled: true,
-      quietHoursStart: "22:00",
-      quietHoursEnd: "07:00",
-      maxRetries: 3,
-      retryDelay: 5,
-      auditLogging: true,
-      thresholds: {
-        glucoseLow: 70,
-        glucoseHigh: 400,
-        bpSystolicHigh: 180,
-        bpDiastolicHigh: 110,
-        heartRateHigh: 120,
-        heartRateLow: 50,
-        temperatureHigh: 101.5,
-        temperatureLow: 95.0,
-        oxygenSatLow: 88,
-      },
-      careTeam: {
-        enableAlerts: true,
-        escalationTimeout: 15,
-        maxEscalationLevels: 3,
-      },
-    };
 
     const currentConfig =
       config && config.length > 0
-        ? { ...defaultConfig, ...JSON.parse(config[0].config_data) }
-        : defaultConfig;
+        ? mergeMessagingConfig(config[0].config_data)
+        : DEFAULT_MESSAGING_CONFIG;
 
     res.json({
       success: true,
@@ -81,12 +216,13 @@ export async function updateMessagingConfig(req: Request, res: Response) {
       });
     }
 
+    const mergedConfig = mergeMessagingConfig(config);
+
     // Save configuration
     await db.query(
-      `INSERT OR REPLACE INTO messaging_config 
-       (config_data, updated_by, updated_at) 
-       VALUES (?, ?, datetime('now'))`,
-      [JSON.stringify(config), userId],
+      `INSERT INTO messaging_config (config_data, updated_by, updated_at)
+       VALUES ($1, $2, NOW())`,
+      [JSON.stringify(mergedConfig), userId],
     );
 
     // Log the configuration change
@@ -95,13 +231,14 @@ export async function updateMessagingConfig(req: Request, res: Response) {
       "messaging_config_update",
       "Updated messaging configuration",
       {
-        configKeys: Object.keys(config),
-        primaryProvider: config.primaryProvider,
+        configKeys: Object.keys(mergedConfig),
+        primaryProvider: mergedConfig.primaryProvider,
         featuresEnabled: {
-          sms: config.enableSMS,
-          voice: config.enableVoice,
-          scheduled: config.enableScheduled,
+          sms: mergedConfig.enableSMS,
+          voice: mergedConfig.enableVoice,
+          scheduled: mergedConfig.enableScheduled,
         },
+        credentialRefs: maskCredentialChange(mergedConfig.providerCredentials),
       },
     );
 

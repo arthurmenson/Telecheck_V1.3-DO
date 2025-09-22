@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Card,
   CardContent,
@@ -17,70 +17,121 @@ import {
   TabsTrigger,
 } from "../components/ui/tabs";
 import { useToast } from "../hooks/use-toast";
-import { messagingAdminService } from "../services/messagingAdmin.service";
+import {
+  messagingAdminService,
+  MessagingConfig,
+  MessagingAnalytics,
+  ProviderCredentialConfig,
+} from "../services/messagingAdmin.service";
 
-interface MessagingConfig {
-  telnyxApiKey: string;
-  twilioAccountSid: string;
-  twilioAuthToken: string;
-  twilioPhoneNumber: string;
-  telnyxPhoneNumber: string;
-  primaryMessagingProvider: string;
-  enableSMSNotifications: boolean;
-  enableVoiceNotifications: boolean;
-  enableScheduledMessaging: boolean;
-  messageAuditLogging: boolean;
-  messagingQuietHoursStart: string;
-  messagingQuietHoursEnd: string;
-  maxRetryAttempts: number;
-  retryDelayMinutes: number;
-}
+const DEFAULT_MESSAGING_CONFIG: MessagingConfig = {
+  primaryProvider: "telnyx",
+  enableSMS: true,
+  enableVoice: false,
+  enableScheduled: true,
+  quietHoursStart: "22:00",
+  quietHoursEnd: "07:00",
+  maxRetries: 3,
+  retryDelay: 5,
+  auditLogging: true,
+  thresholds: {
+    glucoseLow: 70,
+    glucoseHigh: 400,
+    bpSystolicHigh: 180,
+    bpDiastolicHigh: 110,
+    heartRateHigh: 120,
+    heartRateLow: 50,
+    temperatureHigh: 101.5,
+    temperatureLow: 95.0,
+    oxygenSatLow: 88,
+  },
+  careTeam: {
+    enableAlerts: true,
+    escalationTimeout: 15,
+    maxEscalationLevels: 3,
+  },
+  providerCredentials: {
+    telnyx: {
+      apiKeyRef: "",
+      messagingProfileIdRef: "",
+      fromNumber: "",
+    },
+    twilio: {
+      accountSidRef: "",
+      authTokenRef: "",
+      messagingServiceSidRef: "",
+      fromNumber: "",
+    },
+  },
+};
 
-interface MessagingAnalytics {
-  totalMessages: number;
-  successfulDeliveries: number;
-  failedDeliveries: number;
-  averageResponseTime: number;
-}
+const DEFAULT_ANALYTICS: MessagingAnalytics = {
+  period: "24h",
+  overview: {
+    totalMessages: 0,
+    successfulMessages: 0,
+    failedMessages: 0,
+    successRate: "0.0",
+  },
+  providerStats: [],
+  scheduling: {
+    totalActiveJobs: 0,
+    messagesSentToday: 0,
+    messagesFailedToday: 0,
+    activePatients: 0,
+  },
+};
+
+const mergeConfigUpdates = (
+  current: MessagingConfig,
+  updates: Partial<MessagingConfig>,
+): MessagingConfig => {
+  const next: MessagingConfig = {
+    ...current,
+    ...updates,
+    thresholds: updates.thresholds
+      ? { ...current.thresholds, ...updates.thresholds }
+      : current.thresholds,
+    careTeam: updates.careTeam
+      ? { ...current.careTeam, ...updates.careTeam }
+      : current.careTeam,
+    providerCredentials: updates.providerCredentials
+      ? {
+          telnyx: {
+            ...current.providerCredentials.telnyx,
+            ...updates.providerCredentials.telnyx,
+          },
+          twilio: {
+            ...current.providerCredentials.twilio,
+            ...updates.providerCredentials.twilio,
+          },
+        }
+      : current.providerCredentials,
+  };
+
+  return next;
+};
 
 export default function AdminSettings() {
   const { toast } = useToast();
 
-    telnyxApiKey: "YOUR_TELNYX_API_KEY_HERE",
-    twilioAccountSid: "",
-    twilioAuthToken: "",
-    twilioPhoneNumber: "",
-    telnyxPhoneNumber: "",
-    primaryMessagingProvider: "telnyx",
-    enableSMSNotifications: true,
-    enableVoiceNotifications: false,
-    enableScheduledMessaging: true,
-    messageAuditLogging: true,
-    messagingQuietHoursStart: "22:00",
-    messagingQuietHoursEnd: "07:00",
-    maxRetryAttempts: 3,
-    retryDelayMinutes: 5,
-  });
+  const [activeTab, setActiveTab] = useState<
+    "general" | "messaging" | "security" | "advanced"
+  >("general");
+
+  const [messagingConfig, setMessagingConfig] = useState<MessagingConfig>(
+    DEFAULT_MESSAGING_CONFIG,
+  );
 
   const [messagingAnalytics, setMessagingAnalytics] =
-    useState<MessagingAnalytics>({
-      totalMessages: 0,
-      successfulDeliveries: 0,
-      failedDeliveries: 0,
-      averageResponseTime: 0,
-    });
+    useState<MessagingAnalytics>(DEFAULT_ANALYTICS);
 
   const [isLoading, setIsLoading] = useState(false);
-  const [showApiKey, setShowApiKey] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const isBusy = isLoading || isSaving;
 
   // Load messaging configuration when messaging tab is active
-  useEffect(() => {
-    if (activeTab === "messaging") {
-      loadMessagingData();
-    }
-  }, [activeTab]);
-
-  const loadMessagingData = async () => {
+  const loadMessagingData = useCallback(async () => {
     try {
       setIsLoading(true);
 
@@ -90,7 +141,9 @@ export default function AdminSettings() {
       ]);
 
       if (configResult.success && configResult.config) {
-        setMessagingConfig(configResult.config);
+        setMessagingConfig(
+          mergeConfigUpdates(DEFAULT_MESSAGING_CONFIG, configResult.config),
+        );
       }
 
       if (analyticsResult.success && analyticsResult.analytics) {
@@ -106,38 +159,63 @@ export default function AdminSettings() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [toast]);
 
-  const updateMessagingConfig = async (updates: Partial<MessagingConfig>) => {
-    if (!messagingConfig) return;
-
-    try {
-      const result = await messagingAdminService.updateConfig({
-        ...messagingConfig,
-        ...updates,
-      });
-
-      if (result.success) {
-        setMessagingConfig({ ...messagingConfig, ...updates });
-        toast({
-          title: "Success",
-          description: "Messaging configuration updated successfully",
-        });
-      } else {
-        throw new Error(result.error || "Update failed");
-      }
-    } catch (error) {
-      console.error("Error updating messaging config:", error);
-      toast({
-        title: "Error",
-        description: "Failed to update messaging configuration",
-        variant: "destructive",
-      });
+  useEffect(() => {
+    if (activeTab === "messaging") {
+      loadMessagingData();
     }
+  }, [activeTab, loadMessagingData]);
+
+  const updateMessagingConfig = useCallback(
+    async (updates: Partial<MessagingConfig>) => {
+      const nextConfig = mergeConfigUpdates(messagingConfig, updates);
+
+      try {
+        setIsSaving(true);
+        const result = await messagingAdminService.updateConfig(nextConfig);
+
+        if (result.success) {
+          setMessagingConfig(nextConfig);
+          toast({
+            title: "Success",
+            description: "Messaging configuration updated successfully",
+          });
+        } else {
+          throw new Error(result.error || "Update failed");
+        }
+      } catch (error) {
+        console.error("Error updating messaging config:", error);
+        toast({
+          title: "Error",
+          description: "Failed to update messaging configuration",
+          variant: "destructive",
+        });
+      } finally {
+        setIsSaving(false);
+      }
+    },
+    [messagingConfig, toast],
+  );
+
+  const handleProviderCredentialChange = (
+    provider: "telnyx" | "twilio",
+    field: keyof ProviderCredentialConfig,
+    value: string,
+  ) => {
+    updateMessagingConfig({
+      providerCredentials: {
+        ...messagingConfig.providerCredentials,
+        [provider]: {
+          ...messagingConfig.providerCredentials[provider],
+          [field]: value,
+        },
+      },
+    });
   };
 
   return (
-    <div className="container mx-auto p-6">
+    <div className="container mx-auto p-6" aria-busy={isBusy}>
       <div className="mb-6">
         <h1 className="text-3xl font-bold">Admin Settings</h1>
         <p className="text-gray-600">
@@ -183,74 +261,247 @@ export default function AdminSettings() {
             <CardHeader>
               <CardTitle>Messaging Configuration</CardTitle>
               <CardDescription>
-                Configure SMS and voice messaging services
+                Configure messaging providers and operational safeguards
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-6" aria-busy={isBusy}>
+              {isLoading && (
+                <p className="text-sm text-muted-foreground">
+                  Loading messaging configuration...
+                </p>
+              )}
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="telnyxApiKey">Telnyx API Key</Label>
-                  <div className="relative">
-                    <Input
-                      id="telnyxApiKey"
-                      type={showApiKey ? "text" : "password"}
-                      value={messagingConfig.telnyxApiKey}
-                      onChange={(e) =>
-                        updateMessagingConfig({ telnyxApiKey: e.target.value })
-                      }
-                      placeholder="Enter your Telnyx API key"
-                    />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      className="absolute right-0 top-0 h-full px-3"
-                      onClick={() => setShowApiKey(!showApiKey)}
-                    >
-                      {showApiKey ? "Hide" : "Show"}
-                    </Button>
-                  </div>
-                </div>
-                <div>
-                  <Label htmlFor="telnyxPhoneNumber">Telnyx Phone Number</Label>
-                  <Input
-                    id="telnyxPhoneNumber"
-                    value={messagingConfig.telnyxPhoneNumber}
-                    onChange={(e) =>
+                  <Label htmlFor="primaryProvider">Primary Provider</Label>
+                  <select
+                    id="primaryProvider"
+                    className="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus:outline-none"
+                    value={messagingConfig.primaryProvider}
+                    onChange={(event) =>
                       updateMessagingConfig({
-                        telnyxPhoneNumber: e.target.value,
+                        primaryProvider: event.target
+                          .value as MessagingConfig["primaryProvider"],
                       })
                     }
-                    placeholder="+1234567890"
+                    disabled={isBusy}
+                  >
+                    <option value="telnyx">Telnyx</option>
+                    <option value="twilio">Twilio</option>
+                    <option value="auto">Auto (failover)</option>
+                  </select>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="quietHoursStart">Quiet Hours Start</Label>
+                    <Input
+                      id="quietHoursStart"
+                      value={messagingConfig.quietHoursStart}
+                      onChange={(event) =>
+                        updateMessagingConfig({
+                          quietHoursStart: event.target.value,
+                        })
+                      }
+                      disabled={isBusy}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="quietHoursEnd">Quiet Hours End</Label>
+                    <Input
+                      id="quietHoursEnd"
+                      value={messagingConfig.quietHoursEnd}
+                      onChange={(event) =>
+                        updateMessagingConfig({
+                          quietHoursEnd: event.target.value,
+                        })
+                      }
+                      disabled={isBusy}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="telnyxApiKeyRef">
+                    Telnyx API Key Secret Reference
+                  </Label>
+                  <Input
+                    id="telnyxApiKeyRef"
+                    value={
+                      messagingConfig.providerCredentials.telnyx.apiKeyRef || ""
+                    }
+                    onChange={(event) =>
+                      handleProviderCredentialChange(
+                        "telnyx",
+                        "apiKeyRef",
+                        event.target.value,
+                      )
+                    }
+                    placeholder="vault://path/to/telnyx/api-key"
+                    disabled={isBusy}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="telnyxProfileRef">
+                    Telnyx Messaging Profile Reference
+                  </Label>
+                  <Input
+                    id="telnyxProfileRef"
+                    value={
+                      messagingConfig.providerCredentials.telnyx
+                        .messagingProfileIdRef || ""
+                    }
+                    onChange={(event) =>
+                      handleProviderCredentialChange(
+                        "telnyx",
+                        "messagingProfileIdRef",
+                        event.target.value,
+                      )
+                    }
+                    placeholder="vault://path/to/telnyx/profile"
+                    disabled={isBusy}
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="twilioAccountSid">Twilio Account SID</Label>
+                  <Label htmlFor="telnyxNumber">Telnyx From Number</Label>
                   <Input
-                    id="twilioAccountSid"
-                    value={messagingConfig.twilioAccountSid}
-                    onChange={(e) =>
-                      updateMessagingConfig({
-                        twilioAccountSid: e.target.value,
-                      })
+                    id="telnyxNumber"
+                    value={
+                      messagingConfig.providerCredentials.telnyx.fromNumber ||
+                      ""
                     }
-                    placeholder="Enter your Twilio Account SID"
+                    onChange={(event) =>
+                      handleProviderCredentialChange(
+                        "telnyx",
+                        "fromNumber",
+                        event.target.value,
+                      )
+                    }
+                    placeholder="+12345556789"
+                    disabled={isBusy}
                   />
                 </div>
                 <div>
-                  <Label htmlFor="twilioAuthToken">Twilio Auth Token</Label>
+                  <Label htmlFor="twilioFromNumber">Twilio From Number</Label>
                   <Input
-                    id="twilioAuthToken"
-                    type="password"
-                    value={messagingConfig.twilioAuthToken}
-                    onChange={(e) =>
-                      updateMessagingConfig({ twilioAuthToken: e.target.value })
+                    id="twilioFromNumber"
+                    value={
+                      messagingConfig.providerCredentials.twilio.fromNumber ||
+                      ""
                     }
-                    placeholder="Enter your Twilio Auth Token"
+                    onChange={(event) =>
+                      handleProviderCredentialChange(
+                        "twilio",
+                        "fromNumber",
+                        event.target.value,
+                      )
+                    }
+                    placeholder="+12345556789"
+                    disabled={isBusy}
                   />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="twilioAccountSidRef">
+                    Twilio Account SID Secret Reference
+                  </Label>
+                  <Input
+                    id="twilioAccountSidRef"
+                    value={
+                      messagingConfig.providerCredentials.twilio
+                        .accountSidRef || ""
+                    }
+                    onChange={(event) =>
+                      handleProviderCredentialChange(
+                        "twilio",
+                        "accountSidRef",
+                        event.target.value,
+                      )
+                    }
+                    placeholder="vault://path/to/twilio/account-sid"
+                    disabled={isBusy}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="twilioAuthTokenRef">
+                    Twilio Auth Token Secret Reference
+                  </Label>
+                  <Input
+                    id="twilioAuthTokenRef"
+                    value={
+                      messagingConfig.providerCredentials.twilio.authTokenRef ||
+                      ""
+                    }
+                    onChange={(event) =>
+                      handleProviderCredentialChange(
+                        "twilio",
+                        "authTokenRef",
+                        event.target.value,
+                      )
+                    }
+                    placeholder="vault://path/to/twilio/auth-token"
+                    disabled={isBusy}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="twilioMessagingServiceSidRef">
+                    Twilio Messaging Service SID Reference
+                  </Label>
+                  <Input
+                    id="twilioMessagingServiceSidRef"
+                    value={
+                      messagingConfig.providerCredentials.twilio
+                        .messagingServiceSidRef || ""
+                    }
+                    onChange={(event) =>
+                      handleProviderCredentialChange(
+                        "twilio",
+                        "messagingServiceSidRef",
+                        event.target.value,
+                      )
+                    }
+                    placeholder="vault://path/to/twilio/messaging-sid"
+                    disabled={isBusy}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="maxRetries">Max Retry Attempts</Label>
+                    <Input
+                      id="maxRetries"
+                      type="number"
+                      value={messagingConfig.maxRetries}
+                      onChange={(event) =>
+                        updateMessagingConfig({
+                          maxRetries: Number(event.target.value),
+                        })
+                      }
+                      disabled={isBusy}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="retryDelay">Retry Delay (minutes)</Label>
+                    <Input
+                      id="retryDelay"
+                      type="number"
+                      value={messagingConfig.retryDelay}
+                      onChange={(event) =>
+                        updateMessagingConfig({
+                          retryDelay: Number(event.target.value),
+                        })
+                      }
+                      disabled={isBusy}
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -259,10 +510,11 @@ export default function AdminSettings() {
                   <Label htmlFor="enableSMS">Enable SMS Notifications</Label>
                   <Switch
                     id="enableSMS"
-                    checked={messagingConfig.enableSMSNotifications}
+                    checked={messagingConfig.enableSMS}
                     onCheckedChange={(checked) =>
-                      updateMessagingConfig({ enableSMSNotifications: checked })
+                      updateMessagingConfig({ enableSMS: checked })
                     }
+                    disabled={isBusy}
                   />
                 </div>
                 <div className="flex items-center justify-between">
@@ -271,12 +523,11 @@ export default function AdminSettings() {
                   </Label>
                   <Switch
                     id="enableVoice"
-                    checked={messagingConfig.enableVoiceNotifications}
+                    checked={messagingConfig.enableVoice}
                     onCheckedChange={(checked) =>
-                      updateMessagingConfig({
-                        enableVoiceNotifications: checked,
-                      })
+                      updateMessagingConfig({ enableVoice: checked })
                     }
+                    disabled={isBusy}
                   />
                 </div>
                 <div className="flex items-center justify-between">
@@ -285,12 +536,24 @@ export default function AdminSettings() {
                   </Label>
                   <Switch
                     id="enableScheduled"
-                    checked={messagingConfig.enableScheduledMessaging}
+                    checked={messagingConfig.enableScheduled}
                     onCheckedChange={(checked) =>
-                      updateMessagingConfig({
-                        enableScheduledMessaging: checked,
-                      })
+                      updateMessagingConfig({ enableScheduled: checked })
                     }
+                    disabled={isBusy}
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="auditLogging">
+                    Enable Message Audit Logging
+                  </Label>
+                  <Switch
+                    id="auditLogging"
+                    checked={messagingConfig.auditLogging}
+                    onCheckedChange={(checked) =>
+                      updateMessagingConfig({ auditLogging: checked })
+                    }
+                    disabled={isBusy}
                   />
                 </div>
               </div>
@@ -305,27 +568,27 @@ export default function AdminSettings() {
               <div className="grid grid-cols-4 gap-4">
                 <div className="text-center">
                   <div className="text-2xl font-bold">
-                    {messagingAnalytics.totalMessages}
+                    {messagingAnalytics.overview.totalMessages}
                   </div>
                   <div className="text-sm text-gray-600">Total Messages</div>
                 </div>
                 <div className="text-center">
                   <div className="text-2xl font-bold text-green-600">
-                    {messagingAnalytics.successfulDeliveries}
+                    {messagingAnalytics.overview.successfulMessages}
                   </div>
                   <div className="text-sm text-gray-600">Successful</div>
                 </div>
                 <div className="text-center">
                   <div className="text-2xl font-bold text-red-600">
-                    {messagingAnalytics.failedDeliveries}
+                    {messagingAnalytics.overview.failedMessages}
                   </div>
                   <div className="text-sm text-gray-600">Failed</div>
                 </div>
                 <div className="text-center">
                   <div className="text-2xl font-bold">
-                    {messagingAnalytics.averageResponseTime}ms
+                    {messagingAnalytics.overview.successRate}%
                   </div>
-                  <div className="text-sm text-gray-600">Avg Response</div>
+                  <div className="text-sm text-gray-600">Success Rate</div>
                 </div>
               </div>
             </CardContent>

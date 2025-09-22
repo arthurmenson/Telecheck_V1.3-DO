@@ -1,12 +1,13 @@
 import express from "express";
 import {
-  SimplePatientService,
-  PatientStats,
-} from "../services/patient.service.simple";
-import { UpdatePatientRequest } from "../services/patient.service";
+  PatientService,
+  UpdatePatientRequest,
+  PatientSearchFilters,
+} from "../services/patient.service";
 import { authenticateToken } from "../middleware/auth";
 import { handleValidationErrors } from "../middleware/validation";
-import { body, param, query, validationResult } from "express-validator";
+import { body, param, query } from "express-validator";
+import { allowDemoAuthBypass } from "../config/env";
 
 const router = express.Router();
 
@@ -80,6 +81,20 @@ const requireRole = (roles: string[]) => {
   };
 };
 
+const demoAuthMiddleware = (req: any, _res: any, next: any) => {
+  req.user = req.user || { id: "demo", role: "admin" };
+  next();
+};
+
+const authenticateOrDemo = allowDemoAuthBypass
+  ? demoAuthMiddleware
+  : authenticateToken;
+
+const requireRolesOrSkip = (roles: string[]) =>
+  allowDemoAuthBypass
+    ? (req: any, res: any, next: any) => next()
+    : requireRole(roles);
+
 /**
  * @route GET /api/patients/stats
  * @desc Get patient statistics
@@ -87,19 +102,12 @@ const requireRole = (roles: string[]) => {
  */
 router.get(
   "/stats",
-  // In development, allow unauthenticated access for demo purposes
-  process.env.NODE_ENV === "production"
-    ? authenticateToken
-    : (req: any, res: any, next: any) => {
-        req.user = req.user || { id: "demo", role: "admin" };
-        next();
-      },
-  process.env.NODE_ENV === "production"
-    ? requireRole(["admin", "doctor", "nurse"])
-    : (req: any, res: any, next: any) => next(),
+  // Optional demo bypass controlled by ENABLE_DEMO_AUTH_BYPASS
+  authenticateOrDemo,
+  requireRolesOrSkip(["admin", "doctor", "nurse"]),
   async (req, res) => {
     try {
-      const stats = await SimplePatientService.getPatientStats();
+      const stats = await PatientService.getPatientStats();
       res.json({
         success: true,
         data: stats,
@@ -121,16 +129,9 @@ router.get(
  */
 router.get(
   "/search",
-  // In development, allow unauthenticated access for demo purposes
-  process.env.NODE_ENV === "production"
-    ? authenticateToken
-    : (req: any, res: any, next: any) => {
-        req.user = req.user || { id: "demo", role: "admin" };
-        next();
-      },
-  process.env.NODE_ENV === "production"
-    ? requireRole(["admin", "doctor", "nurse"])
-    : (req: any, res: any, next: any) => next(),
+  // Optional demo bypass controlled by ENABLE_DEMO_AUTH_BYPASS
+  authenticateOrDemo,
+  requireRolesOrSkip(["admin", "doctor", "nurse"]),
   searchValidation,
   handleValidationErrors,
   async (req, res) => {
@@ -159,8 +160,8 @@ router.get(
         lastAppointmentBefore: lastAppointmentBefore as string,
       };
 
-      const result = await SimplePatientService.searchPatients(
-        filters,
+      const result = await PatientService.searchPatients(
+        filters as PatientSearchFilters,
         page as number,
         limit as number,
       );
@@ -186,16 +187,9 @@ router.get(
  */
 router.get(
   "/",
-  // In development, allow unauthenticated access for demo purposes
-  process.env.NODE_ENV === "production"
-    ? authenticateToken
-    : (req: any, res: any, next: any) => {
-        req.user = req.user || { id: "demo", role: "admin" };
-        next();
-      },
-  process.env.NODE_ENV === "production"
-    ? requireRole(["admin", "doctor", "nurse"])
-    : (req: any, res: any, next: any) => next(),
+  // Optional demo bypass controlled by ENABLE_DEMO_AUTH_BYPASS
+  authenticateOrDemo,
+  requireRolesOrSkip(["admin", "doctor", "nurse"]),
   searchValidation,
   handleValidationErrors,
   async (req, res) => {
@@ -206,8 +200,8 @@ router.get(
         status: status as any,
       };
 
-      const result = await SimplePatientService.searchPatients(
-        filters,
+      const result = await PatientService.searchPatients(
+        filters as PatientSearchFilters,
         page as number,
         limit as number,
       );
@@ -233,16 +227,9 @@ router.get(
  */
 router.post(
   "/",
-  // In development, allow unauthenticated access for demo purposes
-  process.env.NODE_ENV === "production"
-    ? authenticateToken
-    : (req: any, res: any, next: any) => {
-        req.user = req.user || { id: "demo-user", role: "admin" };
-        next();
-      },
-  process.env.NODE_ENV === "production"
-    ? requireRole(["admin", "doctor", "nurse"])
-    : (req: any, res: any, next: any) => next(),
+  // Optional demo bypass controlled by ENABLE_DEMO_AUTH_BYPASS
+  authenticateOrDemo,
+  requireRolesOrSkip(["admin", "doctor", "nurse"]),
   createPatientValidation,
   handleValidationErrors,
   async (req, res) => {
@@ -276,7 +263,7 @@ router.post(
 
       console.log("[Patient Creation] Processed patient data:", patientData);
 
-      const patient = await SimplePatientService.createPatient(
+      const patient = await PatientService.createPatient(
         patientData,
         req.user?.id || "system",
       );
@@ -322,13 +309,8 @@ router.post(
  */
 router.get(
   "/:id",
-  // In development, allow unauthenticated access for demo purposes
-  process.env.NODE_ENV === "production"
-    ? authenticateToken
-    : (req: any, res: any, next: any) => {
-        req.user = req.user || { id: "demo", role: "admin" };
-        next();
-      },
+  // Optional demo bypass controlled by ENABLE_DEMO_AUTH_BYPASS
+  authenticateOrDemo,
   param("id").isUUID().withMessage("Patient ID must be a valid UUID"),
   handleValidationErrors,
   async (req, res) => {
@@ -339,7 +321,7 @@ router.get(
       // Check if user can access this patient
       if (user.role === "patient") {
         // Patients can only access their own record
-        const patient = await SimplePatientService.getPatientById(patientId);
+        const patient = await PatientService.getPatientById(patientId);
         if (!patient || patient.userId !== user.id) {
           return res.status(403).json({
             error: "Access denied",
@@ -352,7 +334,7 @@ router.get(
       }
 
       console.log(`[Patients] Looking up patient with ID: ${patientId}`);
-      const patient = await SimplePatientService.getPatientById(patientId);
+      const patient = await PatientService.getPatientById(patientId);
       console.log(
         `[Patients] Patient lookup result:`,
         patient ? "Found" : "Not found",
@@ -398,7 +380,7 @@ router.put(
       // Check if user can update this patient
       if (user.role === "patient") {
         // Patients can only update their own record and limited fields
-        const patient = await SimplePatientService.getPatientById(patientId);
+        const patient = await PatientService.getPatientById(patientId);
         if (!patient || patient.userId !== user.id) {
           return res.status(403).json({
             error: "Access denied",
@@ -431,7 +413,7 @@ router.put(
       }
 
       const updateData: UpdatePatientRequest = req.body;
-      const updatedPatient = await SimplePatientService.updatePatient(
+      const updatedPatient = await PatientService.updatePatient(
         patientId,
         updateData,
         user.id,
@@ -481,7 +463,7 @@ router.delete(
   async (req, res) => {
     try {
       const patientId = req.params.id;
-      const success = await SimplePatientService.archivePatient(
+      const success = await PatientService.archivePatient(
         patientId,
         req.user.id,
       );
@@ -513,13 +495,8 @@ router.delete(
  */
 router.get(
   "/:id/appointments",
-  // In development, allow unauthenticated access for demo purposes
-  process.env.NODE_ENV === "production"
-    ? authenticateToken
-    : (req: any, res: any, next: any) => {
-        req.user = req.user || { id: "demo", role: "admin" };
-        next();
-      },
+  // Optional demo bypass controlled by ENABLE_DEMO_AUTH_BYPASS
+  authenticateOrDemo,
   param("id").isUUID(),
   handleValidationErrors,
   async (req, res) => {
@@ -529,7 +506,7 @@ router.get(
 
       // Check authorization (same logic as getting patient)
       if (user.role === "patient") {
-        const patient = await SimplePatientService.getPatientById(patientId);
+        const patient = await PatientService.getPatientById(patientId);
         if (!patient || patient.userId !== user.id) {
           return res.status(403).json({ error: "Access denied" });
         }
@@ -539,7 +516,7 @@ router.get(
 
       // Get patient to validate existence and get user_id
       console.log(`[Appointments] Looking up patient with ID: ${patientId}`);
-      const patient = await SimplePatientService.getPatientById(patientId);
+      const patient = await PatientService.getPatientById(patientId);
       console.log(
         `[Appointments] Patient lookup result:`,
         patient ? "Found" : "Not found",
@@ -555,72 +532,8 @@ router.get(
         });
       }
 
-      // Check if this is a mock intake patient and return mock appointments
-      if (patient.id && patient.id.startsWith("550e8400-e29b-41d4-a716")) {
-        const mockAppointments = [
-          {
-            id: `appt-${patientId}-1`,
-            patientId: patientId,
-            providerId: "provider-1",
-            providerName: "Dr. Sarah Wilson",
-            appointmentDate: "2024-02-20T10:00:00Z",
-            appointmentType: "Follow-up",
-            status: "scheduled",
-            duration: 30,
-            notes: "Regular check-up appointment",
-          },
-          {
-            id: `appt-${patientId}-2`,
-            patientId: patientId,
-            providerId: "provider-2",
-            providerName: "Dr. Michael Johnson",
-            appointmentDate: "2024-02-10T14:30:00Z",
-            appointmentType: "Initial Consultation",
-            status: "completed",
-            duration: 60,
-            notes: "Initial patient consultation and assessment",
-          },
-        ];
-
-        return res.json({
-          data: mockAppointments,
-          success: true,
-        });
-      }
-
-      // Fetch appointments from database for real patients
-      const { database } = require("../utils/database");
-      const result = await database.query(
-        `
-        SELECT
-          a.*,
-          provider.first_name as provider_first_name,
-          provider.last_name as provider_last_name
-        FROM appointments a
-        LEFT JOIN users provider ON a.provider_id = provider.id
-        WHERE a.patient_id = $1
-        ORDER BY a.appointment_date DESC
-        LIMIT 50
-      `,
-        [patient.userId],
-      );
-
-      const appointments = result.rows.map((row: any) => ({
-        id: row.id,
-        patientId: row.patient_id,
-        providerId: row.provider_id,
-        providerName:
-          row.provider_first_name && row.provider_last_name
-            ? `${row.provider_first_name} ${row.provider_last_name}`
-            : null,
-        appointmentDate: row.appointment_date,
-        duration: row.duration,
-        status: row.status,
-        appointmentType: row.appointment_type,
-        notes: row.notes,
-        createdAt: row.created_at,
-        updatedAt: row.updated_at,
-      }));
+      const appointments =
+        await PatientService.getPatientAppointments(patientId);
 
       res.json({
         success: true,
@@ -643,13 +556,8 @@ router.get(
  */
 router.get(
   "/:id/vitals",
-  // In development, allow unauthenticated access for demo purposes
-  process.env.NODE_ENV === "production"
-    ? authenticateToken
-    : (req: any, res: any, next: any) => {
-        req.user = req.user || { id: "demo", role: "admin" };
-        next();
-      },
+  // Optional demo bypass controlled by ENABLE_DEMO_AUTH_BYPASS
+  authenticateOrDemo,
   param("id").isUUID(),
   handleValidationErrors,
   async (req, res) => {
@@ -660,7 +568,7 @@ router.get(
 
       // Check authorization
       if (user.role === "patient") {
-        const patient = await SimplePatientService.getPatientById(patientId);
+        const patient = await PatientService.getPatientById(patientId);
         if (!patient || patient.userId !== user.id) {
           return res.status(403).json({ error: "Access denied" });
         }
@@ -668,73 +576,15 @@ router.get(
         return res.status(403).json({ error: "Insufficient permissions" });
       }
 
-      const patient = await SimplePatientService.getPatientById(patientId);
+      const patient = await PatientService.getPatientById(patientId);
       if (!patient) {
         return res.status(404).json({ error: "Patient not found" });
       }
 
-      // Check if this is a mock intake patient and return mock vitals
-      if (patient.id && patient.id.startsWith("550e8400-e29b-41d4-a716")) {
-        const mockVitals = [
-          {
-            id: `vital-${patientId}-1`,
-            patientId: patientId,
-            recordedAt: "2024-02-15T08:30:00Z",
-            bloodPressureSystolic: 120,
-            bloodPressureDiastolic: 80,
-            heartRate: 72,
-            temperature: 98.6,
-            respiratoryRate: 16,
-            oxygenSaturation: 99,
-            weight: 150,
-            height: 68,
-            bmi: 22.8,
-            recordedBy: "Nurse Williams",
-          },
-          {
-            id: `vital-${patientId}-2`,
-            patientId: patientId,
-            recordedAt: "2024-02-10T09:15:00Z",
-            bloodPressureSystolic: 118,
-            bloodPressureDiastolic: 78,
-            heartRate: 75,
-            temperature: 98.4,
-            respiratoryRate: 18,
-            oxygenSaturation: 98,
-            weight: 152,
-            height: 68,
-            bmi: 23.1,
-            recordedBy: "Dr. Johnson",
-          },
-        ];
-
-        return res.json({
-          data: mockVitals,
-          success: true,
-        });
-      }
-
-      const { database } = require("../utils/database");
-      const result = await database.query(
-        `
-        SELECT *
-        FROM vital_signs
-        WHERE patient_id = $1
-        ORDER BY reading_date DESC
-        LIMIT $2 OFFSET $3
-      `,
-        [patient.userId, limit, offset],
-      );
-
-      const vitals = result.rows.map((row: any) => ({
-        id: row.id,
-        patientId: row.patient_id,
-        readingDate: row.reading_date,
-        vitalSignsData: JSON.parse(row.vital_signs_data || "{}"),
-        recordedBy: row.recorded_by,
-        notes: row.notes,
-        createdAt: row.created_at,
-      }));
+      const vitals = await PatientService.getPatientVitals(patientId, {
+        limit: Number(limit),
+        offset: Number(offset),
+      });
 
       res.json({
         success: true,
