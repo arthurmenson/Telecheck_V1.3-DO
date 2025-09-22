@@ -73,16 +73,15 @@ This guide captures Tier 1/Tier 2 support standard operating procedures so custo
 
 ## Roles & Escalation Matrix
 
-| Severity | Initial Owner | Escalates To | Target Response | Target Resolution |
-| -------- | ------------- | ------------ | ---------------- | ----------------- |
-| Sev 1 (Patient Care Blocking) | Tier 2 Support + Incident Commander | DevOps + Security + Clinical Ops leadership | 5 minutes | 1 hour or workaround |
-| Sev 2 (Major Feature Impact)  | Tier 2 Support | On-call Engineer + Product Owner | 15 minutes | 4 hours |
-| Sev 3 (Minor Degradation)     | Tier 1 Support | Tier 2 Support (business hours) | 1 hour | Next business day |
-| Sev 4 (Informational)         | Tier 1 Support | N/A | 1 business day | As prioritized |
+| Severity                      | Initial Owner                       | Escalates To                                | Target Response | Target Resolution    |
+| ----------------------------- | ----------------------------------- | ------------------------------------------- | --------------- | -------------------- |
+| Sev 1 (Patient Care Blocking) | Tier 2 Support + Incident Commander | DevOps + Security + Clinical Ops leadership | 5 minutes       | 1 hour or workaround |
+| Sev 2 (Major Feature Impact)  | Tier 2 Support                      | On-call Engineer + Product Owner            | 15 minutes      | 4 hours              |
+| Sev 3 (Minor Degradation)     | Tier 1 Support                      | Tier 2 Support (business hours)             | 1 hour          | Next business day    |
+| Sev 4 (Informational)         | Tier 1 Support                      | N/A                                         | 1 business day  | As prioritized       |
 
 ## Evidence & Audit Expectations
 
 - Store completed runbooks, incident timelines, and remediation tickets in the compliance evidence repository.
 - Ensure every escalation results in an updated checklist entry with linked artifacts.
 - Review runbooks quarterly with Compliance, Security, and Support leadership to keep procedures current with platform changes.
-

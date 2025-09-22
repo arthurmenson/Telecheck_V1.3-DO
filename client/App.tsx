@@ -103,6 +103,7 @@ import {
   TrendingUp,
   MessageCircle,
 } from "lucide-react";
+import { FeatureFlagConsole } from "./pages/FeatureFlagConsole";
 
 const queryClient = new QueryClient();
 
@@ -531,6 +532,16 @@ const App = () => (
                     <ProtectedRoute allowedRoles={["admin"]}>
                       <Layout>
                         <AdminSettings />
+                      </Layout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin/feature-flags"
+                  element={
+                    <ProtectedRoute allowedRoles={["admin"]}>
+                      <Layout>
+                        <FeatureFlagConsole />
                       </Layout>
                     </ProtectedRoute>
                   }

@@ -51,6 +51,7 @@ import {
   Radio,
   Megaphone,
   Mail,
+  ToggleLeft,
 } from "lucide-react";
 
 interface LayoutProps {
@@ -63,6 +64,7 @@ export function Layout({ children }: LayoutProps) {
     "core",
     "clinical",
     "practice-management",
+    "platform-controls",
   ]);
   const location = useLocation();
   const navigate = useNavigate();
@@ -198,6 +200,24 @@ export function Layout({ children }: LayoutProps) {
           { name: "Subscriptions", href: "/subscriptions", icon: RefreshCw },
           { name: "Business Ops", href: "/ehr/affiliate", icon: Share2 },
           { name: "USSD Platform", href: "/ussd", icon: Radio },
+        ],
+      },
+      {
+        id: "platform-controls",
+        name: "Platform Controls",
+        icon: ToggleLeft,
+        isGroup: true,
+        items: [
+          {
+            name: "Feature Flags",
+            href: "/admin/feature-flags",
+            icon: ToggleLeft,
+          },
+          {
+            name: "Admin Settings",
+            href: "/admin/settings",
+            icon: Settings,
+          },
         ],
       },
     ];

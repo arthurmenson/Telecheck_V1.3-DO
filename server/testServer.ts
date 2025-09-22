@@ -10,6 +10,7 @@ import { metricsMiddleware } from "./middleware/metrics";
 import { logger } from "./utils/logger";
 import { featureFlagsMiddleware } from "./middleware/featureFlags";
 import internalRoutes from "./routes/internal";
+import featureFlagRoutes from "./routes/feature-flags";
 
 export async function createAuthTestServer() {
   const app = express();
@@ -48,6 +49,7 @@ export async function createAuthTestServer() {
 
   app.use("/api/auth", authRoutes);
   app.use("/api/patients", patientRoutes);
+  app.use("/api/feature-flags", featureFlagRoutes);
 
   return app;
 }

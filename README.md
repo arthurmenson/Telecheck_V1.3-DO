@@ -253,6 +253,19 @@ FEATURE_FLAGS=insights-redesign=true,ai-scribe=false
 
 > **Operational Tip:** Store production/staging flag files in the secrets bucket or configuration management system alongside a change-approval workflow so releases can be coordinated with audit trails.
 
+### Admin Feature Flag Console
+
+- **Route:** `/admin/feature-flags` (admin role required)
+- **Capabilities:**
+  - View the active flag inventory with loaded timestamps.
+  - Toggle individual flags or create new overrides without redeploying services.
+  - Persist overrides in-memory for the running process while audit logging every change for compliance review.
+- **API Endpoints:**
+  - `GET /api/feature-flags` – Retrieve the current flag snapshot and metadata.
+  - `PATCH /api/feature-flags` – Apply one or more flag overrides (body: `{ "flags": { "flag-name": true } }`).
+
+> Administrators must authenticate first; the console automatically attaches the stored auth token to API requests.
+
 ## 📁 Project Structure
 
 ```
@@ -323,6 +336,11 @@ telecheck/
 - `POST /api/medications` - Add medication
 - `PUT /api/medications/:id` - Update medication
 - `DELETE /api/medications/:id` - Delete medication
+
+### Platform Controls
+
+- `GET /api/feature-flags` - Retrieve current feature flag state (admin)
+- `PATCH /api/feature-flags` - Update feature flag overrides (admin)
 
 ## 🧪 Testing
 

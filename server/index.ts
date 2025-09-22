@@ -87,6 +87,7 @@ import {
   sendWellnessCheck,
 } from "./routes/messaging-admin";
 import auditLogRoutes from "./routes/audit-logs";
+import featureFlagRoutes from "./routes/feature-flags";
 import { requestLogger } from "./middleware/requestLogger";
 import { metricsMiddleware } from "./middleware/metrics";
 import { logger } from "./utils/logger";
@@ -186,6 +187,9 @@ export async function createServer() {
 
   // Patient routes
   app.use("/api/patients", patientRoutes);
+
+  // Feature flag management
+  app.use("/api/feature-flags", featureFlagRoutes);
 
   // Lab routes
   app.use("/api/labs", labRoutes);
