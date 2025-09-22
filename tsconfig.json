@@ -33,7 +33,9 @@
       "@/utils/*": ["./client/utils/*"],
       "@/types/*": ["./shared/types.ts"],
       "@/api/*": ["./shared/api.ts"],
-      "@/server/*": ["./server/*"]
+      "@/server/*": ["./server/*"],
+      "@shared/*": ["./shared/*"],
+      "@shared": ["./shared"]
     }
   },
   "include": [

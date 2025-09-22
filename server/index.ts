@@ -86,6 +86,13 @@ import {
   getMessagingAuditLogs,
   sendWellnessCheck,
 } from "./routes/messaging-admin";
+import auditLogRoutes from "./routes/audit-logs";
+import featureFlagRoutes from "./routes/feature-flags";
+import { requestLogger } from "./middleware/requestLogger";
+import { metricsMiddleware } from "./middleware/metrics";
+import { logger } from "./utils/logger";
+import { featureFlagsMiddleware } from "./middleware/featureFlags";
+import internalRoutes from "./routes/internal";
 import {
   getThresholdTypes,
   getPatientThresholds,
@@ -127,6 +134,14 @@ export async function createServer() {
 
   const app = express();
 
+  logger.info("server.starting", {
+    environment: process.env.NODE_ENV || "development",
+  });
+
+  app.use(requestLogger);
+  app.use(metricsMiddleware);
+  app.use(featureFlagsMiddleware);
+
   // Security middleware
   app.use(helmet());
   app.use(
@@ -151,6 +166,8 @@ export async function createServer() {
   app.use(express.json({ limit: "10mb" }));
   app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
+  app.use("/internal", internalRoutes);
+
   // Health check routes
   app.use("/api", healthRoutes);
 
@@ -171,6 +188,9 @@ export async function createServer() {
   // Patient routes
   app.use("/api/patients", patientRoutes);
 
+  // Feature flag management
+  app.use("/api/feature-flags", featureFlagRoutes);
+
   // Lab routes
   app.use("/api/labs", labRoutes);
 
@@ -189,6 +209,9 @@ export async function createServer() {
   app.get("/api/insights/:userId?", getHealthInsights);
   app.post("/api/insights/:id/dismiss", dismissInsight);
   app.post("/api/insights/generate/:userId?", generateInsights);
+
+  // Audit log routes
+  app.use("/api/audit-logs", auditLogRoutes);
 
   // Advanced AI routes
   app.get("/api/ai/cardiovascular-risk/:userId?", assessCardiovascularRisk);

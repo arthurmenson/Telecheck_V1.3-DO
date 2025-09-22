@@ -1,8 +1,77 @@
 import { Pool } from "pg";
 import { createClient } from "redis";
 
+import { resolveSecretSync, type SecretReferenceInput } from "./secretManager";
+import { logger } from "../utils/logger";
+
+const dbLogger = logger.child({ component: "database" });
+
+const nodeEnv = process.env.NODE_ENV || "development";
+const isTestEnv = nodeEnv === "test";
+
+const parseSecretReference = (
+  raw: string | undefined,
+): SecretReferenceInput | undefined => {
+  if (!raw) {
+    return undefined;
+  }
+
+  const trimmed = raw.trim();
+  if (!trimmed) {
+    return undefined;
+  }
+
+  if (trimmed.startsWith("{") && trimmed.endsWith("}")) {
+    try {
+      return JSON.parse(trimmed) as SecretReferenceInput;
+    } catch (error) {
+      dbLogger.warn("database.secret.parse_failed", {
+        message: (error as Error).message,
+      });
+      return trimmed;
+    }
+  }
+
+  return trimmed;
+};
+
+const resolveManagedSecret = ({
+  reference,
+  fallback,
+  description,
+  required,
+}: {
+  reference?: SecretReferenceInput;
+  fallback?: string;
+  description: string;
+  required?: boolean;
+}) => {
+  if (!reference) {
+    return fallback;
+  }
+
+  return resolveSecretSync({
+    reference,
+    fallback,
+    description,
+    required,
+  });
+};
+
 // PostgreSQL is required in production, optional in development
-const usePostgreSQL = !!(process.env.DATABASE_URL || process.env.DB_HOST);
+const databaseUrlReference = parseSecretReference(
+  process.env.DATABASE_URL_SECRET_REF || process.env.DATABASE_URL_REF,
+);
+
+const resolvedDatabaseUrl = !isTestEnv
+  ? resolveManagedSecret({
+      reference: databaseUrlReference,
+      fallback: process.env.DATABASE_URL,
+      description: "PostgreSQL connection string",
+    })
+  : process.env.DATABASE_URL;
+
+const usePostgreSQL = !!(resolvedDatabaseUrl || process.env.DB_HOST);
 
 // Enforce PostgreSQL in production
 if (process.env.NODE_ENV === "production" && !usePostgreSQL) {
@@ -13,38 +82,60 @@ if (process.env.NODE_ENV === "production" && !usePostgreSQL) {
 
 // Database configuration for PostgreSQL
 const dbConfig = {
-  connectionString: process.env.DATABASE_URL,
-  host:
-    process.env.NODE_ENV === "test"
-      ? process.env.TEST_DB_HOST || "localhost"
-      : process.env.DB_HOST || "localhost",
+  connectionString: resolvedDatabaseUrl,
+  host: isTestEnv
+    ? process.env.TEST_DB_HOST || "localhost"
+    : process.env.DB_HOST || "localhost",
   port: parseInt(
-    process.env.NODE_ENV === "test"
+    isTestEnv
       ? process.env.TEST_DB_PORT || "5432"
       : process.env.DB_PORT || "5432",
   ),
-  database:
-    process.env.NODE_ENV === "test"
-      ? process.env.TEST_DB_NAME || "telecheck_test"
-      : process.env.DB_NAME || "telecheck",
-  user:
-    process.env.NODE_ENV === "test"
-      ? process.env.TEST_DB_USER || "postgres"
-      : process.env.DB_USER || "postgres",
-  password:
-    process.env.NODE_ENV === "test"
-      ? process.env.TEST_DB_PASSWORD || "password"
-      : process.env.DB_PASSWORD || "password",
+  database: isTestEnv
+    ? process.env.TEST_DB_NAME || "telecheck_test"
+    : process.env.DB_NAME || "telecheck",
+  user: isTestEnv
+    ? process.env.TEST_DB_USER || "postgres"
+    : process.env.DB_USER || "postgres",
+  password: (() => {
+    if (isTestEnv) {
+      return process.env.TEST_DB_PASSWORD || "password";
+    }
+
+    const reference = parseSecretReference(
+      process.env.DB_PASSWORD_SECRET_REF || process.env.DB_PASSWORD_REF,
+    );
+    const fallback = process.env.DB_PASSWORD || undefined;
+
+    return resolveManagedSecret({
+      reference,
+      fallback,
+      description: "database password",
+      required: nodeEnv === "production" && !resolvedDatabaseUrl,
+    });
+  })(),
   max: parseInt(process.env.DB_MAX_CONNECTIONS || "50"),
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 10000,
   ssl:
-    process.env.NODE_ENV === "production"
+    nodeEnv === "production"
       ? {
           rejectUnauthorized: process.env.DB_SSL_REJECT_UNAUTHORIZED === "true",
-          ca: process.env.DB_SSL_CA,
-          cert: process.env.DB_SSL_CERT,
-          key: process.env.DB_SSL_KEY,
+          ca: resolveManagedSecret({
+            reference: parseSecretReference(process.env.DB_SSL_CA_SECRET_REF),
+            fallback: process.env.DB_SSL_CA,
+            description: "database SSL CA",
+          }),
+          cert: resolveManagedSecret({
+            reference: parseSecretReference(process.env.DB_SSL_CERT_SECRET_REF),
+            fallback: process.env.DB_SSL_CERT,
+            description: "database SSL certificate",
+          }),
+          key: resolveManagedSecret({
+            reference: parseSecretReference(process.env.DB_SSL_KEY_SECRET_REF),
+            fallback: process.env.DB_SSL_KEY,
+            description: "database SSL private key",
+          }),
         }
       : false,
 };
@@ -54,11 +145,20 @@ const redisConfig = {
   url:
     process.env.REDIS_URL ||
     `redis://${process.env.REDIS_HOST || "localhost"}:${process.env.REDIS_PORT || "6379"}`,
-  password: process.env.REDIS_PASSWORD,
+  password: !isTestEnv
+    ? resolveManagedSecret({
+        reference: parseSecretReference(
+          process.env.REDIS_PASSWORD_SECRET_REF ||
+            process.env.REDIS_PASSWORD_REF,
+        ),
+        fallback: process.env.REDIS_PASSWORD,
+        description: "Redis password",
+      })
+    : process.env.REDIS_PASSWORD,
   retryDelayOnFailover: 100,
   maxRetriesPerRequest: 3,
   tls:
-    process.env.NODE_ENV === "production" && process.env.REDIS_SSL === "true"
+    nodeEnv === "production" && process.env.REDIS_SSL === "true"
       ? {}
       : undefined,
 };
@@ -77,7 +177,9 @@ try {
     redisClient = createClient(redisConfig);
   }
 } catch (error) {
-  console.log("ℹ️  Redis not available, continuing without cache");
+  dbLogger.warn("redis.client.initialization_failed", {
+    message: (error as Error).message,
+  });
 }
 
 export { redisClient };
@@ -88,11 +190,13 @@ export const initializeDatabase = async () => {
     if (usePostgreSQL && dbPool) {
       // Test PostgreSQL connection
       await dbPool.query("SELECT NOW()");
-      console.log("✅ PostgreSQL connected successfully");
+      dbLogger.info("database.connection.success", {
+        engine: "postgresql",
+      });
 
       // Log connection info (without sensitive data)
       const connectionInfo = dbPool.options;
-      console.log("📊 Database connection info:", {
+      dbLogger.debug("database.connection.details", {
         host: connectionInfo.host,
         port: connectionInfo.port,
         database: connectionInfo.database,
@@ -100,27 +204,34 @@ export const initializeDatabase = async () => {
         ssl: !!connectionInfo.ssl,
         maxConnections: connectionInfo.max,
       });
-    } else {
+    } else if (!isTestEnv) {
       throw new Error(
         "PostgreSQL is required. Please set database environment variables.",
       );
+    } else {
+      dbLogger.info("database.connection.skipped", {
+        reason: "test_environment_without_database",
+      });
     }
 
     // Connect to Redis if available
     if (redisClient) {
       try {
         await redisClient.connect();
-        console.log("✅ Redis connected successfully");
+        dbLogger.info("redis.connection.success", {
+          url: redisConfig.url,
+        });
       } catch (error) {
-        console.log(
-          "⚠️  Redis connection failed, continuing without cache:",
-          error.message,
-        );
+        dbLogger.warn("redis.connection.failed", {
+          message: (error as Error).message,
+        });
         redisClient = null;
       }
     }
   } catch (error) {
-    console.error("❌ Database connection failed:", error);
+    dbLogger.error("database.connection.failed", {
+      message: (error as Error).message,
+    });
     throw error;
   }
 };
@@ -134,9 +245,11 @@ export const closeDatabase = async () => {
     if (redisClient) {
       await redisClient.quit();
     }
-    console.log("✅ Database connections closed");
+    dbLogger.info("database.connections.closed");
   } catch (error) {
-    console.error("❌ Error closing database connections:", error);
+    dbLogger.error("database.connections.close_failed", {
+      message: (error as Error).message,
+    });
   }
 };
 
@@ -163,9 +276,12 @@ export const healthCheck = async () => {
       timestamp: new Date().toISOString(),
     };
   } catch (error) {
+    dbLogger.error("database.health_check.failed", {
+      message: (error as Error).message,
+    });
     return {
       status: "unhealthy",
-      error: error.message,
+      error: (error as Error).message,
       timestamp: new Date().toISOString(),
     };
   }

@@ -1,5 +1,14 @@
+export interface ProviderCredentialConfig {
+  apiKeyRef?: string;
+  messagingProfileIdRef?: string;
+  fromNumber?: string;
+  accountSidRef?: string;
+  authTokenRef?: string;
+  messagingServiceSidRef?: string;
+}
+
 export interface MessagingConfig {
-  primaryProvider: "telnyx" | "twilio";
+  primaryProvider: "telnyx" | "twilio" | "auto";
   enableSMS: boolean;
   enableVoice: boolean;
   enableScheduled: boolean;
@@ -23,6 +32,10 @@ export interface MessagingConfig {
     enableAlerts: boolean;
     escalationTimeout: number;
     maxEscalationLevels: number;
+  };
+  providerCredentials: {
+    telnyx: ProviderCredentialConfig;
+    twilio: ProviderCredentialConfig;
   };
 }
 

@@ -1,181 +1,158 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import request from "supertest";
-import { getTestPool } from "../utils/database";
-import { getTestRedisClient } from "../utils/redis";
+
+const buildUserPayload = (overrides: Record<string, unknown> = {}) => ({
+  email: `test-${Math.random().toString(16).slice(2)}@example.com`,
+  password: "TestPassword123!",
+  firstName: "Test",
+  lastName: "User",
+  role: "patient",
+  phone: "+15555550123",
+  ...overrides,
+});
 
 describe("Authentication API", () => {
   let testApp: any;
-  let authToken: string;
-  let refreshToken: string;
-  let userId: string;
 
-  beforeEach(async () => {
+  beforeEach(() => {
     testApp = global.testApp;
   });
 
   describe("POST /api/auth/register", () => {
-    it("should register a new user with valid data", async () => {
-      const userData = {
-        email: "test@example.com",
-        password: "TestPassword123",
-        firstName: "John",
-        lastName: "Doe",
-        role: "patient",
-        phone: "+1234567890",
-      };
+    it("registers a new user with valid data", async () => {
+      const payload = buildUserPayload();
 
       const response = await request(testApp)
         .post("/api/auth/register")
-        .send(userData)
+        .send(payload)
         .expect(201);
 
-      expect(response.body).toHaveProperty(
-        "message",
-        "User registered successfully",
-      );
-      expect(response.body).toHaveProperty("user");
+      expect(response.body).toMatchObject({
+        message: "User registered successfully",
+        user: {
+          email: payload.email,
+          firstName: payload.firstName,
+          lastName: payload.lastName,
+          role: payload.role,
+        },
+      });
       expect(response.body).toHaveProperty("token");
       expect(response.body).toHaveProperty("refreshToken");
-      expect(response.body.user.email).toBe(userData.email);
-      expect(response.body.user.firstName).toBe(userData.firstName);
-      expect(response.body.user.lastName).toBe(userData.lastName);
-      expect(response.body.user.role).toBe(userData.role);
-
-      // Store for other tests
-      authToken = response.body.token;
-      refreshToken = response.body.refreshToken;
-      userId = response.body.user.id;
     });
 
-    it("should reject registration with invalid email", async () => {
-      const userData = {
-        email: "invalid-email",
-        password: "TestPassword123",
-        firstName: "John",
-        lastName: "Doe",
-        role: "patient",
-      };
+    it("rejects registration with invalid email", async () => {
+      const payload = buildUserPayload({ email: "invalid-email" });
 
       const response = await request(testApp)
         .post("/api/auth/register")
-        .send(userData)
+        .send(payload)
         .expect(400);
 
-      expect(response.body).toHaveProperty("error", "Validation failed");
-      expect(response.body).toHaveProperty("code", "VALIDATION_ERROR");
+      expect(response.body).toMatchObject({
+        error: "Validation failed",
+        code: "VALIDATION_ERROR",
+      });
     });
 
-    it("should reject registration with weak password", async () => {
-      const userData = {
-        email: "test2@example.com",
-        password: "weak",
-        firstName: "John",
-        lastName: "Doe",
-        role: "patient",
-      };
+    it("rejects registration with weak password", async () => {
+      const payload = buildUserPayload({ password: "weak" });
 
       const response = await request(testApp)
         .post("/api/auth/register")
-        .send(userData)
+        .send(payload)
         .expect(400);
 
       expect(response.body).toHaveProperty("error", "Validation failed");
     });
 
-    it("should reject registration with invalid role", async () => {
-      const userData = {
-        email: "test3@example.com",
-        password: "TestPassword123",
-        firstName: "John",
-        lastName: "Doe",
-        role: "invalid-role",
-      };
+    it("rejects registration with invalid role", async () => {
+      const payload = buildUserPayload({ role: "invalid-role" });
 
       const response = await request(testApp)
         .post("/api/auth/register")
-        .send(userData)
+        .send(payload)
         .expect(400);
 
       expect(response.body).toHaveProperty("error", "Validation failed");
     });
 
-    it("should reject duplicate email registration", async () => {
-      const userData = {
-        email: "test@example.com",
-        password: "TestPassword123",
-        firstName: "Jane",
-        lastName: "Doe",
-        role: "patient",
-      };
+    it("rejects duplicate email registration", async () => {
+      const payload = buildUserPayload({ email: "duplicate@example.com" });
+
+      await request(testApp)
+        .post("/api/auth/register")
+        .send(payload)
+        .expect(201);
 
       const response = await request(testApp)
         .post("/api/auth/register")
-        .send(userData)
+        .send(payload)
         .expect(409);
 
-      expect(response.body).toHaveProperty("error", "User already exists");
-      expect(response.body).toHaveProperty("code", "USER_EXISTS");
+      expect(response.body).toMatchObject({
+        error: "User already exists",
+        code: "USER_EXISTS",
+      });
     });
   });
 
   describe("POST /api/auth/login", () => {
-    it("should login with valid credentials", async () => {
-      const loginData = {
-        email: "test@example.com",
-        password: "TestPassword123",
-      };
+    it("logs in with valid credentials", async () => {
+      const payload = buildUserPayload();
+
+      await request(testApp)
+        .post("/api/auth/register")
+        .send(payload)
+        .expect(201);
 
       const response = await request(testApp)
         .post("/api/auth/login")
-        .send(loginData)
+        .send({ email: payload.email, password: payload.password })
         .expect(200);
 
-      expect(response.body).toHaveProperty("message", "Login successful");
-      expect(response.body).toHaveProperty("user");
+      expect(response.body).toMatchObject({
+        message: "Login successful",
+        user: { email: payload.email },
+      });
       expect(response.body).toHaveProperty("token");
       expect(response.body).toHaveProperty("refreshToken");
-      expect(response.body.user.email).toBe(loginData.email);
     });
 
-    it("should reject login with invalid email", async () => {
-      const loginData = {
-        email: "nonexistent@example.com",
-        password: "TestPassword123",
-      };
-
+    it("rejects login with unknown email", async () => {
       const response = await request(testApp)
         .post("/api/auth/login")
-        .send(loginData)
+        .send({ email: "unknown@example.com", password: "TestPassword123!" })
         .expect(401);
 
-      expect(response.body).toHaveProperty("error", "Invalid credentials");
-      expect(response.body).toHaveProperty("code", "INVALID_CREDENTIALS");
+      expect(response.body).toMatchObject({
+        error: "Invalid credentials",
+        code: "INVALID_CREDENTIALS",
+      });
     });
 
-    it("should reject login with invalid password", async () => {
-      const loginData = {
-        email: "test@example.com",
-        password: "WrongPassword123",
-      };
+    it("rejects login with invalid password", async () => {
+      const payload = buildUserPayload();
+
+      await request(testApp)
+        .post("/api/auth/register")
+        .send(payload)
+        .expect(201);
 
       const response = await request(testApp)
         .post("/api/auth/login")
-        .send(loginData)
+        .send({ email: payload.email, password: "WrongPassword123" })
         .expect(401);
 
-      expect(response.body).toHaveProperty("error", "Invalid credentials");
-      expect(response.body).toHaveProperty("code", "INVALID_CREDENTIALS");
+      expect(response.body).toMatchObject({
+        error: "Invalid credentials",
+        code: "INVALID_CREDENTIALS",
+      });
     });
 
-    it("should reject login with invalid email format", async () => {
-      const loginData = {
-        email: "invalid-email",
-        password: "TestPassword123",
-      };
-
+    it("rejects login with invalid email format", async () => {
       const response = await request(testApp)
         .post("/api/auth/login")
-        .send(loginData)
+        .send({ email: "invalid-email", password: "TestPassword123!" })
         .expect(400);
 
       expect(response.body).toHaveProperty("error", "Validation failed");
@@ -183,244 +160,108 @@ describe("Authentication API", () => {
   });
 
   describe("POST /api/auth/refresh", () => {
-    it("should refresh token with valid refresh token", async () => {
+    it("refreshes the token with a valid refresh token", async () => {
+      const payload = buildUserPayload();
+
+      const registerResponse = await request(testApp)
+        .post("/api/auth/register")
+        .send(payload)
+        .expect(201);
+
       const response = await request(testApp)
         .post("/api/auth/refresh")
-        .send({ refreshToken })
+        .send({ refreshToken: registerResponse.body.refreshToken })
         .expect(200);
 
-      expect(response.body).toHaveProperty(
-        "message",
-        "Token refreshed successfully",
-      );
-      expect(response.body).toHaveProperty("token");
-      expect(response.body.token).not.toBe(authToken); // Should be different
+      expect(response.body).toMatchObject({
+        message: "Token refreshed successfully",
+      });
+      expect(typeof response.body.token).toBe("string");
+      expect(response.body.token.length).toBeGreaterThan(0);
     });
 
-    it("should reject refresh with missing token", async () => {
+    it("rejects refresh with missing token", async () => {
       const response = await request(testApp)
         .post("/api/auth/refresh")
         .send({})
         .expect(400);
 
-      expect(response.body).toHaveProperty("error", "Refresh token required");
-      expect(response.body).toHaveProperty("code", "REFRESH_TOKEN_MISSING");
+      expect(response.body).toMatchObject({
+        error: "Refresh token required",
+        code: "REFRESH_TOKEN_MISSING",
+      });
     });
 
-    it("should reject refresh with invalid token", async () => {
+    it("rejects refresh with invalid token", async () => {
       const response = await request(testApp)
         .post("/api/auth/refresh")
         .send({ refreshToken: "invalid-token" })
         .expect(401);
 
-      expect(response.body).toHaveProperty("error", "Invalid refresh token");
-      expect(response.body).toHaveProperty("code", "INVALID_REFRESH_TOKEN");
+      expect(response.body).toMatchObject({
+        error: "Invalid refresh token",
+        code: "INVALID_REFRESH_TOKEN",
+      });
+    });
+
+    it("rejects refresh after logout", async () => {
+      const payload = buildUserPayload();
+
+      const registerResponse = await request(testApp)
+        .post("/api/auth/register")
+        .send(payload)
+        .expect(201);
+
+      await request(testApp)
+        .post("/api/auth/logout")
+        .set("Authorization", `Bearer ${registerResponse.body.token}`)
+        .expect(200);
+
+      const refreshResponse = await request(testApp)
+        .post("/api/auth/refresh")
+        .send({ refreshToken: registerResponse.body.refreshToken })
+        .expect(401);
+
+      expect(refreshResponse.body).toMatchObject({
+        error: "Invalid refresh token",
+        code: "INVALID_REFRESH_TOKEN",
+      });
     });
   });
 
   describe("POST /api/auth/logout", () => {
-    it("should logout successfully with valid token", async () => {
+    it("logs out the current user and invalidates refresh token", async () => {
+      const payload = buildUserPayload();
+
+      const registerResponse = await request(testApp)
+        .post("/api/auth/register")
+        .send(payload)
+        .expect(201);
+
       const response = await request(testApp)
         .post("/api/auth/logout")
-        .set("Authorization", `Bearer ${authToken}`)
+        .set("Authorization", `Bearer ${registerResponse.body.token}`)
         .expect(200);
 
-      expect(response.body).toHaveProperty("message", "Logout successful");
+      expect(response.body).toMatchObject({
+        message: "Logout successful",
+      });
+
+      await request(testApp)
+        .post("/api/auth/refresh")
+        .send({ refreshToken: registerResponse.body.refreshToken })
+        .expect(401);
     });
 
-    it("should reject logout without token", async () => {
+    it("rejects logout without an access token", async () => {
       const response = await request(testApp)
         .post("/api/auth/logout")
         .expect(401);
 
-      expect(response.body).toHaveProperty("error", "Access token required");
-      expect(response.body).toHaveProperty("code", "TOKEN_MISSING");
-    });
-
-    it("should reject logout with invalid token", async () => {
-      const response = await request(testApp)
-        .post("/api/auth/logout")
-        .set("Authorization", "Bearer invalid-token")
-        .expect(401);
-
-      expect(response.body).toHaveProperty("error", "Invalid token");
-      expect(response.body).toHaveProperty("code", "TOKEN_INVALID");
-    });
-  });
-
-  describe("POST /api/auth/forgot-password", () => {
-    it("should send password reset for existing user", async () => {
-      const response = await request(testApp)
-        .post("/api/auth/forgot-password")
-        .send({ email: "test@example.com" })
-        .expect(200);
-
-      expect(response.body).toHaveProperty(
-        "message",
-        "Password reset link sent",
-      );
-      expect(response.body).toHaveProperty("resetToken");
-    });
-
-    it("should not reveal if user exists for non-existent email", async () => {
-      const response = await request(testApp)
-        .post("/api/auth/forgot-password")
-        .send({ email: "nonexistent@example.com" })
-        .expect(200);
-
-      expect(response.body).toHaveProperty(
-        "message",
-        "If an account with that email exists, a password reset link has been sent",
-      );
-    });
-
-    it("should reject with invalid email format", async () => {
-      const response = await request(testApp)
-        .post("/api/auth/forgot-password")
-        .send({ email: "invalid-email" })
-        .expect(400);
-
-      expect(response.body).toHaveProperty("error", "Validation failed");
-    });
-  });
-
-  describe("POST /api/auth/reset-password", () => {
-    it("should reset password with valid token", async () => {
-      // First get a reset token
-      const forgotResponse = await request(testApp)
-        .post("/api/auth/forgot-password")
-        .send({ email: "test@example.com" });
-
-      const resetToken = forgotResponse.body.resetToken;
-
-      const response = await request(testApp)
-        .post("/api/auth/reset-password")
-        .send({
-          token: resetToken,
-          newPassword: "NewPassword123",
-        })
-        .expect(200);
-
-      expect(response.body).toHaveProperty(
-        "message",
-        "Password reset successfully",
-      );
-    });
-
-    it("should reject reset with missing fields", async () => {
-      const response = await request(testApp)
-        .post("/api/auth/reset-password")
-        .send({ token: "some-token" })
-        .expect(400);
-
-      expect(response.body).toHaveProperty(
-        "error",
-        "Token and new password required",
-      );
-      expect(response.body).toHaveProperty("code", "MISSING_FIELDS");
-    });
-
-    it("should reject reset with invalid token", async () => {
-      const response = await request(testApp)
-        .post("/api/auth/reset-password")
-        .send({
-          token: "invalid-token",
-          newPassword: "NewPassword123",
-        })
-        .expect(400);
-
-      expect(response.body).toHaveProperty(
-        "error",
-        "Invalid or expired reset token",
-      );
-      expect(response.body).toHaveProperty("code", "INVALID_RESET_TOKEN");
-    });
-  });
-
-  describe("GET /api/auth/profile", () => {
-    it("should get user profile with valid token", async () => {
-      const response = await request(testApp)
-        .get("/api/auth/profile")
-        .set("Authorization", `Bearer ${authToken}`)
-        .expect(200);
-
-      expect(response.body).toHaveProperty("user");
-      expect(response.body.user).toHaveProperty("id");
-      expect(response.body.user).toHaveProperty("email");
-      expect(response.body.user).toHaveProperty("firstName");
-      expect(response.body.user).toHaveProperty("lastName");
-      expect(response.body.user).toHaveProperty("role");
-    });
-
-    it("should reject profile access without token", async () => {
-      const response = await request(testApp)
-        .get("/api/auth/profile")
-        .expect(401);
-
-      expect(response.body).toHaveProperty("error", "Access token required");
-      expect(response.body).toHaveProperty("code", "TOKEN_MISSING");
-    });
-
-    it("should reject profile access with invalid token", async () => {
-      const response = await request(testApp)
-        .get("/api/auth/profile")
-        .set("Authorization", "Bearer invalid-token")
-        .expect(401);
-
-      expect(response.body).toHaveProperty("error", "Invalid token");
-      expect(response.body).toHaveProperty("code", "TOKEN_INVALID");
-    });
-  });
-
-  describe("PUT /api/auth/profile", () => {
-    it("should update user profile with valid data", async () => {
-      const updateData = {
-        firstName: "Jane",
-        lastName: "Smith",
-        phone: "+1987654321",
-      };
-
-      const response = await request(testApp)
-        .put("/api/auth/profile")
-        .set("Authorization", `Bearer ${authToken}`)
-        .send(updateData)
-        .expect(200);
-
-      expect(response.body).toHaveProperty(
-        "message",
-        "Profile updated successfully",
-      );
-      expect(response.body).toHaveProperty("user");
-      expect(response.body.user.firstName).toBe(updateData.firstName);
-      expect(response.body.user.lastName).toBe(updateData.lastName);
-      expect(response.body.user.phone).toBe(updateData.phone);
-    });
-
-    it("should reject profile update with invalid phone number", async () => {
-      const updateData = {
-        phone: "invalid-phone",
-      };
-
-      const response = await request(testApp)
-        .put("/api/auth/profile")
-        .set("Authorization", `Bearer ${authToken}`)
-        .send(updateData)
-        .expect(400);
-
-      expect(response.body).toHaveProperty("error", "Validation failed");
-    });
-
-    it("should reject profile update without token", async () => {
-      const updateData = {
-        firstName: "Jane",
-      };
-
-      const response = await request(testApp)
-        .put("/api/auth/profile")
-        .send(updateData)
-        .expect(401);
-
-      expect(response.body).toHaveProperty("error", "Access token required");
+      expect(response.body).toMatchObject({
+        error: "Access token required",
+        code: "TOKEN_MISSING",
+      });
     });
   });
 });

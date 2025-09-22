@@ -25,6 +25,8 @@
     "test:unit": "vitest --run tests/unit/",
     "test:integration": "vitest --run tests/integration/",
     "test:phase1": "vitest --run tests/phase1/",
+    "test:load": "k6 run tests/performance/patient-api-load-test.js",
+    "test:load:telehealth": "k6 run tests/performance/telehealth-messaging-load-test.js",
     "lint": "npm run format:check",
     "lint:strict": "npm run typecheck && npm run format:check",
     "lint:ci": "npm run format:check && echo 'TypeScript checking temporarily disabled for CI/CD'",
@@ -32,7 +34,12 @@
     "format:check": "prettier --check .",
     "format.fix": "prettier --write .",
     "typecheck": "tsc",
-    "deploy:check": "npm run typecheck && npm run build:prod && npm run test"
+    "typecheck:server": "tsc -p tsconfig.server.json",
+    "deploy:check": "npm run typecheck && npm run build:prod && npm run test",
+    "bootstrap:admin": "tsx scripts/bootstrap-admin.ts",
+    "seed:test-data": "tsx scripts/seed-test-data.ts",
+    "secrets:check": "tsx scripts/validate-secrets.ts --env production.env --secrets secrets.local.example.json",
+    "security:scan": "tsx scripts/security-scan.ts"
   },
   "dependencies": {
     "@types/bcrypt": "^6.0.0",

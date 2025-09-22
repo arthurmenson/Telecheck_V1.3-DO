@@ -1,0 +1,35 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "moduleResolution": "node",
+    "types": ["node"],
+    "baseUrl": ".",
+    "paths": {
+      "@/server/*": ["./server/*"],
+      "@/shared/*": ["./shared/*"]
+    }
+  },
+  "include": [
+    "shared/**/*",
+    "server/config/**/*.ts",
+    "server/middleware/**/*.ts",
+    "server/routes/auth.ts",
+    "server/routes/feature-flags.ts",
+    "server/routes/internal.ts",
+    "server/routes/audit-logs.ts",
+    "server/routes/patients.ts",
+    "server/services/patient.service.ts",
+    "server/types/**/*.d.ts",
+    "server/testServer.ts",
+    "server/utils/auditLogger.ts",
+    "server/utils/logger.ts",
+    "server/utils/metrics.ts",
+    "tests/setup.ts",
+    "tests/utils/**/*.ts",
+    "tests/phase1/**/*.ts",
+    "tests/unit/auditLogger.test.ts",
+    "tests/unit/featureFlags.test.ts",
+    "tests/unit/metrics.test.ts"
+  ],
+  "exclude": ["client", "node_modules", "dist", "build", "coverage"]
+}

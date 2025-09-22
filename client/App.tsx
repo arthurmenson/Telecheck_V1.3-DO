@@ -91,6 +91,7 @@ import { PatientManagement } from "./pages/PatientManagement";
 import { ClinicalOperations } from "./pages/ClinicalOperations";
 import { RemoteMonitoring } from "./pages/RemoteMonitoring";
 import { Administration } from "./pages/Administration";
+import { PMSDashboard } from "./pages/PMSDashboard";
 import NotFound from "./pages/NotFound";
 import {
   Activity,
@@ -102,6 +103,7 @@ import {
   TrendingUp,
   MessageCircle,
 } from "lucide-react";
+import { FeatureFlagConsole } from "./pages/FeatureFlagConsole";
 
 const queryClient = new QueryClient();
 
@@ -441,6 +443,26 @@ const App = () => (
                   }
                 />
                 <Route
+                  path="/pms"
+                  element={
+                    <ProtectedRoute allowedRoles={["admin", "doctor", "nurse"]}>
+                      <Layout>
+                        <PMSDashboard />
+                      </Layout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/pms/scheduling"
+                  element={
+                    <ProtectedRoute allowedRoles={["admin", "doctor", "nurse"]}>
+                      <Layout>
+                        <Scheduling />
+                      </Layout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
                   path="/ehr/reporting"
                   element={
                     <ProtectedRoute allowedRoles={["admin", "doctor", "nurse"]}>
@@ -510,6 +532,16 @@ const App = () => (
                     <ProtectedRoute allowedRoles={["admin"]}>
                       <Layout>
                         <AdminSettings />
+                      </Layout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin/feature-flags"
+                  element={
+                    <ProtectedRoute allowedRoles={["admin"]}>
+                      <Layout>
+                        <FeatureFlagConsole />
                       </Layout>
                     </ProtectedRoute>
                   }

@@ -1,0 +1,10 @@
+environment         = "staging"
+aws_region          = "us-east-1"
+availability_zones  = ["us-east-1a", "us-east-1b"]
+certificate_arn     = "arn:aws:acm:us-east-1:123456789012:certificate/example"
+enable_waf         = true
+database_username   = "telecheck"
+database_password   = "change-me"
+app_image           = "123456789012.dkr.ecr.us-east-1.amazonaws.com/telecheck-api:staging"
+desired_count       = 2
+allowed_cidr_blocks = ["203.0.113.0/24"]

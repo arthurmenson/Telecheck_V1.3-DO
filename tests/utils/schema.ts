@@ -24,6 +24,26 @@ export const createTables = async (pool: Pool) => {
     )
   `);
 
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS audit_logs (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      event_id UUID UNIQUE NOT NULL,
+      occurred_at TIMESTAMPTZ NOT NULL,
+      user_id TEXT,
+      event_category VARCHAR(50) NOT NULL,
+      operation VARCHAR(100),
+      resource_type VARCHAR(100),
+      resource_id VARCHAR(100),
+      severity VARCHAR(10) NOT NULL DEFAULT 'LOW',
+      ip_address VARCHAR(100),
+      user_agent VARCHAR(255),
+      session_id VARCHAR(255),
+      payload JSONB NOT NULL DEFAULT '{}'::jsonb,
+      compliance JSONB,
+      created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
   // Patients table
   await pool.query(`
     CREATE TABLE IF NOT EXISTS patients (
@@ -148,6 +168,18 @@ export const createTables = async (pool: Pool) => {
     `CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)`,
   );
   await pool.query(
+    `CREATE UNIQUE INDEX IF NOT EXISTS idx_audit_logs_event_id ON audit_logs(event_id)`,
+  );
+  await pool.query(
+    `CREATE INDEX IF NOT EXISTS idx_audit_logs_user_id ON audit_logs(user_id)`,
+  );
+  await pool.query(
+    `CREATE INDEX IF NOT EXISTS idx_audit_logs_occurred_at ON audit_logs(occurred_at)`,
+  );
+  await pool.query(
+    `CREATE INDEX IF NOT EXISTS idx_audit_logs_category ON audit_logs(event_category)`,
+  );
+  await pool.query(
     `CREATE INDEX IF NOT EXISTS idx_patients_user_id ON patients(user_id)`,
   );
   await pool.query(
@@ -175,6 +207,7 @@ export const createTables = async (pool: Pool) => {
 
 export const dropTables = async (pool: Pool) => {
   const tables = [
+    "audit_logs",
     "notifications",
     "vital_signs",
     "appointments",

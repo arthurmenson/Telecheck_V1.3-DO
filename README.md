@@ -107,6 +107,8 @@ A comprehensive healthcare management platform built with modern web technologie
    # Edit .env with your configuration
    ```
 
+   > **Security Note:** Patient APIs now require authenticated requests by default. Only set `ENABLE_DEMO_AUTH_BYPASS=true` in `.env` for controlled demo environments, and keep it `false` for staging and production.
+
 4. **Set up databases**
 
    ```bash
@@ -118,16 +120,151 @@ A comprehensive healthcare management platform built with modern web technologie
    redis-server
    ```
 
-5. **Start development server**
+5. **Bootstrap an administrator account (one-time per environment)**
+
+   ```bash
+   export ADMIN_BOOTSTRAP_EMAIL="founder@example.com"
+   export ADMIN_BOOTSTRAP_PASSWORD="ChangeMeNow123!"
+   export ADMIN_BOOTSTRAP_FIRST_NAME="Telecheck"
+   export ADMIN_BOOTSTRAP_LAST_NAME="Admin"
+   npm run bootstrap:admin
+   unset ADMIN_BOOTSTRAP_EMAIL ADMIN_BOOTSTRAP_PASSWORD ADMIN_BOOTSTRAP_FIRST_NAME ADMIN_BOOTSTRAP_LAST_NAME
+   ```
+
+   > The bootstrap script reads credentials from environment variables and exits if the account already exists. Set
+   > `ADMIN_BOOTSTRAP_ROTATE=true` when re-issuing credentials. Do **not** commit the secrets to version control and clear the
+   > variables once the script finishes.
+
+6. **(Optional) Generate anonymized QA fixtures**
+
+   ```bash
+   # Seed ten anonymized patients plus supporting provider data
+   npm run seed:test-data
+
+   # Remove previously seeded demo fixtures and create five fresh patients
+   TEST_DATA_RESET=true TEST_DATA_PATIENT_COUNT=5 npm run seed:test-data
+   ```
+
+   > The fixture generator only touches accounts that use the `@demo.telecheck` domain (configurable via
+   > `TEST_DATA_EMAIL_DOMAIN`). Use this script in QA/staging environments to populate realistic-but-anonymized records without
+   > polluting production data or migrations.
+
+7. **Start development server**
 
    ```bash
    npm run dev
    ```
 
-6. **Run tests**
+8. **Run tests**
    ```bash
    npm test
    ```
+
+## 🔐 Secrets Management
+
+Telecheck resolves sensitive configuration values through a pluggable secret manager so production environments can fetch
+credentials from a vault instead of storing them in plaintext environment files.
+
+1. **Select a provider** – Set `SECRETS_PROVIDER` to a comma-separated priority list (e.g., `file,env` for local testing or
+   `aws-sm,file,env` in production). The runtime consults providers in order until a value resolves.
+2. **Provide vault references** – Point configuration variables at secret references using the `_SECRET_REF` suffix. For
+   example, `DB_PASSWORD_SECRET_REF=secret://database/primary#password` or `DB_PASSWORD_SECRET_REF=aws-sm://telecheck/prod/database#password`
+   to pull from AWS Secrets Manager. JSON descriptors such as `{"provider":"file","key":"database.primary.password"}` are also
+   supported for structured lookups.
+3. **Create a local secrets bundle** – For local development, copy `secrets.local.example.json` to `secrets.local.json` (or the
+   file specified by `SECRETS_FILE`) and populate it with structured data that mirrors your vault layout. A minimal example:
+
+   ```json
+   {
+     "database": {
+       "primary": {
+         "password": "local-db-password",
+         "url": "postgresql://postgres:local-db-password@localhost:5432/telecheck"
+       }
+     },
+     "redis": {
+       "password": "redis-secret"
+     }
+   }
+   ```
+
+4. **Reference secrets in configuration** – Replace plaintext values with references:
+
+   ```bash
+   # database
+   DATABASE_URL_SECRET_REF=secret://database/primary#url
+   DB_PASSWORD_SECRET_REF=secret://database/primary#password
+
+   # redis
+   REDIS_PASSWORD_SECRET_REF=secret://redis#password
+
+   # optional TLS materials
+   DB_SSL_CA_SECRET_REF=secret://database/tls#ca
+   DB_SSL_CERT_SECRET_REF=secret://database/tls#cert
+   DB_SSL_KEY_SECRET_REF=secret://database/tls#key
+   ```
+
+   At runtime the Express config loader resolves each reference via the configured providers, falling back to environment
+   variables only when no secret reference is supplied. Missing production secrets trigger descriptive errors so deployments
+   fail fast instead of silently using insecure defaults.
+
+5. **Validate managed secrets before deploys** – Run `npm run secrets:check` to load the desired environment file (defaults to `production.env`) and confirm every referenced secret resolves via the configured providers. Provide a secrets bundle path with `--secrets` when testing local JSON files:
+
+   ```bash
+   npm run secrets:check -- --env production.env --secrets ./secrets.local.example.json
+   ```
+
+6. **Enforce dependency vulnerability gates** – Execute `npm run security:scan` to run the scripted `npm audit` wrapper. The command blocks on any reported high or critical vulnerabilities, prints a severity summary, and is wired into the Readiness CI workflow so pull requests surface dependency issues automatically.
+
+   The script reports any references that fall back to plaintext environment values or cannot be resolved so vault gaps can be closed before promotion.
+
+7. **Enable AWS Secrets Manager (optional/production)** – Configure the following environment variables to allow Telecheck to sign AWS SigV4 requests and cache responses for faster startups:
+
+   ```bash
+   SECRETS_PROVIDER=aws-sm,file,env
+   AWS_REGION=us-east-1
+   AWS_ACCESS_KEY_ID=your-iam-access-key
+   AWS_SECRET_ACCESS_KEY=your-iam-secret
+   # Optional for temporary credentials or local testing
+   # AWS_SESSION_TOKEN=temporary-session-token
+   # AWS_SECRETS_MANAGER_ENDPOINT=http://localhost:4566        # LocalStack or VPC endpoint URL
+   # AWS_SECRETS_MANAGER_CACHE_TTL_MS=60000                    # Cache duration in milliseconds (0 to disable)
+   ```
+
+   With these settings in place, references using the `aws-sm://` scheme resolve against AWS Secrets Manager while retaining the existing file/env fallbacks for development workflows.
+
+## 🎯 Feature Flag Management
+
+Telecheck now ships with a lightweight feature-flag service so releases can be toggled per environment without redeploying the stack. Flags load in the following priority order and are injected into every Express request via `req.featureFlags` for downstream handlers and middleware:
+
+1. **Defaults** – Optional baseline flags supplied when the server boots (currently empty unless overridden in tests).
+2. **Configuration File** – Point `FEATURE_FLAGS_FILE` at a JSON document on disk (e.g., `/etc/telecheck/feature-flags.json`).
+3. **Environment Variable** – Set `FEATURE_FLAGS` to either a JSON object or a comma-separated list of `flag=value` pairs for ad-hoc overrides.
+
+Example configuration for local experiments:
+
+```bash
+# Enable the redesigned insights page and disable AI scribe suggestions
+FEATURE_FLAGS_FILE=./feature-flags.local.json
+FEATURE_FLAGS=insights-redesign=true,ai-scribe=false
+```
+
+`FEATURE_FLAGS_FILE` accepts absolute or relative paths and expects JSON booleans/strings/numbers. Non-boolean values are coerced (`"true"`, `"1"`, `"yes"` → `true`). Runtime overrides through `setFeatureFlag` allow targeted experiments inside integration tests without mutating process environment state.
+
+> **Operational Tip:** Store production/staging flag files in the secrets bucket or configuration management system alongside a change-approval workflow so releases can be coordinated with audit trails.
+
+### Admin Feature Flag Console
+
+- **Route:** `/admin/feature-flags` (admin role required)
+- **Capabilities:**
+  - View the active flag inventory with loaded timestamps.
+  - Toggle individual flags or create new overrides without redeploying services.
+  - Persist overrides in-memory for the running process while audit logging every change for compliance review.
+- **API Endpoints:**
+  - `GET /api/feature-flags` – Retrieve the current flag snapshot and metadata.
+  - `PATCH /api/feature-flags` – Apply one or more flag overrides (body: `{ "flags": { "flag-name": true } }`).
+
+> Administrators must authenticate first; the console automatically attaches the stored auth token to API requests.
 
 ## 📁 Project Structure
 
@@ -152,6 +289,13 @@ telecheck/
 ├── docs/                 # Documentation
 └── public/               # Static assets
 ```
+
+## 🗂 Compliance & Readiness Documentation
+
+- [Production Readiness Checklist](docs/PRODUCTION_READINESS_CHECKLIST.md)
+- [Incident Response Plan](docs/INCIDENT_RESPONSE_PLAN.md)
+- [ONC Certification Gap Assessment](docs/ONC_GAP_ASSESSMENT.md)
+- [Support Runbooks & Escalation Playbooks](docs/RUNBOOKS_AND_SUPPORT.md)
 
 ## 🔧 API Endpoints
 
@@ -193,6 +337,11 @@ telecheck/
 - `PUT /api/medications/:id` - Update medication
 - `DELETE /api/medications/:id` - Delete medication
 
+### Platform Controls
+
+- `GET /api/feature-flags` - Retrieve current feature flag state (admin)
+- `PATCH /api/feature-flags` - Update feature flag overrides (admin)
+
 ## 🧪 Testing
 
 ### Running Tests
@@ -211,7 +360,17 @@ npm run test:coverage
 npm run test:api
 npm run test:unit
 npm run test:integration
+# Run readiness-auth regression suite without external services
+npm run test:phase1
+# Execute the k6-based patient API load test plan
+npm run test:load
+# Exercise telehealth + messaging readiness load test
+npm run test:load:telehealth
+# Enforce type safety on readiness-critical server modules
+npm run typecheck:server
 ```
+
+The targeted server type check compiles the readiness harness (auth, patients, feature flags, audit logs, metrics middleware, and associated tests) against a curated TypeScript project so regressions surface even while the broader client codebase continues its cleanup.
 
 ### Test Structure
 
@@ -219,6 +378,21 @@ npm run test:integration
 - **Integration Tests**: Test API endpoints and database interactions
 - **API Tests**: Test complete API workflows
 - **E2E Tests**: Test complete user workflows
+- **Phase 1 Readiness Suite**: Uses the focused auth test harness to validate register/login/refresh/logout flows with refresh-token invalidation rules and negative cases without requiring external databases.
+- **Load Testing**: `tests/performance/patient-api-load-test.js` exercises high-concurrency authentication and patient workflows, and `tests/performance/telehealth-messaging-load-test.js` validates virtual care plus messaging readiness via k6. See [Performance & Load Test Plan](docs/PERFORMANCE_TEST_PLAN.md) for environment requirements and reporting expectations.
+
+## 🤖 Continuous Integration
+
+Telecheck ships a GitHub Actions workflow at `.github/workflows/readiness-ci.yml` that runs on every push and pull request. The job builds promotion-ready artifacts while enforcing the core readiness gates:
+
+1. **Formatting gate** – `npm run lint:ci` executes Prettier in check mode to keep the monorepo formatting baseline stable.
+2. **Full test execution** – `npm run test` runs the unit, integration, and readiness harness suites so regressions surface before review.
+3. **Production build** – `npm run build` compiles the React SPA and the Node.js SSR bundle.
+4. **Artifact publication** – The workflow uploads `spa-dist` and `server-dist` artifacts so release managers can promote the exact build output through staging and production environments.
+5. **Secrets validation** – `npm run secrets:check` resolves managed secret references to catch configuration drift early.
+6. **Dependency scanning** – `npm run security:scan` blocks merges when high/critical vulnerabilities are reported.
+
+Download the published artifacts from the workflow run summary when staging or production deployments require a reviewed, immutable build.
 
 ## 🚀 Deployment
 
@@ -248,6 +422,19 @@ docker run -p 3000:3000 telecheck
 - **Performance Monitoring**: Built-in performance tracking
 - **Error Logging**: Comprehensive error tracking and reporting
 - **Audit Trails**: Complete activity logging for compliance
+
+### Structured Logging & Forwarding
+
+- The API now emits structured JSON logs for every request/response cycle and infrastructure event using the built-in logger in `server/utils/logger.ts`.
+- Configure log behavior with the `SERVICE_NAME`, `LOG_LEVEL`, and optional `LOG_FORWARD_*` environment variables defined in `local.env` / `production.env`.
+- When `LOG_FORWARD_ENDPOINT` is set, logs are asynchronously forwarded via HTTPS (with optional bearer token or API key headers) so they can be ingested by a SIEM or observability platform while still streaming to stdout for containerized environments.
+- Every request receives an `x-request-id` header, and downstream code can emit correlated messages via `req.log` exposed by the request logging middleware.
+
+### Metrics & Alerting Hooks
+
+- The Express server exposes a Prometheus-compatible snapshot at `GET /internal/metrics` when `METRICS_ENABLED=true`, capturing request totals, latency summaries, and in-flight gauges per method and normalized route.
+- Secure the endpoint by setting `METRICS_TOKEN` (preferred) or enumerating explicit source IPs via `METRICS_ALLOWED_IPS`; otherwise the endpoint only responds to loopback requests, preventing accidental public exposure.
+- The metrics middleware runs alongside the structured logger so dashboards and alerting rules can share consistent labels (`service`, `environment`, `route`, `method`).
 
 ## 🔒 Security Features
 
