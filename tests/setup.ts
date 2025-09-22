@@ -9,7 +9,6 @@ import {
   teardownTestRedis,
   clearTestCache,
 } from "./utils/redis";
-import { createAuthTestServer } from "../server/testServer";
 import { __resetAuthStateForTests } from "../server/routes/auth";
 import { closeDatabase } from "../server/config/database";
 
@@ -80,6 +79,7 @@ beforeAll(async () => {
     }
 
     try {
+      const { createAuthTestServer } = await import("../server/testServer");
       global.testApp = await createAuthTestServer();
     } catch (error) {
       console.warn(

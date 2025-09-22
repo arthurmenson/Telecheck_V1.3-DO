@@ -4,6 +4,7 @@ import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 
 import authRoutes from "./routes/auth";
+import patientRoutes from "./routes/patients";
 import { requestLogger } from "./middleware/requestLogger";
 import { logger } from "./utils/logger";
 import { featureFlagsMiddleware } from "./middleware/featureFlags";
@@ -41,6 +42,7 @@ export async function createAuthTestServer() {
   });
 
   app.use("/api/auth", authRoutes);
+  app.use("/api/patients", patientRoutes);
 
   return app;
 }
