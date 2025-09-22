@@ -362,6 +362,8 @@ npm run test:unit
 npm run test:integration
 # Run readiness-auth regression suite without external services
 npm run test:phase1
+# Execute the k6-based patient API load test plan
+npm run test:load
 ```
 
 ### Test Structure
@@ -371,6 +373,7 @@ npm run test:phase1
 - **API Tests**: Test complete API workflows
 - **E2E Tests**: Test complete user workflows
 - **Phase 1 Readiness Suite**: Uses the focused auth test harness to validate register/login/refresh/logout flows with refresh-token invalidation rules and negative cases without requiring external databases.
+- **Load Testing**: `tests/performance/patient-api-load-test.js` exercises high-concurrency authentication and patient workflows using k6. See [Performance & Load Test Plan](docs/PERFORMANCE_TEST_PLAN.md) for environment requirements and reporting expectations.
 
 ## 🚀 Deployment
 
