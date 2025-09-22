@@ -23,6 +23,12 @@ variable "certificate_arn" {
   description = "ACM certificate ARN used by the public HTTPS listener."
 }
 
+variable "enable_waf" {
+  type        = bool
+  description = "Whether to provision an AWS WAFv2 web ACL and associate it with the public ALB."
+  default     = true
+}
+
 variable "tags" {
   type        = map(string)
   description = "Common resource tags."

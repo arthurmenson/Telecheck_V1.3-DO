@@ -58,6 +58,12 @@ variable "certificate_arn" {
   type        = string
 }
 
+variable "enable_waf" {
+  description = "Whether to attach an AWS WAF web ACL to the public load balancer."
+  type        = bool
+  default     = true
+}
+
 variable "tags" {
   description = "Base tags applied to all resources."
   type        = map(string)

@@ -5,6 +5,7 @@ module "network" {
   availability_zones  = var.availability_zones
   allowed_cidr_blocks = var.allowed_cidr_blocks
   certificate_arn     = var.certificate_arn
+  enable_waf          = var.enable_waf
   tags                = var.tags
 }
 

@@ -4,12 +4,12 @@ This Terraform configuration codifies the baseline infrastructure required to ru
 
 ## Modules
 
-| Module     | Purpose                                                                                                                               |
-| ---------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| `network`  | Builds the VPC, public/private subnets, routing, security groups, and an Application Load Balancer with an HTTPS listener.            |
-| `database` | Provisions a multi-AZ Amazon RDS for PostgreSQL instance and stores connection details in AWS Secrets Manager.                        |
-| `cache`    | Deploys an encrypted, multi-node Amazon ElastiCache for Redis replication group for sessions and caching.                             |
-| `app`      | Creates the ECS/Fargate cluster, task definitions, IAM roles, and listener rules that run the Telecheck API behind the load balancer. |
+| Module     | Purpose                                                                                                                                                 |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `network`  | Builds the VPC, public/private subnets, routing, security groups, an Application Load Balancer with an HTTPS listener, and an optional AWS WAF web ACL. |
+| `database` | Provisions a multi-AZ Amazon RDS for PostgreSQL instance and stores connection details in AWS Secrets Manager.                                          |
+| `cache`    | Deploys an encrypted, multi-node Amazon ElastiCache for Redis replication group for sessions and caching.                                               |
+| `app`      | Creates the ECS/Fargate cluster, task definitions, IAM roles, and listener rules that run the Telecheck API behind the load balancer.                   |
 
 ## Getting Started
 
@@ -47,6 +47,7 @@ database_password    = "change-me"
 app_image            = "123456789012.dkr.ecr.us-east-1.amazonaws.com/telecheck-api:main"
 desired_count        = 2
 allowed_cidr_blocks  = ["0.0.0.0/0"]
+enable_waf          = true
 ```
 
 6. Initialize Terraform with the remote state backend configuration and select the appropriate workspace (this will create the workspace on first run):
@@ -76,5 +77,6 @@ terraform -chdir=infra/terraform apply -var-file=environments/staging.tfvars
 ## Next Steps
 
 - Automate Terraform plan/apply in CI/CD with environment-scoped workspaces and manual approval gates.
-- Extend the modules with CloudWatch alarms, WAF integration, and CI/CD deployment pipelines for zero-touch rollouts.
+- Tune WAF rule group exclusions and add custom rules for Telecheck-specific APIs once traffic patterns are known.
+- Extend the modules with CloudWatch alarms and CI/CD deployment pipelines for zero-touch rollouts.
 - Wire the generated Secrets Manager ARN into the existing Node.js secret resolution layer (`aws-sm://` provider) to eliminate static credentials.

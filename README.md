@@ -280,6 +280,7 @@ telecheck/
 ## 🗂 Compliance & Readiness Documentation
 
 - [Production Readiness Checklist](docs/PRODUCTION_READINESS_CHECKLIST.md)
+- [Incident Response Plan](docs/INCIDENT_RESPONSE_PLAN.md)
 - [ONC Certification Gap Assessment](docs/ONC_GAP_ASSESSMENT.md)
 
 ## 🔧 API Endpoints

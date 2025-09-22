@@ -1,5 +1,6 @@
 locals {
-  name_prefix = "telecheck-${var.environment}"
+  name_prefix   = "telecheck-${var.environment}"
+  metric_prefix = replace("telecheck-${var.environment}", "-", "")
 }
 
 resource "aws_vpc" "this" {
@@ -211,6 +212,97 @@ resource "aws_lb" "this" {
   })
 }
 
+resource "aws_wafv2_web_acl" "this" {
+  count = var.enable_waf ? 1 : 0
+
+  name        = "${local.name_prefix}-waf"
+  description = "Protects Telecheck public entrypoints"
+  scope       = "REGIONAL"
+
+  default_action {
+    allow {}
+  }
+
+  visibility_config {
+    cloudwatch_metrics_enabled = true
+    metric_name                = "${local.metric_prefix}WebAcl"
+    sampled_requests_enabled   = true
+  }
+
+  rule {
+    name     = "AWSManagedCommonRuleSet"
+    priority = 1
+
+    override_action {
+      none {}
+    }
+
+    statement {
+      managed_rule_group_statement {
+        name        = "AWSManagedRulesCommonRuleSet"
+        vendor_name = "AWS"
+      }
+    }
+
+    visibility_config {
+      cloudwatch_metrics_enabled = true
+      metric_name                = "${local.metric_prefix}CommonRule"
+      sampled_requests_enabled   = true
+    }
+  }
+
+  rule {
+    name     = "AWSManagedKnownBadInputs"
+    priority = 2
+
+    override_action {
+      none {}
+    }
+
+    statement {
+      managed_rule_group_statement {
+        name        = "AWSManagedRulesKnownBadInputsRuleSet"
+        vendor_name = "AWS"
+      }
+    }
+
+    visibility_config {
+      cloudwatch_metrics_enabled = true
+      metric_name                = "${local.metric_prefix}BadInputsRule"
+      sampled_requests_enabled   = true
+    }
+  }
+
+  rule {
+    name     = "AWSManagedSQLi"
+    priority = 3
+
+    override_action {
+      none {}
+    }
+
+    statement {
+      managed_rule_group_statement {
+        name        = "AWSManagedRulesSQLiRuleSet"
+        vendor_name = "AWS"
+      }
+    }
+
+    visibility_config {
+      cloudwatch_metrics_enabled = true
+      metric_name                = "${local.metric_prefix}SQLiRule"
+      sampled_requests_enabled   = true
+    }
+  }
+}
+
+resource "aws_wafv2_web_acl_association" "alb" {
+  count = var.enable_waf ? 1 : 0
+
+  resource_arn = aws_lb.this.arn
+  web_acl_arn  = aws_wafv2_web_acl.this[0].arn
+}
+
 resource "aws_lb_target_group" "placeholder" {
   name        = "${local.name_prefix}-tg"
   port        = 3000
@@ -292,4 +384,9 @@ output "db_subnet_group" {
 
 output "alb_dns_name" {
   value = aws_lb.this.dns_name
+}
+
+output "waf_arn" {
+  value       = try(aws_wafv2_web_acl.this[0].arn, null)
+  description = "ARN of the AWS WAF web ACL protecting the public load balancer."
 }
