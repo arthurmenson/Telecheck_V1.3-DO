@@ -40,3 +40,6 @@ terraform/terraform.tfvars
 terraform/tfplan
 terraform/.terraform/
 
+# Local secret bundles
+secrets.local.json
+

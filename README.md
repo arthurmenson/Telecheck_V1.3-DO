@@ -146,6 +146,53 @@ A comprehensive healthcare management platform built with modern web technologie
    npm test
    ```
 
+## 🔐 Secrets Management
+
+Telecheck resolves sensitive configuration values through a pluggable secret manager so production environments can fetch
+credentials from a vault instead of storing them in plaintext environment files.
+
+1. **Select a provider** – Set `SECRETS_PROVIDER` to a comma-separated priority list (e.g., `file,env`). The default falls back
+   to checking a local secrets file before environment variables.
+2. **Provide vault references** – Point configuration variables at secret references using the `_SECRET_REF` suffix. For
+   example, `DB_PASSWORD_SECRET_REF=secret://database/primary#password` or a JSON descriptor such as
+   `DB_PASSWORD_SECRET_REF={"provider":"file","key":"database.primary.password"}`.
+3. **Create a local secrets bundle** – For local development, copy `secrets.local.example.json` to `secrets.local.json` (or the
+   file specified by `SECRETS_FILE`) and populate it with structured data that mirrors your vault layout. A minimal example:
+
+   ```json
+   {
+     "database": {
+       "primary": {
+         "password": "local-db-password",
+         "url": "postgresql://postgres:local-db-password@localhost:5432/telecheck"
+       }
+     },
+     "redis": {
+       "password": "redis-secret"
+     }
+   }
+   ```
+
+4. **Reference secrets in configuration** – Replace plaintext values with references:
+
+   ```bash
+   # database
+   DATABASE_URL_SECRET_REF=secret://database/primary#url
+   DB_PASSWORD_SECRET_REF=secret://database/primary#password
+
+   # redis
+   REDIS_PASSWORD_SECRET_REF=secret://redis#password
+
+   # optional TLS materials
+   DB_SSL_CA_SECRET_REF=secret://database/tls#ca
+   DB_SSL_CERT_SECRET_REF=secret://database/tls#cert
+   DB_SSL_KEY_SECRET_REF=secret://database/tls#key
+   ```
+
+   At runtime the Express config loader resolves each reference via the configured providers, falling back to environment
+   variables only when no secret reference is supplied. Missing production secrets trigger descriptive errors so deployments
+   fail fast instead of silently using insecure defaults.
+
 ## 📁 Project Structure
 
 ```
