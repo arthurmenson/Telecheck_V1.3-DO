@@ -2,9 +2,15 @@ name: CI
 
 on:
   push:
-    branches: [ main, master, ETM_telecheck ]
+    branches:
+      - main
+      - master
+      - ETM_telecheck
   pull_request:
-    branches: [ main, master, ETM_telecheck ]
+    branches:
+      - main
+      - master
+      - ETM_telecheck
 
 jobs:
   build-test:
@@ -24,15 +30,7 @@ jobs:
           nohup npm start &
           sleep 5
           npm run smoke:health
-name: CI
 
-on:
-  pull_request:
-    branches: [ main ]
-  push:
-    branches: [ main ]
-
-jobs:
   contracts:
     runs-on: ubuntu-latest
     steps:
