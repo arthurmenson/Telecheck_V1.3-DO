@@ -24,7 +24,7 @@ jobs:
       - run: npm ci
       - run: npm run typecheck
       - run: npm run build --if-present
-      - run: npm test --if-present
+      - run: npm run test:unit --if-present
       - name: Smoke health (dev server)
         run: |
           nohup npm start &
@@ -45,7 +45,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        service: [ auth, ehr, rpm, labs, medications, billing, messaging-admin ]
+        service: [ auth, ehr, rpm, labs, medications, billing, messaging-admin, erx ]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
