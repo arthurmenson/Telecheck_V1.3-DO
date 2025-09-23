@@ -170,7 +170,8 @@ export async function createServer() {
   app.use(express.json({ limit: "10mb" }));
   app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
-  // Health check routes
+  // Health check routes (available at both /health and /api/health)
+  app.use(healthRoutes);
   app.use("/api", healthRoutes);
 
   // Example API routes

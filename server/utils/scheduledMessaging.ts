@@ -2,6 +2,7 @@ import * as schedule from "node-schedule";
 import { MessagingService } from "./messagingService";
 import { AuditLogger } from "./auditLogger";
 import { db as database } from "../utils/databaseAdapter";
+import { dbPool } from "../config/database";
 
 export interface ScheduledMessage {
   id: string;
@@ -77,7 +78,14 @@ export class ScheduledMessagingService {
   constructor() {
     this.messagingService = new MessagingService();
     this.initializeTemplates();
-    this.loadActiveSchedules();
+
+    if (!dbPool) {
+      console.warn(
+        "Scheduled messaging disabled because PostgreSQL is not configured.",
+      );
+    } else {
+      void this.loadActiveSchedules();
+    }
   }
 
   private initializeTemplates(): void {
@@ -134,6 +142,11 @@ export class ScheduledMessagingService {
   async schedulePatientMessages(
     patientSchedule: PatientSchedule,
   ): Promise<void> {
+    if (!dbPool) {
+      console.warn("Skipping schedule load: PostgreSQL is not configured.");
+      return;
+    }
+
     try {
       AuditLogger.log(
         "SYSTEM",

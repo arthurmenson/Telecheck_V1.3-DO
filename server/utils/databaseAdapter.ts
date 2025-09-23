@@ -7,7 +7,10 @@ import { dbPool } from "../config/database";
 class DatabaseAdapter {
   async initialize(): Promise<void> {
     if (!dbPool) {
-      throw new Error("PostgreSQL pool not configured");
+      console.warn(
+        "PostgreSQL pool not configured. Skipping database adapter initialization.",
+      );
+      return;
     }
     // Test connection
     await dbPool.query("SELECT NOW()");
@@ -16,7 +19,10 @@ class DatabaseAdapter {
 
   async query(sql: string, params: any[] = []): Promise<any> {
     if (!dbPool) {
-      throw new Error("PostgreSQL pool not configured");
+      console.warn(
+        "PostgreSQL pool not configured. Returning empty result for query.",
+      );
+      return [];
     }
     try {
       const result = await dbPool.query(sql, params);
