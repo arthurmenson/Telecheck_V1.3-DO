@@ -243,8 +243,8 @@ router.post(
     try {
       const userId = req.user!.id;
 
-      // Remove refresh token from Redis
-      await redisClient.del(`refresh_token:${userId}`);
+      // Remove refresh token from Redis (safe helper)
+      await safeDel(`refresh_token:${userId}`);
 
       res.json({
         message: "Logout successful",

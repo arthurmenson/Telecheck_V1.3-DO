@@ -21,6 +21,7 @@ import {
   DialogTitle,
 } from "./ui/dialog";
 import { Calendar } from "./ui/calendar";
+import type { DateRange } from "react-day-picker";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import {
   Package,
@@ -357,7 +358,7 @@ export function OrderManager({ isOpen = true, onClose }: OrderManagerProps) {
   const [orders, setOrders] = useState<Order[]>(SAMPLE_ORDERS);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [dateRange, setDateRange] = useState<{ from: Date; to?: Date } | undefined>(undefined);
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
@@ -712,11 +713,11 @@ export function OrderManager({ isOpen = true, onClose }: OrderManagerProps) {
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="end">
-                <Calendar
-                  mode="range"
-                  selected={dateRange}
-                  onSelect={setDateRange}
-                />
+            <Calendar
+              mode="range"
+              selected={dateRange as any}
+              onSelect={(range: any) => setDateRange(range || undefined)}
+            />
               </PopoverContent>
             </Popover>
           </div>

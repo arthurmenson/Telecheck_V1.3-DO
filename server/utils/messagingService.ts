@@ -636,7 +636,9 @@ export class MessagingService {
    */
   private isCareTeamMemberAvailable(member: CareTeamMember): boolean {
     const now = new Date();
-    const currentDay = now.toLocaleDateString("en-us", { weekday: "long" }).toLowerCase();
+    const currentDay = now
+      .toLocaleDateString("en-US", { weekday: "long" })
+      .toLowerCase();
     const currentTime = now.toTimeString().substring(0, 5); // HH:MM
 
     // Check if today is in available days

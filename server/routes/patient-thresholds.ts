@@ -1,5 +1,6 @@
 import { RequestHandler } from "express";
 import { Request, Response } from "express";
+import { AuthenticatedRequest } from "../middleware/auth";
 import { db } from "../utils/databaseAdapter";
 import { thresholdService, PatientThreshold } from "../utils/thresholdService";
 import { AuditLogger } from "../utils/auditLogger";
@@ -71,7 +72,7 @@ export async function getPatientThresholds(req: Request, res: Response) {
 }
 
 // Set or update a patient-specific threshold
-export async function setPatientThreshold(req: Request, res: Response) {
+export async function setPatientThreshold(req: AuthenticatedRequest, res: Response) {
   try {
     const { patientId } = req.params;
     const { thresholdType, thresholdValue, unit, notes } = req.body;
@@ -141,7 +142,7 @@ export async function setPatientThreshold(req: Request, res: Response) {
 }
 
 // Remove a patient-specific threshold (revert to global)
-export async function removePatientThreshold(req: Request, res: Response) {
+export async function removePatientThreshold(req: AuthenticatedRequest, res: Response) {
   try {
     const { patientId, thresholdType } = req.params;
     const userId = req.user?.id || "admin";
@@ -202,7 +203,7 @@ export async function getPatientsWithCustomThresholds(
 }
 
 // Bulk update multiple thresholds for a patient
-export async function bulkUpdatePatientThresholds(req: Request, res: Response) {
+export async function bulkUpdatePatientThresholds(req: AuthenticatedRequest, res: Response) {
   try {
     const { patientId } = req.params;
     const { thresholds } = req.body;

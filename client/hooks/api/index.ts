@@ -55,8 +55,10 @@ export function useUpdateProfile() {
         updateCache<User>(
           queryKeys.user.profile(),
           (old) => {
-            const base = (old ?? ({} as User));
-            return { ...base, ...newUserData } as User;
+            const base: Partial<User> = old ? (old as User) : {};
+            const safeBase = typeof base === 'object' && base !== null ? (base as object) : {};
+            const safeNew = typeof newUserData === 'object' && newUserData !== null ? (newUserData as object) : {};
+            return { ...safeBase, ...safeNew } as User;
           },
         );
       },
@@ -89,8 +91,10 @@ export function useUpdatePreferences() {
         updateCache<UserPreferences>(
           queryKeys.user.preferences(),
           (old) => {
-            const base = (old ?? ({} as UserPreferences));
-            return { ...base, ...newPreferences } as UserPreferences;
+            const base: Partial<UserPreferences> = old ? (old as UserPreferences) : {};
+            const safeBase = typeof base === 'object' && base !== null ? (base as object) : {};
+            const safeNew = typeof newPreferences === 'object' && newPreferences !== null ? (newPreferences as object) : {};
+            return { ...safeBase, ...safeNew } as UserPreferences;
           },
         );
       },

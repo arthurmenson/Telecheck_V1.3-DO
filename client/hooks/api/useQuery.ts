@@ -13,6 +13,7 @@ import {
   UseQueryOptions,
   UseMutationOptions,
   UseInfiniteQueryOptions,
+  InfiniteData,
 } from "@tanstack/react-query";
 import { ApiResponse } from "../../../shared/types";
 import { ApiError } from "../../lib/api-client";
@@ -113,7 +114,7 @@ export function useApiQuery<
     "queryKey" | "queryFn"
   >,
 ) {
-  return useQuery<ApiResponse<TData>, TError, TData, readonly unknown[]>({
+  return useQuery<ApiResponse<TData>, TError & object, TData, readonly unknown[]>({
     queryKey,
     queryFn,
     select: (data) => data.data,
@@ -249,7 +250,10 @@ export function usePagination<T>(
 }
 
 // Infinite query hook for infinite scrolling
-export function useInfiniteApiQuery<TData = unknown, TError extends ApiError = ApiError>(
+export function useInfiniteApiQuery<
+  TData = unknown,
+  TError extends ApiError = ApiError
+>(
   queryKey: readonly unknown[],
   queryFn: (context: { pageParam: number }) => Promise<
     ApiResponse<{ items: TData[]; nextPage?: number; hasMore: boolean }>
@@ -265,11 +269,17 @@ export function useInfiniteApiQuery<TData = unknown, TError extends ApiError = A
     "queryKey" | "queryFn" | "getNextPageParam" | "initialPageParam"
   >,
 ) {
-  return useInfiniteQuery({
+  return useInfiniteQuery<
+    ApiResponse<{ items: TData[]; nextPage?: number; hasMore: boolean }>,
+    TError,
+    ApiResponse<{ items: TData[]; nextPage?: number; hasMore: boolean }>,
+    readonly unknown[],
+    number
+  >({
     queryKey,
     initialPageParam: 1,
-    queryFn: ({ pageParam = 1 }) => queryFn({ pageParam }),
-    getNextPageParam: (lastPage) => lastPage.data?.nextPage,
+    queryFn: ({ pageParam }) => queryFn({ pageParam: (pageParam as number) || 1 }),
+    getNextPageParam: (lastPage) => lastPage?.data?.nextPage ?? undefined,
     ...options,
   });
 }
