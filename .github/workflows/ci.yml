@@ -59,7 +59,7 @@ jobs:
       - name: Unit tests (per service)
         run: |
           cd services/${{ matrix.service }}
-          USE_DB=false npx vitest run tests/unit --reporter=dot
+          USE_DB=false npx vitest run --root . tests/unit --reporter=dot
 
   pact:
     runs-on: ubuntu-latest
