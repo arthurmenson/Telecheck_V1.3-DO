@@ -11,7 +11,8 @@ type SubmissionResult = {
 
 export class ClearinghouseAdapter {
   private static config: ClearinghouseConfig = {
-    baseUrl: process.env.CLEARINGHOUSE_URL || "https://mock-clearinghouse.local",
+    baseUrl:
+      process.env.CLEARINGHOUSE_URL || "https://mock-clearinghouse.local",
     apiKey: process.env.CLEARINGHOUSE_API_KEY,
   };
 
@@ -26,7 +27,10 @@ export class ClearinghouseAdapter {
     return this.getConfig();
   }
 
-  static async submitClaimX12(claimId: string, x12: string): Promise<SubmissionResult> {
+  static async submitClaimX12(
+    claimId: string,
+    x12: string,
+  ): Promise<SubmissionResult> {
     // In real implementation, POST to clearinghouse endpoint with auth headers
     const trackingId = `trk_${Date.now()}`;
     const result: SubmissionResult = {
@@ -38,7 +42,9 @@ export class ClearinghouseAdapter {
     return result;
   }
 
-  static async getClaimStatus(claimId: string): Promise<SubmissionResult | undefined> {
+  static async getClaimStatus(
+    claimId: string,
+  ): Promise<SubmissionResult | undefined> {
     const current = this.tracking.get(claimId);
     if (!current) return undefined;
     // Simulate progression
@@ -46,5 +52,3 @@ export class ClearinghouseAdapter {
     return current;
   }
 }
-
-

@@ -267,11 +267,7 @@ export class PatientService {
         if (payload && payload.data) {
           console.log(`[PatientService] Using response.data.data structure`);
           return payload.data;
-        } else if (
-          payload &&
-          payload.success &&
-          payload.data
-        ) {
+        } else if (payload && payload.success && payload.data) {
           console.log(
             `[PatientService] Using response.data.data with success flag`,
           );
@@ -477,11 +473,7 @@ export class PatientService {
             `[PatientService] Using response.data.data array structure for appointments`,
           );
           return payload.data;
-        } else if (
-          payload &&
-          payload.success &&
-          Array.isArray(payload.data)
-        ) {
+        } else if (payload && payload.success && Array.isArray(payload.data)) {
           console.log(
             `[PatientService] Using response.data.data with success flag for appointments`,
           );
@@ -556,11 +548,7 @@ export class PatientService {
             `[PatientService] Using response.data.data array structure for vitals`,
           );
           return payload.data;
-        } else if (
-          payload &&
-          payload.success &&
-          Array.isArray(payload.data)
-        ) {
+        } else if (payload && payload.success && Array.isArray(payload.data)) {
           console.log(
             `[PatientService] Using response.data.data with success flag for vitals`,
           );

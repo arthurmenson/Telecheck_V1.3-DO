@@ -7,21 +7,25 @@ import { pharmacyHandlers } from "./pharmacy.handlers";
 import { schedulingHandlers } from "./scheduling.handlers";
 
 export const worker = setupWorker(
-	...ehrHandlers,
-	...rpmHandlers,
-	...labsHandlers,
-	...medicationsHandlers,
-	...pharmacyHandlers,
-	...schedulingHandlers,
+  ...ehrHandlers,
+  ...rpmHandlers,
+  ...labsHandlers,
+  ...medicationsHandlers,
+  ...pharmacyHandlers,
+  ...schedulingHandlers,
 );
 
 export const mswStartOptions = {
-	serviceWorker: { url: "/mockServiceWorker.js" },
-	onUnhandledRequest: ({ request }: any) => {
-		try {
-			const u = new URL(request.url);
-			if (u.hostname.endsWith('builder.io') || u.hostname.endsWith('cdn.builder.io')) return;
-		} catch {}
-	},
-	quiet: false,
+  serviceWorker: { url: "/mockServiceWorker.js" },
+  onUnhandledRequest: ({ request }: any) => {
+    try {
+      const u = new URL(request.url);
+      if (
+        u.hostname.endsWith("builder.io") ||
+        u.hostname.endsWith("cdn.builder.io")
+      )
+        return;
+    } catch {}
+  },
+  quiet: false,
 } as const;

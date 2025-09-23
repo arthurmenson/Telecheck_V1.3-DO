@@ -2,30 +2,30 @@
  * HIPAA-compliant audit logging utilities
  */
 
-import { createAuditLogEntry } from './redaction';
+import { createAuditLogEntry } from "./redaction";
 
 // Audit event types
-export type AuditEventType = 
-  | 'api_access'
-  | 'phi_access'
-  | 'phi_create'
-  | 'phi_update'
-  | 'phi_delete'
-  | 'login_success'
-  | 'login_failure'
-  | 'logout'
-  | 'permission_denied'
-  | 'data_export'
-  | 'admin_action'
-  | 'system_access'
-  | 'configuration_change';
+export type AuditEventType =
+  | "api_access"
+  | "phi_access"
+  | "phi_create"
+  | "phi_update"
+  | "phi_delete"
+  | "login_success"
+  | "login_failure"
+  | "logout"
+  | "permission_denied"
+  | "data_export"
+  | "admin_action"
+  | "system_access"
+  | "configuration_change";
 
 export interface AuditEvent {
   userId?: string;
   action: AuditEventType;
   resource: string;
   method?: string;
-  result?: 'success' | 'failure';
+  result?: "success" | "failure";
   details?: any;
   ip?: string;
   userAgent?: string;
@@ -42,31 +42,32 @@ export async function trackAuditEvent(event: AuditEvent): Promise<void> {
       userId: event.userId,
       action: event.action,
       resource: event.resource,
-      result: event.result || 'success',
+      result: event.result || "success",
       details: {
         method: event.method,
         sessionId: event.sessionId,
-        ...event.details
+        ...event.details,
       },
       ip: event.ip,
       userAgent: event.userAgent,
-      requestId: event.requestId
+      requestId: event.requestId,
     });
 
     // Log to stdout (will be captured by log aggregation)
-    console.log(JSON.stringify({
-      type: 'audit',
-      ...auditEntry
-    }));
+    console.log(
+      JSON.stringify({
+        type: "audit",
+        ...auditEntry,
+      }),
+    );
 
     // In production, also send to audit service or EventBridge
-    if (process.env.NODE_ENV === 'production') {
+    if (process.env.NODE_ENV === "production") {
       await sendToAuditService(auditEntry);
     }
-
   } catch (error) {
     // Never fail the main request due to audit logging issues
-    console.error('Audit logging failed:', error);
+    console.error("Audit logging failed:", error);
   }
 }
 
@@ -81,34 +82,38 @@ async function sendToAuditService(auditEntry: any): Promise<void> {
     if (auditServiceUrl) {
       // Send to dedicated audit service
       await fetch(`${auditServiceUrl}/audit`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.AUDIT_SERVICE_TOKEN}`
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${process.env.AUDIT_SERVICE_TOKEN}`,
         },
-        body: JSON.stringify(auditEntry)
+        body: JSON.stringify(auditEntry),
       });
     } else if (eventBridgeArn) {
       // Send to AWS EventBridge
-      const { EventBridgeClient, PutEventsCommand } = await import('@aws-sdk/client-eventbridge');
-      
+      const { EventBridgeClient, PutEventsCommand } = await import(
+        "@aws-sdk/client-eventbridge"
+      );
+
       const client = new EventBridgeClient({
-        region: process.env.AWS_REGION || 'us-east-1'
+        region: process.env.AWS_REGION || "us-east-1",
       });
 
       const command = new PutEventsCommand({
-        Entries: [{
-          Source: 'telecheck.audit',
-          DetailType: 'Audit Event',
-          Detail: JSON.stringify(auditEntry),
-          EventBusName: eventBridgeArn
-        }]
+        Entries: [
+          {
+            Source: "telecheck.audit",
+            DetailType: "Audit Event",
+            Detail: JSON.stringify(auditEntry),
+            EventBusName: eventBridgeArn,
+          },
+        ],
       });
 
       await client.send(command);
     }
   } catch (error) {
-    console.error('Failed to send audit event to external service:', error);
+    console.error("Failed to send audit event to external service:", error);
   }
 }
 
@@ -118,7 +123,7 @@ async function sendToAuditService(auditEntry: any): Promise<void> {
 export async function trackPHIAccess(event: {
   userId: string;
   patientId: string;
-  action: 'view' | 'create' | 'update' | 'delete' | 'export';
+  action: "view" | "create" | "update" | "delete" | "export";
   resource: string;
   requestId?: string;
   ip?: string;
@@ -126,17 +131,17 @@ export async function trackPHIAccess(event: {
 }): Promise<void> {
   await trackAuditEvent({
     userId: event.userId,
-    action: 'phi_access',
+    action: "phi_access",
     resource: event.resource,
-    result: 'success',
+    result: "success",
     details: {
       patientId: event.patientId,
       phiAction: event.action,
-      complianceFlag: 'HIPAA_PHI_ACCESS'
+      complianceFlag: "HIPAA_PHI_ACCESS",
     },
     ip: event.ip,
     userAgent: event.userAgent,
-    requestId: event.requestId
+    requestId: event.requestId,
   });
 }
 
@@ -151,17 +156,17 @@ export async function trackAuthFailure(event: {
   requestId?: string;
 }): Promise<void> {
   await trackAuditEvent({
-    action: 'login_failure',
-    resource: '/auth/login',
-    result: 'failure',
+    action: "login_failure",
+    resource: "/auth/login",
+    result: "failure",
     details: {
       email: event.email,
       reason: event.reason,
-      securityFlag: 'AUTH_FAILURE'
+      securityFlag: "AUTH_FAILURE",
     },
     ip: event.ip,
     userAgent: event.userAgent,
-    requestId: event.requestId
+    requestId: event.requestId,
   });
 }
 
@@ -177,16 +182,16 @@ export async function trackAuthSuccess(event: {
 }): Promise<void> {
   await trackAuditEvent({
     userId: event.userId,
-    action: 'login_success',
-    resource: '/auth/login',
-    result: 'success',
+    action: "login_success",
+    resource: "/auth/login",
+    result: "success",
     details: {
       email: event.email,
-      securityFlag: 'AUTH_SUCCESS'
+      securityFlag: "AUTH_SUCCESS",
     },
     ip: event.ip,
     userAgent: event.userAgent,
-    requestId: event.requestId
+    requestId: event.requestId,
   });
 }
 
@@ -204,17 +209,17 @@ export async function trackPermissionDenied(event: {
 }): Promise<void> {
   await trackAuditEvent({
     userId: event.userId,
-    action: 'permission_denied',
+    action: "permission_denied",
     resource: event.resource,
-    result: 'failure',
+    result: "failure",
     details: {
       requiredPermissions: event.requiredPermissions,
       userPermissions: event.userPermissions,
-      securityFlag: 'PERMISSION_DENIED'
+      securityFlag: "PERMISSION_DENIED",
     },
     ip: event.ip,
     userAgent: event.userAgent,
-    requestId: event.requestId
+    requestId: event.requestId,
   });
 }
 
@@ -232,17 +237,17 @@ export async function trackAdminAction(event: {
 }): Promise<void> {
   await trackAuditEvent({
     userId: event.userId,
-    action: 'admin_action',
+    action: "admin_action",
     resource: event.resource,
-    result: 'success',
+    result: "success",
     details: {
       adminAction: event.action,
       ...event.details,
-      complianceFlag: 'ADMIN_ACTION'
+      complianceFlag: "ADMIN_ACTION",
     },
     ip: event.ip,
     userAgent: event.userAgent,
-    requestId: event.requestId
+    requestId: event.requestId,
   });
 }
 
@@ -260,17 +265,17 @@ export async function trackDataExport(event: {
 }): Promise<void> {
   await trackAuditEvent({
     userId: event.userId,
-    action: 'data_export',
-    resource: '/export',
-    result: 'success',
+    action: "data_export",
+    resource: "/export",
+    result: "success",
     details: {
       dataType: event.dataType,
       recordCount: event.recordCount,
       format: event.format,
-      complianceFlag: 'DATA_EXPORT_HIPAA'
+      complianceFlag: "DATA_EXPORT_HIPAA",
     },
     ip: event.ip,
     userAgent: event.userAgent,
-    requestId: event.requestId
+    requestId: event.requestId,
   });
 }

@@ -22,11 +22,16 @@ export default defineConfig(({ mode }) => ({
     hmr: {
       overlay: false,
     },
-    proxy: process.env.VITE_MODE === "SANDBOX"
-      ? {
-          "/api": { target: process.env.UAT_API || "https://api-uat.telecheck.health", changeOrigin: true, secure: true }
-        }
-      : undefined,
+    proxy:
+      process.env.VITE_MODE === "SANDBOX"
+        ? {
+            "/api": {
+              target: process.env.UAT_API || "https://api-uat.telecheck.health",
+              changeOrigin: true,
+              secure: true,
+            },
+          }
+        : undefined,
     fs: {
       allow: ["./client", "./shared", "./lib", "./mocks"],
       deny: [".env", ".env.*", "*.{crt,pem}", "**/.git/**", "server/**"],
@@ -51,8 +56,14 @@ export default defineConfig(({ mode }) => ({
   },
   plugins: [
     react(), // Using standard React plugin instead of SWC
-    mode === "development" && process.env.VITE_MODE !== "MOCK" && process.env.ENABLE_EXPRESS === "1" ? expressPlugin() : undefined,
-    mode === "development" && process.env.VITE_MODE === "MOCK" ? mockApiPlugin() : undefined,
+    mode === "development" &&
+    process.env.VITE_MODE !== "MOCK" &&
+    process.env.ENABLE_EXPRESS === "1"
+      ? expressPlugin()
+      : undefined,
+    mode === "development" && process.env.VITE_MODE === "MOCK"
+      ? mockApiPlugin()
+      : undefined,
   ].filter(Boolean),
   resolve: {
     alias: {
@@ -90,11 +101,13 @@ function expressPlugin(): Plugin {
               // If Express app isn't ready yet, return a temporary response
               res.statusCode = 503;
               res.setHeader("Content-Type", "application/json");
-              res.end(JSON.stringify({
-                error:
-                  "Server is still initializing, please try again in a moment",
-                code: "SERVER_INITIALIZING",
-              }));
+              res.end(
+                JSON.stringify({
+                  error:
+                    "Server is still initializing, please try again in a moment",
+                  code: "SERVER_INITIALIZING",
+                }),
+              );
             }
           });
 
@@ -170,7 +183,15 @@ function mockApiPlugin(): Plugin {
               return res.end(JSON.stringify({ message: "chaos" }));
             }
             return res.end(
-              JSON.stringify({ slots: [{ id: "s1", start: "2025-01-02T09:00:00Z", end: "2025-01-02T09:30:00Z" }] })
+              JSON.stringify({
+                slots: [
+                  {
+                    id: "s1",
+                    start: "2025-01-02T09:00:00Z",
+                    end: "2025-01-02T09:30:00Z",
+                  },
+                ],
+              }),
             );
           }
           if (method === "POST" && pathname === "/api/ehr/scheduling/book") {
@@ -181,7 +202,10 @@ function mockApiPlugin(): Plugin {
             }
             return res.end(JSON.stringify({ id: "apt1", status: "booked" }));
           }
-          if (method === "POST" && pathname.match(/^\/api\/ehr\/scheduling\/.+\/(cancel|reschedule)$/)) {
+          if (
+            method === "POST" &&
+            pathname.match(/^\/api\/ehr\/scheduling\/.+\/(cancel|reschedule)$/)
+          ) {
             const id = pathname.split("/").slice(-2)[0];
             const action = pathname.split("/").pop();
             const chaos = url.searchParams.get("chaos");
@@ -197,7 +221,14 @@ function mockApiPlugin(): Plugin {
           if (method === "GET" && pathname === "/api/medications/search") {
             const q = url.searchParams.get("q")?.toLowerCase() || "";
             if (q.includes("lipitor")) {
-              return res.end(JSON.stringify({ items: [{ id: "lipitor", name: "Lipitor", generic: "atorvastatin" }], q }));
+              return res.end(
+                JSON.stringify({
+                  items: [
+                    { id: "lipitor", name: "Lipitor", generic: "atorvastatin" },
+                  ],
+                  q,
+                }),
+              );
             }
             return res.end(JSON.stringify({ items: [], q }));
           }
@@ -207,7 +238,9 @@ function mockApiPlugin(): Plugin {
             return res.end(JSON.stringify({ items: [] }));
           }
           if (method === "GET" && pathname === "/api/vitals/trends") {
-            return res.end(JSON.stringify({ series: [{ name: "glucose", data: [] }] }));
+            return res.end(
+              JSON.stringify({ series: [{ name: "glucose", data: [] }] }),
+            );
           }
 
           return next();

@@ -57,7 +57,9 @@ export function ModernProgramsComponent() {
   const [activeTab, setActiveTab] = useState("overview");
   const [searchTerm, setSearchTerm] = useState("");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [selectedProgramId, setSelectedProgramId] = useState<string | null>(null);
+  const [selectedProgramId, setSelectedProgramId] = useState<string | null>(
+    null,
+  );
 
   // dYs? NEW: Replace static data with real API calls
   const {
@@ -83,18 +85,12 @@ export function ModernProgramsComponent() {
   }, [programs, selectedProgramId]);
 
   const selectedProgramKey = selectedProgramId ?? "";
-  const {
-    data: selectedProgram,
-    isFetching: programDetailsLoading,
-  } = useProgramDetails(selectedProgramKey);
-  const {
-    data: programAnalytics,
-    isFetching: analyticsLoading,
-  } = useProgramAnalytics(selectedProgramKey);
-  const {
-    data: participantData,
-    isFetching: participantsLoading,
-  } = useProgramParticipants(selectedProgramKey);
+  const { data: selectedProgram, isFetching: programDetailsLoading } =
+    useProgramDetails(selectedProgramKey);
+  const { data: programAnalytics, isFetching: analyticsLoading } =
+    useProgramAnalytics(selectedProgramKey);
+  const { data: participantData, isFetching: participantsLoading } =
+    useProgramParticipants(selectedProgramKey);
 
   const participants = useMemo(
     () => (Array.isArray(participantData) ? participantData : []),
@@ -116,11 +112,14 @@ export function ModernProgramsComponent() {
       0,
     );
     const averageCompletion = Math.round(
-      programs.reduce((sum, program) => sum + (program.completionRate ?? 0), 0) /
-        programs.length,
+      programs.reduce(
+        (sum, program) => sum + (program.completionRate ?? 0),
+        0,
+      ) / programs.length,
     );
-    const activePrograms = programs.filter((program) => program.status === "active")
-      .length;
+    const activePrograms = programs.filter(
+      (program) => program.status === "active",
+    ).length;
 
     return {
       totalPrograms: programs.length,
@@ -163,7 +162,9 @@ export function ModernProgramsComponent() {
   };
 
   const handleDeleteProgram = async (programId: string) => {
-    const confirmed = window.confirm("Are you sure you want to delete this program?");
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this program?",
+    );
     if (!confirmed) return;
 
     try {
@@ -235,7 +236,7 @@ export function ModernProgramsComponent() {
               Programs Management
             </h1>
             <p className="text-lg text-muted-foreground">
-              {programSummary.totalPrograms} active programs - {" "}
+              {programSummary.totalPrograms} active programs -{" "}
               {programSummary.totalParticipants} total participants
             </p>
           </div>
@@ -272,7 +273,9 @@ export function ModernProgramsComponent() {
                 <CardContent className="p-6 flex items-center gap-3">
                   <Users className="w-8 h-8 text-primary" />
                   <div>
-                    <p className="text-sm text-muted-foreground">Total Participants</p>
+                    <p className="text-sm text-muted-foreground">
+                      Total Participants
+                    </p>
                     <p className="text-2xl font-semibold">
                       {programSummary.totalParticipants}
                     </p>
@@ -283,7 +286,9 @@ export function ModernProgramsComponent() {
                 <CardContent className="p-6 flex items-center gap-3">
                   <TrendingUp className="w-8 h-8 text-primary" />
                   <div>
-                    <p className="text-sm text-muted-foreground">Average Completion</p>
+                    <p className="text-sm text-muted-foreground">
+                      Average Completion
+                    </p>
                     <p className="text-2xl font-semibold">
                       {programSummary.averageCompletion}%
                     </p>
@@ -294,7 +299,9 @@ export function ModernProgramsComponent() {
                 <CardContent className="p-6 flex items-center gap-3">
                   <Activity className="w-8 h-8 text-primary" />
                   <div>
-                    <p className="text-sm text-muted-foreground">Active Programs</p>
+                    <p className="text-sm text-muted-foreground">
+                      Active Programs
+                    </p>
                     <p className="text-2xl font-semibold">
                       {programSummary.activePrograms}
                     </p>
@@ -305,7 +312,9 @@ export function ModernProgramsComponent() {
                 <CardContent className="p-6 flex items-center gap-3">
                   <BarChart3 className="w-8 h-8 text-primary" />
                   <div>
-                    <p className="text-sm text-muted-foreground">Total Programs</p>
+                    <p className="text-sm text-muted-foreground">
+                      Total Programs
+                    </p>
                     <p className="text-2xl font-semibold">
                       {programSummary.totalPrograms}
                     </p>
@@ -321,7 +330,8 @@ export function ModernProgramsComponent() {
               <CardContent className="space-y-4">
                 {!selectedProgramId && (
                   <p className="text-muted-foreground">
-                    Select a program from the Programs tab to see its details here.
+                    Select a program from the Programs tab to see its details
+                    here.
                   </p>
                 )}
                 {selectedProgramId && programDetailsLoading && (
@@ -330,69 +340,84 @@ export function ModernProgramsComponent() {
                     <span>Loading program details...</span>
                   </div>
                 )}
-                {selectedProgramId && !programDetailsLoading && selectedProgram && (
-                  <div className="space-y-4">
-                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                      <div>
-                        <h2 className="text-2xl font-semibold">{selectedProgram.title}</h2>
-                        <p className="text-muted-foreground max-w-2xl">
-                          {selectedProgram.description}
-                        </p>
+                {selectedProgramId &&
+                  !programDetailsLoading &&
+                  selectedProgram && (
+                    <div className="space-y-4">
+                      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                        <div>
+                          <h2 className="text-2xl font-semibold">
+                            {selectedProgram.title}
+                          </h2>
+                          <p className="text-muted-foreground max-w-2xl">
+                            {selectedProgram.description}
+                          </p>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            variant="outline"
+                            onClick={handleArchiveProgram}
+                            disabled={updateProgram.isPending}
+                          >
+                            Archive Program
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            onClick={() =>
+                              handleDeleteProgram(selectedProgram.id)
+                            }
+                            disabled={deleteProgram.isPending}
+                          >
+                            <Trash2 className="w-4 h-4 mr-2" /> Delete
+                          </Button>
+                        </div>
                       </div>
-                      <div className="flex gap-2">
-                        <Button
-                          variant="outline"
-                          onClick={handleArchiveProgram}
-                          disabled={updateProgram.isPending}
-                        >
-                          Archive Program
-                        </Button>
-                        <Button
-                          variant="destructive"
-                          onClick={() => handleDeleteProgram(selectedProgram.id)}
-                          disabled={deleteProgram.isPending}
-                        >
-                          <Trash2 className="w-4 h-4 mr-2" /> Delete
-                        </Button>
-                      </div>
-                    </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                      <div>
-                        <p className="text-muted-foreground">Coach</p>
-                        <p className="font-medium">{selectedProgram.coach}</p>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                        <div>
+                          <p className="text-muted-foreground">Coach</p>
+                          <p className="font-medium">{selectedProgram.coach}</p>
+                        </div>
+                        <div>
+                          <p className="text-muted-foreground">Duration</p>
+                          <p className="font-medium">
+                            {selectedProgram.duration}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-muted-foreground">Status</p>
+                          <p className="font-medium capitalize">
+                            {selectedProgram.status}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-muted-foreground">Duration</p>
-                        <p className="font-medium">{selectedProgram.duration}</p>
-                      </div>
-                      <div>
-                        <p className="text-muted-foreground">Status</p>
-                        <p className="font-medium capitalize">{selectedProgram.status}</p>
-                      </div>
-                    </div>
 
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span>Participants</span>
-                        <span>
-                          {selectedProgram.enrolledParticipants}/
-                          {selectedProgram.maxParticipants ?? "--"}
-                        </span>
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span>Participants</span>
+                          <span>
+                            {selectedProgram.enrolledParticipants}/
+                            {selectedProgram.maxParticipants ?? "--"}
+                          </span>
+                        </div>
+                        <Progress
+                          value={
+                            (selectedProgram.enrolledParticipants /
+                              (selectedProgram.maxParticipants ?? 100)) *
+                            100
+                          }
+                          className="h-2"
+                        />
                       </div>
-                      <Progress
-                        value={
-                          (selectedProgram.enrolledParticipants /
-                            (selectedProgram.maxParticipants ?? 100)) * 100
-                        }
-                        className="h-2"
-                      />
                     </div>
-                  </div>
-                )}
-                {selectedProgramId && !programDetailsLoading && !selectedProgram && (
-                  <p className="text-muted-foreground">Program details not available.</p>
-                )}
+                  )}
+                {selectedProgramId &&
+                  !programDetailsLoading &&
+                  !selectedProgram && (
+                    <p className="text-muted-foreground">
+                      Program details not available.
+                    </p>
+                  )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -449,7 +474,9 @@ export function ModernProgramsComponent() {
                     <div className="space-y-3">
                       <div className="grid grid-cols-2 gap-4 text-sm">
                         <div>
-                          <span className="text-muted-foreground">Duration</span>
+                          <span className="text-muted-foreground">
+                            Duration
+                          </span>
                           <p className="font-medium">{program.duration}</p>
                         </div>
                         <div>
@@ -469,7 +496,8 @@ export function ModernProgramsComponent() {
                         <Progress
                           value={
                             (program.enrolledParticipants /
-                              (program.maxParticipants ?? 100)) * 100
+                              (program.maxParticipants ?? 100)) *
+                            100
                           }
                           className="h-2"
                         />
@@ -503,7 +531,9 @@ export function ModernProgramsComponent() {
                         <Button
                           size="sm"
                           className="flex-1"
-                          onClick={() => handleEnrollParticipant(program.id, {})}
+                          onClick={() =>
+                            handleEnrollParticipant(program.id, {})
+                          }
                           disabled={enrollParticipant.isPending}
                         >
                           <UserPlus className="w-3 h-3 mr-1" /> Enroll
@@ -592,7 +622,8 @@ export function ModernProgramsComponent() {
                   <CardTitle>Program Analytics</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {programAnalytics && Object.keys(programAnalytics).length > 0 ? (
+                  {programAnalytics &&
+                  Object.keys(programAnalytics).length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {Object.entries(programAnalytics).map(([key, value]) => (
                         <div key={key} className="rounded-md border p-4">

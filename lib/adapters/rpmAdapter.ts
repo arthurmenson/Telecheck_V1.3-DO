@@ -10,13 +10,18 @@ export const rpmAdapter = {
       track("tc:rpm-dashboard:success", { op: "getVitalsTrends" });
       return data;
     }
-    const qs = params ? `?${new URLSearchParams(params as any).toString()}` : "";
+    const qs = params
+      ? `?${new URLSearchParams(params as any).toString()}`
+      : "";
     try {
       const res = await apiClient.get(`/vitals/trends${qs}`);
       track("tc:rpm-dashboard:success", { op: "getVitalsTrends" });
       return res as any;
     } catch (e: any) {
-      track("tc:rpm-dashboard:error", { op: "getVitalsTrends", message: e?.message });
+      track("tc:rpm-dashboard:error", {
+        op: "getVitalsTrends",
+        message: e?.message,
+      });
       throw e;
     }
   },
@@ -27,7 +32,9 @@ export const rpmAdapter = {
       track("tc:rpm-center:success", { op: "getVitals" });
       return data;
     }
-    const qs = params ? `?${new URLSearchParams(params as any).toString()}` : "";
+    const qs = params
+      ? `?${new URLSearchParams(params as any).toString()}`
+      : "";
     try {
       const res = await apiClient.get(`/vitals${qs}`);
       track("tc:rpm-center:success", { op: "getVitals" });

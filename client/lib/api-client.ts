@@ -148,7 +148,9 @@ export class ApiClient {
     );
 
     const message =
-      (typeof errorPayload === "object" && errorPayload && "message" in errorPayload
+      (typeof errorPayload === "object" &&
+      errorPayload &&
+      "message" in errorPayload
         ? (errorPayload as any).message
         : undefined) || `API Error: ${response.status} ${response.statusText}`;
 
@@ -216,7 +218,9 @@ export class ApiClient {
 
   private getRetryDelay(error: ApiError, attempt: number): number {
     const baseDelay =
-      error.status === 429 ? API_CONFIG.RETRY_DELAY * 2 : API_CONFIG.RETRY_DELAY;
+      error.status === 429
+        ? API_CONFIG.RETRY_DELAY * 2
+        : API_CONFIG.RETRY_DELAY;
     return baseDelay * Math.pow(2, attempt);
   }
 
@@ -276,9 +280,15 @@ export class ApiClient {
     }
 
     const headers = this.mergeHeaders(finalConfig.headers);
-    const isFormData = this.isFormData(finalConfig.body as BodyInit | null | undefined);
+    const isFormData = this.isFormData(
+      finalConfig.body as BodyInit | null | undefined,
+    );
 
-    if (!isFormData && typeof finalConfig.body === "string" && !headers.has("content-type")) {
+    if (
+      !isFormData &&
+      typeof finalConfig.body === "string" &&
+      !headers.has("content-type")
+    ) {
       headers.set("Content-Type", "application/json");
     }
 
@@ -304,7 +314,9 @@ export class ApiClient {
           controller.abort();
         } else {
           abortHandler = () => controller.abort();
-          externalSignal.addEventListener("abort", abortHandler, { once: true });
+          externalSignal.addEventListener("abort", abortHandler, {
+            once: true,
+          });
         }
       }
 
@@ -314,7 +326,8 @@ export class ApiClient {
       };
 
       const startedAt =
-        typeof performance !== "undefined" && typeof performance.now === "function"
+        typeof performance !== "undefined" &&
+        typeof performance.now === "function"
           ? performance.now()
           : Date.now();
 
@@ -326,7 +339,8 @@ export class ApiClient {
         }
 
         const duration =
-          (typeof performance !== "undefined" && typeof performance.now === "function"
+          (typeof performance !== "undefined" &&
+          typeof performance.now === "function"
             ? performance.now()
             : Date.now()) - startedAt;
 
@@ -353,7 +367,8 @@ export class ApiClient {
         let apiError = this.toApiError(error);
 
         const duration =
-          (typeof performance !== "undefined" && typeof performance.now === "function"
+          (typeof performance !== "undefined" &&
+          typeof performance.now === "function"
             ? performance.now()
             : Date.now()) - startedAt;
 
@@ -465,4 +480,3 @@ export const apiClient = new ApiClient();
 
 // Export configured instance as default
 export default apiClient;
-

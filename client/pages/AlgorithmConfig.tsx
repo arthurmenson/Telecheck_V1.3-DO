@@ -646,69 +646,77 @@ export function AlgorithmConfig() {
                   )
                     .filter(([key]) => key !== "enabled")
                     .map(([condition, config]) => {
-                      if (typeof config !== 'object' || !config || typeof config === 'boolean') {
+                      if (
+                        typeof config !== "object" ||
+                        !config ||
+                        typeof config === "boolean"
+                      ) {
                         return null;
                       }
-                      const configObj = config as { weight: number; threshold: number };
+                      const configObj = config as {
+                        weight: number;
+                        threshold: number;
+                      };
                       return (
-                      <div key={condition} className="p-4 border rounded-lg">
-                        <h4 className="font-medium capitalize mb-2">
-                          {condition.replace(/([A-Z])/g, " $1")}
-                        </h4>
-                        <div className="space-y-2">
-                          <div>
-                            <Label>Weight</Label>
-                            <Input
-                              type="number"
-                              step="0.05"
-                              value={configObj.weight}
-                              onChange={(e) => {
-                                setAlgorithmConfig((prev) => ({
-                                  ...prev,
-                                  genomicFactors: {
-                                    ...prev.genomicFactors,
-                                    polygeneticRiskScores: {
-                                      ...prev.genomicFactors
-                                        .polygeneticRiskScores,
-                                      [condition]: {
-                                        ...configObj,
-                                        weight: Number(e.target.value),
+                        <div key={condition} className="p-4 border rounded-lg">
+                          <h4 className="font-medium capitalize mb-2">
+                            {condition.replace(/([A-Z])/g, " $1")}
+                          </h4>
+                          <div className="space-y-2">
+                            <div>
+                              <Label>Weight</Label>
+                              <Input
+                                type="number"
+                                step="0.05"
+                                value={configObj.weight}
+                                onChange={(e) => {
+                                  setAlgorithmConfig((prev) => ({
+                                    ...prev,
+                                    genomicFactors: {
+                                      ...prev.genomicFactors,
+                                      polygeneticRiskScores: {
+                                        ...prev.genomicFactors
+                                          .polygeneticRiskScores,
+                                        [condition]: {
+                                          ...configObj,
+                                          weight: Number(e.target.value),
+                                        },
                                       },
                                     },
-                                  },
-                                }));
-                                setIsModified(true);
-                              }}
-                            />
-                          </div>
-                          <div>
-                            <Label>Threshold (%)</Label>
-                            <Input
-                              type="number"
-                              value={configObj.threshold}
-                              onChange={(e) => {
-                                setAlgorithmConfig((prev) => ({
-                                  ...prev,
-                                  genomicFactors: {
-                                    ...prev.genomicFactors,
-                                    polygeneticRiskScores: {
-                                      ...prev.genomicFactors
-                                        .polygeneticRiskScores,
-                                      [condition]: {
-                                        ...configObj,
-                                        threshold: Number(e.target.value),
+                                  }));
+                                  setIsModified(true);
+                                }}
+                              />
+                            </div>
+                            <div>
+                              <Label>Threshold (%)</Label>
+                              <Input
+                                type="number"
+                                value={configObj.threshold}
+                                onChange={(e) => {
+                                  setAlgorithmConfig((prev) => ({
+                                    ...prev,
+                                    genomicFactors: {
+                                      ...prev.genomicFactors,
+                                      polygeneticRiskScores: {
+                                        ...prev.genomicFactors
+                                          .polygeneticRiskScores,
+                                        [condition]: {
+                                          ...configObj,
+                                          threshold: Number(e.target.value),
+                                        },
                                       },
                                     },
-                                  },
-                                }));
-                                setIsModified(true);
-                              }}
-                            />
+                                  }));
+                                  setIsModified(true);
+                                }}
+                              />
+                            </div>
                           </div>
                         </div>
-                      </div>
                       );
-                    }).filter(Boolean)}
+                    })
+                    .filter(Boolean)}
                 </div>
               </CardContent>
             </Card>

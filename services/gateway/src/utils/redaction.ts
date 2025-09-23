@@ -2,7 +2,7 @@
  * PII/PHI redaction utilities for logging and compliance
  */
 
-import crypto from 'crypto';
+import crypto from "crypto";
 
 // PII/PHI patterns to redact
 const PII_PATTERNS = [
@@ -20,43 +20,43 @@ const PII_PATTERNS = [
 
 // Fields that should always be redacted
 const REDACTED_FIELDS = [
-  'password',
-  'ssn',
-  'socialSecurityNumber',
-  'creditCard',
-  'cardNumber',
-  'cvv',
-  'pin',
-  'secret',
-  'token',
-  'apiKey',
-  'privateKey',
-  'dateOfBirth',
-  'dob',
-  'phoneNumber',
-  'phone',
-  'email',
-  'emergencyContact',
-  'address',
-  'medicalRecordNumber',
-  'patientId',
-  'insuranceNumber',
-  'memberNumber'
+  "password",
+  "ssn",
+  "socialSecurityNumber",
+  "creditCard",
+  "cardNumber",
+  "cvv",
+  "pin",
+  "secret",
+  "token",
+  "apiKey",
+  "privateKey",
+  "dateOfBirth",
+  "dob",
+  "phoneNumber",
+  "phone",
+  "email",
+  "emergencyContact",
+  "address",
+  "medicalRecordNumber",
+  "patientId",
+  "insuranceNumber",
+  "memberNumber",
 ];
 
 /**
  * Redact PII/PHI from a string
  */
 export function redactString(text: string): string {
-  if (!text || typeof text !== 'string') {
+  if (!text || typeof text !== "string") {
     return text;
   }
 
   let redacted = text;
-  
+
   // Apply pattern-based redaction
   for (const pattern of PII_PATTERNS) {
-    redacted = redacted.replace(pattern, '[REDACTED]');
+    redacted = redacted.replace(pattern, "[REDACTED]");
   }
 
   return redacted;
@@ -68,39 +68,39 @@ export function redactString(text: string): string {
 export function redactObject(obj: any, depth = 0): any {
   // Prevent infinite recursion
   if (depth > 10) {
-    return '[MAX_DEPTH_REACHED]';
+    return "[MAX_DEPTH_REACHED]";
   }
 
   if (obj === null || obj === undefined) {
     return obj;
   }
 
-  if (typeof obj === 'string') {
+  if (typeof obj === "string") {
     return redactString(obj);
   }
 
-  if (typeof obj === 'number' || typeof obj === 'boolean') {
+  if (typeof obj === "number" || typeof obj === "boolean") {
     return obj;
   }
 
   if (Array.isArray(obj)) {
-    return obj.map(item => redactObject(item, depth + 1));
+    return obj.map((item) => redactObject(item, depth + 1));
   }
 
-  if (typeof obj === 'object') {
+  if (typeof obj === "object") {
     const redacted: any = {};
-    
+
     for (const [key, value] of Object.entries(obj)) {
       const lowerKey = key.toLowerCase();
-      
+
       // Check if field should be completely redacted
-      if (REDACTED_FIELDS.some(field => lowerKey.includes(field))) {
-        redacted[key] = '[REDACTED]';
+      if (REDACTED_FIELDS.some((field) => lowerKey.includes(field))) {
+        redacted[key] = "[REDACTED]";
       } else {
         redacted[key] = redactObject(value, depth + 1);
       }
     }
-    
+
     return redacted;
   }
 
@@ -116,11 +116,11 @@ export function redactPII(req: any): any {
   const redacted = {
     id: req.id,
     method: req.method,
-    url: redactString(req.url || ''),
+    url: redactString(req.url || ""),
     headers: redactObject({
       ...req.headers,
-      authorization: req.headers?.authorization ? '[REDACTED]' : undefined,
-      cookie: req.headers?.cookie ? '[REDACTED]' : undefined,
+      authorization: req.headers?.authorization ? "[REDACTED]" : undefined,
+      cookie: req.headers?.cookie ? "[REDACTED]" : undefined,
     }),
     query: redactObject(req.query),
     params: redactObject(req.params),
@@ -132,7 +132,7 @@ export function redactPII(req: any): any {
 
   // Remove undefined fields
   return Object.fromEntries(
-    Object.entries(redacted).filter(([_, value]) => value !== undefined)
+    Object.entries(redacted).filter(([_, value]) => value !== undefined),
   );
 }
 
@@ -140,13 +140,13 @@ export function redactPII(req: any): any {
  * Hash IP address for privacy while maintaining uniqueness for tracking
  */
 export function hashIP(ip: string): string {
-  if (!ip) return '';
-  
+  if (!ip) return "";
+
   // Create a hash of the IP for privacy
   return crypto
-    .createHash('sha256')
-    .update(ip + process.env.IP_SALT || 'default-salt')
-    .digest('hex')
+    .createHash("sha256")
+    .update(ip + process.env.IP_SALT || "default-salt")
+    .digest("hex")
     .substring(0, 16);
 }
 
@@ -158,13 +158,13 @@ export function redactError(error: Error | any): any {
 
   return {
     name: error.name,
-    message: redactString(error.message || ''),
+    message: redactString(error.message || ""),
     code: error.code,
     statusCode: error.statusCode,
     // Only include stack trace in development
-    ...(process.env.NODE_ENV === 'development' && {
-      stack: redactString(error.stack || '')
-    })
+    ...(process.env.NODE_ENV === "development" && {
+      stack: redactString(error.stack || ""),
+    }),
   };
 }
 
@@ -175,7 +175,7 @@ export function createAuditLogEntry(event: {
   userId?: string;
   action: string;
   resource: string;
-  result: 'success' | 'failure';
+  result: "success" | "failure";
   details?: any;
   ip?: string;
   userAgent?: string;
@@ -189,7 +189,7 @@ export function createAuditLogEntry(event: {
     result: event.result,
     details: redactObject(event.details),
     ip: event.ip ? hashIP(event.ip) : null,
-    userAgent: redactString(event.userAgent || ''),
+    userAgent: redactString(event.userAgent || ""),
     requestId: event.requestId,
     auditId: crypto.randomUUID(),
   };
@@ -200,8 +200,8 @@ export function createAuditLogEntry(event: {
  */
 function hashUserId(userId: string): string {
   return crypto
-    .createHash('sha256')
-    .update(userId + process.env.USER_ID_SALT || 'default-user-salt')
-    .digest('hex')
+    .createHash("sha256")
+    .update(userId + process.env.USER_ID_SALT || "default-user-salt")
+    .digest("hex")
     .substring(0, 16);
 }

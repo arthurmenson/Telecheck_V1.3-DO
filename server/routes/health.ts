@@ -11,7 +11,9 @@ router.get("/health", async (req, res) => {
     }
     const dbHealth = await healthCheck();
     const dbInfo = getDatabaseInfo();
-    res.status(200).json({ status: "healthy", database: { ...dbHealth, ...dbInfo } });
+    res
+      .status(200)
+      .json({ status: "healthy", database: { ...dbHealth, ...dbInfo } });
   } catch (error) {
     res.status(503).json({
       status: "unhealthy",
@@ -23,47 +25,52 @@ router.get("/health", async (req, res) => {
 
 // Detailed system info (for debugging)
 import { authenticateToken, requireAdmin } from "../middleware/auth";
-router.get("/health/detailed", authenticateToken as any, requireAdmin as any, async (req, res) => {
-  try {
-    const dbHealth = await healthCheck();
-    const dbInfo = getDatabaseInfo();
+router.get(
+  "/health/detailed",
+  authenticateToken as any,
+  requireAdmin as any,
+  async (req, res) => {
+    try {
+      const dbHealth = await healthCheck();
+      const dbInfo = getDatabaseInfo();
 
-    const response = {
-      status: "healthy",
-      timestamp: new Date().toISOString(),
-      system: {
-        nodeVersion: process.version,
-        platform: process.platform,
-        arch: process.arch,
-        uptime: process.uptime(),
-        memory: process.memoryUsage(),
-        cpuUsage: process.cpuUsage(),
-      },
-      environment: {
-        nodeEnv: process.env.NODE_ENV || "development",
-        port: process.env.PORT || 8080,
-        hasRedis: !!process.env.REDIS_URL,
-        hasPostgres: !!(process.env.DATABASE_URL || process.env.DB_HOST),
-        hasTelnyx: !!process.env.TELNYX_API_KEY,
-        hasTwilio: !!(
-          process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN
-        ),
-      },
-      database: {
-        ...dbHealth,
-        ...dbInfo,
-      },
-    };
+      const response = {
+        status: "healthy",
+        timestamp: new Date().toISOString(),
+        system: {
+          nodeVersion: process.version,
+          platform: process.platform,
+          arch: process.arch,
+          uptime: process.uptime(),
+          memory: process.memoryUsage(),
+          cpuUsage: process.cpuUsage(),
+        },
+        environment: {
+          nodeEnv: process.env.NODE_ENV || "development",
+          port: process.env.PORT || 8080,
+          hasRedis: !!process.env.REDIS_URL,
+          hasPostgres: !!(process.env.DATABASE_URL || process.env.DB_HOST),
+          hasTelnyx: !!process.env.TELNYX_API_KEY,
+          hasTwilio: !!(
+            process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN
+          ),
+        },
+        database: {
+          ...dbHealth,
+          ...dbInfo,
+        },
+      };
 
-    res.status(200).json(response);
-  } catch (error) {
-    res.status(503).json({
-      status: "unhealthy",
-      timestamp: new Date().toISOString(),
-      error: error.message,
-      stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
-    });
-  }
-});
+      res.status(200).json(response);
+    } catch (error) {
+      res.status(503).json({
+        status: "unhealthy",
+        timestamp: new Date().toISOString(),
+        error: error.message,
+        stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
+      });
+    }
+  },
+);
 
 export default router;

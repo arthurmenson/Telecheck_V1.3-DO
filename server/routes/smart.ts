@@ -49,5 +49,3 @@ router.post("/introspect", (req, res: Response) => {
 });
 
 export default router;
-
-

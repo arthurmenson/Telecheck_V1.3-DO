@@ -517,21 +517,23 @@ export function QuestionnaireBuilder() {
 
     // Handle MCQ Templates
     if (template && (template as any).mcqData) {
-      const mcqQuestions = (template as any).mcqData.questions.map((q, index) => ({
-        id: q.id,
-        type: q.type,
-        title: q.title,
-        description: q.description,
-        subtitle: (q as any).subtitle,
-        supportiveMessage: (q as any).supportiveMessage,
-        required: q.required,
-        options: q.options,
-        order: index,
-        riskWeight: q.riskWeight,
-        category: q.category,
-        followUpLogic: q.followUpLogic,
-        progressWeight: (q as any).progressWeight || 1,
-      }));
+      const mcqQuestions = (template as any).mcqData.questions.map(
+        (q, index) => ({
+          id: q.id,
+          type: q.type,
+          title: q.title,
+          description: q.description,
+          subtitle: (q as any).subtitle,
+          supportiveMessage: (q as any).supportiveMessage,
+          required: q.required,
+          options: q.options,
+          order: index,
+          riskWeight: q.riskWeight,
+          category: q.category,
+          followUpLogic: q.followUpLogic,
+          progressWeight: (q as any).progressWeight || 1,
+        }),
+      );
 
       setQuestions(mcqQuestions);
       setQuestionnaireName(template.name);
@@ -1785,7 +1787,11 @@ export function QuestionnaireBuilder() {
                                 }
                                 onValueChange={(value) =>
                                   updateQuestion(selectedQuestionData.id, {
-                                    medicationType: value as "prescription" | "otc" | "supplement" | "any",
+                                    medicationType: value as
+                                      | "prescription"
+                                      | "otc"
+                                      | "supplement"
+                                      | "any",
                                   })
                                 }
                               >
@@ -2076,7 +2082,8 @@ export function QuestionnaireBuilder() {
                           <Badge variant="secondary" className="text-xs">
                             {template.category}
                           </Badge>
-                          {((template as any).mcqData || (template as any).aiPowered) && (
+                          {((template as any).mcqData ||
+                            (template as any).aiPowered) && (
                             <Badge className="bg-purple-100 text-purple-800 text-xs">
                               <Brain className="w-3 h-3 mr-1" />
                               AI-Powered
@@ -2146,10 +2153,13 @@ export function QuestionnaireBuilder() {
                                 <span>{criteria}</span>
                               </div>
                             ))}
-                          {(template as any).consultationCriteria.length > 3 && (
+                          {(template as any).consultationCriteria.length >
+                            3 && (
                             <div className="text-xs text-blue-600 dark:text-blue-400 mt-1">
-                              +{(template as any).consultationCriteria.length - 3} more
-                              criteria
+                              +
+                              {(template as any).consultationCriteria.length -
+                                3}{" "}
+                              more criteria
                             </div>
                           )}
                         </div>
@@ -2197,7 +2207,7 @@ export function QuestionnaireBuilder() {
                         size="sm"
                         onClick={() => {
                           setEditingTemplate(
-                    (template as any).dynamicData ||
+                            (template as any).dynamicData ||
                               (template as any).mcqData ||
                               template,
                           );

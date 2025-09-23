@@ -18,12 +18,18 @@ const endpoints = [
 ];
 
 const handlersDir = "mocks/msw";
-const files = fs.readdirSync(handlersDir).filter((f) => f.endsWith(".handlers.ts"));
-const all = files.map((f) => fs.readFileSync(`${handlersDir}/${f}`, "utf8")).join("\n");
+const files = fs
+  .readdirSync(handlersDir)
+  .filter((f) => f.endsWith(".handlers.ts"));
+const all = files
+  .map((f) => fs.readFileSync(`${handlersDir}/${f}`, "utf8"))
+  .join("\n");
 
 const missing = endpoints.filter((e) => !all.includes(e));
 if (missing.length) {
-  console.error("❌ Missing MSW handlers for:\n" + missing.map((s) => " - " + s).join("\n"));
+  console.error(
+    "❌ Missing MSW handlers for:\n" + missing.map((s) => " - " + s).join("\n"),
+  );
   process.exit(1);
 }
 console.log("✅ MSW handlers cover all declared endpoints");

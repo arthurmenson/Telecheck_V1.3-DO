@@ -20,12 +20,9 @@ export const exportFHIRData: RequestHandler = async (req, res) => {
     // Audit log
     try {
       const auditUser = (req as any).user?.id || userId;
-      await AuditLogger.logDataAccess(
-        auditUser,
-        "fhir_export",
-        "export",
-        { dataTypes },
-      );
+      await AuditLogger.logDataAccess(auditUser, "fhir_export", "export", {
+        dataTypes,
+      });
     } catch {}
 
     res.json({
@@ -58,12 +55,9 @@ export const importFHIRData: RequestHandler = async (req, res) => {
     // Audit log
     try {
       const userId = (req as any).user?.id || "unknown";
-      await AuditLogger.logDataAccess(
-        userId,
-        "fhir_import",
-        "import",
-        { resourceCount: bundle?.entry?.length || 0 },
-      );
+      await AuditLogger.logDataAccess(userId, "fhir_import", "import", {
+        resourceCount: bundle?.entry?.length || 0,
+      });
     } catch {}
 
     res.json({
@@ -97,12 +91,9 @@ export const getFHIRPatient: RequestHandler = async (req, res) => {
     // Audit
     try {
       const userIdAuth = (req as any).user?.id || userId;
-      await AuditLogger.logDataAccess(
-        userIdAuth,
-        "fhir_patient",
-        "read",
-        { targetUserId: userId },
-      );
+      await AuditLogger.logDataAccess(userIdAuth, "fhir_patient", "read", {
+        targetUserId: userId,
+      });
     } catch {}
 
     res.json({
@@ -138,12 +129,9 @@ export const getFHIRObservations: RequestHandler = async (req, res) => {
     // Audit
     try {
       const userIdAuth = (req as any).user?.id || userId;
-      await AuditLogger.logDataAccess(
-        userIdAuth,
-        "fhir_observations",
-        "read",
-        { count: fhirObservations.length },
-      );
+      await AuditLogger.logDataAccess(userIdAuth, "fhir_observations", "read", {
+        count: fhirObservations.length,
+      });
     } catch {}
 
     res.json({
@@ -168,8 +156,33 @@ fhirRouter.get("/patient/:userId?", getFHIRPatient);
 fhirRouter.get("/observations/:userId?", getFHIRObservations);
 
 // Stubs for additional resources
-fhirRouter.get("/Encounter/:id", (req, res) => res.json({ success: true, data: { resourceType: "Encounter", id: req.params.id } }));
-fhirRouter.get("/Condition/:id", (req, res) => res.json({ success: true, data: { resourceType: "Condition", id: req.params.id } }));
-fhirRouter.get("/AllergyIntolerance/:id", (req, res) => res.json({ success: true, data: { resourceType: "AllergyIntolerance", id: req.params.id } }));
-fhirRouter.get("/Immunization/:id", (req, res) => res.json({ success: true, data: { resourceType: "Immunization", id: req.params.id } }));
-fhirRouter.get("/MedicationRequest/:id", (req, res) => res.json({ success: true, data: { resourceType: "MedicationRequest", id: req.params.id } }));
+fhirRouter.get("/Encounter/:id", (req, res) =>
+  res.json({
+    success: true,
+    data: { resourceType: "Encounter", id: req.params.id },
+  }),
+);
+fhirRouter.get("/Condition/:id", (req, res) =>
+  res.json({
+    success: true,
+    data: { resourceType: "Condition", id: req.params.id },
+  }),
+);
+fhirRouter.get("/AllergyIntolerance/:id", (req, res) =>
+  res.json({
+    success: true,
+    data: { resourceType: "AllergyIntolerance", id: req.params.id },
+  }),
+);
+fhirRouter.get("/Immunization/:id", (req, res) =>
+  res.json({
+    success: true,
+    data: { resourceType: "Immunization", id: req.params.id },
+  }),
+);
+fhirRouter.get("/MedicationRequest/:id", (req, res) =>
+  res.json({
+    success: true,
+    data: { resourceType: "MedicationRequest", id: req.params.id },
+  }),
+);

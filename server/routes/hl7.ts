@@ -14,5 +14,3 @@ router.get("/status", (_req, res: Response) => {
 });
 
 export default router;
-
-

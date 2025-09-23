@@ -61,7 +61,7 @@ components:
         results:
           type: array
           items:
-            $ref: '#/components/schemas/LabResult'
+            $ref: "#/components/schemas/LabResult"
         pagination:
           type: object
           properties:
@@ -136,7 +136,7 @@ components:
         findings:
           type: array
           items:
-            $ref: '#/components/schemas/Finding'
+            $ref: "#/components/schemas/Finding"
         progress:
           type: integer
           minimum: 0
@@ -240,7 +240,7 @@ components:
         series:
           type: array
           items:
-            $ref: '#/components/schemas/TrendsData'
+            $ref: "#/components/schemas/TrendsData"
         timeframe:
           type: string
           example: "90d"
@@ -315,28 +315,28 @@ paths:
           example: "1"
           description: Test parameter to trigger error scenarios
       responses:
-        '200':
+        "200":
           description: Lab results retrieved successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LabResultsResponse'
+                $ref: "#/components/schemas/LabResultsResponse"
               example:
                 results: []
-        '401':
+        "401":
           description: Unauthorized (chaos mode)
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
               example:
                 message: "chaos"
-        '500':
+        "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
               example:
                 message: "chaos"
 
@@ -375,42 +375,42 @@ paths:
                   type: string
                   description: JSON metadata about the lab report
       responses:
-        '201':
+        "201":
           description: Analysis started successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AnalysisResponse'
+                $ref: "#/components/schemas/AnalysisResponse"
               example:
                 analysisId: "a1"
                 status: "ok"
                 message: "Analysis started successfully"
-        '400':
+        "400":
           description: Invalid file or request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '401':
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
           description: Unauthorized (chaos mode)
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
               example:
                 message: "chaos"
-        '413':
+        "413":
           description: File too large
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
               example:
                 message: "chaos"
 
@@ -430,29 +430,29 @@ paths:
           example: "a1"
           description: Analysis ID
       responses:
-        '200':
+        "200":
           description: Analysis status retrieved successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AnalysisStatus'
+                $ref: "#/components/schemas/AnalysisStatus"
               example:
                 id: "a1"
                 status: "ready"
                 findings: []
                 progress: 100
-        '404':
+        "404":
           description: Analysis not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   /upload:
     post:
@@ -482,42 +482,42 @@ paths:
                   format: binary
                   description: Lab report file
       responses:
-        '201':
+        "201":
           description: File uploaded successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UploadResponse'
+                $ref: "#/components/schemas/UploadResponse"
               example:
                 id: "u1"
                 status: "uploaded"
                 fileName: "lab_report.pdf"
-        '400':
+        "400":
           description: Invalid file
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '401':
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
           description: Unauthorized (chaos mode)
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
               example:
                 message: "chaos"
-        '413':
+        "413":
           description: File too large
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
               example:
                 message: "chaos"
 
@@ -554,29 +554,29 @@ paths:
           example: "1"
           description: Test parameter to trigger error scenarios
       responses:
-        '200':
+        "200":
           description: Lab trends retrieved successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TrendsResponse'
+                $ref: "#/components/schemas/TrendsResponse"
               example:
                 series: []
                 timeframe: "30d"
-        '401':
+        "401":
           description: Unauthorized (chaos mode)
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
               example:
                 message: "chaos"
-        '500':
+        "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
               example:
                 message: "chaos"
 
@@ -588,16 +588,16 @@ paths:
       tags:
         - Testing
       responses:
-        '500':
+        "500":
           description: Lab error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
               example:
                 message: "Lab error"
 
-# Additional endpoint for compatibility with frontend adapters
+  # Additional endpoint for compatibility with frontend adapters
   /analyze-lab:
     post:
       summary: Analyze lab report (legacy endpoint)
@@ -626,29 +626,29 @@ paths:
                   format: binary
                   description: Lab report file
       responses:
-        '201':
+        "201":
           description: Analysis started successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AnalysisResponse'
+                $ref: "#/components/schemas/AnalysisResponse"
               example:
                 analysisId: "a1"
                 status: "ok"
-        '401':
+        "401":
           description: Unauthorized (chaos mode)
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
               example:
                 message: "chaos"
-        '500':
+        "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
               example:
                 message: "chaos"
 

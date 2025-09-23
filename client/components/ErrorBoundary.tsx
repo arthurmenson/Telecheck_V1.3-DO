@@ -30,12 +30,18 @@ export class ErrorBoundary extends React.Component<Props, State> {
 function BoundaryFallback({ error }: { error?: Error }) {
   const { toast } = useToast();
   React.useEffect(() => {
-    toast({ title: "Something went wrong", description: error?.message || "Unknown error", variant: "destructive" });
+    toast({
+      title: "Something went wrong",
+      description: error?.message || "Unknown error",
+      variant: "destructive",
+    });
   }, [error, toast]);
   return (
     <div className="p-6">
       <h2 className="text-xl font-semibold">An error occurred</h2>
-      <p className="text-sm text-muted-foreground">Please try again or refresh the page.</p>
+      <p className="text-sm text-muted-foreground">
+        Please try again or refresh the page.
+      </p>
     </div>
   );
 }

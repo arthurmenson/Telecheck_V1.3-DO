@@ -1,8 +1,4 @@
 {
-  "patients": [
-    { "id": "p-001", "name": "Alex R", "dob": "1979-05-11" }
-  ],
-  "vitals": [
-    { "patientId": "p-001", "hr": 72, "ts": "2025-09-01T10:00:00Z" }
-  ]
+  "patients": [{ "id": "p-001", "name": "Alex R", "dob": "1979-05-11" }],
+  "vitals": [{ "patientId": "p-001", "hr": 72, "ts": "2025-09-01T10:00:00Z" }]
 }

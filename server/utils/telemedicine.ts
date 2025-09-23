@@ -183,7 +183,10 @@ export class TelemedicineService {
   }
 
   // End/close a consultation room
-  static endConsultationRoom(roomId: string): { roomId: string; status: string } {
+  static endConsultationRoom(roomId: string): {
+    roomId: string;
+    status: string;
+  } {
     const room = this.consultationRooms.get(roomId);
     if (room) {
       (room as any).status = "ended";
@@ -194,10 +197,25 @@ export class TelemedicineService {
   }
 
   // List active consultation rooms (basic visibility)
-  static listActiveConsultationRooms(): Array<{ roomId: string; appointmentId: string; status: string; createdAt: string }> {
-    const rooms: Array<{ roomId: string; appointmentId: string; status: string; createdAt: string }> = [];
+  static listActiveConsultationRooms(): Array<{
+    roomId: string;
+    appointmentId: string;
+    status: string;
+    createdAt: string;
+  }> {
+    const rooms: Array<{
+      roomId: string;
+      appointmentId: string;
+      status: string;
+      createdAt: string;
+    }> = [];
     for (const [rid, room] of this.consultationRooms.entries()) {
-      rooms.push({ roomId: rid, appointmentId: (room as any).appointmentId, status: (room as any).status, createdAt: (room as any).createdAt });
+      rooms.push({
+        roomId: rid,
+        appointmentId: (room as any).appointmentId,
+        status: (room as any).status,
+        createdAt: (room as any).createdAt,
+      });
     }
     return rooms.sort((a, b) => a.createdAt.localeCompare(b.createdAt));
   }

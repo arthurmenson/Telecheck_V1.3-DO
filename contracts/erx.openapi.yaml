@@ -14,14 +14,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreatePrescriptionRequest'
+              $ref: "#/components/schemas/CreatePrescriptionRequest"
       responses:
-        '201':
+        "201":
           description: Created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PrescriptionResponse'
+                $ref: "#/components/schemas/PrescriptionResponse"
   /prescriptions/{id}:
     get:
       summary: Get prescription by id
@@ -32,12 +32,12 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PrescriptionResponse'
+                $ref: "#/components/schemas/PrescriptionResponse"
   /prescriptions/{id}/cancel:
     post:
       summary: Cancel prescription
@@ -48,7 +48,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: OK
   /prescriptions/{id}/refill:
     post:
@@ -60,7 +60,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: OK
   /epcs/verify:
     post:
@@ -75,7 +75,7 @@ paths:
                 otp:
                   type: string
       responses:
-        '200':
+        "200":
           description: OK
   /history/{patientId}:
     get:
@@ -87,12 +87,12 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PrescriptionHistoryResponse'
+                $ref: "#/components/schemas/PrescriptionHistoryResponse"
 components:
   schemas:
     CreatePrescriptionRequest:
@@ -133,5 +133,3 @@ components:
                 type: string
               status:
                 type: string
-
-

@@ -27,14 +27,19 @@ export function TelehealthVideoPlaceholder({ roomId }: { roomId: string }) {
       </CardHeader>
       <CardContent>
         <div className="flex items-center gap-2">
-          <div>Status: <span className={status === "connected" ? "text-green-600" : "text-red-600"}>{status}</span></div>
+          <div>
+            Status:{" "}
+            <span
+              className={
+                status === "connected" ? "text-green-600" : "text-red-600"
+              }
+            >
+              {status}
+            </span>
+          </div>
           <Button onClick={getToken}>Get Token</Button>
         </div>
-        {token && (
-          <div className="mt-4 text-sm break-all">
-            Token: {token}
-          </div>
-        )}
+        {token && <div className="mt-4 text-sm break-all">Token: {token}</div>}
         <div className="mt-4 h-48 bg-muted flex items-center justify-center rounded">
           Video SDK integration point
         </div>
@@ -42,5 +47,3 @@ export function TelehealthVideoPlaceholder({ roomId }: { roomId: string }) {
     </Card>
   );
 }
-
-

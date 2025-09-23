@@ -85,7 +85,7 @@ components:
         items:
           type: array
           items:
-            $ref: '#/components/schemas/Medication'
+            $ref: "#/components/schemas/Medication"
         pagination:
           type: object
           properties:
@@ -239,7 +239,7 @@ components:
         items:
           type: array
           items:
-            $ref: '#/components/schemas/MedicationSearchResult'
+            $ref: "#/components/schemas/MedicationSearchResult"
         q:
           type: string
           example: "lipitor"
@@ -275,7 +275,7 @@ components:
         interactions:
           type: array
           items:
-            $ref: '#/components/schemas/DrugInteraction'
+            $ref: "#/components/schemas/DrugInteraction"
         drugCount:
           type: integer
           example: 2
@@ -328,7 +328,7 @@ components:
         reminders:
           type: array
           items:
-            $ref: '#/components/schemas/MedicationReminder'
+            $ref: "#/components/schemas/MedicationReminder"
 
     ErrorResponse:
       type: object
@@ -395,28 +395,28 @@ paths:
           example: "1"
           description: Test parameter to trigger error scenarios
       responses:
-        '200':
+        "200":
           description: Medications retrieved successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MedicationListResponse'
+                $ref: "#/components/schemas/MedicationListResponse"
               example:
                 items: []
-        '401':
+        "401":
           description: Unauthorized (chaos mode)
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
               example:
                 message: "chaos"
-        '500':
+        "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
               example:
                 message: "chaos"
 
@@ -431,29 +431,29 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateMedicationRequest'
+              $ref: "#/components/schemas/CreateMedicationRequest"
       responses:
-        '201':
+        "201":
           description: Medication created successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CreateMedicationResponse'
+                $ref: "#/components/schemas/CreateMedicationResponse"
               example:
                 id: "m1"
                 status: "created"
-        '400':
+        "400":
           description: Invalid request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   /{id}:
     put:
@@ -475,35 +475,35 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateMedicationRequest'
+              $ref: "#/components/schemas/UpdateMedicationRequest"
       responses:
-        '200':
+        "200":
           description: Medication updated successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UpdateMedicationResponse'
+                $ref: "#/components/schemas/UpdateMedicationResponse"
               example:
                 id: "m1"
                 status: "updated"
-        '400':
+        "400":
           description: Invalid request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '404':
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
           description: Medication not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
     delete:
       summary: Delete a medication
@@ -520,27 +520,27 @@ paths:
             format: uuid
           example: "m1"
       responses:
-        '200':
+        "200":
           description: Medication deleted successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DeleteMedicationResponse'
+                $ref: "#/components/schemas/DeleteMedicationResponse"
               example:
                 id: "m1"
                 status: "deleted"
-        '404':
+        "404":
           description: Medication not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   /search:
     get:
@@ -566,12 +566,12 @@ paths:
             default: 20
           example: 20
       responses:
-        '200':
+        "200":
           description: Search results retrieved successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MedicationSearchResponse'
+                $ref: "#/components/schemas/MedicationSearchResponse"
               example:
                 items:
                   - id: "lipitor"
@@ -579,18 +579,18 @@ paths:
                     generic: "atorvastatin"
                 q: "lipitor"
                 count: 1
-        '400':
+        "400":
           description: Invalid search query
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   /interactions:
     get:
@@ -629,37 +629,37 @@ paths:
           example: "1"
           description: Test parameter to trigger error scenarios
       responses:
-        '200':
+        "200":
           description: Drug interactions retrieved successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/InteractionsResponse'
+                $ref: "#/components/schemas/InteractionsResponse"
               example:
                 interactions:
                   - pair: ["lipitor", "warfarin"]
                     severity: "major"
                     note: "Monitor INR closely"
-        '400':
+        "400":
           description: Invalid request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '401':
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
           description: Unauthorized (chaos mode)
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
               example:
                 message: "chaos"
-        '500':
+        "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
               example:
                 message: "chaos"
 
@@ -671,20 +671,20 @@ paths:
       tags:
         - Reminders
       responses:
-        '200':
+        "200":
           description: Medication reminders retrieved successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RemindersResponse'
+                $ref: "#/components/schemas/RemindersResponse"
               example:
                 reminders: []
-        '500':
+        "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   /error:
     get:
@@ -694,12 +694,12 @@ paths:
       tags:
         - Testing
       responses:
-        '500':
+        "500":
           description: Medication error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
               example:
                 message: "Medication error"
 

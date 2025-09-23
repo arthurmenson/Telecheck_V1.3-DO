@@ -90,22 +90,27 @@ export const queryKeys = {
   // eRx queries
   erx: {
     all: ["erx"] as const,
-    prescription: (id: string) => [...queryKeys.erx.all, "prescription", id] as const,
-    history: (patientId: string) => [...queryKeys.erx.all, "history", patientId] as const,
+    prescription: (id: string) =>
+      [...queryKeys.erx.all, "prescription", id] as const,
+    history: (patientId: string) =>
+      [...queryKeys.erx.all, "history", patientId] as const,
   },
   // Clinical entities
   clinical: {
     all: ["clinical"] as const,
-    conditions: (patientId?: string) => [...queryKeys.clinical.all, "conditions", patientId] as const,
-    encounters: (patientId?: string) => [...queryKeys.clinical.all, "encounters", patientId] as const,
-    orders: (patientId?: string) => [...queryKeys.clinical.all, "orders", patientId] as const,
+    conditions: (patientId?: string) =>
+      [...queryKeys.clinical.all, "conditions", patientId] as const,
+    encounters: (patientId?: string) =>
+      [...queryKeys.clinical.all, "encounters", patientId] as const,
+    orders: (patientId?: string) =>
+      [...queryKeys.clinical.all, "orders", patientId] as const,
   },
 } as const;
 
 // Generic query hook with type safety
 export function useApiQuery<
   TData = unknown,
-  TError extends ApiError = ApiError
+  TError extends ApiError = ApiError,
 >(
   queryKey: readonly unknown[],
   queryFn: () => Promise<ApiResponse<TData>>,
@@ -117,11 +122,14 @@ export function useApiQuery<
   return useQuery<ApiResponse<TData>, TError, TData, readonly unknown[]>({
     queryKey,
     queryFn,
-    select: (data) => (data.data as TData),
+    select: (data) => data.data as TData,
     staleTime: 5 * 60 * 1000, // 5 minutes
     retry: (failureCount, error) => {
       const maybeApiError = error as Partial<ApiError> | undefined;
-      const status = typeof maybeApiError?.status === "number" ? maybeApiError.status : undefined;
+      const status =
+        typeof maybeApiError?.status === "number"
+          ? maybeApiError.status
+          : undefined;
       if (typeof status === "number" && status < 500) {
         return false;
       }
@@ -253,10 +261,12 @@ export function usePagination<T>(
 // Infinite query hook for infinite scrolling
 export function useInfiniteApiQuery<
   TData = unknown,
-  TError extends ApiError = ApiError
+  TError extends ApiError = ApiError,
 >(
   queryKey: readonly unknown[],
-  queryFn: (context: { pageParam: number }) => Promise<
+  queryFn: (context: {
+    pageParam: number;
+  }) => Promise<
     ApiResponse<{ items: TData[]; nextPage?: number; hasMore: boolean }>
   >,
   options?: Omit<
@@ -281,7 +291,7 @@ export function useInfiniteApiQuery<
     initialPageParam: 1,
     queryFn: (context) => {
       const rawPage = context.pageParam;
-      const nextPage = typeof rawPage === 'number' && rawPage > 0 ? rawPage : 1;
+      const nextPage = typeof rawPage === "number" && rawPage > 0 ? rawPage : 1;
       return queryFn({ pageParam: nextPage });
     },
     getNextPageParam: (lastPage) => lastPage?.data?.nextPage ?? undefined,
@@ -290,7 +300,3 @@ export function useInfiniteApiQuery<
 }
 
 export default useApiQuery;
-
-
-
-

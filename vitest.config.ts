@@ -26,7 +26,7 @@ export default defineConfig({
       "**/dist/**",
       "**/build/**",
       "e2e/**",
-      "tests/phase1/**"
+      "tests/phase1/**",
     ],
   },
   resolve: {

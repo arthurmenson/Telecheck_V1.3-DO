@@ -607,9 +607,13 @@ export function Layout({ children }: LayoutProps) {
                       ? (() => {
                           // Find current page name in admin navigation groups
                           for (const group of navigation) {
-                            const foundItem = 'items' in group ? group.items?.find(
-                              (item: any) => item.href === location.pathname,
-                            ) : null;
+                            const foundItem =
+                              "items" in group
+                                ? group.items?.find(
+                                    (item: any) =>
+                                      item.href === location.pathname,
+                                  )
+                                : null;
                             if (foundItem) return foundItem.name;
                           }
                           return "Admin Dashboard";

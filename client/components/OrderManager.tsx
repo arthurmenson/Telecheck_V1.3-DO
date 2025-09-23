@@ -713,11 +713,11 @@ export function OrderManager({ isOpen = true, onClose }: OrderManagerProps) {
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="end">
-            <Calendar
-              mode="range"
-              selected={dateRange as any}
-              onSelect={(range: any) => setDateRange(range || undefined)}
-            />
+                <Calendar
+                  mode="range"
+                  selected={dateRange as any}
+                  onSelect={(range: any) => setDateRange(range || undefined)}
+                />
               </PopoverContent>
             </Popover>
           </div>

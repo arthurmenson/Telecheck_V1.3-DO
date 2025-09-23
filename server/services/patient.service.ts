@@ -167,16 +167,11 @@ export class PatientService {
       await database.query("COMMIT");
 
       // Audit log
-      AuditLogger.log(
-        createdBy,
-        "patient_created",
-        "create",
-        {
-          patientId: patient.id,
-          mrn: patient.mrn,
-          email: user.email,
-        },
-      );
+      AuditLogger.log(createdBy, "patient_created", "create", {
+        patientId: patient.id,
+        mrn: patient.mrn,
+        email: user.email,
+      });
 
       return {
         id: patient.id,
@@ -381,15 +376,10 @@ export class PatientService {
       await database.query("COMMIT");
 
       // Audit log
-      AuditLogger.log(
-        updatedBy,
-        "patient_updated",
-        "update",
-        {
-          patientId,
-          updatedFields: Object.keys(data),
-        },
-      );
+      AuditLogger.log(updatedBy, "patient_updated", "update", {
+        patientId,
+        updatedFields: Object.keys(data),
+      });
 
       return await this.getPatientById(patientId);
     } catch (error) {
@@ -577,7 +567,9 @@ export class PatientService {
       );
 
       if (result.rowCount > 0) {
-        AuditLogger.log(archivedBy, "patient_archived", "archive", { patientId });
+        AuditLogger.log(archivedBy, "patient_archived", "archive", {
+          patientId,
+        });
         return true;
       }
       return false;

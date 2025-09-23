@@ -12,9 +12,13 @@ export const schedulingAdapter = {
       track("tc:schedule:success", { op: "getSlots" });
       return data;
     }
-    const qs = params ? `?${new URLSearchParams(params as any).toString()}` : "";
+    const qs = params
+      ? `?${new URLSearchParams(params as any).toString()}`
+      : "";
     try {
-      const res = await withRetry(() => apiClient.get(`/ehr/scheduling/slots${qs}`));
+      const res = await withRetry(() =>
+        apiClient.get(`/ehr/scheduling/slots${qs}`),
+      );
       track("tc:schedule:success", { op: "getSlots" });
       return res as any;
     } catch (e: any) {
@@ -35,7 +39,9 @@ export const schedulingAdapter = {
       return out;
     }
     try {
-      const res = await withRetry(() => apiClient.post(`/ehr/scheduling/book`, payload));
+      const res = await withRetry(() =>
+        apiClient.post(`/ehr/scheduling/book`, payload),
+      );
       track("tc:schedule:success", { op: "book" });
       return res as any;
     } catch (e: any) {
@@ -51,7 +57,9 @@ export const schedulingAdapter = {
       return out;
     }
     try {
-      const res = await withRetry(() => apiClient.post(`/ehr/scheduling/${id}/cancel`));
+      const res = await withRetry(() =>
+        apiClient.post(`/ehr/scheduling/${id}/cancel`),
+      );
       track("tc:schedule:success", { op: "cancel" });
       return res as any;
     } catch (e: any) {
@@ -67,7 +75,9 @@ export const schedulingAdapter = {
       return out;
     }
     try {
-      const res = await withRetry(() => apiClient.post(`/ehr/scheduling/${id}/reschedule`, payload));
+      const res = await withRetry(() =>
+        apiClient.post(`/ehr/scheduling/${id}/reschedule`, payload),
+      );
       track("tc:schedule:success", { op: "reschedule" });
       return res as any;
     } catch (e: any) {

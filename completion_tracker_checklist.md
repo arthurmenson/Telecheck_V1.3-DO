@@ -3,6 +3,7 @@
 Last updated: 2025-09-21
 
 Legend:
+
 - [x] Complete
 - [ ] In progress / planned
 
@@ -12,7 +13,7 @@ Legend:
 - [x] Commit DigitalOcean App Platform spec (e.g., .do/app.yaml) and secret management plan
 - [ ] Replace local SQLite artifacts with managed Postgres configuration and migrations
 - [ ] Add automated smoke tests for dist/server build and /api/health before deploy
- - [x] Add automated smoke tests for dist/server build and /api/health before deploy
+- [x] Add automated smoke tests for dist/server build and /api/health before deploy
 
 ### Backend Microservices
 
@@ -183,10 +184,10 @@ Legend:
 
 - [ ] Billing: client integration, tests, and OpenAPI contract
 - [ ] Expose Gateway public routes and add tests
- - [x] Expose Gateway public routes and add tests
+- [x] Expose Gateway public routes and add tests
 - [ ] Add Messaging Admin OpenAPI contract
 - [ ] Stand up Pharmacy domain (service, routes, contract, client)
- - [x] Stand up Pharmacy domain (service, routes, contract, client)
+- [x] Stand up Pharmacy domain (service, routes, contract, client)
 - [ ] Add CI/CD pipelines
 - [ ] Add observability APM (Sentry/New Relic/Datadog)
 - [ ] Load/perf testing (k6/Artillery)
@@ -215,6 +216,7 @@ Legend:
 ## Recommended Development Backlog (prioritized)
 
 ### Epic 1: e-Prescribing (eRx & EPCS)
+
 - Acceptance criteria:
   - Providers can search RxNorm and submit electronic prescriptions; statuses visible (queued/sent/filled).
   - Controlled substances require EPCS (2FA); full audit trail captured.
@@ -227,6 +229,7 @@ Legend:
   - Gateway: route prefix in `services/gateway/src/app.ts`.
 
 ### Epic 2: Clinical Chart Expansion (Problems/Allergies/Immunizations/Encounters/CPOE)
+
 - Acceptance criteria:
   - CRUD for Condition, AllergyIntolerance, Immunization, Encounter; link to patient.
   - Encounters support ICD-10-CM diagnoses and CPT/HCPCS procedures; orders placed via CPOE.
@@ -238,6 +241,7 @@ Legend:
   - Server: new routes under `server/routes/*` and/or `services/ehr/src/routes/*`.
 
 ### Epic 3: Interoperability (FHIR/SMART/HL7 v2)
+
 - Acceptance criteria:
   - Support FHIR R4 resources: Patient, Encounter, Condition, AllergyIntolerance, Medication/MedicationRequest, Immunization, CarePlan, DocumentReference.
   - SMART on FHIR OAuth flow for apps; scoped access.
@@ -248,6 +252,7 @@ Legend:
   - Gateway: expose FHIR base path.
 
 ### Epic 4: Billing & RCM (837/835/Eligibility/Clearinghouse)
+
 - Acceptance criteria:
   - Generate 837P/837I claims from encounters; upload to clearinghouse; track statuses.
   - Ingest 835 ERA for auto-posting; manage denials; payer rules engine.
@@ -259,6 +264,7 @@ Legend:
   - Gateway: `/api/billing`, `/api/eligibility` already scaffolded.
 
 ### Epic 5: Scheduling Enhancements (multi-facility/resources/flow board)
+
 - Acceptance criteria:
   - Calendars by location, provider, room/device; recurring rules; patient flow board.
   - Automated reminders (SMS/email/voice) with configurable cadence; no-show handling.
@@ -268,30 +274,37 @@ Legend:
   - Server: `services/ehr/src/routes/scheduling.ts` expansions; `server/utils/scheduledMessaging.ts`.
 
 ### Epic 6: Telehealth Maturity
+
 - Acceptance criteria: embedded video provider, eConsent capture, virtual check-in, CPT crosswalk.
 - Mapping: `server/routes/telemedicine.ts`, `client/pages/*` telehealth, new `useTelehealth*` hooks.
 
 ### Epic 7: Patient Portal Enhancements
+
 - Acceptance criteria: CCD/C-CDA export, proxy access, online bill pay, refill requests.
 - Mapping: `client/pages/ehr/PatientPortal.tsx`, billing hooks, document download endpoints.
 
 ### Epic 8: Clinical Decision Support (CDS Hooks + Drug DB)
+
 - Acceptance criteria: CDS Hooks triggers during orders; override with reason and audit; drug-interaction alerts from external DB.
 - Mapping: `client/components/ClinicalDecisionSupport.tsx`, new `server/routes/cds.ts`, vendor adapter.
 
 ### Epic 9: Labs & Imaging Integrations
+
 - Acceptance criteria: HL7 OML/ORU orders/results; interface to lab vendors; DICOM viewer/PACS gateway.
 - Mapping: `services/labs`, new imaging service, FHIR `ServiceRequest`/`DiagnosticReport`.
 
 ### Epic 10: Security/Compliance
+
 - Acceptance criteria: break-glass, consent directives, PHI masking, expanded audit reports; ONC 170.315(d) controls.
 - Mapping: audit in `services/ehr/src/app.ts`, new consent module, admin audit UI.
 
 ### Epic 11: Reporting/Analytics
+
 - Acceptance criteria: MIPS/QPP measures; customizable dashboards; exports for BI tools.
 - Mapping: expand `ANALYTICS` endpoints/hooks; measure calculators service.
 
 ### Epic 12: Localization/i18n
+
 - Acceptance criteria: i18n framework, language packs, RTL support, locale formats.
 - Mapping: `client` i18n setup, server locale handling.
 
@@ -302,6 +315,7 @@ Note: Follow repo API architecture best practices: define endpoints in `client/l
 ## Detailed Tickets: Epics 1â€“3
 
 ### Epic 1: e-Prescribing (eRx & EPCS)
+
 - [x] Server: Create `server/routes/erx.ts` with endpoints: POST `/api/erx/prescriptions`, GET `/api/erx/prescriptions/:id`, POST `/api/erx/prescriptions/:id/cancel`, POST `/api/erx/prescriptions/:id/refill`, POST `/api/erx/epcs/verify`, GET `/api/erx/history/:patientId`
 - [x] Service: Add vendor adapter `services/erx` (search drugs, submit Rx, check status, refill/cancel)
 - [x] Gateway: Register `/api/erx` route in `services/gateway/src/app.ts`
@@ -314,6 +328,7 @@ Note: Follow repo API architecture best practices: define endpoints in `client/l
 - [x] Tests: Unit tests for service/route; E2E for eRx happy path
 
 ### Epic 2: Clinical Chart Expansion (Problems/Allergies/Immunizations/Encounters/CPOE)
+
 - [x] Types: Add FHIR-aligned types (Condition, AllergyIntolerance, Immunization, Encounter, ServiceRequest)
 - [x] Endpoints: Add `EHR.CONDITIONS`, `EHR.ALLERGIES`, `EHR.IMMUNIZATIONS`, `EHR.ENCOUNTERS`, `EHR.ORDERS` to `client/lib/api-endpoints.ts`
 - [x] Server routes: CRUD routes under `server/routes/*` (conditions, allergies, immunizations, encounters, orders)
@@ -324,6 +339,7 @@ Note: Follow repo API architecture best practices: define endpoints in `client/l
 - [ ] Tests: Unit tests and minimal E2E for CRUD operations
 
 ### Epic 3: Interoperability (FHIR/SMART/HL7 v2)
+
 - [x] FHIR: Expand `server/routes/fhir.ts` for key resources and bundle export/import
 - [x] SMART: Add OAuth endpoints (discovery, authorize, token); scopes controlled per role (stubs)
 - [x] Client endpoints: Add `FHIR.*` and `SMART.*` to `client/lib/api-endpoints.ts`
@@ -332,6 +348,7 @@ Note: Follow repo API architecture best practices: define endpoints in `client/l
 - [ ] Tests: Contract tests for FHIR resources; unit tests for SMART auth flows
 
 ### Epic 4: Billing & RCM (837/835/Eligibility/Clearinghouse)
+
 - [x] 837P generator & claim status endpoints (`/api/billing/claims/837p`, `/api/billing/claims/:id/status`)
 - [x] Eligibility 270 endpoint and 271 response (`/api/eligibility/check`)
 - [x] 835 ERA ingestion stub (`/api/billing/era/835`)
@@ -339,12 +356,13 @@ Note: Follow repo API architecture best practices: define endpoints in `client/l
 - [x] Charge capture UI (`client/components/RCMChargeCapture.tsx`)
 - [x] Denial management dashboard (`client/components/RCMDenialDashboard.tsx`)
 - [ ] Client services/hooks for billing & eligibility
- - [x] Client services/hooks for billing & eligibility
+- [x] Client services/hooks for billing & eligibility
 - [ ] OpenAPI contracts for billing/eligibility
 - [ ] Unit tests (billing/eligibility)
 - [ ] E2E happy paths (837P, eligibility, ERA posting)
 
 ### Epic 5: Scheduling Enhancements (multi-facility/resources/flow board)
+
 - [x] Multi-facility & resource calendars (provider/room/device views)
 - [x] Recurring appointment rules
 - [x] Patient flow board (arrived/roomed/with provider/complete)
@@ -352,40 +370,47 @@ Note: Follow repo API architecture best practices: define endpoints in `client/l
 - [x] Enhanced reminders (SMS/email/voice cadence & templates)
 
 ### Epic 6: Telehealth Maturity
+
 - [ ] Embedded video SDK integration
 - [x] eConsent capture during visit
 - [x] Virtual check-in flow
 - [x] CPT crosswalk for telehealth billing
 
 ### Epic 7: Patient Portal Enhancements
+
 - [x] CCD/C-CDA export/download (server route)
 - [x] Proxy access management (server route)
- - [x] Online bill pay (server route)
- - [x] Refill requests from portal (server route)
+- [x] Online bill pay (server route)
+- [x] Refill requests from portal (server route)
 
 ### Epic 8: Clinical Decision Support (CDS Hooks + Drug DB)
+
 - [x] CDS Hooks service & triggers during ordering
 - [x] External drug database integration (interactions/contraindications)
 - [ ] Alert override with reason & audit trail
   - [x] Server override capture endpoint
 
 ### Epic 9: Labs & Imaging Integrations
+
 - [x] HL7 v2 OML/ORU lab orders/results integration (server routes)
 - [x] DICOM viewer for imaging (server route)
 - [x] PACS connector configuration (server route)
 
 ### Epic 10: Security/Compliance
+
 - [x] Break-glass access flow (server route)
 - [x] Consent directives enforcement (server route)
 - [ ] Per-field PHI masking policy & implementation
 - [ ] Audit reports UI & export (admin)
 
 ### Epic 11: Reporting/Analytics
+
 - [x] MIPS/QPP measure calculators (server route)
 - [x] Custom dashboard builder (client)
 - [x] Data export for BI tools (CSV/XLSX) (client stub)
 
 ### Epic 12: Localization/i18n
+
 - [x] i18n framework & language packs (client)
 - [x] RTL support & locale-based formatting
 
@@ -445,7 +470,4 @@ Note: Follow repo API architecture best practices: define endpoints in `client/l
 - [ ] Add i18n framework and language packs
 - [ ] Enable RTL and locale formatting
 
-
 Maintenance: This file is a living checklist. Update it whenever modules advance (new routes, contracts, tests, or e2e coverage). The assistant will keep it current on each change request.
-
-

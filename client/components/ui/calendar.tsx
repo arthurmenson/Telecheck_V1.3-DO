@@ -6,7 +6,10 @@ import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
 
 // Relax selected/onSelect typing to support mode-specific selections (e.g., DateRange)
-export type CalendarProps = Omit<React.ComponentProps<typeof DayPicker>, "selected" | "onSelect"> & {
+export type CalendarProps = Omit<
+  React.ComponentProps<typeof DayPicker>,
+  "selected" | "onSelect"
+> & {
   selected?: any;
   onSelect?: any;
 };

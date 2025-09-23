@@ -41,11 +41,11 @@ components:
           type: string
           example: "+1-555-0123"
         address:
-          $ref: '#/components/schemas/Address'
+          $ref: "#/components/schemas/Address"
         emergencyContact:
-          $ref: '#/components/schemas/EmergencyContact'
+          $ref: "#/components/schemas/EmergencyContact"
         insuranceInfo:
-          $ref: '#/components/schemas/InsuranceInfo'
+          $ref: "#/components/schemas/InsuranceInfo"
         createdAt:
           type: string
           format: date-time
@@ -198,7 +198,7 @@ components:
         slots:
           type: array
           items:
-            $ref: '#/components/schemas/TimeSlot'
+            $ref: "#/components/schemas/TimeSlot"
 
     BookingRequest:
       type: object
@@ -293,7 +293,7 @@ components:
         providers:
           type: array
           items:
-            $ref: '#/components/schemas/Provider'
+            $ref: "#/components/schemas/Provider"
 
     MessageRequest:
       type: object
@@ -372,7 +372,7 @@ components:
         conversations:
           type: array
           items:
-            $ref: '#/components/schemas/Conversation'
+            $ref: "#/components/schemas/Conversation"
 
     ErrorResponse:
       type: object
@@ -419,24 +419,24 @@ paths:
             format: uuid
           example: "550e8400-e29b-41d4-a716-446655440000"
       responses:
-        '200':
+        "200":
           description: Patient information retrieved successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Patient'
-        '404':
+                $ref: "#/components/schemas/Patient"
+        "404":
           description: Patient not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   /patients/empty:
     get:
@@ -446,7 +446,7 @@ paths:
       tags:
         - Patients
       responses:
-        '200':
+        "200":
           description: Empty patient response
           content:
             application/json:
@@ -467,26 +467,26 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/IntakeForm'
+              $ref: "#/components/schemas/IntakeForm"
       responses:
-        '201':
+        "201":
           description: Intake form submitted successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/IntakeResponse'
-        '400':
+                $ref: "#/components/schemas/IntakeResponse"
+        "400":
           description: Invalid request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
               example:
                 success: false
                 message: "Failed"
@@ -499,18 +499,18 @@ paths:
       tags:
         - Providers
       responses:
-        '200':
+        "200":
           description: Providers retrieved successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ProvidersResponse'
-        '500':
+                $ref: "#/components/schemas/ProvidersResponse"
+        "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   /scheduling/slots:
     get:
@@ -545,12 +545,12 @@ paths:
           example: "1"
           description: Test parameter to trigger error scenarios
       responses:
-        '200':
+        "200":
           description: Available slots retrieved successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SlotsResponse'
+                $ref: "#/components/schemas/SlotsResponse"
               example:
                 slots:
                   - id: "s1"
@@ -560,20 +560,20 @@ paths:
                     providerName: "Dr. Smith"
                     available: true
                     appointmentType: "consultation"
-        '401':
+        "401":
           description: Unauthorized (chaos mode)
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
               example:
                 message: "chaos"
-        '500':
+        "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
               example:
                 message: "chaos"
 
@@ -596,46 +596,46 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/BookingRequest'
+              $ref: "#/components/schemas/BookingRequest"
       responses:
-        '201':
+        "201":
           description: Appointment booked successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AppointmentResponse'
+                $ref: "#/components/schemas/AppointmentResponse"
               example:
                 id: "apt1"
                 status: "booked"
                 slotId: "s1"
                 patientId: "550e8400-e29b-41d4-a716-446655440000"
                 message: "Appointment booked successfully"
-        '400':
+        "400":
           description: Invalid request or slot unavailable
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '401':
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
           description: Unauthorized (chaos mode)
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
               example:
                 message: "chaos"
-        '409':
+        "409":
           description: Appointment slot already booked
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
               example:
                 message: "chaos"
 
@@ -660,36 +660,36 @@ paths:
           example: "1"
           description: Test parameter to trigger error scenarios
       responses:
-        '200':
+        "200":
           description: Appointment canceled successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AppointmentResponse'
+                $ref: "#/components/schemas/AppointmentResponse"
               example:
                 id: "apt1"
                 status: "canceled"
                 message: "Appointment canceled successfully"
-        '401':
+        "401":
           description: Unauthorized (chaos mode)
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
               example:
                 message: "chaos"
-        '404':
+        "404":
           description: Appointment not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
               example:
                 message: "chaos"
 
@@ -718,44 +718,44 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/RescheduleRequest'
+              $ref: "#/components/schemas/RescheduleRequest"
       responses:
-        '200':
+        "200":
           description: Appointment rescheduled successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AppointmentResponse'
+                $ref: "#/components/schemas/AppointmentResponse"
               example:
                 id: "apt1"
                 status: "rescheduled"
                 message: "Appointment rescheduled successfully"
-        '400':
+        "400":
           description: Invalid request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '401':
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
           description: Unauthorized (chaos mode)
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
               example:
                 message: "chaos"
-        '404':
+        "404":
           description: Appointment not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
               example:
                 message: "chaos"
 
@@ -767,12 +767,12 @@ paths:
       tags:
         - Scheduling
       responses:
-        '500':
+        "500":
           description: Scheduling error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
               example:
                 message: "Scheduling error"
 
@@ -788,26 +788,26 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/MessageRequest'
+              $ref: "#/components/schemas/MessageRequest"
       responses:
-        '201':
+        "201":
           description: Message sent successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MessageResponse'
-        '400':
+                $ref: "#/components/schemas/MessageResponse"
+        "400":
           description: Invalid request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   /messaging/conversations:
     get:
@@ -817,18 +817,18 @@ paths:
       tags:
         - Messaging
       responses:
-        '200':
+        "200":
           description: Conversations retrieved successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ConversationsResponse'
-        '500':
+                $ref: "#/components/schemas/ConversationsResponse"
+        "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
 tags:
   - name: Patients

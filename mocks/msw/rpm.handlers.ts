@@ -11,9 +11,19 @@ export const rpmHandlers = [
   ),
   // Additional RPM endpoints per spec
   http.get("/api/rpm/patients/:id/vitals", ({ params, request }) => {
-    const url = (() => { try { return new URL(request.url); } catch { return new URL(request.url, self.location.origin); } })();
+    const url = (() => {
+      try {
+        return new URL(request.url);
+      } catch {
+        return new URL(request.url, self.location.origin);
+      }
+    })();
     const days = url.searchParams.get("days") ?? "7";
-    return HttpResponse.json({ patientId: (params as any).id, days, vitals: [] });
+    return HttpResponse.json({
+      patientId: (params as any).id,
+      days,
+      vitals: [],
+    });
   }),
   http.get("/api/rpm/patients/:id/alerts", ({ params }) =>
     HttpResponse.json({ patientId: (params as any).id, alerts: [] }),

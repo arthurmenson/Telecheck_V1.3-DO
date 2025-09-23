@@ -13,60 +13,60 @@ export interface FeatureFlag {
 export const SERVER_FLAGS: Record<string, FeatureFlag> = {
   enableScheduling: {
     default: true,
-    owner: 'ehr-team',
-    description: 'Enable appointment scheduling functionality'
+    owner: "ehr-team",
+    description: "Enable appointment scheduling functionality",
   },
   enableLabAnalysis: {
     default: true,
-    owner: 'labs-team',
-    description: 'Enable AI-powered lab analysis'
+    owner: "labs-team",
+    description: "Enable AI-powered lab analysis",
   },
   enableRPMAlerts: {
     default: true,
-    owner: 'rpm-team',
-    description: 'Enable RPM alerting system'
+    owner: "rpm-team",
+    description: "Enable RPM alerting system",
   },
   enableMedicationInteractions: {
     default: true,
-    owner: 'medications-team',
-    description: 'Enable drug interaction checking'
+    owner: "medications-team",
+    description: "Enable drug interaction checking",
   },
   enableBillingEDI: {
     default: false,
-    owner: 'billing-team',
-    description: 'Enable EDI billing functionality'
+    owner: "billing-team",
+    description: "Enable EDI billing functionality",
   },
   enableAdvancedAnalytics: {
     default: false,
-    owner: 'analytics-team',
-    description: 'Enable advanced analytics features'
+    owner: "analytics-team",
+    description: "Enable advanced analytics features",
   },
   enableMessagingAdmin: {
     default: true,
-    owner: 'messaging-team',
-    description: 'Enable messaging admin functionality'
+    owner: "messaging-team",
+    description: "Enable messaging admin functionality",
   },
   enableFileScanning: {
     default: true,
-    owner: 'security-team',
-    description: 'Enable virus scanning for uploaded files'
+    owner: "security-team",
+    description: "Enable virus scanning for uploaded files",
   },
   enableAuditLogging: {
     default: true,
-    owner: 'compliance-team',
-    description: 'Enable comprehensive audit logging'
+    owner: "compliance-team",
+    description: "Enable comprehensive audit logging",
   },
   enableRateLimiting: {
     default: true,
-    owner: 'infrastructure-team',
-    description: 'Enable API rate limiting'
+    owner: "infrastructure-team",
+    description: "Enable API rate limiting",
   },
   enableChaosMode: {
     default: false,
-    owner: 'qa-team',
-    sunset: '2025-06-01',
-    description: 'Enable chaos engineering mode for testing'
-  }
+    owner: "qa-team",
+    sunset: "2025-06-01",
+    description: "Enable chaos engineering mode for testing",
+  },
 };
 
 /**
@@ -76,9 +76,9 @@ export function getFeatureFlag(flagName: string): boolean {
   // Check environment variable override first
   const envKey = `FEATURE_${flagName.toUpperCase()}`;
   const envValue = process.env[envKey];
-  
+
   if (envValue !== undefined) {
-    return envValue.toLowerCase() === 'true';
+    return envValue.toLowerCase() === "true";
   }
 
   // Fall back to default value
@@ -92,7 +92,9 @@ export function getFeatureFlag(flagName: string): boolean {
   if (flag.sunset) {
     const sunsetDate = new Date(flag.sunset);
     if (new Date() > sunsetDate) {
-      console.warn(`Feature flag ${flagName} is past sunset date: ${flag.sunset}`);
+      console.warn(
+        `Feature flag ${flagName} is past sunset date: ${flag.sunset}`,
+      );
       return false;
     }
   }
@@ -105,11 +107,11 @@ export function getFeatureFlag(flagName: string): boolean {
  */
 export function getAllFeatureFlags(): Record<string, boolean> {
   const flags: Record<string, boolean> = {};
-  
+
   for (const flagName of Object.keys(SERVER_FLAGS)) {
     flags[flagName] = getFeatureFlag(flagName);
   }
-  
+
   return flags;
 }
 
@@ -117,25 +119,25 @@ export function getAllFeatureFlags(): Record<string, boolean> {
  * Check if a feature is enabled for a specific user/context
  */
 export function isFeatureEnabledForUser(
-  flagName: string, 
+  flagName: string,
   userId?: string,
-  userRole?: string
+  userRole?: string,
 ): boolean {
   const baseEnabled = getFeatureFlag(flagName);
-  
+
   if (!baseEnabled) {
     return false;
   }
 
   // Add user-specific or role-specific logic here
   // For example, beta features might only be enabled for admins
-  if (flagName.includes('beta') || flagName.includes('experimental')) {
-    return userRole === 'admin' || userRole === 'developer';
+  if (flagName.includes("beta") || flagName.includes("experimental")) {
+    return userRole === "admin" || userRole === "developer";
   }
 
   // Gradual rollout logic could go here
   // For example, enable for percentage of users based on user ID hash
-  
+
   return true;
 }
 
@@ -143,21 +145,23 @@ export function isFeatureEnabledForUser(
  * Log feature flag usage for analytics
  */
 export function trackFeatureFlagUsage(
-  flagName: string, 
-  enabled: boolean, 
+  flagName: string,
+  enabled: boolean,
   context?: {
     userId?: string;
     userRole?: string;
     requestId?: string;
-  }
+  },
 ): void {
-  if (getFeatureFlag('enableAuditLogging')) {
-    console.log(JSON.stringify({
-      type: 'feature_flag_usage',
-      timestamp: new Date().toISOString(),
-      flagName,
-      enabled,
-      context: context || {}
-    }));
+  if (getFeatureFlag("enableAuditLogging")) {
+    console.log(
+      JSON.stringify({
+        type: "feature_flag_usage",
+        timestamp: new Date().toISOString(),
+        flagName,
+        enabled,
+        context: context || {},
+      }),
+    );
   }
 }

@@ -240,42 +240,98 @@ export async function createServer() {
   app.get("/api/wearables/devices/:userId?", getConnectedDevices);
 
   // Telemedicine routes
-  app.get("/api/telemedicine/providers", authenticateToken as any, getAvailableProviders);
-  app.post("/api/telemedicine/schedule", authenticateToken as any, scheduleAppointment);
-  app.get("/api/telemedicine/appointments/:userId?", authenticateToken as any, getUserAppointments);
-  app.post("/api/telemedicine/room", authenticateToken as any, requireDoctor as any, createConsultationRoom);
-  app.get("/api/telemedicine/summary/:roomId", authenticateToken as any, requireDoctor as any, generateConsultationSummary);
-  app.post("/api/telemedicine/triage", authenticateToken as any, triageEmergency);
+  app.get(
+    "/api/telemedicine/providers",
+    authenticateToken as any,
+    getAvailableProviders,
+  );
+  app.post(
+    "/api/telemedicine/schedule",
+    authenticateToken as any,
+    scheduleAppointment,
+  );
+  app.get(
+    "/api/telemedicine/appointments/:userId?",
+    authenticateToken as any,
+    getUserAppointments,
+  );
+  app.post(
+    "/api/telemedicine/room",
+    authenticateToken as any,
+    requireDoctor as any,
+    createConsultationRoom,
+  );
+  app.get(
+    "/api/telemedicine/summary/:roomId",
+    authenticateToken as any,
+    requireDoctor as any,
+    generateConsultationSummary,
+  );
+  app.post(
+    "/api/telemedicine/triage",
+    authenticateToken as any,
+    triageEmergency,
+  );
 
   // EHR Telehealth alias routes (for client API_ENDPOINTS.EHR.TELEHEALTH)
   app.get("/api/ehr/telehealth/sessions", (_req, res) => {
-    const rooms = (require("./utils/telemedicine") as any).TelemedicineService.listActiveConsultationRooms();
+    const rooms = (
+      require("./utils/telemedicine") as any
+    ).TelemedicineService.listActiveConsultationRooms();
     res.json({ success: true, data: rooms });
   });
-  app.post("/api/ehr/telehealth/create-room", authenticateToken as any, requireDoctor as any, async (req, res) => {
-    const { appointmentId } = req.body || {};
-    try {
+  app.post(
+    "/api/ehr/telehealth/create-room",
+    authenticateToken as any,
+    requireDoctor as any,
+    async (req, res) => {
+      const { appointmentId } = req.body || {};
+      try {
+        const svc = (require("./utils/telemedicine") as any)
+          .TelemedicineService;
+        const room = await svc.createConsultationRoom(
+          appointmentId || `appt_${Date.now()}`,
+        );
+        res.json({ success: true, data: room });
+      } catch (e) {
+        res
+          .status(500)
+          .json({ success: false, error: "Failed to create room" });
+      }
+    },
+  );
+  app.post(
+    "/api/ehr/telehealth/:id/join",
+    authenticateToken as any,
+    async (req, res) => {
+      const { id } = req.params as any;
       const svc = (require("./utils/telemedicine") as any).TelemedicineService;
-      const room = await svc.createConsultationRoom(appointmentId || `appt_${Date.now()}`);
-      res.json({ success: true, data: room });
-    } catch (e) {
-      res.status(500).json({ success: false, error: "Failed to create room" });
-    }
-  });
-  app.post("/api/ehr/telehealth/:id/join", authenticateToken as any, async (req, res) => {
-    const { id } = req.params as any;
-    const svc = (require("./utils/telemedicine") as any).TelemedicineService;
-    const room = svc.getConsultationRoom(id);
-    if (!room) return res.status(404).json({ success: false, error: "Room not found" });
-    res.json({ success: true, data: { roomId: id, joinUrl: `https://telecheck.com/room/${id}` } });
-  });
-  app.post("/api/ehr/telehealth/:id/end", authenticateToken as any, requireDoctor as any, (req, res) => {
-    const { id } = req.params as any;
-    const svc = (require("./utils/telemedicine") as any).TelemedicineService;
-    const result = svc.endConsultationRoom(id);
-    if (result.status === "not_found") return res.status(404).json({ success: false, error: "Room not found" });
-    res.json({ success: true, data: result });
-  });
+      const room = svc.getConsultationRoom(id);
+      if (!room)
+        return res
+          .status(404)
+          .json({ success: false, error: "Room not found" });
+      res.json({
+        success: true,
+        data: { roomId: id, joinUrl: `https://telecheck.com/room/${id}` },
+      });
+    },
+  );
+  app.post(
+    "/api/ehr/telehealth/:id/end",
+    authenticateToken as any,
+    requireDoctor as any,
+    (req, res) => {
+      const { id } = req.params as any;
+      const svc = (require("./utils/telemedicine") as any).TelemedicineService;
+      const result = svc.endConsultationRoom(id);
+      if (result.status === "not_found")
+        return res
+          .status(404)
+          .json({ success: false, error: "Room not found" });
+      res.json({ success: true, data: result });
+    },
+  );
 
   // FHIR integration routes
   app.use("/api/fhir", fhirRouter);
@@ -314,14 +370,20 @@ export async function createServer() {
   app.post(
     "/api/webhooks/telnyx/sms",
     (express as any).raw({ type: "*/*" }),
-    (req: any, _res, next) => { req.rawBody = req.body; next(); },
+    (req: any, _res, next) => {
+      req.rawBody = req.body;
+      next();
+    },
     verifyTelnyxSignature,
     handleTelnyxSMSWebhook,
   );
   app.post(
     "/api/webhooks/telnyx/call",
     (express as any).raw({ type: "*/*" }),
-    (req: any, _res, next) => { req.rawBody = req.body; next(); },
+    (req: any, _res, next) => {
+      req.rawBody = req.body;
+      next();
+    },
     verifyTelnyxSignature,
     handleTelnyxCallWebhook,
   );
@@ -330,14 +392,20 @@ export async function createServer() {
   app.post(
     "/api/webhooks/twilio/sms",
     (express as any).raw({ type: "*/*" }),
-    (req: any, _res, next) => { req.rawBody = req.body; next(); },
+    (req: any, _res, next) => {
+      req.rawBody = req.body;
+      next();
+    },
     verifyTwilioSignature,
     handleTwilioSMSWebhook,
   );
   app.post(
     "/api/webhooks/twilio/call",
     (express as any).raw({ type: "*/*" }),
-    (req: any, _res, next) => { req.rawBody = req.body; next(); },
+    (req: any, _res, next) => {
+      req.rawBody = req.body;
+      next();
+    },
     verifyTwilioSignature,
     handleTwilioCallWebhook,
   );

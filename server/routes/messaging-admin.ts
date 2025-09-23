@@ -69,7 +69,10 @@ export async function getMessagingConfig(req: Request, res: Response) {
 }
 
 // Update messaging configuration
-export async function updateMessagingConfig(req: AuthenticatedRequest, res: Response) {
+export async function updateMessagingConfig(
+  req: AuthenticatedRequest,
+  res: Response,
+) {
   try {
     const { config } = req.body;
     const userId = req.user?.id || "admin";
@@ -120,7 +123,10 @@ export async function updateMessagingConfig(req: AuthenticatedRequest, res: Resp
 }
 
 // Test messaging services
-export async function testMessagingService(req: AuthenticatedRequest, res: Response) {
+export async function testMessagingService(
+  req: AuthenticatedRequest,
+  res: Response,
+) {
   try {
     const { provider, type, phoneNumber } = req.body;
 
@@ -444,7 +450,10 @@ export async function getMessageTemplates(req: Request, res: Response) {
 }
 
 // Update message template
-export async function updateMessageTemplate(req: AuthenticatedRequest, res: Response) {
+export async function updateMessageTemplate(
+  req: AuthenticatedRequest,
+  res: Response,
+) {
   try {
     const { templateId } = req.params;
     const { name, content, variables, type } = req.body;
@@ -528,7 +537,10 @@ export async function getCareTeamConfig(req: Request, res: Response) {
 }
 
 // Update care team member
-export async function updateCareTeamMember(req: AuthenticatedRequest, res: Response) {
+export async function updateCareTeamMember(
+  req: AuthenticatedRequest,
+  res: Response,
+) {
   try {
     const { memberId } = req.params;
     const {

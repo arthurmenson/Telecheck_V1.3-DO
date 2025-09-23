@@ -26,8 +26,11 @@ export function setLocale(locale: string) {
     localStorage.setItem("locale", locale);
     // Set document direction for RTL locales
     if (typeof document !== "undefined") {
-      const rtlLocales = new Set(["ar", "he", "fa", "ur"]); 
-      document.documentElement.setAttribute("dir", rtlLocales.has(locale) ? "rtl" : "ltr");
+      const rtlLocales = new Set(["ar", "he", "fa", "ur"]);
+      document.documentElement.setAttribute(
+        "dir",
+        rtlLocales.has(locale) ? "rtl" : "ltr",
+      );
       document.documentElement.setAttribute("lang", locale);
     }
   }
@@ -36,5 +39,3 @@ export function setLocale(locale: string) {
 export function getLocale(): string {
   return currentLocale;
 }
-
-

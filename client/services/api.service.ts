@@ -6,7 +6,10 @@
 import { apiClient } from "../lib/api-client";
 import { API_ENDPOINTS } from "../lib/api-endpoints";
 import { ApiResponse } from "../../shared/types";
-import { EHR as EHR_ENDPOINTS, ELIGIBILITY as ELIGIBILITY_ENDPOINTS } from "../lib/api-endpoints";
+import {
+  EHR as EHR_ENDPOINTS,
+  ELIGIBILITY as ELIGIBILITY_ENDPOINTS,
+} from "../lib/api-endpoints";
 
 // Type definitions for API responses
 export interface User {
@@ -414,15 +417,23 @@ export class TelehealthService {
     return apiClient.get(EHR_ENDPOINTS.TELEHEALTH.SESSIONS);
   }
 
-  static async createRoom(appointmentId: string): Promise<ApiResponse<{ roomId: string; roomUrl: string }>> {
-    return apiClient.post(EHR_ENDPOINTS.TELEHEALTH.CREATE_ROOM, { appointmentId });
+  static async createRoom(
+    appointmentId: string,
+  ): Promise<ApiResponse<{ roomId: string; roomUrl: string }>> {
+    return apiClient.post(EHR_ENDPOINTS.TELEHEALTH.CREATE_ROOM, {
+      appointmentId,
+    });
   }
 
-  static async joinRoom(roomId: string): Promise<ApiResponse<{ roomId: string; joinUrl: string }>> {
+  static async joinRoom(
+    roomId: string,
+  ): Promise<ApiResponse<{ roomId: string; joinUrl: string }>> {
     return apiClient.post(EHR_ENDPOINTS.TELEHEALTH.JOIN_ROOM(roomId));
   }
 
-  static async endSession(roomId: string): Promise<ApiResponse<{ roomId: string; status: string }>> {
+  static async endSession(
+    roomId: string,
+  ): Promise<ApiResponse<{ roomId: string; status: string }>> {
     return apiClient.post(EHR_ENDPOINTS.TELEHEALTH.END_SESSION(roomId));
   }
 }
@@ -445,11 +456,15 @@ export class ErxService {
     return apiClient.post(API_ENDPOINTS.EHR.ERX.REFILL(id));
   }
 
-  static async verifyEpcs(otp: string): Promise<ApiResponse<{ verified: boolean }>> {
+  static async verifyEpcs(
+    otp: string,
+  ): Promise<ApiResponse<{ verified: boolean }>> {
     return apiClient.post(API_ENDPOINTS.EHR.ERX.EPCS_VERIFY, { otp });
   }
 
-  static async getMedicationHistory(patientId: string): Promise<ApiResponse<any[]>> {
+  static async getMedicationHistory(
+    patientId: string,
+  ): Promise<ApiResponse<any[]>> {
     return apiClient.get(API_ENDPOINTS.EHR.ERX.HISTORY(patientId));
   }
 }
@@ -468,7 +483,10 @@ export class ClinicalService {
     return apiClient.post(API_ENDPOINTS.CLINICAL.CONDITIONS.CREATE, payload);
   }
 
-  static async updateCondition(id: string, payload: any): Promise<ApiResponse<any>> {
+  static async updateCondition(
+    id: string,
+    payload: any,
+  ): Promise<ApiResponse<any>> {
     return apiClient.put(API_ENDPOINTS.CLINICAL.CONDITIONS.UPDATE(id), payload);
   }
 
@@ -488,7 +506,10 @@ export class ClinicalService {
     return apiClient.post(API_ENDPOINTS.CLINICAL.ALLERGIES.CREATE, payload);
   }
 
-  static async updateAllergy(id: string, payload: any): Promise<ApiResponse<any>> {
+  static async updateAllergy(
+    id: string,
+    payload: any,
+  ): Promise<ApiResponse<any>> {
     return apiClient.put(API_ENDPOINTS.CLINICAL.ALLERGIES.UPDATE(id), payload);
   }
 
@@ -497,7 +518,9 @@ export class ClinicalService {
   }
 
   // Immunizations
-  static async listImmunizations(patientId?: string): Promise<ApiResponse<any[]>> {
+  static async listImmunizations(
+    patientId?: string,
+  ): Promise<ApiResponse<any[]>> {
     const url = patientId
       ? `${API_ENDPOINTS.CLINICAL.IMMUNIZATIONS.LIST}?patientId=${encodeURIComponent(patientId)}`
       : API_ENDPOINTS.CLINICAL.IMMUNIZATIONS.LIST;
@@ -508,8 +531,14 @@ export class ClinicalService {
     return apiClient.post(API_ENDPOINTS.CLINICAL.IMMUNIZATIONS.CREATE, payload);
   }
 
-  static async updateImmunization(id: string, payload: any): Promise<ApiResponse<any>> {
-    return apiClient.put(API_ENDPOINTS.CLINICAL.IMMUNIZATIONS.UPDATE(id), payload);
+  static async updateImmunization(
+    id: string,
+    payload: any,
+  ): Promise<ApiResponse<any>> {
+    return apiClient.put(
+      API_ENDPOINTS.CLINICAL.IMMUNIZATIONS.UPDATE(id),
+      payload,
+    );
   }
 
   static async deleteImmunization(id: string): Promise<ApiResponse<void>> {
@@ -528,7 +557,10 @@ export class ClinicalService {
     return apiClient.post(API_ENDPOINTS.CLINICAL.ENCOUNTERS.CREATE, payload);
   }
 
-  static async updateEncounter(id: string, payload: any): Promise<ApiResponse<any>> {
+  static async updateEncounter(
+    id: string,
+    payload: any,
+  ): Promise<ApiResponse<any>> {
     return apiClient.put(API_ENDPOINTS.CLINICAL.ENCOUNTERS.UPDATE(id), payload);
   }
 
@@ -548,7 +580,10 @@ export class ClinicalService {
     return apiClient.post(API_ENDPOINTS.CLINICAL.ORDERS.CREATE, payload);
   }
 
-  static async updateOrder(id: string, payload: any): Promise<ApiResponse<any>> {
+  static async updateOrder(
+    id: string,
+    payload: any,
+  ): Promise<ApiResponse<any>> {
     return apiClient.put(API_ENDPOINTS.CLINICAL.ORDERS.UPDATE(id), payload);
   }
 
@@ -567,7 +602,10 @@ export class ReportingService {
     return apiClient.get(API_ENDPOINTS.REPORTING.MIPS);
   }
 
-  static async exportData(format: "csv" | "xlsx", payload?: any): Promise<ApiResponse<{ url: string }>> {
+  static async exportData(
+    format: "csv" | "xlsx",
+    payload?: any,
+  ): Promise<ApiResponse<{ url: string }>> {
     return apiClient.post(API_ENDPOINTS.REPORTING.EXPORT, {
       format,
       filters: payload ?? {},
@@ -577,7 +615,11 @@ export class ReportingService {
 
 // Billing & Eligibility Services
 export class BillingService {
-  static async generate837P(payload: any): Promise<ApiResponse<{ claimId: string; trackingId: string; status: string }>> {
+  static async generate837P(
+    payload: any,
+  ): Promise<
+    ApiResponse<{ claimId: string; trackingId: string; status: string }>
+  > {
     return apiClient.post(EHR_ENDPOINTS.BILLING.X12_837P, payload);
   }
 
@@ -587,7 +629,11 @@ export class BillingService {
 }
 
 export class EligibilityService {
-  static async checkEligibility(payload: { member: any; payer: any; serviceType?: string }): Promise<ApiResponse<any>> {
+  static async checkEligibility(payload: {
+    member: any;
+    payer: any;
+    serviceType?: string;
+  }): Promise<ApiResponse<any>> {
     return apiClient.post(ELIGIBILITY_ENDPOINTS.CHECK, payload);
   }
 }
@@ -599,7 +645,9 @@ export class PharmacyService {
   }
 
   static async searchCatalog(q: string): Promise<ApiResponse<any>> {
-    return apiClient.get(`${API_ENDPOINTS.COMMERCE.SEARCH}?q=${encodeURIComponent(q)}`);
+    return apiClient.get(
+      `${API_ENDPOINTS.COMMERCE.SEARCH}?q=${encodeURIComponent(q)}`,
+    );
   }
 
   static async createOrder(payload: any): Promise<ApiResponse<any>> {

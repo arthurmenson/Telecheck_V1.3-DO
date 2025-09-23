@@ -29,8 +29,17 @@ export const labsAdapter = {
     }
     try {
       const BASE = (import.meta as any).env?.VITE_API_BASE || "/api";
-      const isFormData = typeof FormData !== "undefined" && data instanceof FormData;
-      const body = isFormData ? (data as FormData) : (() => { const fd = new FormData(); Object.entries(data || {}).forEach(([k,v])=> fd.append(k, String(v))); return fd; })();
+      const isFormData =
+        typeof FormData !== "undefined" && data instanceof FormData;
+      const body = isFormData
+        ? (data as FormData)
+        : (() => {
+            const fd = new FormData();
+            Object.entries(data || {}).forEach(([k, v]) =>
+              fd.append(k, String(v)),
+            );
+            return fd;
+          })();
       const res = await fetch(`${BASE}/labs/analyze`, { method: "POST", body });
       const json = await res.json();
       track("tc:labs:success", { op: "analyzeReport" });
@@ -48,7 +57,9 @@ export const labsAdapter = {
       return out;
     }
     try {
-      const res = await withRetry(() => apiClient.get(`/labs/analysis?id=${encodeURIComponent(id)}`));
+      const res = await withRetry(() =>
+        apiClient.get(`/labs/analysis?id=${encodeURIComponent(id)}`),
+      );
       track("tc:labs:success", { op: "getAnalysis" });
       return res as any;
     } catch (e: any) {
@@ -79,7 +90,9 @@ export const labsAdapter = {
       track("tc:trends:success", { op: "getLabTrends" });
       return data;
     }
-    const qs = params ? `?${new URLSearchParams(params as any).toString()}` : "";
+    const qs = params
+      ? `?${new URLSearchParams(params as any).toString()}`
+      : "";
     try {
       const res = await withRetry(() => apiClient.get(`/labs/trends${qs}`));
       track("tc:trends:success", { op: "getLabTrends" });

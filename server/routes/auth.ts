@@ -64,7 +64,11 @@ router.post(
       );
 
       // Store refresh token in Redis
-      await safeSetEx(`refresh_token:${user.id}`, 7 * 24 * 60 * 60, refreshToken);
+      await safeSetEx(
+        `refresh_token:${user.id}`,
+        7 * 24 * 60 * 60,
+        refreshToken,
+      );
 
       res.status(201).json({
         message: "User registered successfully",

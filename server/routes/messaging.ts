@@ -329,17 +329,12 @@ export async function sendMedicationReminder(req: Request, res: Response) {
     const result = await messagingService.sendMessage(request);
 
     // Log medication reminder
-    AuditLogger.logMedicationEvent(
-      patientId,
-      "reminder_sent",
-      medicationName,
-      {
-        dosage,
-        dueTime,
-        success: result.success,
-        messageId: result.messageId,
-      },
-    );
+    AuditLogger.logMedicationEvent(patientId, "reminder_sent", medicationName, {
+      dosage,
+      dueTime,
+      success: result.success,
+      messageId: result.messageId,
+    });
 
     if (result.success) {
       res.json({

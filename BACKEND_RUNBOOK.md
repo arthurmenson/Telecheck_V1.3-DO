@@ -5,11 +5,13 @@
 The Telecheck backend implements a microservices architecture with the following components:
 
 ### Services Implemented
+
 - **Gateway Service** (Port 3000) - API gateway with JWT auth, routing, rate limiting
 - **EHR Service** (Port 3002) - Patient management, scheduling, intake forms, messaging
 - **RPM Service** (Port 3003) - Remote patient monitoring, vitals, alerts, thresholds
 
 ### Services Pending
+
 - **Auth Service** (Port 3001) - Authentication and authorization
 - **Labs Service** (Port 3004) - Lab analysis and results
 - **Medications Service** (Port 3005) - Medication management and interactions
@@ -21,6 +23,7 @@ The Telecheck backend implements a microservices architecture with the following
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 ```bash
 # Node.js 20+
 node --version
@@ -37,6 +40,7 @@ redis-cli --version
 ```
 
 ### Environment Setup
+
 ```bash
 # Clone the repository
 cd telecheck_backend
@@ -51,6 +55,7 @@ cp local.env .env
 ```
 
 ### Database Setup
+
 ```bash
 # Start PostgreSQL and Redis
 docker-compose up -d postgres redis
@@ -67,6 +72,7 @@ cd ../rpm && npm run db:seed
 ### Start Services
 
 #### Option 1: Development Mode (Recommended)
+
 ```bash
 # Terminal 1 - Gateway
 cd services/gateway
@@ -82,6 +88,7 @@ npm run dev
 ```
 
 #### Option 2: Docker Compose
+
 ```bash
 # Start all services
 docker-compose up --build
@@ -106,6 +113,7 @@ curl http://localhost:3003/health
 ## 🔧 API Testing
 
 ### Authentication (Mock for Development)
+
 ```bash
 # The gateway expects these headers from the auth service:
 # x-user-id: user-uuid
@@ -120,6 +128,7 @@ curl -H "x-user-id: test-user-123" \
 ```
 
 ### EHR Endpoints
+
 ```bash
 # Get patient
 curl -H "x-user-id: test-user" -H "x-user-role: doctor" \
@@ -143,6 +152,7 @@ curl -X POST -H "Content-Type: application/json" \
 ```
 
 ### RPM Endpoints
+
 ```bash
 # Get vitals trends
 curl -H "x-user-id: test-user" -H "x-user-role: patient" \
@@ -162,6 +172,7 @@ curl -H "x-user-id: test-user" -H "x-user-role: doctor" \
 ```
 
 ### Chaos Mode Testing
+
 ```bash
 # Test chaos mode endpoints (random 401/500 errors)
 curl http://localhost:3000/api/ehr/scheduling/slots?chaos=1
@@ -171,6 +182,7 @@ curl http://localhost:3000/api/labs/analyze?chaos=1
 ## 🧪 Testing
 
 ### Unit Tests
+
 ```bash
 cd services/gateway && npm test
 cd services/ehr && npm test
@@ -178,18 +190,21 @@ cd services/rpm && npm test
 ```
 
 ### Integration Tests
+
 ```bash
 cd services/ehr && npm run test:integration
 cd services/rpm && npm run test:integration
 ```
 
 ### End-to-End Tests
+
 ```bash
 # Run existing Playwright tests against the backend
 npm run test:e2e
 ```
 
 ### Contract Tests
+
 ```bash
 # Run Pact provider verification
 cd services/ehr && npm run test:contract
@@ -198,6 +213,7 @@ cd services/ehr && npm run test:contract
 ## 📝 API Documentation
 
 ### OpenAPI Specifications
+
 - **Auth API**: `contracts/auth.openapi.yaml`
 - **EHR API**: `contracts/ehr.openapi.yaml`
 - **RPM API**: `contracts/rpm.openapi.yaml`
@@ -205,6 +221,7 @@ cd services/ehr && npm run test:contract
 - **Medications API**: `contracts/medications.openapi.yaml`
 
 ### Generate SDK and Mocks
+
 ```bash
 # Generate TypeScript SDK from OpenAPI specs
 npm run gen:sdk
@@ -214,6 +231,7 @@ npm run gen:mocks
 ```
 
 ### API Gateway Documentation
+
 ```bash
 # View service routing information
 curl http://localhost:3000/api/docs
@@ -222,6 +240,7 @@ curl http://localhost:3000/api/docs
 ## 🐛 Debugging
 
 ### Service Logs
+
 ```bash
 # View gateway logs
 docker-compose logs -f gateway
@@ -234,6 +253,7 @@ docker-compose logs -f rpm
 ```
 
 ### Database Access
+
 ```bash
 # Connect to PostgreSQL
 docker exec -it telecheck_postgres psql -U postgres -d telecheck_ehr
@@ -263,6 +283,7 @@ docker exec -it telecheck_redis redis-cli
 ## 🔒 Security Features
 
 ### Implemented
+
 - **JWT Authentication**: Token verification at gateway
 - **Rate Limiting**: Per-service and global rate limits
 - **Audit Logging**: HIPAA-compliant audit trails
@@ -271,6 +292,7 @@ docker exec -it telecheck_redis redis-cli
 - **Security Headers**: Helmet.js security headers
 
 ### PHI/PII Protection
+
 - All logs automatically redact sensitive data
 - Audit events track PHI access
 - Error responses sanitize sensitive information
@@ -278,17 +300,20 @@ docker exec -it telecheck_redis redis-cli
 ## 📊 Monitoring
 
 ### Health Endpoints
+
 - Gateway: `GET /health`
 - EHR: `GET /health`
 - RPM: `GET /health`
 
 ### Metrics
+
 - Request latency tracking
 - Error rate monitoring
 - Database connection health
 - Rate limit violations
 
 ### Audit Logs
+
 ```bash
 # View audit logs
 docker-compose logs gateway | grep '"type":"audit"'
@@ -299,6 +324,7 @@ docker-compose logs rpm | grep '"type":"rpm_audit"'
 ## 🚢 Deployment
 
 ### Development
+
 ```bash
 # Build all services
 docker-compose build
@@ -308,6 +334,7 @@ docker-compose build
 ```
 
 ### Production Checklist
+
 - [ ] Environment variables configured
 - [ ] Database migrations run
 - [ ] SSL certificates installed
@@ -319,12 +346,14 @@ docker-compose build
 ## 🔄 Next Steps
 
 ### Pending Services
+
 1. **Auth Service** - JWT token management and user authentication
 2. **Labs Service** - AI-powered lab analysis with S3 storage
 3. **Medications Service** - Drug interaction checking and management
 4. **Billing Service** - EDI 837/835 processing
 
 ### Testing Strategy
+
 1. **Unit Tests** - Business logic and validation
 2. **Integration Tests** - Database interactions with Testcontainers
 3. **Contract Tests** - Pact provider verification
@@ -332,6 +361,7 @@ docker-compose build
 5. **Load Tests** - Performance and scalability validation
 
 ### Infrastructure
+
 1. **Service Discovery** - Consul or Kubernetes service mesh
 2. **Load Balancing** - NGINX or AWS ALB
 3. **Observability** - Prometheus + Grafana + Jaeger
@@ -340,6 +370,7 @@ docker-compose build
 ## 📞 Support
 
 For issues or questions:
+
 1. Check this runbook first
 2. Review service logs
 3. Consult OpenAPI documentation

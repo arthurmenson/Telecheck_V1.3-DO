@@ -275,7 +275,11 @@ export interface AllergyIntolerance {
   clinicalStatus?: CodeableConcept;
   verificationStatus?: CodeableConcept;
   criticality?: "low" | "high" | "unable-to-assess";
-  reaction?: Array<{ substance?: CodeableConcept; manifestation?: CodeableConcept[]; severity?: "mild" | "moderate" | "severe" }>;
+  reaction?: Array<{
+    substance?: CodeableConcept;
+    manifestation?: CodeableConcept[];
+    severity?: "mild" | "moderate" | "severe";
+  }>;
 }
 
 export interface Immunization {
@@ -296,5 +300,8 @@ export interface MedicationRequest {
   authoredOn?: string;
   requester?: Reference; // Practitioner
   dosageInstruction?: Array<{ text?: string }>;
-  dispenseRequest?: { numberOfRepeatsAllowed?: number; quantity?: { value?: number; unit?: string } };
+  dispenseRequest?: {
+    numberOfRepeatsAllowed?: number;
+    quantity?: { value?: number; unit?: string };
+  };
 }

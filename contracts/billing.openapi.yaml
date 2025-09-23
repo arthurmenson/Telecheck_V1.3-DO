@@ -188,20 +188,20 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Claim837PRequest'
+              $ref: "#/components/schemas/Claim837PRequest"
       responses:
-        '201':
+        "201":
           description: Claim generated
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Claim837PResponse'
-        '400':
+                $ref: "#/components/schemas/Claim837PResponse"
+        "400":
           description: Invalid request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiResponse'
+                $ref: "#/components/schemas/ApiResponse"
 
   /billing/claims/{id}/status:
     get:
@@ -214,18 +214,18 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Claim status
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ClaimStatusResponse'
-        '404':
+                $ref: "#/components/schemas/ClaimStatusResponse"
+        "404":
           description: Claim not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiResponse'
+                $ref: "#/components/schemas/ApiResponse"
 
   /billing/era/835:
     post:
@@ -236,14 +236,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Era835IngestRequest'
+              $ref: "#/components/schemas/Era835IngestRequest"
       responses:
-        '202':
+        "202":
           description: ERA received
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Era835IngestResponse'
+                $ref: "#/components/schemas/Era835IngestResponse"
 
   /eligibility/check:
     post:
@@ -254,529 +254,17 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Eligibility270Request'
+              $ref: "#/components/schemas/Eligibility270Request"
       responses:
-        '200':
+        "200":
           description: Eligibility response (271)
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Eligibility271Response'
+                $ref: "#/components/schemas/Eligibility271Response"
 
 tags:
   - name: Billing
     description: Claims and ERA operations
   - name: Eligibility
     description: Real-time eligibility operations
-
-openapi: 3.0.3
-info:
-  title: Telecheck Billing/EDI API
-  version: 1.0.0
-  description: Healthcare billing and EDI service for eligibility verification, claims processing, and remittance handling
-  contact:
-    name: Telecheck Engineering
-servers:
-  - url: /api/billing
-    description: Billing/EDI API via Gateway
-components:
-  schemas:
-    EligibilityRequest:
-      type: object
-      description: X12 270 eligibility verification request
-      properties:
-        subscriber:
-          type: object
-          properties:
-            lastName:
-              type: string
-              example: "DOE"
-            firstName:
-              type: string
-              example: "JOHN"
-            memberId:
-              type: string
-              example: "W000000000"
-            dob:
-              type: string
-              format: date
-              example: "1970-01-01"
-            gender:
-              type: string
-              enum: [M, F]
-              example: "M"
-        provider:
-          type: object
-          properties:
-            name:
-              type: string
-            npi:
-              type: string
-        payer:
-          type: object
-          properties:
-            name:
-              type: string
-            payerId:
-              type: string
-        serviceType:
-          type: string
-          enum: [medical, dental, vision, pharmacy]
-          default: medical
-
-    EligibilityResponse:
-      type: object
-      properties:
-        id:
-          type: string
-          description: Transaction ID for tracking
-        status:
-          type: string
-          enum: [generated, submitted, processing, completed, error]
-        x12Length:
-          type: integer
-          description: Length of generated X12 document
-
-    EligibilityResult:
-      type: object
-      description: Parsed X12 271 eligibility response
-      properties:
-        id:
-          type: string
-        status:
-          type: string
-          enum: [active, inactive, suspended, terminated]
-        coverage:
-          type: object
-          properties:
-            plan:
-              type: string
-              example: "PPO"
-            effective:
-              type: string
-              format: date
-              example: "2024-01-01"
-            termination:
-              type: string
-              format: date
-              nullable: true
-            copay:
-              type: number
-              example: 20
-            deductible:
-              type: number
-              example: 500
-            outOfPocketMax:
-              type: number
-              example: 3000
-            coinsurance:
-              type: number
-              example: 20
-        benefits:
-          type: array
-          items:
-            type: object
-            properties:
-              serviceType:
-                type: string
-              coverageLevel:
-                type: string
-              benefitAmount:
-                type: number
-              frequencyLimit:
-                type: string
-
-    ClaimRequest:
-      type: object
-      description: Healthcare claim for X12 837 processing
-      properties:
-        claimId:
-          type: string
-          example: "CLM0001"
-        patient:
-          type: object
-          properties:
-            firstName:
-              type: string
-            lastName:
-              type: string
-            memberId:
-              type: string
-            dob:
-              type: string
-              format: date
-            gender:
-              type: string
-              enum: [M, F]
-            address:
-              $ref: '#/components/schemas/Address'
-        provider:
-          type: object
-          properties:
-            name:
-              type: string
-            npi:
-              type: string
-            taxId:
-              type: string
-            address:
-              $ref: '#/components/schemas/Address'
-        payer:
-          type: object
-          properties:
-            name:
-              type: string
-            payerId:
-              type: string
-        serviceLines:
-          type: array
-          items:
-            type: object
-            properties:
-              serviceDate:
-                type: string
-                format: date
-              procedureCode:
-                type: string
-                description: CPT/HCPCS code
-              diagnosisCodes:
-                type: array
-                items:
-                  type: string
-                  description: ICD-10 codes
-              units:
-                type: integer
-                default: 1
-              chargeAmount:
-                type: number
-              placeOfService:
-                type: string
-              modifiers:
-                type: array
-                items:
-                  type: string
-        totalCharges:
-          type: number
-
-    Address:
-      type: object
-      properties:
-        street1:
-          type: string
-        street2:
-          type: string
-          nullable: true
-        city:
-          type: string
-        state:
-          type: string
-          minLength: 2
-          maxLength: 2
-        zipCode:
-          type: string
-          pattern: '^\d{5}(-\d{4})?$'
-
-    ClaimResponse:
-      type: object
-      properties:
-        id:
-          type: string
-          description: Claim transaction ID
-        status:
-          type: string
-          enum: [queued, submitted, processing, paid, denied, rejected]
-        x12Length:
-          type: integer
-        submissionDate:
-          type: string
-          format: date-time
-
-    AckResponse:
-      type: object
-      description: X12 999 Acknowledgment response
-      properties:
-        status:
-          type: string
-          enum: [accepted, rejected, accepted_with_errors]
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              code:
-                type: string
-              description:
-                type: string
-              severity:
-                type: string
-                enum: [error, warning]
-        controlNumber:
-          type: string
-
-    ClaimStatusResponse:
-      type: object
-      description: X12 277CA Claim Status response
-      properties:
-        status:
-          type: string
-          enum: [received, processing, adjudicated, denied, paid]
-        claims:
-          type: integer
-          description: Number of claims processed
-        statusDetails:
-          type: array
-          items:
-            type: object
-            properties:
-              claimId:
-                type: string
-              status:
-                type: string
-              statusDate:
-                type: string
-                format: date-time
-              amount:
-                type: number
-
-    RemittanceResponse:
-      type: object
-      description: X12 835 ERA (Electronic Remittance Advice) response
-      properties:
-        id:
-          type: string
-        payments:
-          type: integer
-          description: Number of payments processed
-        posted:
-          type: boolean
-        totalAmount:
-          type: number
-        checkDate:
-          type: string
-          format: date
-        paymentDetails:
-          type: array
-          items:
-            type: object
-            properties:
-              claimId:
-                type: string
-              paidAmount:
-                type: number
-              patientResponsibility:
-                type: number
-              adjustments:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    code:
-                      type: string
-                    amount:
-                      type: number
-                    description:
-                      type: string
-
-    HealthResponse:
-      type: object
-      properties:
-        status:
-          type: string
-          enum: [healthy]
-        service:
-          type: string
-        timestamp:
-          type: string
-          format: date-time
-
-paths:
-  /eligibility/270:
-    post:
-      summary: Submit eligibility verification request
-      description: Submit X12 270 eligibility verification request to payer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/EligibilityRequest'
-      responses:
-        '200':
-          description: Eligibility request generated successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/EligibilityResponse'
-        '400':
-          description: Invalid request data
-        '500':
-          description: Internal server error
-
-  /eligibility/271/{id}:
-    get:
-      summary: Get eligibility verification result
-      description: Retrieve parsed X12 271 eligibility verification response
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-          description: Eligibility request transaction ID
-      responses:
-        '200':
-          description: Eligibility result retrieved successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/EligibilityResult'
-        '404':
-          description: Eligibility request not found
-        '500':
-          description: Internal server error
-
-  /billing/837:
-    post:
-      summary: Submit healthcare claim
-      description: Submit healthcare claim for X12 837 processing and clearinghouse submission
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ClaimRequest'
-      responses:
-        '202':
-          description: Claim queued for processing
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ClaimResponse'
-        '400':
-          description: Invalid claim data
-        '500':
-          description: Internal server error
-
-  /billing/ack/999:
-    post:
-      summary: Receive claim acknowledgment
-      description: Receive and process X12 999 acknowledgment from clearinghouse
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                controlNumber:
-                  type: string
-                x12Document:
-                  type: string
-                  description: Raw X12 999 document
-      responses:
-        '200':
-          description: Acknowledgment processed successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AckResponse'
-        '400':
-          description: Invalid acknowledgment data
-        '500':
-          description: Internal server error
-
-  /billing/status/277ca:
-    post:
-      summary: Receive claim status update
-      description: Receive and process X12 277CA claim status update from payer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                x12Document:
-                  type: string
-                  description: Raw X12 277CA document
-                claims:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      claimId:
-                        type: string
-                      status:
-                        type: string
-      responses:
-        '200':
-          description: Claim status processed successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ClaimStatusResponse'
-        '400':
-          description: Invalid status document
-        '500':
-          description: Internal server error
-
-  /billing/835:
-    post:
-      summary: Receive electronic remittance advice
-      description: Receive and process X12 835 ERA (Electronic Remittance Advice) from payer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                x12Document:
-                  type: string
-                  description: Raw X12 835 document
-                payments:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      claimId:
-                        type: string
-                      paidAmount:
-                        type: number
-                      checkNumber:
-                        type: string
-      responses:
-        '200':
-          description: Remittance advice processed successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RemittanceResponse'
-        '400':
-          description: Invalid remittance document
-        '500':
-          description: Internal server error
-
-  /health:
-    get:
-      summary: Service health check
-      description: Check billing service health status
-      responses:
-        '200':
-          description: Service is healthy
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HealthResponse'
-
-tags:
-  - name: Eligibility
-    description: Insurance eligibility verification (270/271)
-  - name: Claims
-    description: Healthcare claims processing (837)
-  - name: Acknowledgments
-    description: Claim acknowledgments and status updates (999/277CA)
-  - name: Remittance
-    description: Electronic remittance advice processing (835)
-  - name: Health
-    description: Service health monitoring

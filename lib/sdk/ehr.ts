@@ -4,1072 +4,1077 @@
  */
 
 export interface paths {
-    "/patients/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get patient by ID
-         * @description Retrieve patient information by patient ID
-         */
-        get: operations["getPatient"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+  "/patients/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/patients/empty": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get empty patient (test endpoint)
-         * @description Test endpoint that returns null for empty patient scenarios
-         */
-        get: operations["getEmptyPatient"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /**
+     * Get patient by ID
+     * @description Retrieve patient information by patient ID
+     */
+    get: operations["getPatient"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/patients/empty": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/intake": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Submit patient intake form
-         * @description Submit a new patient intake form
-         */
-        post: operations["submitIntake"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /**
+     * Get empty patient (test endpoint)
+     * @description Test endpoint that returns null for empty patient scenarios
+     */
+    get: operations["getEmptyPatient"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/intake": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/providers": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get all providers
-         * @description Retrieve list of all healthcare providers
-         */
-        get: operations["getProviders"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    /**
+     * Submit patient intake form
+     * @description Submit a new patient intake form
+     */
+    post: operations["submitIntake"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/providers": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/scheduling/slots": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get available appointment slots
-         * @description Retrieve available appointment slots for scheduling
-         */
-        get: operations["getAvailableSlots"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /**
+     * Get all providers
+     * @description Retrieve list of all healthcare providers
+     */
+    get: operations["getProviders"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/scheduling/slots": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/scheduling/book": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Book an appointment
-         * @description Book an appointment for a patient
-         */
-        post: operations["bookAppointment"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /**
+     * Get available appointment slots
+     * @description Retrieve available appointment slots for scheduling
+     */
+    get: operations["getAvailableSlots"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/scheduling/book": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/scheduling/{id}/cancel": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Cancel an appointment
-         * @description Cancel an existing appointment
-         */
-        post: operations["cancelAppointment"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    /**
+     * Book an appointment
+     * @description Book an appointment for a patient
+     */
+    post: operations["bookAppointment"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/scheduling/{id}/cancel": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/scheduling/{id}/reschedule": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Reschedule an appointment
-         * @description Reschedule an existing appointment to a new time
-         */
-        post: operations["rescheduleAppointment"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    /**
+     * Cancel an appointment
+     * @description Cancel an existing appointment
+     */
+    post: operations["cancelAppointment"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/scheduling/{id}/reschedule": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/scheduling/error": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Scheduling error test endpoint
-         * @description Test endpoint that always returns an error
-         */
-        get: operations["schedulingError"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    /**
+     * Reschedule an appointment
+     * @description Reschedule an existing appointment to a new time
+     */
+    post: operations["rescheduleAppointment"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/scheduling/error": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/messaging/send": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Send a message
-         * @description Send a message to another user
-         */
-        post: operations["sendMessage"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /**
+     * Scheduling error test endpoint
+     * @description Test endpoint that always returns an error
+     */
+    get: operations["schedulingError"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/messaging/send": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/messaging/conversations": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get user conversations
-         * @description Retrieve all conversations for the current user
-         */
-        get: operations["getConversations"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    /**
+     * Send a message
+     * @description Send a message to another user
+     */
+    post: operations["sendMessage"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/messaging/conversations": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
+    /**
+     * Get user conversations
+     * @description Retrieve all conversations for the current user
+     */
+    get: operations["getConversations"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
-    schemas: {
-        Patient: {
-            /**
-             * Format: uuid
-             * @example 550e8400-e29b-41d4-a716-446655440000
-             */
-            id?: string;
-            /** @example Jane Doe */
-            name?: string;
-            /** @example Jane */
-            firstName?: string;
-            /** @example Doe */
-            lastName?: string;
-            /**
-             * Format: date
-             * @example 1990-01-01
-             */
-            dateOfBirth?: string;
-            /**
-             * Format: email
-             * @example jane.doe@example.com
-             */
-            email?: string;
-            /** @example +1-555-0123 */
-            phone?: string;
-            address?: components["schemas"]["Address"];
-            emergencyContact?: components["schemas"]["EmergencyContact"];
-            insuranceInfo?: components["schemas"]["InsuranceInfo"];
-            /**
-             * Format: date-time
-             * @example 2024-01-01T12:00:00Z
-             */
-            createdAt?: string;
-            /**
-             * Format: date-time
-             * @example 2025-01-01T12:00:00Z
-             */
-            updatedAt?: string;
-        };
-        Address: {
-            /** @example 123 Main St */
-            street?: string;
-            /** @example Boston */
-            city?: string;
-            /** @example MA */
-            state?: string;
-            /** @example 02101 */
-            zipCode?: string;
-            /** @example USA */
-            country?: string;
-        };
-        EmergencyContact: {
-            /** @example John Doe */
-            name?: string;
-            /** @example +1-555-0124 */
-            phone?: string;
-            /** @example Spouse */
-            relationship?: string;
-        };
-        InsuranceInfo: {
-            /** @example Blue Cross Blue Shield */
-            provider?: string;
-            /** @example BC123456789 */
-            policyNumber?: string;
-            /** @example GRP001 */
-            groupNumber?: string;
-        };
-        IntakeForm: {
-            /**
-             * Format: uuid
-             * @example 550e8400-e29b-41d4-a716-446655440000
-             */
-            patientId: string;
-            /** @example Persistent headaches for 2 weeks */
-            chiefComplaint: string;
-            /** @example [
-             *       "headache",
-             *       "nausea",
-             *       "dizziness"
-             *     ] */
-            symptoms?: string[];
-            /** @example [
-             *       "Ibuprofen 200mg",
-             *       "Multivitamin"
-             *     ] */
-            currentMedications?: string[];
-            /** @example [
-             *       "Penicillin",
-             *       "Shellfish"
-             *     ] */
-            allergies?: string[];
-            /** @example [
-             *       "Hypertension",
-             *       "Diabetes Type 2"
-             *     ] */
-            medicalHistory?: string[];
-            socialHistory?: {
-                /**
-                 * @example never
-                 * @enum {string}
-                 */
-                smoking?: "never" | "former" | "current";
-                /**
-                 * @example occasional
-                 * @enum {string}
-                 */
-                alcohol?: "none" | "occasional" | "moderate" | "heavy";
-                /** @example 3 times per week */
-                exercise?: string;
-            };
-        };
-        IntakeResponse: {
-            /**
-             * Format: uuid
-             * @example 550e8400-e29b-41d4-a716-446655440000
-             */
-            id?: string;
-            /**
-             * @example saved
-             * @enum {string}
-             */
-            status?: "saved" | "completed" | "pending";
-            /** @example Intake form saved successfully */
-            message?: string;
-        };
-        TimeSlot: {
-            /** @example slot_123 */
-            id?: string;
-            /**
-             * Format: date-time
-             * @example 2025-01-02T09:00:00Z
-             */
-            start?: string;
-            /**
-             * Format: date-time
-             * @example 2025-01-02T09:30:00Z
-             */
-            end?: string;
-            /**
-             * Format: uuid
-             * @example 550e8400-e29b-41d4-a716-446655440000
-             */
-            providerId?: string;
-            /** @example Dr. Smith */
-            providerName?: string;
-            /** @example true */
-            available?: boolean;
-            /**
-             * @example consultation
-             * @enum {string}
-             */
-            appointmentType?: "consultation" | "follow-up" | "urgent" | "annual";
-        };
-        SlotsResponse: {
-            slots?: components["schemas"]["TimeSlot"][];
-        };
-        BookingRequest: {
-            /** @example slot_123 */
-            slotId: string;
-            /**
-             * Format: uuid
-             * @example 550e8400-e29b-41d4-a716-446655440000
-             */
-            patientId: string;
-            /**
-             * @example consultation
-             * @enum {string}
-             */
-            appointmentType?: "consultation" | "follow-up" | "urgent" | "annual";
-            /** @example First time patient consultation */
-            notes?: string;
-        };
-        AppointmentResponse: {
-            /** @example apt_123 */
-            id?: string;
-            /**
-             * @example booked
-             * @enum {string}
-             */
-            status?: "booked" | "confirmed" | "canceled" | "rescheduled" | "completed";
-            /** @example slot_123 */
-            slotId?: string;
-            /**
-             * Format: uuid
-             * @example 550e8400-e29b-41d4-a716-446655440000
-             */
-            patientId?: string;
-            /**
-             * Format: uuid
-             * @example 550e8400-e29b-41d4-a716-446655440000
-             */
-            providerId?: string;
-            /**
-             * Format: date-time
-             * @example 2025-01-02T09:00:00Z
-             */
-            scheduledTime?: string;
-            /** @example Appointment booked successfully */
-            message?: string;
-        };
-        RescheduleRequest: {
-            /**
-             * Format: date-time
-             * @example 2025-01-02T10:00:00Z
-             */
-            to: string;
-            /** @example Patient conflict */
-            reason?: string;
-        };
-        Provider: {
-            /**
-             * Format: uuid
-             * @example 550e8400-e29b-41d4-a716-446655440000
-             */
-            id?: string;
-            /** @example Dr. John Smith */
-            name?: string;
-            /** @example Internal Medicine */
-            specialty?: string;
-            /**
-             * Format: email
-             * @example dr.smith@telecheck.health
-             */
-            email?: string;
-            /** @example +1-555-0125 */
-            phone?: string;
-            /** @example true */
-            isActive?: boolean;
-        };
-        ProvidersResponse: {
-            providers?: components["schemas"]["Provider"][];
-        };
-        MessageRequest: {
-            /**
-             * Format: uuid
-             * @example 550e8400-e29b-41d4-a716-446655440000
-             */
-            recipientId: string;
-            /** @example Hello, I have a question about my prescription */
-            content: string;
-            /** @example Prescription inquiry */
-            subject?: string;
-            /**
-             * @example normal
-             * @enum {string}
-             */
-            priority?: "low" | "normal" | "high" | "urgent";
-            /** @example [
-             *       "file_123",
-             *       "file_456"
-             *     ] */
-            attachments?: string[];
-        };
-        MessageResponse: {
-            /**
-             * Format: uuid
-             * @example 550e8400-e29b-41d4-a716-446655440000
-             */
-            id?: string;
-            /**
-             * @example sent
-             * @enum {string}
-             */
-            status?: "sent" | "delivered" | "read";
-            /** @example Message sent successfully */
-            message?: string;
-        };
-        Conversation: {
-            /**
-             * Format: uuid
-             * @example 550e8400-e29b-41d4-a716-446655440000
-             */
-            id?: string;
-            /** @example [
-             *       "patient_123",
-             *       "provider_456"
-             *     ] */
-            participants?: string[];
-            /** @example Prescription inquiry */
-            subject?: string;
-            /** @example Thank you for your response */
-            lastMessage?: string;
-            /**
-             * Format: date-time
-             * @example 2025-01-01T12:00:00Z
-             */
-            lastMessageAt?: string;
-            /** @example 2 */
-            unreadCount?: number;
-            /**
-             * @example active
-             * @enum {string}
-             */
-            status?: "active" | "archived" | "closed";
-        };
-        ConversationsResponse: {
-            conversations?: components["schemas"]["Conversation"][];
-        };
-        ErrorResponse: {
-            /** @example false */
-            success?: boolean;
-            /** @example Resource not found */
-            error?: string;
-            /** @example Failed */
-            message?: string;
-            /** @example RESOURCE_NOT_FOUND */
-            code?: string;
-            details?: {
-                [key: string]: unknown;
-            };
-        };
+  schemas: {
+    Patient: {
+      /**
+       * Format: uuid
+       * @example 550e8400-e29b-41d4-a716-446655440000
+       */
+      id?: string;
+      /** @example Jane Doe */
+      name?: string;
+      /** @example Jane */
+      firstName?: string;
+      /** @example Doe */
+      lastName?: string;
+      /**
+       * Format: date
+       * @example 1990-01-01
+       */
+      dateOfBirth?: string;
+      /**
+       * Format: email
+       * @example jane.doe@example.com
+       */
+      email?: string;
+      /** @example +1-555-0123 */
+      phone?: string;
+      address?: components["schemas"]["Address"];
+      emergencyContact?: components["schemas"]["EmergencyContact"];
+      insuranceInfo?: components["schemas"]["InsuranceInfo"];
+      /**
+       * Format: date-time
+       * @example 2024-01-01T12:00:00Z
+       */
+      createdAt?: string;
+      /**
+       * Format: date-time
+       * @example 2025-01-01T12:00:00Z
+       */
+      updatedAt?: string;
     };
-    responses: never;
-    parameters: never;
-    requestBodies: never;
-    headers: never;
-    pathItems: never;
+    Address: {
+      /** @example 123 Main St */
+      street?: string;
+      /** @example Boston */
+      city?: string;
+      /** @example MA */
+      state?: string;
+      /** @example 02101 */
+      zipCode?: string;
+      /** @example USA */
+      country?: string;
+    };
+    EmergencyContact: {
+      /** @example John Doe */
+      name?: string;
+      /** @example +1-555-0124 */
+      phone?: string;
+      /** @example Spouse */
+      relationship?: string;
+    };
+    InsuranceInfo: {
+      /** @example Blue Cross Blue Shield */
+      provider?: string;
+      /** @example BC123456789 */
+      policyNumber?: string;
+      /** @example GRP001 */
+      groupNumber?: string;
+    };
+    IntakeForm: {
+      /**
+       * Format: uuid
+       * @example 550e8400-e29b-41d4-a716-446655440000
+       */
+      patientId: string;
+      /** @example Persistent headaches for 2 weeks */
+      chiefComplaint: string;
+      /** @example [
+       *       "headache",
+       *       "nausea",
+       *       "dizziness"
+       *     ] */
+      symptoms?: string[];
+      /** @example [
+       *       "Ibuprofen 200mg",
+       *       "Multivitamin"
+       *     ] */
+      currentMedications?: string[];
+      /** @example [
+       *       "Penicillin",
+       *       "Shellfish"
+       *     ] */
+      allergies?: string[];
+      /** @example [
+       *       "Hypertension",
+       *       "Diabetes Type 2"
+       *     ] */
+      medicalHistory?: string[];
+      socialHistory?: {
+        /**
+         * @example never
+         * @enum {string}
+         */
+        smoking?: "never" | "former" | "current";
+        /**
+         * @example occasional
+         * @enum {string}
+         */
+        alcohol?: "none" | "occasional" | "moderate" | "heavy";
+        /** @example 3 times per week */
+        exercise?: string;
+      };
+    };
+    IntakeResponse: {
+      /**
+       * Format: uuid
+       * @example 550e8400-e29b-41d4-a716-446655440000
+       */
+      id?: string;
+      /**
+       * @example saved
+       * @enum {string}
+       */
+      status?: "saved" | "completed" | "pending";
+      /** @example Intake form saved successfully */
+      message?: string;
+    };
+    TimeSlot: {
+      /** @example slot_123 */
+      id?: string;
+      /**
+       * Format: date-time
+       * @example 2025-01-02T09:00:00Z
+       */
+      start?: string;
+      /**
+       * Format: date-time
+       * @example 2025-01-02T09:30:00Z
+       */
+      end?: string;
+      /**
+       * Format: uuid
+       * @example 550e8400-e29b-41d4-a716-446655440000
+       */
+      providerId?: string;
+      /** @example Dr. Smith */
+      providerName?: string;
+      /** @example true */
+      available?: boolean;
+      /**
+       * @example consultation
+       * @enum {string}
+       */
+      appointmentType?: "consultation" | "follow-up" | "urgent" | "annual";
+    };
+    SlotsResponse: {
+      slots?: components["schemas"]["TimeSlot"][];
+    };
+    BookingRequest: {
+      /** @example slot_123 */
+      slotId: string;
+      /**
+       * Format: uuid
+       * @example 550e8400-e29b-41d4-a716-446655440000
+       */
+      patientId: string;
+      /**
+       * @example consultation
+       * @enum {string}
+       */
+      appointmentType?: "consultation" | "follow-up" | "urgent" | "annual";
+      /** @example First time patient consultation */
+      notes?: string;
+    };
+    AppointmentResponse: {
+      /** @example apt_123 */
+      id?: string;
+      /**
+       * @example booked
+       * @enum {string}
+       */
+      status?:
+        | "booked"
+        | "confirmed"
+        | "canceled"
+        | "rescheduled"
+        | "completed";
+      /** @example slot_123 */
+      slotId?: string;
+      /**
+       * Format: uuid
+       * @example 550e8400-e29b-41d4-a716-446655440000
+       */
+      patientId?: string;
+      /**
+       * Format: uuid
+       * @example 550e8400-e29b-41d4-a716-446655440000
+       */
+      providerId?: string;
+      /**
+       * Format: date-time
+       * @example 2025-01-02T09:00:00Z
+       */
+      scheduledTime?: string;
+      /** @example Appointment booked successfully */
+      message?: string;
+    };
+    RescheduleRequest: {
+      /**
+       * Format: date-time
+       * @example 2025-01-02T10:00:00Z
+       */
+      to: string;
+      /** @example Patient conflict */
+      reason?: string;
+    };
+    Provider: {
+      /**
+       * Format: uuid
+       * @example 550e8400-e29b-41d4-a716-446655440000
+       */
+      id?: string;
+      /** @example Dr. John Smith */
+      name?: string;
+      /** @example Internal Medicine */
+      specialty?: string;
+      /**
+       * Format: email
+       * @example dr.smith@telecheck.health
+       */
+      email?: string;
+      /** @example +1-555-0125 */
+      phone?: string;
+      /** @example true */
+      isActive?: boolean;
+    };
+    ProvidersResponse: {
+      providers?: components["schemas"]["Provider"][];
+    };
+    MessageRequest: {
+      /**
+       * Format: uuid
+       * @example 550e8400-e29b-41d4-a716-446655440000
+       */
+      recipientId: string;
+      /** @example Hello, I have a question about my prescription */
+      content: string;
+      /** @example Prescription inquiry */
+      subject?: string;
+      /**
+       * @example normal
+       * @enum {string}
+       */
+      priority?: "low" | "normal" | "high" | "urgent";
+      /** @example [
+       *       "file_123",
+       *       "file_456"
+       *     ] */
+      attachments?: string[];
+    };
+    MessageResponse: {
+      /**
+       * Format: uuid
+       * @example 550e8400-e29b-41d4-a716-446655440000
+       */
+      id?: string;
+      /**
+       * @example sent
+       * @enum {string}
+       */
+      status?: "sent" | "delivered" | "read";
+      /** @example Message sent successfully */
+      message?: string;
+    };
+    Conversation: {
+      /**
+       * Format: uuid
+       * @example 550e8400-e29b-41d4-a716-446655440000
+       */
+      id?: string;
+      /** @example [
+       *       "patient_123",
+       *       "provider_456"
+       *     ] */
+      participants?: string[];
+      /** @example Prescription inquiry */
+      subject?: string;
+      /** @example Thank you for your response */
+      lastMessage?: string;
+      /**
+       * Format: date-time
+       * @example 2025-01-01T12:00:00Z
+       */
+      lastMessageAt?: string;
+      /** @example 2 */
+      unreadCount?: number;
+      /**
+       * @example active
+       * @enum {string}
+       */
+      status?: "active" | "archived" | "closed";
+    };
+    ConversationsResponse: {
+      conversations?: components["schemas"]["Conversation"][];
+    };
+    ErrorResponse: {
+      /** @example false */
+      success?: boolean;
+      /** @example Resource not found */
+      error?: string;
+      /** @example Failed */
+      message?: string;
+      /** @example RESOURCE_NOT_FOUND */
+      code?: string;
+      details?: {
+        [key: string]: unknown;
+      };
+    };
+  };
+  responses: never;
+  parameters: never;
+  requestBodies: never;
+  headers: never;
+  pathItems: never;
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    getPatient: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @example 550e8400-e29b-41d4-a716-446655440000 */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Patient information retrieved successfully */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Patient"];
-                };
-            };
-            /** @description Patient not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
+  getPatient: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @example 550e8400-e29b-41d4-a716-446655440000 */
+        id: string;
+      };
+      cookie?: never;
     };
-    getEmptyPatient: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    requestBody?: never;
+    responses: {
+      /** @description Patient information retrieved successfully */
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody?: never;
-        responses: {
-            /** @description Empty patient response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never> | null;
-                };
-            };
+        content: {
+          "application/json": components["schemas"]["Patient"];
         };
+      };
+      /** @description Patient not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
-    submitIntake: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["IntakeForm"];
-            };
-        };
-        responses: {
-            /** @description Intake form submitted successfully */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["IntakeResponse"];
-                };
-            };
-            /** @description Invalid request */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /** @example {
-                     *       "success": false,
-                     *       "message": "Failed"
-                     *     } */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
+  };
+  getEmptyPatient: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    getProviders: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    requestBody?: never;
+    responses: {
+      /** @description Empty patient response */
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody?: never;
-        responses: {
-            /** @description Providers retrieved successfully */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ProvidersResponse"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
+        content: {
+          "application/json": Record<string, never> | null;
         };
+      };
     };
-    getAvailableSlots: {
-        parameters: {
-            query?: {
-                /** @example 550e8400-e29b-41d4-a716-446655440000 */
-                providerId?: string;
-                /** @example 2025-01-02 */
-                date?: string;
-                /** @example consultation */
-                appointmentType?: "consultation" | "follow-up" | "urgent" | "annual";
-                /**
-                 * @description Test parameter to trigger error scenarios
-                 * @example 1
-                 */
-                chaos?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Available slots retrieved successfully */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /** @example {
-                     *       "slots": [
-                     *         {
-                     *           "id": "s1",
-                     *           "start": "2025-01-02T09:00:00Z",
-                     *           "end": "2025-01-02T09:30:00Z",
-                     *           "providerId": "550e8400-e29b-41d4-a716-446655440000",
-                     *           "providerName": "Dr. Smith",
-                     *           "available": true,
-                     *           "appointmentType": "consultation"
-                     *         }
-                     *       ]
-                     *     } */
-                    "application/json": components["schemas"]["SlotsResponse"];
-                };
-            };
-            /** @description Unauthorized (chaos mode) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /** @example {
-                     *       "message": "chaos"
-                     *     } */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /** @example {
-                     *       "message": "chaos"
-                     *     } */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
+  };
+  submitIntake: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    bookAppointment: {
-        parameters: {
-            query?: {
-                /**
-                 * @description Test parameter to trigger error scenarios
-                 * @example 1
-                 */
-                chaos?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["BookingRequest"];
-            };
-        };
-        responses: {
-            /** @description Appointment booked successfully */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /** @example {
-                     *       "id": "apt1",
-                     *       "status": "booked",
-                     *       "slotId": "s1",
-                     *       "patientId": "550e8400-e29b-41d4-a716-446655440000",
-                     *       "message": "Appointment booked successfully"
-                     *     } */
-                    "application/json": components["schemas"]["AppointmentResponse"];
-                };
-            };
-            /** @description Invalid request or slot unavailable */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Unauthorized (chaos mode) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /** @example {
-                     *       "message": "chaos"
-                     *     } */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Appointment slot already booked */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /** @example {
-                     *       "message": "chaos"
-                     *     } */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["IntakeForm"];
+      };
     };
-    cancelAppointment: {
-        parameters: {
-            query?: {
-                /**
-                 * @description Test parameter to trigger error scenarios
-                 * @example 1
-                 */
-                chaos?: string;
-            };
-            header?: never;
-            path: {
-                /** @example apt1 */
-                id: string;
-            };
-            cookie?: never;
+    responses: {
+      /** @description Intake form submitted successfully */
+      201: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody?: never;
-        responses: {
-            /** @description Appointment canceled successfully */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /** @example {
-                     *       "id": "apt1",
-                     *       "status": "canceled",
-                     *       "message": "Appointment canceled successfully"
-                     *     } */
-                    "application/json": components["schemas"]["AppointmentResponse"];
-                };
-            };
-            /** @description Unauthorized (chaos mode) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /** @example {
-                     *       "message": "chaos"
-                     *     } */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Appointment not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /** @example {
-                     *       "message": "chaos"
-                     *     } */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
+        content: {
+          "application/json": components["schemas"]["IntakeResponse"];
         };
+      };
+      /** @description Invalid request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /** @example {
+           *       "success": false,
+           *       "message": "Failed"
+           *     } */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
-    rescheduleAppointment: {
-        parameters: {
-            query?: {
-                /**
-                 * @description Test parameter to trigger error scenarios
-                 * @example 1
-                 */
-                chaos?: string;
-            };
-            header?: never;
-            path: {
-                /** @example apt1 */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["RescheduleRequest"];
-            };
-        };
-        responses: {
-            /** @description Appointment rescheduled successfully */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /** @example {
-                     *       "id": "apt1",
-                     *       "status": "rescheduled",
-                     *       "message": "Appointment rescheduled successfully"
-                     *     } */
-                    "application/json": components["schemas"]["AppointmentResponse"];
-                };
-            };
-            /** @description Invalid request */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Unauthorized (chaos mode) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /** @example {
-                     *       "message": "chaos"
-                     *     } */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Appointment not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /** @example {
-                     *       "message": "chaos"
-                     *     } */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
+  };
+  getProviders: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    schedulingError: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    requestBody?: never;
+    responses: {
+      /** @description Providers retrieved successfully */
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody?: never;
-        responses: {
-            /** @description Scheduling error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /** @example {
-                     *       "message": "Scheduling error"
-                     *     } */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
+        content: {
+          "application/json": components["schemas"]["ProvidersResponse"];
         };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
-    sendMessage: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["MessageRequest"];
-            };
-        };
-        responses: {
-            /** @description Message sent successfully */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["MessageResponse"];
-                };
-            };
-            /** @description Invalid request */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
+  };
+  getAvailableSlots: {
+    parameters: {
+      query?: {
+        /** @example 550e8400-e29b-41d4-a716-446655440000 */
+        providerId?: string;
+        /** @example 2025-01-02 */
+        date?: string;
+        /** @example consultation */
+        appointmentType?: "consultation" | "follow-up" | "urgent" | "annual";
+        /**
+         * @description Test parameter to trigger error scenarios
+         * @example 1
+         */
+        chaos?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    getConversations: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    requestBody?: never;
+    responses: {
+      /** @description Available slots retrieved successfully */
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody?: never;
-        responses: {
-            /** @description Conversations retrieved successfully */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ConversationsResponse"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
+        content: {
+          /** @example {
+           *       "slots": [
+           *         {
+           *           "id": "s1",
+           *           "start": "2025-01-02T09:00:00Z",
+           *           "end": "2025-01-02T09:30:00Z",
+           *           "providerId": "550e8400-e29b-41d4-a716-446655440000",
+           *           "providerName": "Dr. Smith",
+           *           "available": true,
+           *           "appointmentType": "consultation"
+           *         }
+           *       ]
+           *     } */
+          "application/json": components["schemas"]["SlotsResponse"];
         };
+      };
+      /** @description Unauthorized (chaos mode) */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /** @example {
+           *       "message": "chaos"
+           *     } */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /** @example {
+           *       "message": "chaos"
+           *     } */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
+  };
+  bookAppointment: {
+    parameters: {
+      query?: {
+        /**
+         * @description Test parameter to trigger error scenarios
+         * @example 1
+         */
+        chaos?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["BookingRequest"];
+      };
+    };
+    responses: {
+      /** @description Appointment booked successfully */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /** @example {
+           *       "id": "apt1",
+           *       "status": "booked",
+           *       "slotId": "s1",
+           *       "patientId": "550e8400-e29b-41d4-a716-446655440000",
+           *       "message": "Appointment booked successfully"
+           *     } */
+          "application/json": components["schemas"]["AppointmentResponse"];
+        };
+      };
+      /** @description Invalid request or slot unavailable */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description Unauthorized (chaos mode) */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /** @example {
+           *       "message": "chaos"
+           *     } */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description Appointment slot already booked */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /** @example {
+           *       "message": "chaos"
+           *     } */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+    };
+  };
+  cancelAppointment: {
+    parameters: {
+      query?: {
+        /**
+         * @description Test parameter to trigger error scenarios
+         * @example 1
+         */
+        chaos?: string;
+      };
+      header?: never;
+      path: {
+        /** @example apt1 */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Appointment canceled successfully */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /** @example {
+           *       "id": "apt1",
+           *       "status": "canceled",
+           *       "message": "Appointment canceled successfully"
+           *     } */
+          "application/json": components["schemas"]["AppointmentResponse"];
+        };
+      };
+      /** @description Unauthorized (chaos mode) */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /** @example {
+           *       "message": "chaos"
+           *     } */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description Appointment not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /** @example {
+           *       "message": "chaos"
+           *     } */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+    };
+  };
+  rescheduleAppointment: {
+    parameters: {
+      query?: {
+        /**
+         * @description Test parameter to trigger error scenarios
+         * @example 1
+         */
+        chaos?: string;
+      };
+      header?: never;
+      path: {
+        /** @example apt1 */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["RescheduleRequest"];
+      };
+    };
+    responses: {
+      /** @description Appointment rescheduled successfully */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /** @example {
+           *       "id": "apt1",
+           *       "status": "rescheduled",
+           *       "message": "Appointment rescheduled successfully"
+           *     } */
+          "application/json": components["schemas"]["AppointmentResponse"];
+        };
+      };
+      /** @description Invalid request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description Unauthorized (chaos mode) */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /** @example {
+           *       "message": "chaos"
+           *     } */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description Appointment not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /** @example {
+           *       "message": "chaos"
+           *     } */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+    };
+  };
+  schedulingError: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Scheduling error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /** @example {
+           *       "message": "Scheduling error"
+           *     } */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+    };
+  };
+  sendMessage: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["MessageRequest"];
+      };
+    };
+    responses: {
+      /** @description Message sent successfully */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MessageResponse"];
+        };
+      };
+      /** @description Invalid request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+    };
+  };
+  getConversations: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Conversations retrieved successfully */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ConversationsResponse"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+    };
+  };
 }

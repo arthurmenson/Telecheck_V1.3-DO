@@ -63,7 +63,12 @@ export async function submitVitalReading(req: Request, res: Response) {
       // Get care team for this patient
       const team = careTeamService.getCareTeam(patientId);
       const careTeam = team
-        ? [team.primaryPhysician, team.careCoordinator, team.onCallProvider, ...team.specialists].filter(Boolean)
+        ? [
+            team.primaryPhysician,
+            team.careCoordinator,
+            team.onCallProvider,
+            ...team.specialists,
+          ].filter(Boolean)
         : [];
 
       if (careTeam.length > 0) {

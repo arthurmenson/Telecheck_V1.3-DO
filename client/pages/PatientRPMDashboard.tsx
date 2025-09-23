@@ -264,7 +264,11 @@ export function PatientRPMDashboard() {
           </TabsList>
 
           {/* Today's Readings */}
-          <TabsContent value="readings" className="space-y-4" data-testid="rpm-vitals-empty">
+          <TabsContent
+            value="readings"
+            className="space-y-4"
+            data-testid="rpm-vitals-empty"
+          >
             <Card>
               <CardHeader>
                 <CardTitle>Today's Health Readings</CardTitle>

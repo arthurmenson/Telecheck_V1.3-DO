@@ -3,7 +3,7 @@
  */
 
 // Re-export from gateway utils for consistency
-export { trackAuditEvent } from '../../../gateway/src/utils/audit';
+export { trackAuditEvent } from "../../../gateway/src/utils/audit";
 
 /**
  * Track RPM-specific events
@@ -18,12 +18,14 @@ export async function trackRPMEvent(event: {
   ip?: string;
   userAgent?: string;
 }): Promise<void> {
-  console.log(JSON.stringify({
-    type: 'rpm_audit',
-    timestamp: new Date().toISOString(),
-    service: 'rpm',
-    ...event
-  }));
+  console.log(
+    JSON.stringify({
+      type: "rpm_audit",
+      timestamp: new Date().toISOString(),
+      service: "rpm",
+      ...event,
+    }),
+  );
 }
 
 /**
@@ -31,11 +33,11 @@ export async function trackRPMEvent(event: {
  */
 export async function trackVitalsEvent(event: {
   userId: string;
-  action: 'record' | 'update' | 'delete' | 'view';
+  action: "record" | "update" | "delete" | "view";
   vitalsId: string;
   patientId: string;
   vitalTypes: string[];
-  source: 'manual' | 'device' | 'wearable';
+  source: "manual" | "device" | "wearable";
   details?: any;
   requestId?: string;
 }): Promise<void> {
@@ -48,9 +50,9 @@ export async function trackVitalsEvent(event: {
       vitalsId: event.vitalsId,
       vitalTypes: event.vitalTypes,
       source: event.source,
-      ...event.details
+      ...event.details,
     },
-    requestId: event.requestId
+    requestId: event.requestId,
   });
 }
 
@@ -59,7 +61,7 @@ export async function trackVitalsEvent(event: {
  */
 export async function trackAlertEvent(event: {
   userId?: string;
-  action: 'create' | 'acknowledge' | 'resolve' | 'escalate';
+  action: "create" | "acknowledge" | "resolve" | "escalate";
   alertId: string;
   patientId: string;
   severity: string;
@@ -76,9 +78,9 @@ export async function trackAlertEvent(event: {
       alertId: event.alertId,
       severity: event.severity,
       type: event.type,
-      ...event.details
+      ...event.details,
     },
-    requestId: event.requestId
+    requestId: event.requestId,
   });
 }
 
@@ -87,7 +89,7 @@ export async function trackAlertEvent(event: {
  */
 export async function trackThresholdEvent(event: {
   userId: string;
-  action: 'create' | 'update' | 'delete' | 'check';
+  action: "create" | "update" | "delete" | "check";
   thresholdId?: string;
   patientId: string;
   vital: string;
@@ -97,14 +99,16 @@ export async function trackThresholdEvent(event: {
   await trackRPMEvent({
     userId: event.userId,
     action: `threshold_${event.action}`,
-    resource: event.thresholdId ? `/thresholds/${event.thresholdId}` : '/thresholds',
+    resource: event.thresholdId
+      ? `/thresholds/${event.thresholdId}`
+      : "/thresholds",
     patientId: event.patientId,
     details: {
       thresholdId: event.thresholdId,
       vital: event.vital,
-      ...event.details
+      ...event.details,
     },
-    requestId: event.requestId
+    requestId: event.requestId,
   });
 }
 
@@ -115,7 +119,7 @@ export async function trackDeviceEvent(event: {
   userId?: string;
   patientId: string;
   deviceId: string;
-  action: 'connect' | 'disconnect' | 'sync' | 'error';
+  action: "connect" | "disconnect" | "sync" | "error";
   deviceType: string;
   details?: any;
   requestId?: string;
@@ -128,8 +132,8 @@ export async function trackDeviceEvent(event: {
     details: {
       deviceId: event.deviceId,
       deviceType: event.deviceType,
-      ...event.details
+      ...event.details,
     },
-    requestId: event.requestId
+    requestId: event.requestId,
   });
 }

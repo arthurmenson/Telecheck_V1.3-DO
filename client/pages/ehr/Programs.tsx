@@ -902,7 +902,7 @@ export function Programs() {
                 >
                   <div className="relative">
                     <img
-                      src={(program as any).image || '/api/placeholder/400/320'}
+                      src={(program as any).image || "/api/placeholder/400/320"}
                       alt={program.title}
                       className="w-full h-48 object-cover"
                     />

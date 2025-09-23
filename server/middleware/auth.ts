@@ -2,7 +2,6 @@ import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { dbPool } from "../config/database";
 
-
 export type AuthenticatedRequest = Request & {
   user?: {
     id: string;
@@ -34,9 +33,13 @@ export const authenticateToken = async (
 
     if (!token) {
       console.log("[Auth] No token provided");
-      const allowSkip = process.env.NODE_ENV !== "production" && process.env.SKIP_AUTH === "true";
+      const allowSkip =
+        process.env.NODE_ENV !== "production" &&
+        process.env.SKIP_AUTH === "true";
       if (allowSkip) {
-        console.warn("[Auth] SKIP_AUTH enabled - granting demo admin user (non-production ONLY)");
+        console.warn(
+          "[Auth] SKIP_AUTH enabled - granting demo admin user (non-production ONLY)",
+        );
         req.user = {
           id: "demo-user",
           email: "demo@example.com",
@@ -66,7 +69,8 @@ export const authenticateToken = async (
       console.log("[Auth] JWT verification failed, trying mock token format");
       // If JWT fails, try base64 decoding for mock tokens (dev-only)
       try {
-        if (process.env.NODE_ENV === "production") throw new Error("Mock token not allowed in production");
+        if (process.env.NODE_ENV === "production")
+          throw new Error("Mock token not allowed in production");
         const mockToken = Buffer.from(token, "base64").toString("utf8");
         decoded = JSON.parse(mockToken);
         console.log("[Auth] Mock token decoded successfully:", {

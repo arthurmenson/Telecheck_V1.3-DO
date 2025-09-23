@@ -102,7 +102,9 @@ router.post(
       await ErxVendorAdapter.requestRefill(id);
       return res.json({ success: true, data: { id, refillRequested: true } });
     } catch (e) {
-      res.status(500).json({ success: false, error: "Failed to request refill" });
+      res
+        .status(500)
+        .json({ success: false, error: "Failed to request refill" });
     }
   },
 );
@@ -116,11 +118,15 @@ router.post(
     try {
       const { otp } = req.body || {};
       if (!otp) {
-        return res.status(400).json({ success: false, error: "otp is required" });
+        return res
+          .status(400)
+          .json({ success: false, error: "otp is required" });
       }
       return res.json({ success: true, data: { verified: true } });
     } catch (e) {
-      res.status(500).json({ success: false, error: "EPCS verification failed" });
+      res
+        .status(500)
+        .json({ success: false, error: "EPCS verification failed" });
     }
   },
 );
@@ -144,11 +150,11 @@ router.get(
         ],
       });
     } catch (e) {
-      res.status(500).json({ success: false, error: "Failed to fetch history" });
+      res
+        .status(500)
+        .json({ success: false, error: "Failed to fetch history" });
     }
   },
 );
 
 export default router;
-
-

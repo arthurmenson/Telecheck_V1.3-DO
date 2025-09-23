@@ -28,7 +28,9 @@ export const medicationsAdapter = {
       return out;
     }
     try {
-      const res = await withRetry(() => apiClient.post(`/medications`, payload));
+      const res = await withRetry(() =>
+        apiClient.post(`/medications`, payload),
+      );
       track("tc:meds:success", { op: "add" });
       return res as any;
     } catch (e: any) {
@@ -44,7 +46,9 @@ export const medicationsAdapter = {
       return out;
     }
     try {
-      const res = await withRetry(() => apiClient.put(`/medications/${id}`, payload));
+      const res = await withRetry(() =>
+        apiClient.put(`/medications/${id}`, payload),
+      );
       track("tc:meds:success", { op: "update" });
       return res as any;
     } catch (e: any) {
@@ -75,9 +79,13 @@ export const medicationsAdapter = {
       track("tc:meds:success", { op: "interactions" });
       return out;
     }
-    const qs = params ? `?${new URLSearchParams(params as any).toString()}` : "";
+    const qs = params
+      ? `?${new URLSearchParams(params as any).toString()}`
+      : "";
     try {
-      const res = await withRetry(() => apiClient.get(`/medications/interactions${qs}`));
+      const res = await withRetry(() =>
+        apiClient.get(`/medications/interactions${qs}`),
+      );
       track("tc:meds:success", { op: "interactions" });
       return res as any;
     } catch (e: any) {
@@ -93,7 +101,9 @@ export const medicationsAdapter = {
       return out;
     }
     try {
-      const res = await withRetry(() => apiClient.get(`/medications/search?q=${encodeURIComponent(q)}`));
+      const res = await withRetry(() =>
+        apiClient.get(`/medications/search?q=${encodeURIComponent(q)}`),
+      );
       track("tc:meds:success", { op: "search" });
       return res as any;
     } catch (e: any) {
@@ -109,7 +119,9 @@ export const medicationsAdapter = {
       return out;
     }
     try {
-      const res = await withRetry(() => apiClient.get(`/medications/reminders`));
+      const res = await withRetry(() =>
+        apiClient.get(`/medications/reminders`),
+      );
       track("tc:meds:success", { op: "reminders" });
       return res as any;
     } catch (e: any) {

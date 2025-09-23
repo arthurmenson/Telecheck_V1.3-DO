@@ -469,15 +469,25 @@ export function verifyTelnyxSignature(req: Request, res: Response, next: any) {
     if (!signature || !timestamp || !publicKeyEnv) {
       return res.status(400).send("Missing Telnyx signature headers");
     }
-    const message = Buffer.from(`${timestamp}.${(req as any).rawBody?.toString() || ""}`);
+    const message = Buffer.from(
+      `${timestamp}.${(req as any).rawBody?.toString() || ""}`,
+    );
     const sig = Buffer.from(signature, "base64");
 
     // Support PEM or base64 DER SPKI public key
     let publicKey: crypto.KeyObject;
     if (publicKeyEnv.includes("BEGIN PUBLIC KEY")) {
-      publicKey = crypto.createPublicKey({ key: publicKeyEnv, format: "pem", type: "spki" });
+      publicKey = crypto.createPublicKey({
+        key: publicKeyEnv,
+        format: "pem",
+        type: "spki",
+      });
     } else {
-      publicKey = crypto.createPublicKey({ key: Buffer.from(publicKeyEnv, "base64"), format: "der", type: "spki" });
+      publicKey = crypto.createPublicKey({
+        key: Buffer.from(publicKeyEnv, "base64"),
+        format: "der",
+        type: "spki",
+      });
     }
 
     const ok = crypto.verify(null, message, publicKey, sig);
@@ -518,7 +528,10 @@ export function verifyTwilioSignature(req: Request, res: Response, next: any) {
       dataToSign += (req as any).rawBody?.toString() || "";
     }
 
-    const expected = crypto.createHmac("sha1", authToken).update(dataToSign).digest("base64");
+    const expected = crypto
+      .createHmac("sha1", authToken)
+      .update(dataToSign)
+      .digest("base64");
     if (expected !== twilioSignature) {
       return res.status(401).send("Invalid Twilio signature");
     }

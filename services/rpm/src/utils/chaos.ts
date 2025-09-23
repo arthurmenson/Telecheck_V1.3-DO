@@ -2,13 +2,13 @@
  * Chaos engineering utilities for RPM service testing
  */
 
-import { FastifyReply } from 'fastify';
+import { FastifyReply } from "fastify";
 
 /**
  * Check if chaos mode is enabled
  */
 export function isChaosMode(query: any): boolean {
-  return query?.chaos === '1';
+  return query?.chaos === "1";
 }
 
 /**
@@ -17,11 +17,11 @@ export function isChaosMode(query: any): boolean {
 export function simulateChaosError(reply: FastifyReply): void {
   const shouldError = Math.random() < 0.5;
   const statusCode = shouldError ? 500 : 401;
-  
+
   reply.status(statusCode).send({
     success: false,
-    message: 'chaos',
-    error: 'Chaos mode error simulation'
+    message: "chaos",
+    error: "Chaos mode error simulation",
   });
 }
 
@@ -29,19 +29,19 @@ export function simulateChaosError(reply: FastifyReply): void {
  * Simulate RPM device connection issues
  */
 export function simulateDeviceChaos(): boolean {
-  return process.env.CHAOS_MODE === 'true' && Math.random() < 0.1;
+  return process.env.CHAOS_MODE === "true" && Math.random() < 0.1;
 }
 
 /**
  * Simulate alert notification failures
  */
 export function simulateNotificationChaos(): boolean {
-  return process.env.CHAOS_MODE === 'true' && Math.random() < 0.05;
+  return process.env.CHAOS_MODE === "true" && Math.random() < 0.05;
 }
 
 /**
  * Simulate threshold calculation errors
  */
 export function simulateThresholdChaos(): boolean {
-  return process.env.CHAOS_MODE === 'true' && Math.random() < 0.02;
+  return process.env.CHAOS_MODE === "true" && Math.random() < 0.02;
 }

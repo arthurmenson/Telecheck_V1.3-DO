@@ -3,8 +3,20 @@ import { useParams } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Video, Mic, MicOff, VideoOff, PhoneOff, Share, Users } from "lucide-react";
-import { useCreateTelehealthRoom, useJoinTelehealthRoom, useEndTelehealthSession } from "@/hooks/api";
+import {
+  Video,
+  Mic,
+  MicOff,
+  VideoOff,
+  PhoneOff,
+  Share,
+  Users,
+} from "lucide-react";
+import {
+  useCreateTelehealthRoom,
+  useJoinTelehealthRoom,
+  useEndTelehealthSession,
+} from "@/hooks/api";
 
 // Open-source integration using Jitsi IFrame API
 // No external SDK dependency; we embed the meeting via iframe with room name
@@ -22,7 +34,10 @@ export function Televisit() {
   const endSession = useEndTelehealthSession();
 
   // Derive a Jitsi room name from roomId; fallback to appointmentId
-  const jitsiRoom = useMemo(() => roomId || appointmentId || "telecheck-demo-room", [roomId, appointmentId]);
+  const jitsiRoom = useMemo(
+    () => roomId || appointmentId || "telecheck-demo-room",
+    [roomId, appointmentId],
+  );
   const jitsiSrc = useMemo(() => {
     // Public Jitsi instance for demo; replace with self-hosted for production
     const base = "https://meet.jit.si";
@@ -36,7 +51,9 @@ export function Televisit() {
     let mounted = true;
     (async () => {
       try {
-        const created = await createRoom.mutateAsync({ appointmentId: appointmentId || `appt_${Date.now()}` });
+        const created = await createRoom.mutateAsync({
+          appointmentId: appointmentId || `appt_${Date.now()}`,
+        });
         if (!mounted) return;
         const rid = (created as any)?.data?.roomId || (created as any)?.roomId;
         setRoomId(rid);
@@ -68,7 +85,9 @@ export function Televisit() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">Televisit</h1>
-          <p className="text-sm text-muted-foreground">Secure video consultation</p>
+          <p className="text-sm text-muted-foreground">
+            Secure video consultation
+          </p>
         </div>
         <Badge variant="secondary" className="flex items-center gap-1">
           <Users className="w-3 h-3" />
@@ -95,11 +114,25 @@ export function Televisit() {
           </div>
 
           <div className="mt-4 flex items-center justify-center gap-3">
-            <Button variant={muted ? "destructive" : "outline"} onClick={() => setMuted((m) => !m)}>
-              {muted ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+            <Button
+              variant={muted ? "destructive" : "outline"}
+              onClick={() => setMuted((m) => !m)}
+            >
+              {muted ? (
+                <MicOff className="w-4 h-4" />
+              ) : (
+                <Mic className="w-4 h-4" />
+              )}
             </Button>
-            <Button variant={videoOff ? "destructive" : "outline"} onClick={() => setVideoOff((v) => !v)}>
-              {videoOff ? <VideoOff className="w-4 h-4" /> : <Video className="w-4 h-4" />}
+            <Button
+              variant={videoOff ? "destructive" : "outline"}
+              onClick={() => setVideoOff((v) => !v)}
+            >
+              {videoOff ? (
+                <VideoOff className="w-4 h-4" />
+              ) : (
+                <Video className="w-4 h-4" />
+              )}
             </Button>
             <Button variant="outline">
               <Share className="w-4 h-4" />
@@ -115,7 +148,3 @@ export function Televisit() {
 }
 
 export default Televisit;
-
-
-
-

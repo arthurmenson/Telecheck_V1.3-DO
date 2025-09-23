@@ -4,619 +4,630 @@
  */
 
 export interface paths {
-    "/vitals/trends": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get vitals trends
-         * @description Retrieve vitals trends data for analysis and charting
-         */
-        get: operations["getVitalsTrends"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+  "/vitals/trends": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/vitals": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get vitals data
-         * @description Retrieve vitals data for a patient
-         */
-        get: operations["getVitals"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /**
+     * Get vitals trends
+     * @description Retrieve vitals trends data for analysis and charting
+     */
+    get: operations["getVitalsTrends"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/vitals": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/vitals/empty": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get empty vitals (test endpoint)
-         * @description Test endpoint that returns empty vitals array
-         */
-        get: operations["getEmptyVitals"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /**
+     * Get vitals data
+     * @description Retrieve vitals data for a patient
+     */
+    get: operations["getVitals"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/vitals/empty": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/vitals/error": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Vitals error test endpoint
-         * @description Test endpoint that always returns an error
-         */
-        get: operations["vitalsError"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /**
+     * Get empty vitals (test endpoint)
+     * @description Test endpoint that returns empty vitals array
+     */
+    get: operations["getEmptyVitals"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/vitals/error": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/rpm/patients/{id}/vitals": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get patient vitals
-         * @description Retrieve vitals data for a specific patient
-         */
-        get: operations["getPatientVitals"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /**
+     * Vitals error test endpoint
+     * @description Test endpoint that always returns an error
+     */
+    get: operations["vitalsError"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/rpm/patients/{id}/vitals": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/rpm/patients/{id}/alerts": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get patient alerts
-         * @description Retrieve alerts for a specific patient
-         */
-        get: operations["getPatientAlerts"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /**
+     * Get patient vitals
+     * @description Retrieve vitals data for a specific patient
+     */
+    get: operations["getPatientVitals"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/rpm/patients/{id}/alerts": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/rpm/patients/{id}/thresholds": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get patient thresholds
-         * @description Retrieve monitoring thresholds for a specific patient
-         */
-        get: operations["getPatientThresholds"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /**
+     * Get patient alerts
+     * @description Retrieve alerts for a specific patient
+     */
+    get: operations["getPatientAlerts"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/rpm/patients/{id}/thresholds": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
+    /**
+     * Get patient thresholds
+     * @description Retrieve monitoring thresholds for a specific patient
+     */
+    get: operations["getPatientThresholds"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
-    schemas: {
-        VitalSigns: {
-            /**
-             * Format: uuid
-             * @example 550e8400-e29b-41d4-a716-446655440000
-             */
-            id?: string;
-            /**
-             * Format: uuid
-             * @example 550e8400-e29b-41d4-a716-446655440000
-             */
-            patientId?: string;
-            /** @example 72 */
-            heartRate?: number;
-            /** @example 120 */
-            bloodPressureSystolic?: number;
-            /** @example 80 */
-            bloodPressureDiastolic?: number;
-            /** @example 98.6 */
-            temperature?: number;
-            /** @example 98 */
-            oxygenSaturation?: number;
-            /** @example 150.5 */
-            weight?: number;
-            /** @example 68.5 */
-            height?: number;
-            /**
-             * Format: date-time
-             * @example 2025-01-01T12:00:00Z
-             */
-            recordedAt?: string;
-            /**
-             * @example device
-             * @enum {string}
-             */
-            source?: "manual" | "device" | "wearable";
-        };
-        VitalsListResponse: {
-            items?: components["schemas"]["VitalSigns"][];
-            /**
-             * Format: uuid
-             * @example 550e8400-e29b-41d4-a716-446655440000
-             */
-            patientId?: string;
-            /** @example 7 */
-            days?: string;
-        };
-        VitalsTrendsData: {
-            /** @example heartRate */
-            name?: string;
-            /** @example [
-             *       {
-             *         "timestamp": "2025-01-01T12:00:00Z",
-             *         "value": 72
-             *       },
-             *       {
-             *         "timestamp": "2025-01-01T18:00:00Z",
-             *         "value": 75
-             *       }
-             *     ] */
-            data?: {
-                /**
-                 * Format: date-time
-                 * @example 2025-01-01T12:00:00Z
-                 */
-                timestamp?: string;
-                /** @example 72 */
-                value?: number;
-            }[];
-        };
-        VitalsTrendsResponse: {
-            series?: components["schemas"]["VitalsTrendsData"][];
-            /** @example 7d */
-            timeframe?: string;
-            /**
-             * Format: uuid
-             * @example 550e8400-e29b-41d4-a716-446655440000
-             */
-            patientId?: string;
-        };
-        Alert: {
-            /**
-             * Format: uuid
-             * @example 550e8400-e29b-41d4-a716-446655440000
-             */
-            id?: string;
-            /**
-             * Format: uuid
-             * @example 550e8400-e29b-41d4-a716-446655440000
-             */
-            patientId?: string;
-            /**
-             * @example vitals
-             * @enum {string}
-             */
-            type?: "vitals" | "medication" | "appointment" | "threshold";
-            /**
-             * @example high
-             * @enum {string}
-             */
-            severity?: "low" | "medium" | "high" | "critical";
-            /** @example High Blood Pressure Alert */
-            title?: string;
-            /** @example Blood pressure reading of 180/110 detected */
-            message?: string;
-            /**
-             * Format: date-time
-             * @example 2025-01-01T12:00:00Z
-             */
-            triggeredAt?: string;
-            /** @example false */
-            acknowledged?: boolean;
-            /**
-             * Format: date-time
-             * @example null
-             */
-            acknowledgedAt?: string | null;
-            /**
-             * Format: uuid
-             * @example null
-             */
-            acknowledgedBy?: string | null;
-            /** @example false */
-            resolved?: boolean;
-            /**
-             * Format: date-time
-             * @example null
-             */
-            resolvedAt?: string | null;
-        };
-        AlertsResponse: {
-            alerts?: components["schemas"]["Alert"][];
-            /**
-             * Format: uuid
-             * @example 550e8400-e29b-41d4-a716-446655440000
-             */
-            patientId?: string;
-        };
-        Threshold: {
-            /**
-             * @example heartRate
-             * @enum {string}
-             */
-            vital?: "heartRate" | "bloodPressure" | "temperature" | "oxygenSaturation" | "weight";
-            /** @example 60 */
-            min?: number | null;
-            /** @example 100 */
-            max?: number | null;
-            /** @example true */
-            enabled?: boolean;
-        };
-        ThresholdsResponse: {
-            /**
-             * Format: uuid
-             * @example 550e8400-e29b-41d4-a716-446655440000
-             */
-            patientId?: string;
-            /** @example {} */
-            fsr?: {
-                [key: string]: unknown;
-            };
-            /** @example {} */
-            hr?: {
-                [key: string]: unknown;
-            };
-            thresholds?: components["schemas"]["Threshold"][];
-        };
-        ErrorResponse: {
-            /** @example false */
-            success?: boolean;
-            /** @example Resource not found */
-            error?: string;
-            /** @example Server error */
-            message?: string;
-            /** @example RESOURCE_NOT_FOUND */
-            code?: string;
-            details?: {
-                [key: string]: unknown;
-            };
-        };
+  schemas: {
+    VitalSigns: {
+      /**
+       * Format: uuid
+       * @example 550e8400-e29b-41d4-a716-446655440000
+       */
+      id?: string;
+      /**
+       * Format: uuid
+       * @example 550e8400-e29b-41d4-a716-446655440000
+       */
+      patientId?: string;
+      /** @example 72 */
+      heartRate?: number;
+      /** @example 120 */
+      bloodPressureSystolic?: number;
+      /** @example 80 */
+      bloodPressureDiastolic?: number;
+      /** @example 98.6 */
+      temperature?: number;
+      /** @example 98 */
+      oxygenSaturation?: number;
+      /** @example 150.5 */
+      weight?: number;
+      /** @example 68.5 */
+      height?: number;
+      /**
+       * Format: date-time
+       * @example 2025-01-01T12:00:00Z
+       */
+      recordedAt?: string;
+      /**
+       * @example device
+       * @enum {string}
+       */
+      source?: "manual" | "device" | "wearable";
     };
-    responses: never;
-    parameters: never;
-    requestBodies: never;
-    headers: never;
-    pathItems: never;
+    VitalsListResponse: {
+      items?: components["schemas"]["VitalSigns"][];
+      /**
+       * Format: uuid
+       * @example 550e8400-e29b-41d4-a716-446655440000
+       */
+      patientId?: string;
+      /** @example 7 */
+      days?: string;
+    };
+    VitalsTrendsData: {
+      /** @example heartRate */
+      name?: string;
+      /** @example [
+       *       {
+       *         "timestamp": "2025-01-01T12:00:00Z",
+       *         "value": 72
+       *       },
+       *       {
+       *         "timestamp": "2025-01-01T18:00:00Z",
+       *         "value": 75
+       *       }
+       *     ] */
+      data?: {
+        /**
+         * Format: date-time
+         * @example 2025-01-01T12:00:00Z
+         */
+        timestamp?: string;
+        /** @example 72 */
+        value?: number;
+      }[];
+    };
+    VitalsTrendsResponse: {
+      series?: components["schemas"]["VitalsTrendsData"][];
+      /** @example 7d */
+      timeframe?: string;
+      /**
+       * Format: uuid
+       * @example 550e8400-e29b-41d4-a716-446655440000
+       */
+      patientId?: string;
+    };
+    Alert: {
+      /**
+       * Format: uuid
+       * @example 550e8400-e29b-41d4-a716-446655440000
+       */
+      id?: string;
+      /**
+       * Format: uuid
+       * @example 550e8400-e29b-41d4-a716-446655440000
+       */
+      patientId?: string;
+      /**
+       * @example vitals
+       * @enum {string}
+       */
+      type?: "vitals" | "medication" | "appointment" | "threshold";
+      /**
+       * @example high
+       * @enum {string}
+       */
+      severity?: "low" | "medium" | "high" | "critical";
+      /** @example High Blood Pressure Alert */
+      title?: string;
+      /** @example Blood pressure reading of 180/110 detected */
+      message?: string;
+      /**
+       * Format: date-time
+       * @example 2025-01-01T12:00:00Z
+       */
+      triggeredAt?: string;
+      /** @example false */
+      acknowledged?: boolean;
+      /**
+       * Format: date-time
+       * @example null
+       */
+      acknowledgedAt?: string | null;
+      /**
+       * Format: uuid
+       * @example null
+       */
+      acknowledgedBy?: string | null;
+      /** @example false */
+      resolved?: boolean;
+      /**
+       * Format: date-time
+       * @example null
+       */
+      resolvedAt?: string | null;
+    };
+    AlertsResponse: {
+      alerts?: components["schemas"]["Alert"][];
+      /**
+       * Format: uuid
+       * @example 550e8400-e29b-41d4-a716-446655440000
+       */
+      patientId?: string;
+    };
+    Threshold: {
+      /**
+       * @example heartRate
+       * @enum {string}
+       */
+      vital?:
+        | "heartRate"
+        | "bloodPressure"
+        | "temperature"
+        | "oxygenSaturation"
+        | "weight";
+      /** @example 60 */
+      min?: number | null;
+      /** @example 100 */
+      max?: number | null;
+      /** @example true */
+      enabled?: boolean;
+    };
+    ThresholdsResponse: {
+      /**
+       * Format: uuid
+       * @example 550e8400-e29b-41d4-a716-446655440000
+       */
+      patientId?: string;
+      /** @example {} */
+      fsr?: {
+        [key: string]: unknown;
+      };
+      /** @example {} */
+      hr?: {
+        [key: string]: unknown;
+      };
+      thresholds?: components["schemas"]["Threshold"][];
+    };
+    ErrorResponse: {
+      /** @example false */
+      success?: boolean;
+      /** @example Resource not found */
+      error?: string;
+      /** @example Server error */
+      message?: string;
+      /** @example RESOURCE_NOT_FOUND */
+      code?: string;
+      details?: {
+        [key: string]: unknown;
+      };
+    };
+  };
+  responses: never;
+  parameters: never;
+  requestBodies: never;
+  headers: never;
+  pathItems: never;
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    getVitalsTrends: {
-        parameters: {
-            query?: {
-                /** @example 550e8400-e29b-41d4-a716-446655440000 */
-                patientId?: string;
-                /** @example 7d */
-                timeframe?: "7d" | "30d" | "90d" | "1y";
-                /** @example [
-                 *       "heartRate",
-                 *       "bloodPressure"
-                 *     ] */
-                vitals?: ("heartRate" | "bloodPressure" | "temperature" | "oxygenSaturation" | "weight")[];
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Vitals trends retrieved successfully */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /** @example {
-                     *       "series": [
-                     *         {
-                     *           "name": "glucose",
-                     *           "data": []
-                     *         }
-                     *       ],
-                     *       "timeframe": "7d"
-                     *     } */
-                    "application/json": components["schemas"]["VitalsTrendsResponse"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
+  getVitalsTrends: {
+    parameters: {
+      query?: {
+        /** @example 550e8400-e29b-41d4-a716-446655440000 */
+        patientId?: string;
+        /** @example 7d */
+        timeframe?: "7d" | "30d" | "90d" | "1y";
+        /** @example [
+         *       "heartRate",
+         *       "bloodPressure"
+         *     ] */
+        vitals?: (
+          | "heartRate"
+          | "bloodPressure"
+          | "temperature"
+          | "oxygenSaturation"
+          | "weight"
+        )[];
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    getVitals: {
-        parameters: {
-            query?: {
-                /** @example 550e8400-e29b-41d4-a716-446655440000 */
-                patientId?: string;
-                /** @example 20 */
-                limit?: number;
-                /** @example 0 */
-                offset?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
+    requestBody?: never;
+    responses: {
+      /** @description Vitals trends retrieved successfully */
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody?: never;
-        responses: {
-            /** @description Vitals retrieved successfully */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /** @example {
-                     *       "items": []
-                     *     } */
-                    "application/json": components["schemas"]["VitalsListResponse"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
+        content: {
+          /** @example {
+           *       "series": [
+           *         {
+           *           "name": "glucose",
+           *           "data": []
+           *         }
+           *       ],
+           *       "timeframe": "7d"
+           *     } */
+          "application/json": components["schemas"]["VitalsTrendsResponse"];
         };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
-    getEmptyVitals: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Empty vitals response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /** @example {
-                     *       "items": []
-                     *     } */
-                    "application/json": components["schemas"]["VitalsListResponse"];
-                };
-            };
-        };
+  };
+  getVitals: {
+    parameters: {
+      query?: {
+        /** @example 550e8400-e29b-41d4-a716-446655440000 */
+        patientId?: string;
+        /** @example 20 */
+        limit?: number;
+        /** @example 0 */
+        offset?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    vitalsError: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    requestBody?: never;
+    responses: {
+      /** @description Vitals retrieved successfully */
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody?: never;
-        responses: {
-            /** @description Server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /** @example {
-                     *       "message": "Server error"
-                     *     } */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
+        content: {
+          /** @example {
+           *       "items": []
+           *     } */
+          "application/json": components["schemas"]["VitalsListResponse"];
         };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
-    getPatientVitals: {
-        parameters: {
-            query?: {
-                /** @example 7 */
-                days?: "7" | "30" | "90" | "365";
-                /** @example 20 */
-                limit?: number;
-            };
-            header?: never;
-            path: {
-                /** @example 550e8400-e29b-41d4-a716-446655440000 */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Patient vitals retrieved successfully */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /** @example {
-                     *       "patientId": "550e8400-e29b-41d4-a716-446655440000",
-                     *       "days": "7",
-                     *       "vitals": []
-                     *     } */
-                    "application/json": components["schemas"]["VitalsListResponse"];
-                };
-            };
-            /** @description Patient not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
+  };
+  getEmptyVitals: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    getPatientAlerts: {
-        parameters: {
-            query?: {
-                /** @example high */
-                severity?: "low" | "medium" | "high" | "critical";
-                /** @example false */
-                acknowledged?: boolean;
-                /** @example false */
-                resolved?: boolean;
-            };
-            header?: never;
-            path: {
-                /** @example 550e8400-e29b-41d4-a716-446655440000 */
-                id: string;
-            };
-            cookie?: never;
+    requestBody?: never;
+    responses: {
+      /** @description Empty vitals response */
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody?: never;
-        responses: {
-            /** @description Patient alerts retrieved successfully */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /** @example {
-                     *       "patientId": "550e8400-e29b-41d4-a716-446655440000",
-                     *       "alerts": []
-                     *     } */
-                    "application/json": components["schemas"]["AlertsResponse"];
-                };
-            };
-            /** @description Patient not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
+        content: {
+          /** @example {
+           *       "items": []
+           *     } */
+          "application/json": components["schemas"]["VitalsListResponse"];
         };
+      };
     };
-    getPatientThresholds: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @example 550e8400-e29b-41d4-a716-446655440000 */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Patient thresholds retrieved successfully */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /** @example {
-                     *       "patientId": "550e8400-e29b-41d4-a716-446655440000",
-                     *       "fsr": {},
-                     *       "hr": {},
-                     *       "thresholds": []
-                     *     } */
-                    "application/json": components["schemas"]["ThresholdsResponse"];
-                };
-            };
-            /** @description Patient not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Internal server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
+  };
+  vitalsError: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
+    requestBody?: never;
+    responses: {
+      /** @description Server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /** @example {
+           *       "message": "Server error"
+           *     } */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+    };
+  };
+  getPatientVitals: {
+    parameters: {
+      query?: {
+        /** @example 7 */
+        days?: "7" | "30" | "90" | "365";
+        /** @example 20 */
+        limit?: number;
+      };
+      header?: never;
+      path: {
+        /** @example 550e8400-e29b-41d4-a716-446655440000 */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Patient vitals retrieved successfully */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /** @example {
+           *       "patientId": "550e8400-e29b-41d4-a716-446655440000",
+           *       "days": "7",
+           *       "vitals": []
+           *     } */
+          "application/json": components["schemas"]["VitalsListResponse"];
+        };
+      };
+      /** @description Patient not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+    };
+  };
+  getPatientAlerts: {
+    parameters: {
+      query?: {
+        /** @example high */
+        severity?: "low" | "medium" | "high" | "critical";
+        /** @example false */
+        acknowledged?: boolean;
+        /** @example false */
+        resolved?: boolean;
+      };
+      header?: never;
+      path: {
+        /** @example 550e8400-e29b-41d4-a716-446655440000 */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Patient alerts retrieved successfully */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /** @example {
+           *       "patientId": "550e8400-e29b-41d4-a716-446655440000",
+           *       "alerts": []
+           *     } */
+          "application/json": components["schemas"]["AlertsResponse"];
+        };
+      };
+      /** @description Patient not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+    };
+  };
+  getPatientThresholds: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @example 550e8400-e29b-41d4-a716-446655440000 */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Patient thresholds retrieved successfully */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /** @example {
+           *       "patientId": "550e8400-e29b-41d4-a716-446655440000",
+           *       "fsr": {},
+           *       "hr": {},
+           *       "thresholds": []
+           *     } */
+          "application/json": components["schemas"]["ThresholdsResponse"];
+        };
+      };
+      /** @description Patient not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+    };
+  };
 }

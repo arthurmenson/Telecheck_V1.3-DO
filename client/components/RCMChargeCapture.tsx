@@ -2,11 +2,23 @@ import React, { useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "./ui/card";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
 
 type Charge = { code: string; description: string; amount: number };
 
-export function RCMChargeCapture({ encounterId, onSave }: { encounterId: string; onSave?: (charges: Charge[]) => void }) {
+export function RCMChargeCapture({
+  encounterId,
+  onSave,
+}: {
+  encounterId: string;
+  onSave?: (charges: Charge[]) => void;
+}) {
   const [charges, setCharges] = useState<Charge[]>([]);
   const [code, setCode] = useState("");
   const [desc, setDesc] = useState("");
@@ -27,10 +39,31 @@ export function RCMChargeCapture({ encounterId, onSave }: { encounterId: string;
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-12 gap-2">
-          <div className="col-span-3"><Input placeholder="CPT/HCPCS" value={code} onChange={(e) => setCode(e.target.value)} /></div>
-          <div className="col-span-6"><Input placeholder="Description" value={desc} onChange={(e) => setDesc(e.target.value)} /></div>
-          <div className="col-span-2"><Input type="number" placeholder="Amount" value={amount} onChange={(e) => setAmount(parseFloat(e.target.value || "0"))} /></div>
-          <div className="col-span-1"><Button onClick={add}>Add</Button></div>
+          <div className="col-span-3">
+            <Input
+              placeholder="CPT/HCPCS"
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+            />
+          </div>
+          <div className="col-span-6">
+            <Input
+              placeholder="Description"
+              value={desc}
+              onChange={(e) => setDesc(e.target.value)}
+            />
+          </div>
+          <div className="col-span-2">
+            <Input
+              type="number"
+              placeholder="Amount"
+              value={amount}
+              onChange={(e) => setAmount(parseFloat(e.target.value || "0"))}
+            />
+          </div>
+          <div className="col-span-1">
+            <Button onClick={add}>Add</Button>
+          </div>
         </div>
         <div className="mt-4">
           {charges.map((c, i) => (
@@ -48,5 +81,3 @@ export function RCMChargeCapture({ encounterId, onSave }: { encounterId: string;
     </Card>
   );
 }
-
-

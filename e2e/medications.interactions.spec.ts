@@ -11,7 +11,9 @@ test("Medications: search → select → interactions", async ({ page }) => {
   expect(search.items[0]).toMatchObject({ id: "lipitor" });
 
   const interactions = await page.evaluate(async () => {
-    const r = await fetch("/api/medications/interactions?drugA=lipitor&drugB=warfarin");
+    const r = await fetch(
+      "/api/medications/interactions?drugA=lipitor&drugB=warfarin",
+    );
     return r.json();
   });
   expect(Array.isArray(interactions.interactions)).toBeTruthy();

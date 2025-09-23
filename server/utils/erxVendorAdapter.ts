@@ -10,7 +10,9 @@ export type ErxPrescription = {
  * Replace with integration to Surescripts/NewCrop.
  */
 export class ErxVendorAdapter {
-  static async submitPrescription(payload: any): Promise<{ externalId: string; status: string }> {
+  static async submitPrescription(
+    payload: any,
+  ): Promise<{ externalId: string; status: string }> {
     return { externalId: `ext_${Date.now()}`, status: "queued" };
   }
 
@@ -27,5 +29,3 @@ export class ErxVendorAdapter {
     return { status: "sent" };
   }
 }
-
-

@@ -52,9 +52,8 @@ export function useUpdateProfile() {
     (userData: Partial<User>) => UserService.updateProfile(userData),
     {
       onMutate: async (newUserData) => {
-        updateCache<User>(
-          queryKeys.user.profile(),
-          (old) => (old ? ({ ...old, ...newUserData } as User) : old),
+        updateCache<User>(queryKeys.user.profile(), (old) =>
+          old ? ({ ...old, ...newUserData } as User) : old,
         );
       },
       onSettled: () => {
@@ -66,13 +65,9 @@ export function useUpdateProfile() {
 }
 
 export function useUserPreferences() {
-  return useApiQuery(
-    queryKeys.user.preferences(),
-    UserService.getPreferences,
-    {
-      staleTime: 10 * 60 * 1000,
-    },
-  );
+  return useApiQuery(queryKeys.user.preferences(), UserService.getPreferences, {
+    staleTime: 10 * 60 * 1000,
+  });
 }
 
 export function useUpdatePreferences() {
@@ -83,9 +78,8 @@ export function useUpdatePreferences() {
       UserService.updatePreferences(preferences),
     {
       onMutate: async (newPreferences) => {
-        updateCache<UserPreferences>(
-          queryKeys.user.preferences(),
-          (old) => (old ? ({ ...old, ...newPreferences } as UserPreferences) : old),
+        updateCache<UserPreferences>(queryKeys.user.preferences(), (old) =>
+          old ? ({ ...old, ...newPreferences } as UserPreferences) : old,
         );
       },
       onSettled: () => {
@@ -357,8 +351,9 @@ export function useUpdateProgram() {
         updateCache(queryKeys.programs.list(), (old: Program[] = []) =>
           old.map((p) => (p.id === id ? { ...p, ...program } : p)),
         );
-        updateCache(queryKeys.programs.details(id), (old: Program | undefined) =>
-          old ? { ...old, ...program } : old,
+        updateCache(
+          queryKeys.programs.details(id),
+          (old: Program | undefined) => (old ? { ...old, ...program } : old),
         );
       },
       onSettled: (_data, _error, { id: programId }) => {
@@ -389,8 +384,9 @@ export function useDeleteProgram() {
 }
 
 export function useProgramParticipants(programId: string) {
-  return useApiQuery(queryKeys.programs.participants(programId), () =>
-    ProgramService.getProgramParticipants(programId),
+  return useApiQuery(
+    queryKeys.programs.participants(programId),
+    () => ProgramService.getProgramParticipants(programId),
     {
       enabled: Boolean(programId),
     },
@@ -398,8 +394,9 @@ export function useProgramParticipants(programId: string) {
 }
 
 export function useProgramAnalytics(programId: string) {
-  return useApiQuery(queryKeys.programs.analytics(programId), () =>
-    ProgramService.getProgramAnalytics(programId),
+  return useApiQuery(
+    queryKeys.programs.analytics(programId),
+    () => ProgramService.getProgramAnalytics(programId),
     {
       enabled: Boolean(programId),
     },
@@ -462,7 +459,10 @@ export function useUploadFile() {
 // ========================================
 
 export function useTelehealthSessions() {
-  return useApiQuery(["telehealth", "sessions"], TelehealthService.listSessions);
+  return useApiQuery(
+    ["telehealth", "sessions"],
+    TelehealthService.listSessions,
+  );
 }
 
 export function useCreateTelehealthRoom() {
@@ -488,11 +488,15 @@ export function useEndTelehealthSession() {
 // ========================================
 
 export function useCreatePrescription() {
-  return useApiMutation((payload: any) => ErxService.createPrescription(payload));
+  return useApiMutation((payload: any) =>
+    ErxService.createPrescription(payload),
+  );
 }
 
 export function usePrescription(id: string) {
-  return useApiQuery(["erx", "prescription", id], () => ErxService.getPrescription(id));
+  return useApiQuery(["erx", "prescription", id], () =>
+    ErxService.getPrescription(id),
+  );
 }
 
 export function useCancelPrescription() {
@@ -504,11 +508,15 @@ export function useRefillPrescription() {
 }
 
 export function useVerifyEpcs() {
-  return useApiMutation(({ otp }: { otp: string }) => ErxService.verifyEpcs(otp));
+  return useApiMutation(({ otp }: { otp: string }) =>
+    ErxService.verifyEpcs(otp),
+  );
 }
 
 export function useMedicationHistory(patientId: string) {
-  return useApiQuery(["erx", "history", patientId], () => ErxService.getMedicationHistory(patientId));
+  return useApiQuery(["erx", "history", patientId], () =>
+    ErxService.getMedicationHistory(patientId),
+  );
 }
 
 // ========================================
@@ -520,11 +528,18 @@ export function useGenerate837P() {
 }
 
 export function useClaimStatus(id: string) {
-  return useApiQuery(["billing", "claim", id], () => BillingService.getClaimStatus(id), { enabled: Boolean(id) });
+  return useApiQuery(
+    ["billing", "claim", id],
+    () => BillingService.getClaimStatus(id),
+    { enabled: Boolean(id) },
+  );
 }
 
 export function useEligibilityCheck() {
-  return useApiMutation((payload: { member: any; payer: any; serviceType?: string }) => EligibilityService.checkEligibility(payload));
+  return useApiMutation(
+    (payload: { member: any; payer: any; serviceType?: string }) =>
+      EligibilityService.checkEligibility(payload),
+  );
 }
 
 // ========================================
@@ -536,7 +551,11 @@ export function useCommerceCatalog() {
 }
 
 export function useCommerceSearch(q: string) {
-  return useApiQuery(["commerce", "search", q], () => PharmacyService.searchCatalog(q), { enabled: q.length > 2 });
+  return useApiQuery(
+    ["commerce", "search", q],
+    () => PharmacyService.searchCatalog(q),
+    { enabled: q.length > 2 },
+  );
 }
 
 export function useCreateOrder() {
@@ -544,7 +563,11 @@ export function useCreateOrder() {
 }
 
 export function useOrder(id: string) {
-  return useApiQuery(["commerce", "order", id], () => PharmacyService.getOrder(id), { enabled: Boolean(id) });
+  return useApiQuery(
+    ["commerce", "order", id],
+    () => PharmacyService.getOrder(id),
+    { enabled: Boolean(id) },
+  );
 }
 
 // ========================================
@@ -552,47 +575,63 @@ export function useOrder(id: string) {
 // ========================================
 
 export function useConditions(patientId?: string) {
-  return useApiQuery(
-    queryKeys.clinical.conditions(patientId),
-    () => ClinicalService.listConditions(patientId),
+  return useApiQuery(queryKeys.clinical.conditions(patientId), () =>
+    ClinicalService.listConditions(patientId),
   );
 }
 
 export function useCreateCondition() {
   const { invalidateQueries } = useOptimisticUpdate();
-  return useApiMutation((payload: any) => ClinicalService.createCondition(payload), {
-    onSuccess: (_data, variables) => {
-      const pid = variables?.patientId;
-      invalidateQueries(queryKeys.clinical.conditions(pid));
-    }
-  });
+  return useApiMutation(
+    (payload: any) => ClinicalService.createCondition(payload),
+    {
+      onSuccess: (_data, variables) => {
+        const pid = variables?.patientId;
+        invalidateQueries(queryKeys.clinical.conditions(pid));
+      },
+    },
+  );
 }
 
 export function useUpdateCondition() {
   const { invalidateQueries } = useOptimisticUpdate();
-  return useApiMutation(({ id, payload }: { id: string; payload: any }) => ClinicalService.updateCondition(id, payload), {
-    onSuccess: (_data, { payload }) => {
-      const pid = payload?.patientId;
-      invalidateQueries(queryKeys.clinical.conditions(pid));
-    }
-  });
+  return useApiMutation(
+    ({ id, payload }: { id: string; payload: any }) =>
+      ClinicalService.updateCondition(id, payload),
+    {
+      onSuccess: (_data, { payload }) => {
+        const pid = payload?.patientId;
+        invalidateQueries(queryKeys.clinical.conditions(pid));
+      },
+    },
+  );
 }
 
 export function useDeleteCondition() {
   const { invalidateQueries } = useOptimisticUpdate();
-  return useApiMutation(({ id, patientId }: { id: string; patientId?: string }) => ClinicalService.deleteCondition(id), {
-    onSuccess: (_data, { patientId }) => {
-      invalidateQueries(queryKeys.clinical.conditions(patientId));
-    }
-  });
+  return useApiMutation(
+    ({ id, patientId }: { id: string; patientId?: string }) =>
+      ClinicalService.deleteCondition(id),
+    {
+      onSuccess: (_data, { patientId }) => {
+        invalidateQueries(queryKeys.clinical.conditions(patientId));
+      },
+    },
+  );
 }
 
 export function useEncounters(patientId?: string) {
-  return useApiQuery(queryKeys.clinical.encounters(patientId), () => ClinicalService.listEncounters?.(patientId) as any);
+  return useApiQuery(
+    queryKeys.clinical.encounters(patientId),
+    () => ClinicalService.listEncounters?.(patientId) as any,
+  );
 }
 
 export function useOrders(patientId?: string) {
-  return useApiQuery(queryKeys.clinical.orders(patientId), () => ClinicalService.listOrders?.(patientId) as any);
+  return useApiQuery(
+    queryKeys.clinical.orders(patientId),
+    () => ClinicalService.listOrders?.(patientId) as any,
+  );
 }
 
 // ========================================
@@ -630,5 +669,3 @@ export function useLogout() {
 // Export everything
 export * from "./useQuery";
 export { queryKeys, useApiQuery, useApiMutation, useOptimisticUpdate };
-
-

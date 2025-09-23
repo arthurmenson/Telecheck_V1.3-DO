@@ -3,7 +3,10 @@
  */
 
 // Re-export from gateway utils for consistency
-export { trackAuditEvent, trackPHIAccess } from '../../../gateway/src/utils/audit';
+export {
+  trackAuditEvent,
+  trackPHIAccess,
+} from "../../../gateway/src/utils/audit";
 
 /**
  * Track EHR-specific events
@@ -18,12 +21,14 @@ export async function trackEHREvent(event: {
   ip?: string;
   userAgent?: string;
 }): Promise<void> {
-  console.log(JSON.stringify({
-    type: 'ehr_audit',
-    timestamp: new Date().toISOString(),
-    service: 'ehr',
-    ...event
-  }));
+  console.log(
+    JSON.stringify({
+      type: "ehr_audit",
+      timestamp: new Date().toISOString(),
+      service: "ehr",
+      ...event,
+    }),
+  );
 }
 
 /**
@@ -31,7 +36,7 @@ export async function trackEHREvent(event: {
  */
 export async function trackAppointmentEvent(event: {
   userId: string;
-  action: 'book' | 'cancel' | 'reschedule' | 'complete';
+  action: "book" | "cancel" | "reschedule" | "complete";
   appointmentId: string;
   patientId: string;
   providerId: string;
@@ -46,9 +51,9 @@ export async function trackAppointmentEvent(event: {
     details: {
       appointmentId: event.appointmentId,
       providerId: event.providerId,
-      ...event.details
+      ...event.details,
     },
-    requestId: event.requestId
+    requestId: event.requestId,
   });
 }
 
@@ -57,7 +62,7 @@ export async function trackAppointmentEvent(event: {
  */
 export async function trackIntakeEvent(event: {
   userId: string;
-  action: 'submit' | 'update' | 'complete' | 'delete';
+  action: "submit" | "update" | "complete" | "delete";
   intakeId: string;
   patientId: string;
   details?: any;
@@ -70,9 +75,9 @@ export async function trackIntakeEvent(event: {
     patientId: event.patientId,
     details: {
       intakeId: event.intakeId,
-      ...event.details
+      ...event.details,
     },
-    requestId: event.requestId
+    requestId: event.requestId,
   });
 }
 
@@ -81,7 +86,7 @@ export async function trackIntakeEvent(event: {
  */
 export async function trackProviderEvent(event: {
   userId: string;
-  action: 'view' | 'create' | 'update' | 'deactivate';
+  action: "view" | "create" | "update" | "deactivate";
   providerId: string;
   details?: any;
   requestId?: string;
@@ -92,8 +97,8 @@ export async function trackProviderEvent(event: {
     resource: `/providers/${event.providerId}`,
     details: {
       providerId: event.providerId,
-      ...event.details
+      ...event.details,
     },
-    requestId: event.requestId
+    requestId: event.requestId,
   });
 }

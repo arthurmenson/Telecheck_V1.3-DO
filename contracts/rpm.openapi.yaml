@@ -74,7 +74,7 @@ components:
         items:
           type: array
           items:
-            $ref: '#/components/schemas/VitalSigns'
+            $ref: "#/components/schemas/VitalSigns"
         patientId:
           type: string
           format: uuid
@@ -113,7 +113,7 @@ components:
         series:
           type: array
           items:
-            $ref: '#/components/schemas/VitalsTrendsData'
+            $ref: "#/components/schemas/VitalsTrendsData"
         timeframe:
           type: string
           example: "7d"
@@ -179,7 +179,7 @@ components:
         alerts:
           type: array
           items:
-            $ref: '#/components/schemas/Alert'
+            $ref: "#/components/schemas/Alert"
         patientId:
           type: string
           format: uuid
@@ -190,7 +190,14 @@ components:
       properties:
         vital:
           type: string
-          enum: ["heartRate", "bloodPressure", "temperature", "oxygenSaturation", "weight"]
+          enum:
+            [
+              "heartRate",
+              "bloodPressure",
+              "temperature",
+              "oxygenSaturation",
+              "weight",
+            ]
           example: "heartRate"
         min:
           type: number
@@ -222,7 +229,7 @@ components:
         thresholds:
           type: array
           items:
-            $ref: '#/components/schemas/Threshold'
+            $ref: "#/components/schemas/Threshold"
 
     ErrorResponse:
       type: object
@@ -280,28 +287,35 @@ paths:
             type: array
             items:
               type: string
-              enum: ["heartRate", "bloodPressure", "temperature", "oxygenSaturation", "weight"]
+              enum:
+                [
+                  "heartRate",
+                  "bloodPressure",
+                  "temperature",
+                  "oxygenSaturation",
+                  "weight",
+                ]
           style: form
           explode: false
           example: ["heartRate", "bloodPressure"]
       responses:
-        '200':
+        "200":
           description: Vitals trends retrieved successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/VitalsTrendsResponse'
+                $ref: "#/components/schemas/VitalsTrendsResponse"
               example:
                 series:
                   - name: "glucose"
                     data: []
                 timeframe: "7d"
-        '500':
+        "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   /vitals:
     get:
@@ -333,20 +347,20 @@ paths:
             default: 0
           example: 0
       responses:
-        '200':
+        "200":
           description: Vitals retrieved successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/VitalsListResponse'
+                $ref: "#/components/schemas/VitalsListResponse"
               example:
                 items: []
-        '500':
+        "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   /vitals/empty:
     get:
@@ -356,12 +370,12 @@ paths:
       tags:
         - Vitals
       responses:
-        '200':
+        "200":
           description: Empty vitals response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/VitalsListResponse'
+                $ref: "#/components/schemas/VitalsListResponse"
               example:
                 items: []
 
@@ -373,12 +387,12 @@ paths:
       tags:
         - Vitals
       responses:
-        '500':
+        "500":
           description: Server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
               example:
                 message: "Server error"
 
@@ -413,28 +427,28 @@ paths:
             default: 20
           example: 20
       responses:
-        '200':
+        "200":
           description: Patient vitals retrieved successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/VitalsListResponse'
+                $ref: "#/components/schemas/VitalsListResponse"
               example:
                 patientId: "550e8400-e29b-41d4-a716-446655440000"
                 days: "7"
                 vitals: []
-        '404':
+        "404":
           description: Patient not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   /rpm/patients/{id}/alerts:
     get:
@@ -468,27 +482,27 @@ paths:
             type: boolean
           example: false
       responses:
-        '200':
+        "200":
           description: Patient alerts retrieved successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AlertsResponse'
+                $ref: "#/components/schemas/AlertsResponse"
               example:
                 patientId: "550e8400-e29b-41d4-a716-446655440000"
                 alerts: []
-        '404':
+        "404":
           description: Patient not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   /rpm/patients/{id}/thresholds:
     get:
@@ -506,29 +520,29 @@ paths:
             format: uuid
           example: "550e8400-e29b-41d4-a716-446655440000"
       responses:
-        '200':
+        "200":
           description: Patient thresholds retrieved successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ThresholdsResponse'
+                $ref: "#/components/schemas/ThresholdsResponse"
               example:
                 patientId: "550e8400-e29b-41d4-a716-446655440000"
                 fsr: {}
                 hr: {}
                 thresholds: []
-        '404':
+        "404":
           description: Patient not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
 tags:
   - name: Vitals

@@ -30,7 +30,10 @@ interface RenderHookResult<T> {
   cleanup: () => void;
 }
 
-function renderHook<T>(hook: () => T, options?: { wrapper?: WrapperComponent }): RenderHookResult<T> {
+function renderHook<T>(
+  hook: () => T,
+  options?: { wrapper?: WrapperComponent },
+): RenderHookResult<T> {
   const container = document.createElement("div");
   document.body.appendChild(container);
   const root = createRoot(container);
@@ -42,7 +45,11 @@ function renderHook<T>(hook: () => T, options?: { wrapper?: WrapperComponent }):
   }
 
   const element = options?.wrapper
-    ? React.createElement(options.wrapper, null, React.createElement(TestComponent))
+    ? React.createElement(
+        options.wrapper,
+        null,
+        React.createElement(TestComponent),
+      )
     : React.createElement(TestComponent);
 
   act(() => {
@@ -91,15 +98,20 @@ describe("useOptimisticUpdate", () => {
       <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
     );
 
-    const { result, cleanup } = renderHook(() => useOptimisticUpdate(), { wrapper });
+    const { result, cleanup } = renderHook(() => useOptimisticUpdate(), {
+      wrapper,
+    });
 
     const queryKey = ["test", "optimistic"] as const;
     queryClient.setQueryData(queryKey, { count: 1 });
 
     act(() => {
-      result.current.updateCache(queryKey, (old: { count: number } | undefined) => ({
-        count: (old?.count ?? 0) + 1,
-      }));
+      result.current.updateCache(
+        queryKey,
+        (old: { count: number } | undefined) => ({
+          count: (old?.count ?? 0) + 1,
+        }),
+      );
     });
 
     expect(queryClient.getQueryData(queryKey)).toEqual({ count: 2 });
@@ -154,7 +166,9 @@ describe("usePagination", () => {
     expect(queryFn).toHaveBeenCalledWith(1, itemsPerPage);
     expect(result.current.page).toBe(1);
     expect(result.current.limit).toBe(itemsPerPage);
-    expect(result.current.totalPages).toBe(Math.ceil(totalItems / itemsPerPage));
+    expect(result.current.totalPages).toBe(
+      Math.ceil(totalItems / itemsPerPage),
+    );
     expect(result.current.hasNextPage).toBe(true);
 
     act(() => {

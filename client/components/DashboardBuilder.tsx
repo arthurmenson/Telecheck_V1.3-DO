@@ -10,12 +10,17 @@ export function DashboardBuilder() {
   ]);
 
   const addWidget = (type: string) => {
-    setWidgets([...widgets, { id: `w${Date.now()}`, type, title: type.toUpperCase() }]);
+    setWidgets([
+      ...widgets,
+      { id: `w${Date.now()}`, type, title: type.toUpperCase() },
+    ]);
   };
 
   return (
     <Card>
-      <CardHeader><CardTitle>Custom Dashboard Builder</CardTitle></CardHeader>
+      <CardHeader>
+        <CardTitle>Custom Dashboard Builder</CardTitle>
+      </CardHeader>
       <CardContent>
         <div className="flex gap-2 mb-3">
           <Button onClick={() => addWidget("kpi")}>Add KPI</Button>
@@ -34,5 +39,3 @@ export function DashboardBuilder() {
     </Card>
   );
 }
-
-

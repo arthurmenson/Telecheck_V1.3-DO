@@ -10,7 +10,7 @@ paths:
     get:
       summary: List catalog items
       responses:
-        '200':
+        "200":
           description: OK
   /search:
     get:
@@ -20,7 +20,7 @@ paths:
           name: q
           schema: { type: string }
       responses:
-        '200':
+        "200":
           description: OK
   /orders:
     post:
@@ -32,7 +32,7 @@ paths:
             schema:
               type: object
       responses:
-        '201':
+        "201":
           description: Created
   /orders/{id}:
     get:
@@ -43,7 +43,5 @@ paths:
           required: true
           schema: { type: string }
       responses:
-        '200':
+        "200":
           description: OK
-
-

@@ -81,6 +81,8 @@
   },
   "devDependencies": {
     "@cyclonedx/cyclonedx-npm": "^1.17.0",
+    "@fastify/cors": "^11.1.0",
+    "@fastify/helmet": "^13.0.1",
     "@hookform/resolvers": "^3.9.0",
     "@pact-foundation/pact": "^12.4.0",
     "@playwright/test": "^1.49.1",
@@ -133,6 +135,7 @@
     "cross-env": "^7.0.3",
     "date-fns": "^3.6.0",
     "embla-carousel-react": "^8.3.0",
+    "fastify": "^5.6.1",
     "framer-motion": "^12.6.2",
     "globals": "^15.9.0",
     "husky": "^9.1.6",

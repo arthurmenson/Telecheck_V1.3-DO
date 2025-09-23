@@ -42,13 +42,17 @@ describe("ProgramService", () => {
 
   it("fetches program list", async () => {
     await ProgramService.getPrograms();
-    expect(mockApiClient.get).toHaveBeenCalledWith(API_ENDPOINTS.EHR.PROGRAMS.LIST);
+    expect(mockApiClient.get).toHaveBeenCalledWith(
+      API_ENDPOINTS.EHR.PROGRAMS.LIST,
+    );
   });
 
   it("fetches program detail by id", async () => {
     const programId = "abc123";
     await ProgramService.getProgram(programId);
-    expect(mockApiClient.get).toHaveBeenCalledWith(API_ENDPOINTS.EHR.PROGRAMS.UPDATE(programId));
+    expect(mockApiClient.get).toHaveBeenCalledWith(
+      API_ENDPOINTS.EHR.PROGRAMS.UPDATE(programId),
+    );
   });
 
   it("creates a program", async () => {

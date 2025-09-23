@@ -1,6 +1,10 @@
 import { redisClient } from "../config/database";
 
-export async function safeSetEx(key: string, ttlSeconds: number, value: string): Promise<void> {
+export async function safeSetEx(
+  key: string,
+  ttlSeconds: number,
+  value: string,
+): Promise<void> {
   if (!redisClient) {
     console.warn(`[Redis] setEx skipped (no Redis). key=${key}`);
     return;
@@ -36,5 +40,3 @@ export async function safeDel(key: string): Promise<void> {
     console.warn(`[Redis] del failed: ${e?.message}`);
   }
 }
-
-

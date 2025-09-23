@@ -11,7 +11,9 @@ export const pharmacyAdapter = {
       return data;
     }
     try {
-      const res = await apiClient.get(`/medications/search?q=${encodeURIComponent(q)}`);
+      const res = await apiClient.get(
+        `/medications/search?q=${encodeURIComponent(q)}`,
+      );
       track("tc:pharmacy:success", { op: "searchProducts" });
       return res as any;
     } catch (e: any) {

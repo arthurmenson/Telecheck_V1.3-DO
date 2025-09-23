@@ -189,7 +189,10 @@ export const validateGenerate837P = [
   handleValidationErrors,
 ];
 
-export const validateClaimId = [param("id").isString().notEmpty(), handleValidationErrors];
+export const validateClaimId = [
+  param("id").isString().notEmpty(),
+  handleValidationErrors,
+];
 
 export const validateIngest835 = [
   body("era").optional().isString(),

@@ -72,7 +72,10 @@ export async function getPatientThresholds(req: Request, res: Response) {
 }
 
 // Set or update a patient-specific threshold
-export async function setPatientThreshold(req: AuthenticatedRequest, res: Response) {
+export async function setPatientThreshold(
+  req: AuthenticatedRequest,
+  res: Response,
+) {
   try {
     const { patientId } = req.params;
     const { thresholdType, thresholdValue, unit, notes } = req.body;
@@ -142,7 +145,10 @@ export async function setPatientThreshold(req: AuthenticatedRequest, res: Respon
 }
 
 // Remove a patient-specific threshold (revert to global)
-export async function removePatientThreshold(req: AuthenticatedRequest, res: Response) {
+export async function removePatientThreshold(
+  req: AuthenticatedRequest,
+  res: Response,
+) {
   try {
     const { patientId, thresholdType } = req.params;
     const userId = req.user?.id || "admin";
@@ -203,7 +209,10 @@ export async function getPatientsWithCustomThresholds(
 }
 
 // Bulk update multiple thresholds for a patient
-export async function bulkUpdatePatientThresholds(req: AuthenticatedRequest, res: Response) {
+export async function bulkUpdatePatientThresholds(
+  req: AuthenticatedRequest,
+  res: Response,
+) {
   try {
     const { patientId } = req.params;
     const { thresholds } = req.body;
