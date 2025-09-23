@@ -266,8 +266,8 @@ export class ApiClient {
 
     let finalConfig: ApiRequestConfig = {
       ...requestConfig,
-      skipAuth,
-      skipErrorHandling,
+      ...(skipAuth ? { skipAuth } : {}),
+      ...(skipErrorHandling ? { skipErrorHandling } : {}),
       url,
     };
 

@@ -54,12 +54,7 @@ export function useUpdateProfile() {
       onMutate: async (newUserData) => {
         updateCache<User>(
           queryKeys.user.profile(),
-          (old) => {
-            const base: Partial<User> = old ? (old as User) : {};
-            const safeBase = typeof base === 'object' && base !== null ? (base as object) : {};
-            const safeNew = typeof newUserData === 'object' && newUserData !== null ? (newUserData as object) : {};
-            return { ...safeBase, ...safeNew } as User;
-          },
+          (old) => (old ? ({ ...old, ...newUserData } as User) : old),
         );
       },
       onSettled: () => {
@@ -90,12 +85,7 @@ export function useUpdatePreferences() {
       onMutate: async (newPreferences) => {
         updateCache<UserPreferences>(
           queryKeys.user.preferences(),
-          (old) => {
-            const base: Partial<UserPreferences> = old ? (old as UserPreferences) : {};
-            const safeBase = typeof base === 'object' && base !== null ? (base as object) : {};
-            const safeNew = typeof newPreferences === 'object' && newPreferences !== null ? (newPreferences as object) : {};
-            return { ...safeBase, ...safeNew } as UserPreferences;
-          },
+          (old) => (old ? ({ ...old, ...newPreferences } as UserPreferences) : old),
         );
       },
       onSettled: () => {

@@ -114,14 +114,15 @@ export function useApiQuery<
     "queryKey" | "queryFn"
   >,
 ) {
-  return useQuery<ApiResponse<TData>, TError & object, TData, readonly unknown[]>({
+  return useQuery<ApiResponse<TData>, TError, TData, readonly unknown[]>({
     queryKey,
     queryFn,
-    select: (data) => data.data,
+    select: (data) => (data.data as TData),
     staleTime: 5 * 60 * 1000, // 5 minutes
     retry: (failureCount, error) => {
-      const apiError = error as ApiError | undefined;
-      if (apiError?.status && apiError.status < 500) {
+      const maybeApiError = error as Partial<ApiError> | undefined;
+      const status = typeof maybeApiError?.status === "number" ? maybeApiError.status : undefined;
+      if (typeof status === "number" && status < 500) {
         return false;
       }
       return failureCount < 3;
@@ -278,7 +279,11 @@ export function useInfiniteApiQuery<
   >({
     queryKey,
     initialPageParam: 1,
-    queryFn: ({ pageParam }) => queryFn({ pageParam: (pageParam as number) || 1 }),
+    queryFn: (context) => {
+      const rawPage = context.pageParam;
+      const nextPage = typeof rawPage === 'number' && rawPage > 0 ? rawPage : 1;
+      return queryFn({ pageParam: nextPage });
+    },
     getNextPageParam: (lastPage) => lastPage?.data?.nextPage ?? undefined,
     ...options,
   });
