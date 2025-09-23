@@ -46,7 +46,7 @@
     "format.fix": "prettier --write .",
     "typecheck": "tsc",
     "deploy:check": "npm run typecheck && npm run build:prod && npm run test",
-    "smoke:health": "node --loader tsx ./scripts/smoke-health.ts",
+    "smoke:health": "tsx ./scripts/smoke-health.ts",
     "test:contract": "vitest run contracts/pact/**/*.pact.test.ts",
     "ci:install": "npm ci",
     "ci:build": "npm run build --workspaces --if-present",
