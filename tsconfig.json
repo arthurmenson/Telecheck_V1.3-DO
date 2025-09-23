@@ -40,6 +40,7 @@
   },
   "include": [
     "client/**/*",
+    "client/types/**/*",
     "server/**/*",
     "server/types/**/*",
     "shared/**/*",
