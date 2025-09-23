@@ -55,10 +55,11 @@ jobs:
       - name: Install service deps
         run: |
           cd services/${{ matrix.service }}
-          npm install
-      - name: Unit tests
+          npm ci || npm install
+      - name: Unit tests (per service)
         run: |
-          USE_DB=false npx vitest run services/${{ matrix.service }}/tests/unit --reporter=dot
+          cd services/${{ matrix.service }}
+          USE_DB=false npx vitest run tests/unit --reporter=dot
 
   pact:
     runs-on: ubuntu-latest
