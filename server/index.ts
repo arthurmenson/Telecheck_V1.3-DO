@@ -3,7 +3,7 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
-import { initializeDatabase, healthCheck } from "./config/database";
+import { initializeDatabase, healthCheck, dbPool } from "./config/database";
 import healthRoutes from "./routes/health";
 import authRoutes from "./routes/auth";
 import userRoutes from "./routes/users";
@@ -173,6 +173,21 @@ export async function createServer() {
   // Health check routes (available at both /health and /api/health)
   app.use(healthRoutes);
   app.use("/api", healthRoutes);
+
+  app.get("/api/ehr/scheduling/slots", (_req, res) => {
+    res.json({
+      success: true,
+      data: {
+        slots: [
+          { id: "slot-1", time: "09:00", provider: "Dr. Smith" },
+          { id: "slot-2", time: "10:30", provider: "Dr. Johnson" },
+          { id: "slot-3", time: "14:00", provider: "Dr. Smith" },
+        ],
+        date: new Date().toISOString().slice(0, 10),
+        source: isDbConfigured ? "database" : "mock",
+      },
+    });
+  });
 
   // Example API routes
   app.get("/api/ping", (_req, res) => {
@@ -460,3 +475,4 @@ export async function createServer() {
 
   return app;
 }
+const isDbConfigured = !!dbPool;

@@ -12,6 +12,24 @@ import {
 } from "../middleware/validation";
 import { authenticateToken, AuthenticatedRequest } from "../middleware/auth";
 
+const isDbConfigured = !!dbPool;
+const mockUser = {
+  id: "demo-doctor",
+  email: "doctor@example.com",
+  firstName: "Demo",
+  lastName: "Doctor",
+  role: "doctor",
+};
+
+const createMockToken = (user: typeof mockUser) =>
+  Buffer.from(
+    JSON.stringify({
+      ...user,
+      userId: user.id,
+      exp: Date.now() + 1000 * 60 * 60 * 24,
+    }),
+  ).toString("base64");
+
 const router = Router();
 
 // Register new user
@@ -20,6 +38,12 @@ router.post(
   validateRegister,
   async (req: Request, res: Response) => {
     try {
+      if (!isDbConfigured) {
+        return res.status(503).json({
+          message: "Registration unavailable without database",
+          user: mockUser,
+        });
+      }
       const { email, password, firstName, lastName, role, phone } = req.body;
 
       // Check if user already exists
@@ -96,6 +120,27 @@ router.post(
 router.post("/login", validateLogin, async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
+
+    if (!isDbConfigured) {
+      if (email === mockUser.email && password === "password") {
+        const token = createMockToken(mockUser);
+        const refreshToken = createMockToken({
+          ...mockUser,
+          id: `${mockUser.id}-refresh`,
+        });
+        return res.json({
+          message: "Authenticated (mock)",
+          user: mockUser,
+          token,
+          refreshToken,
+        });
+      }
+
+      return res.status(401).json({
+        error: "Invalid credentials",
+        code: "INVALID_CREDENTIALS",
+      });
+    }
 
     // Find user by email
     const result = await dbPool.query(
@@ -245,6 +290,9 @@ router.post(
   authenticateToken,
   async (req: AuthenticatedRequest, res: Response) => {
     try {
+      if (!isDbConfigured) {
+        return res.json({ message: "Logged out (mock)", success: true });
+      }
       const userId = req.user!.id;
 
       // Remove refresh token from Redis (safe helper)
@@ -387,6 +435,9 @@ router.get(
   authenticateToken,
   async (req: AuthenticatedRequest, res: Response) => {
     try {
+      if (!isDbConfigured) {
+        return res.json({ user: mockUser });
+      }
       const userId = req.user!.id;
 
       const result = await dbPool.query(
@@ -436,6 +487,12 @@ router.put(
   validateUpdateProfile,
   async (req: AuthenticatedRequest, res: Response) => {
     try {
+      if (!isDbConfigured) {
+        return res.json({
+          message: "Profile updated (mock)",
+          user: { ...mockUser, ...req.body },
+        });
+      }
       const userId = req.user!.id;
       const { firstName, lastName, phone } = req.body;
 
