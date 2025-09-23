@@ -55,7 +55,9 @@ async function registerPlugins() {
   if (multipart) {
     await server.register(multipart);
   } else {
-    server.log.warn("@fastify/multipart not installed; skipping file upload plugin");
+    server.log.warn(
+      "@fastify/multipart not installed; skipping file upload plugin",
+    );
   }
 }
 
