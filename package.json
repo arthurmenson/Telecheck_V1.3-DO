@@ -55,6 +55,7 @@
   },
   "dependencies": {
     "@builder.io/react": "^4.0.0",
+    "@radix-ui/react-tooltip": "^1.2.8",
     "@types/bcrypt": "^6.0.0",
     "@types/bcryptjs": "^2.4.6",
     "@types/jsonwebtoken": "^9.0.10",
@@ -134,6 +135,7 @@
     "@types/pg": "^8.10.9",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
+    "@types/react-tooltip": "^3.11.0",
     "@types/supertest": "^6.0.2",
     "@vitejs/plugin-react-swc": "^3.5.0",
     "autoprefixer": "^10.4.21",
