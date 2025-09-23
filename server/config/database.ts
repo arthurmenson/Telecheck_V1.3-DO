@@ -86,13 +86,11 @@ export { redisClient };
 export const initializeDatabase = async () => {
   try {
     if (usePostgreSQL && dbPool) {
-      // Test PostgreSQL connection
       await dbPool.query("SELECT NOW()");
-      console.log("✅ PostgreSQL connected successfully");
+      console.log("PostgreSQL connected successfully");
 
-      // Log connection info (without sensitive data)
       const connectionInfo = dbPool.options;
-      console.log("📊 Database connection info:", {
+      console.log("Database connection info:", {
         host: connectionInfo.host,
         port: connectionInfo.port,
         database: connectionInfo.database,
@@ -101,26 +99,31 @@ export const initializeDatabase = async () => {
         maxConnections: connectionInfo.max,
       });
     } else {
-      throw new Error(
-        "PostgreSQL is required. Please set database environment variables.",
+      if (process.env.NODE_ENV === "production") {
+        throw new Error(
+          "PostgreSQL is required. Please set database environment variables.",
+        );
+      }
+
+      console.warn(
+        "PostgreSQL not configured. Continuing with database features disabled.",
       );
     }
 
-    // Connect to Redis if available
     if (redisClient) {
       try {
         await redisClient.connect();
-        console.log("✅ Redis connected successfully");
+        console.log("Redis connected successfully");
       } catch (error) {
         console.log(
-          "⚠️  Redis connection failed, continuing without cache:",
-          error.message,
+          "Redis connection failed, continuing without cache:",
+          (error as Error).message,
         );
         redisClient = null;
       }
     }
   } catch (error) {
-    console.error("❌ Database connection failed:", error);
+    console.error("Database connection failed:", error);
     throw error;
   }
 };
@@ -145,27 +148,34 @@ export const healthCheck = async () => {
   try {
     if (usePostgreSQL && dbPool) {
       await dbPool.query("SELECT 1");
-    } else {
-      throw new Error("PostgreSQL not configured");
+
+      const redisStatus = redisClient
+        ? await redisClient
+            .ping()
+            .then(() => "connected")
+            .catch(() => "disconnected")
+        : "not_configured";
+
+      return {
+        status: "healthy",
+        database: "postgresql",
+        redis: redisStatus,
+        timestamp: new Date().toISOString(),
+      };
     }
 
-    const redisStatus = redisClient
-      ? await redisClient
-          .ping()
-          .then(() => "connected")
-          .catch(() => "disconnected")
-      : "not_configured";
+    const redisStatus = redisClient ? "not_connected" : "not_configured";
 
     return {
-      status: "healthy",
-      database: "postgresql",
+      status: "degraded",
+      database: "not_configured",
       redis: redisStatus,
       timestamp: new Date().toISOString(),
     };
   } catch (error) {
     return {
       status: "unhealthy",
-      error: error.message,
+      error: (error as Error).message,
       timestamp: new Date().toISOString(),
     };
   }
