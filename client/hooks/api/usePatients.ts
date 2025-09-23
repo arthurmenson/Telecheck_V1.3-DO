@@ -55,7 +55,6 @@ export function useSearchPatients(
   return useQuery({
     queryKey: patientKeys.list(filters, page, limit),
     queryFn: () => PatientService.searchPatients(filters, page, limit),
-    keepPreviousData: true,
     staleTime: 2 * 60 * 1000, // 2 minutes
     retry: false, // Don't retry, let service handle fallbacks
     placeholderData: {
@@ -78,7 +77,6 @@ export function usePatients(
   return useQuery({
     queryKey: patientKeys.list({ status }, page, limit),
     queryFn: () => PatientService.getPatients(page, limit, status),
-    keepPreviousData: true,
     staleTime: 2 * 60 * 1000, // 2 minutes
     retry: false, // Don't retry, let service handle fallbacks
     placeholderData: {
@@ -354,3 +352,4 @@ export function useBulkPatientOperations() {
 
 // React import for useCallback, useEffect, useState
 import React from "react";
+

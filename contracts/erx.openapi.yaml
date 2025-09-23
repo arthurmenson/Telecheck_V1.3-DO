@@ -1,0 +1,137 @@
+openapi: 3.0.3
+info:
+  title: Telecheck eRx API
+  version: 0.1.0
+  description: Electronic prescribing endpoints (sandbox)
+servers:
+  - url: /api/erx
+paths:
+  /prescriptions:
+    post:
+      summary: Create prescription
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePrescriptionRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PrescriptionResponse'
+  /prescriptions/{id}:
+    get:
+      summary: Get prescription by id
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PrescriptionResponse'
+  /prescriptions/{id}/cancel:
+    post:
+      summary: Cancel prescription
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+  /prescriptions/{id}/refill:
+    post:
+      summary: Request refill
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+  /epcs/verify:
+    post:
+      summary: Verify EPCS OTP
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                otp:
+                  type: string
+      responses:
+        '200':
+          description: OK
+  /history/{patientId}:
+    get:
+      summary: Patient medication history
+      parameters:
+        - in: path
+          name: patientId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PrescriptionHistoryResponse'
+components:
+  schemas:
+    CreatePrescriptionRequest:
+      type: object
+      required: [patientId, medication]
+      properties:
+        patientId:
+          type: string
+        medication:
+          type: object
+        dosageInstruction:
+          type: object
+    PrescriptionResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            id:
+              type: string
+            status:
+              type: string
+            externalId:
+              type: string
+    PrescriptionHistoryResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              status:
+                type: string
+
+

@@ -16,7 +16,7 @@ interface PostgresConfig {
   database?: string;
   user?: string;
   password?: string;
-  ssl?: boolean;
+  ssl?: boolean | { rejectUnauthorized: false };
 }
 
 class PostgreSQLDatabase {

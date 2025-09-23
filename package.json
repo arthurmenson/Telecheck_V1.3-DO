@@ -42,6 +42,7 @@
     "format.fix": "prettier --write .",
     "typecheck": "tsc",
     "deploy:check": "npm run typecheck && npm run build:prod && npm run test",
+    "smoke:health": "node --loader tsx ./scripts/smoke-health.ts",
     "test:contract": "vitest run contracts/pact/**/*.pact.test.ts"
   },
   "dependencies": {
@@ -79,7 +80,10 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
+    "@cyclonedx/cyclonedx-npm": "^1.17.0",
     "@hookform/resolvers": "^3.9.0",
+    "@pact-foundation/pact": "^12.4.0",
+    "@playwright/test": "^1.49.1",
     "@radix-ui/react-accordion": "^1.2.0",
     "@radix-ui/react-alert-dialog": "^1.1.1",
     "@radix-ui/react-aspect-ratio": "^1.1.0",
@@ -124,7 +128,6 @@
     "@types/supertest": "^6.0.2",
     "@types/three": "^0.176.0",
     "@vitejs/plugin-react-swc": "^3.5.0",
-    "@playwright/test": "^1.49.1",
     "autoprefixer": "^10.4.21",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -135,10 +138,15 @@
     "embla-carousel-react": "^8.3.0",
     "framer-motion": "^12.6.2",
     "globals": "^15.9.0",
+    "husky": "^9.1.6",
     "input-otp": "^1.2.4",
+    "jsdom": "^27.0.0",
     "lucide-react": "^0.462.0",
     "msw": "^2.6.8",
     "next-themes": "^0.3.0",
+    "openapi-diff": "^0.24.1",
+    "openapi-msw": "^0.7.0",
+    "openapi-typescript": "^7.4.0",
     "postcss": "^8.5.6",
     "prettier": "^3.5.3",
     "react": "^18.3.1",
@@ -158,13 +166,7 @@
     "typescript": "^5.5.3",
     "vaul": "^0.9.3",
     "vite": "^6.3.5",
-    "vitest": "^3.1.4",
-    "@pact-foundation/pact": "^12.4.0",
-    "openapi-typescript": "^7.4.0",
-    "openapi-msw": "^0.7.0",
-    "openapi-diff": "^0.24.1",
-    "@cyclonedx/cyclonedx-npm": "^1.17.0",
-    "husky": "^9.1.6"
+    "vitest": "^3.1.4"
   },
   "msw": {
     "workerDirectory": [

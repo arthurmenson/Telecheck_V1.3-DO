@@ -1,9 +1,9 @@
-/**
+﻿/**
  * Example: How to use the new API architecture in your Programs component
  * This demonstrates the modern approach vs the current static data approach
  */
 
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Card,
   CardContent,
@@ -20,10 +20,26 @@ import {
   TabsList,
   TabsTrigger,
 } from "../components/ui/tabs";
+import {
+  Activity,
+  BarChart3,
+  Edit,
+  HeartPulse,
+  Plus,
+  Search,
+  Star,
+  Target,
+  Trash2,
+  TrendingUp,
+  UserPlus,
+  Users,
+} from "lucide-react";
 
-// 🚀 NEW: Import the modern API hooks
+// dYs? NEW: Import the modern API hooks
 import {
   usePrograms,
+  useProgramDetails,
+  useProgramAnalytics,
   useCreateProgram,
   useUpdateProgram,
   useDeleteProgram,
@@ -31,18 +47,19 @@ import {
   useEnrollParticipant,
 } from "../hooks/api";
 
-// 🚀 NEW: Import type-safe services
-import { ProgramService } from "../services/api.service";
+// dYs? NEW: Import type-safe services (still useful for scriptable flows)
+import { ProgramService, type Program } from "../services/api.service";
 
-// 🚀 NEW: Import API endpoints (no more hardcoded URLs)
+// dYs? NEW: Import API endpoints (no more hardcoded URLs)
 import { API_ENDPOINTS } from "../lib/api-endpoints";
 
 export function ModernProgramsComponent() {
   const [activeTab, setActiveTab] = useState("overview");
   const [searchTerm, setSearchTerm] = useState("");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [selectedProgramId, setSelectedProgramId] = useState<string | null>(null);
 
-  // 🚀 NEW: Replace static data with real API calls
+  // dYs? NEW: Replace static data with real API calls
   const {
     data: programs = [],
     isLoading: programsLoading,
@@ -50,23 +67,112 @@ export function ModernProgramsComponent() {
     refetch: refetchPrograms,
   } = usePrograms();
 
-  // 🚀 NEW: Type-safe mutations with automatic cache updates
+  // dYs? NEW: Type-safe mutations with automatic cache updates
   const createProgram = useCreateProgram();
   const updateProgram = useUpdateProgram();
   const deleteProgram = useDeleteProgram();
 
-  // 🚀 NEW: Real-time participant data
+  // dYs? NEW: Real-time participant data
   const enrollParticipant = useEnrollParticipant();
+
+  // Ensure we always have a selection once programs load
+  useEffect(() => {
+    if (!selectedProgramId && programs.length) {
+      setSelectedProgramId(programs[0].id);
+    }
+  }, [programs, selectedProgramId]);
+
+  const selectedProgramKey = selectedProgramId ?? "";
+  const {
+    data: selectedProgram,
+    isFetching: programDetailsLoading,
+  } = useProgramDetails(selectedProgramKey);
+  const {
+    data: programAnalytics,
+    isFetching: analyticsLoading,
+  } = useProgramAnalytics(selectedProgramKey);
+  const {
+    data: participantData,
+    isFetching: participantsLoading,
+  } = useProgramParticipants(selectedProgramKey);
+
+  const participants = useMemo(
+    () => (Array.isArray(participantData) ? participantData : []),
+    [participantData],
+  );
+
+  const programSummary = useMemo(() => {
+    if (!programs.length) {
+      return {
+        totalPrograms: 0,
+        totalParticipants: 0,
+        averageCompletion: 0,
+        activePrograms: 0,
+      };
+    }
+
+    const totalParticipants = programs.reduce(
+      (sum, program) => sum + (program.enrolledParticipants ?? 0),
+      0,
+    );
+    const averageCompletion = Math.round(
+      programs.reduce((sum, program) => sum + (program.completionRate ?? 0), 0) /
+        programs.length,
+    );
+    const activePrograms = programs.filter((program) => program.status === "active")
+      .length;
+
+    return {
+      totalPrograms: programs.length,
+      totalParticipants,
+      averageCompletion,
+      activePrograms,
+    };
+  }, [programs]);
 
   // Handle creating a new program
   const handleCreateProgram = async (programData: any) => {
     try {
-      await createProgram.mutateAsync(programData);
+      const response = await createProgram.mutateAsync(programData);
+      const newId = response?.data?.id;
+      if (newId) {
+        setSelectedProgramId(newId);
+        setActiveTab("overview");
+      }
       setIsCreateDialogOpen(false);
-      // ✅ Cache automatically updates, no manual refetch needed!
     } catch (error) {
       console.error("Failed to create program:", error);
-      // ✅ Error handling built-in
+    }
+  };
+
+  const handleEditProgram = (program: Program) => {
+    setSelectedProgramId(program.id);
+    setActiveTab("overview");
+  };
+
+  const handleArchiveProgram = async () => {
+    if (!selectedProgramId) return;
+    try {
+      await updateProgram.mutateAsync({
+        id: selectedProgramId,
+        program: { status: "archived" },
+      });
+    } catch (error) {
+      console.error("Failed to archive program:", error);
+    }
+  };
+
+  const handleDeleteProgram = async (programId: string) => {
+    const confirmed = window.confirm("Are you sure you want to delete this program?");
+    if (!confirmed) return;
+
+    try {
+      await deleteProgram.mutateAsync(programId);
+      if (selectedProgramId === programId) {
+        setSelectedProgramId(null);
+      }
+    } catch (error) {
+      console.error("Failed to delete program:", error);
     }
   };
 
@@ -77,25 +183,28 @@ export function ModernProgramsComponent() {
   ) => {
     try {
       await enrollParticipant.mutateAsync({ programId, participantData });
-      // ✅ Optimistic updates - UI updates immediately!
     } catch (error) {
       console.error("Failed to enroll participant:", error);
     }
   };
 
   // Filter programs based on search
-  const filteredPrograms = programs.filter(
-    (program) =>
-      program.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      program.description.toLowerCase().includes(searchTerm.toLowerCase()),
+  const filteredPrograms = useMemo(
+    () =>
+      programs.filter(
+        (program) =>
+          program.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          program.description.toLowerCase().includes(searchTerm.toLowerCase()),
+      ),
+    [programs, searchTerm],
   );
 
-  // 🚀 NEW: Built-in loading and error states
+  // dYs? NEW: Built-in loading and error states
   if (programsLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4" />
           <p>Loading programs...</p>
         </div>
       </div>
@@ -126,9 +235,8 @@ export function ModernProgramsComponent() {
               Programs Management
             </h1>
             <p className="text-lg text-muted-foreground">
-              {programs.length} active programs •{" "}
-              {programs.reduce((sum, p) => sum + p.enrolledParticipants, 0)}{" "}
-              total participants
+              {programSummary.totalPrograms} active programs - {" "}
+              {programSummary.totalParticipants} total participants
             </p>
           </div>
 
@@ -152,14 +260,144 @@ export function ModernProgramsComponent() {
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="programs">
-              Programs ({programs.length})
+              Programs ({programSummary.totalPrograms})
             </TabsTrigger>
             <TabsTrigger value="participants">Participants</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
           </TabsList>
 
+          <TabsContent value="overview" className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+              <Card>
+                <CardContent className="p-6 flex items-center gap-3">
+                  <Users className="w-8 h-8 text-primary" />
+                  <div>
+                    <p className="text-sm text-muted-foreground">Total Participants</p>
+                    <p className="text-2xl font-semibold">
+                      {programSummary.totalParticipants}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-6 flex items-center gap-3">
+                  <TrendingUp className="w-8 h-8 text-primary" />
+                  <div>
+                    <p className="text-sm text-muted-foreground">Average Completion</p>
+                    <p className="text-2xl font-semibold">
+                      {programSummary.averageCompletion}%
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-6 flex items-center gap-3">
+                  <Activity className="w-8 h-8 text-primary" />
+                  <div>
+                    <p className="text-sm text-muted-foreground">Active Programs</p>
+                    <p className="text-2xl font-semibold">
+                      {programSummary.activePrograms}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-6 flex items-center gap-3">
+                  <BarChart3 className="w-8 h-8 text-primary" />
+                  <div>
+                    <p className="text-sm text-muted-foreground">Total Programs</p>
+                    <p className="text-2xl font-semibold">
+                      {programSummary.totalPrograms}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Selected Program</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {!selectedProgramId && (
+                  <p className="text-muted-foreground">
+                    Select a program from the Programs tab to see its details here.
+                  </p>
+                )}
+                {selectedProgramId && programDetailsLoading && (
+                  <div className="flex items-center gap-3 text-muted-foreground">
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary" />
+                    <span>Loading program details...</span>
+                  </div>
+                )}
+                {selectedProgramId && !programDetailsLoading && selectedProgram && (
+                  <div className="space-y-4">
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                      <div>
+                        <h2 className="text-2xl font-semibold">{selectedProgram.title}</h2>
+                        <p className="text-muted-foreground max-w-2xl">
+                          {selectedProgram.description}
+                        </p>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          onClick={handleArchiveProgram}
+                          disabled={updateProgram.isPending}
+                        >
+                          Archive Program
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          onClick={() => handleDeleteProgram(selectedProgram.id)}
+                          disabled={deleteProgram.isPending}
+                        >
+                          <Trash2 className="w-4 h-4 mr-2" /> Delete
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                      <div>
+                        <p className="text-muted-foreground">Coach</p>
+                        <p className="font-medium">{selectedProgram.coach}</p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground">Duration</p>
+                        <p className="font-medium">{selectedProgram.duration}</p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground">Status</p>
+                        <p className="font-medium capitalize">{selectedProgram.status}</p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span>Participants</span>
+                        <span>
+                          {selectedProgram.enrolledParticipants}/
+                          {selectedProgram.maxParticipants ?? "--"}
+                        </span>
+                      </div>
+                      <Progress
+                        value={
+                          (selectedProgram.enrolledParticipants /
+                            (selectedProgram.maxParticipants ?? 100)) * 100
+                        }
+                        className="h-2"
+                      />
+                    </div>
+                  </div>
+                )}
+                {selectedProgramId && !programDetailsLoading && !selectedProgram && (
+                  <p className="text-muted-foreground">Program details not available.</p>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
           <TabsContent value="programs" className="space-y-6">
-            {/* Search */}
             <Card>
               <CardContent className="p-6">
                 <div className="relative">
@@ -174,12 +412,13 @@ export function ModernProgramsComponent() {
               </CardContent>
             </Card>
 
-            {/* Programs Grid with real data */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredPrograms.map((program) => (
                 <Card
                   key={program.id}
-                  className="hover:shadow-lg transition-all duration-300 overflow-hidden"
+                  className={`hover:shadow-lg transition-all duration-300 overflow-hidden ${
+                    selectedProgramId === program.id ? "border-primary" : ""
+                  }`}
                 >
                   <div className="relative">
                     {program.image && (
@@ -210,13 +449,11 @@ export function ModernProgramsComponent() {
                     <div className="space-y-3">
                       <div className="grid grid-cols-2 gap-4 text-sm">
                         <div>
-                          <span className="text-muted-foreground">
-                            Duration:
-                          </span>
+                          <span className="text-muted-foreground">Duration</span>
                           <p className="font-medium">{program.duration}</p>
                         </div>
                         <div>
-                          <span className="text-muted-foreground">Coach:</span>
+                          <span className="text-muted-foreground">Coach</span>
                           <p className="font-medium">{program.coach}</p>
                         </div>
                       </div>
@@ -226,14 +463,13 @@ export function ModernProgramsComponent() {
                           <span>Participants</span>
                           <span>
                             {program.enrolledParticipants}/
-                            {program.maxParticipants || "∞"}
+                            {program.maxParticipants ?? "--"}
                           </span>
                         </div>
                         <Progress
                           value={
                             (program.enrolledParticipants /
-                              (program.maxParticipants || 100)) *
-                            100
+                              (program.maxParticipants ?? 100)) * 100
                           }
                           className="h-2"
                         />
@@ -255,27 +491,31 @@ export function ModernProgramsComponent() {
                         </div>
                       </div>
 
-                      <div className="flex gap-2 pt-2">
+                      <div className="flex items-center gap-2 pt-2">
                         <Button
                           size="sm"
                           variant="outline"
                           className="flex-1"
                           onClick={() => handleEditProgram(program)}
-                          disabled={updateProgram.isPending}
                         >
-                          <Edit className="w-3 h-3 mr-1" />
-                          Edit
+                          <Edit className="w-3 h-3 mr-1" /> View Details
                         </Button>
                         <Button
                           size="sm"
                           className="flex-1"
-                          onClick={() =>
-                            handleEnrollParticipant(program.id, {})
-                          }
+                          onClick={() => handleEnrollParticipant(program.id, {})}
                           disabled={enrollParticipant.isPending}
                         >
-                          <UserPlus className="w-3 h-3 mr-1" />
-                          Enroll
+                          <UserPlus className="w-3 h-3 mr-1" /> Enroll
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => handleDeleteProgram(program.id)}
+                          disabled={deleteProgram.isPending}
+                          title="Delete program"
+                        >
+                          <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>
                     </div>
@@ -284,18 +524,111 @@ export function ModernProgramsComponent() {
               ))}
             </div>
           </TabsContent>
+
+          <TabsContent value="participants" className="space-y-6">
+            {!selectedProgramId && (
+              <p className="text-muted-foreground">
+                Select a program to load participants.
+              </p>
+            )}
+            {selectedProgramId && participantsLoading && (
+              <div className="flex items-center gap-3 text-muted-foreground">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary" />
+                <span>Loading participants...</span>
+              </div>
+            )}
+            {selectedProgramId && !participantsLoading && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Participants</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {participants.length === 0 ? (
+                    <p className="text-muted-foreground">
+                      No participants found for this program yet.
+                    </p>
+                  ) : (
+                    <ul className="space-y-3">
+                      {participants.map((participant: any, index: number) => (
+                        <li
+                          key={participant.id ?? participant.email ?? index}
+                          className="flex items-center justify-between rounded-md border p-3"
+                        >
+                          <div>
+                            <p className="font-medium">
+                              {participant.name ?? "Participant"}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {participant.email ?? "No email provided"}
+                            </p>
+                          </div>
+                          <Badge variant="secondary">
+                            {(participant.status ?? "active").toString()}
+                          </Badge>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+
+          <TabsContent value="analytics" className="space-y-6">
+            {!selectedProgramId && (
+              <p className="text-muted-foreground">
+                Select a program to view analytics.
+              </p>
+            )}
+            {selectedProgramId && analyticsLoading && (
+              <div className="flex items-center gap-3 text-muted-foreground">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary" />
+                <span>Loading analytics...</span>
+              </div>
+            )}
+            {selectedProgramId && !analyticsLoading && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Program Analytics</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {programAnalytics && Object.keys(programAnalytics).length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {Object.entries(programAnalytics).map(([key, value]) => (
+                        <div key={key} className="rounded-md border p-4">
+                          <p className="text-sm text-muted-foreground uppercase tracking-wide">
+                            {key.replace(/([A-Z])/g, " $1").trim()}
+                          </p>
+                          <p className="text-lg font-semibold break-words">
+                            {typeof value === "object"
+                              ? JSON.stringify(value, null, 2)
+                              : (value as any)}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-muted-foreground">
+                      Analytics data is not available yet for this program.
+                    </p>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
         </Tabs>
       </div>
     </div>
   );
 }
 
-// 🚀 NEW: Example of how to use the API services directly
+// dYs? NEW: Example of how to use the API services directly
 export async function exampleApiUsage() {
   try {
     // Type-safe API calls
     const programs = await ProgramService.getPrograms();
     console.log("Programs:", programs.data);
+    console.log("Programs endpoint:", API_ENDPOINTS.EHR.PROGRAMS.LIST);
 
     // Create a new program
     const newProgram = await ProgramService.createProgram({
@@ -316,6 +649,11 @@ export async function exampleApiUsage() {
     });
     console.log("Created program:", newProgram.data);
 
+    if (newProgram.data?.id) {
+      const program = await ProgramService.getProgram(newProgram.data.id);
+      console.log("Fetched program detail:", program.data);
+    }
+
     // Get participants for a program
     const participants =
       await ProgramService.getProgramParticipants("program-id");
@@ -326,20 +664,20 @@ export async function exampleApiUsage() {
 }
 
 /*
-🚀 BENEFITS OF THE NEW API ARCHITECTURE:
+dYs? BENEFITS OF THE NEW API ARCHITECTURE:
 
-1. ✅ Type Safety: Full TypeScript support with autocomplete
-2. ✅ Automatic Caching: Data cached and updated automatically
-3. ✅ Optimistic Updates: UI updates immediately
-4. ✅ Error Handling: Built-in error boundaries
-5. ✅ Loading States: Automatic loading indicators
-6. ✅ Background Sync: Data stays fresh automatically
-7. ✅ Request Deduplication: No duplicate API calls
-8. ✅ Retry Logic: Automatic retries on failure
-9. ✅ Cache Invalidation: Smart cache updates
-10. ✅ Offline Support: Works with React Query offline mode
+1)  Type Safety: Full TypeScript support with autocomplete
+2)  Automatic Caching: Data cached and updated automatically
+3)  Optimistic Updates: UI updates immediately
+4)  Error Handling: Built-in error boundaries
+5)  Loading States: Automatic loading indicators
+6)  Background Sync: Data stays fresh automatically
+7)  Request Deduplication: No duplicate API calls
+8)  Retry Logic: Automatic retries on failure
+9)  Cache Invalidation: Smart cache updates
+10)  Offline Support: Works with React Query offline mode
 
 COMPARISON:
-❌ Old way: Static data, manual state management
-✅ New way: Real API integration, automatic state management
+- Old way: Static data, manual state management
+- New way: Real API integration, automatic state management
 */

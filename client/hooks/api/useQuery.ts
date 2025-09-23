@@ -1,14 +1,18 @@
-/**
+﻿/**
  * React Query Integration Hooks
  * Modern data fetching with caching, background updates, and optimistic updates
  */
+
+import React from "react";
 
 import {
   useQuery,
   useMutation,
   useQueryClient,
+  useInfiniteQuery,
   UseQueryOptions,
   UseMutationOptions,
+  UseInfiniteQueryOptions,
 } from "@tanstack/react-query";
 import { ApiResponse } from "../../../shared/types";
 import { ApiError } from "../../lib/api-client";
@@ -98,22 +102,25 @@ export const queryKeys = {
 } as const;
 
 // Generic query hook with type safety
-export function useApiQuery<TData = unknown, TError = ApiError>(
+export function useApiQuery<
+  TData = unknown,
+  TError extends ApiError = ApiError
+>(
   queryKey: readonly unknown[],
   queryFn: () => Promise<ApiResponse<TData>>,
   options?: Omit<
-    UseQueryOptions<ApiResponse<TData>, TError, TData>,
+    UseQueryOptions<ApiResponse<TData>, TError, TData, readonly unknown[]>,
     "queryKey" | "queryFn"
   >,
 ) {
-  return useQuery({
+  return useQuery<ApiResponse<TData>, TError, TData, readonly unknown[]>({
     queryKey,
     queryFn,
     select: (data) => data.data,
     staleTime: 5 * 60 * 1000, // 5 minutes
     retry: (failureCount, error) => {
-      // Don't retry on 4xx errors
-      if (error && "status" in error && error.status && error.status < 500) {
+      const apiError = error as ApiError | undefined;
+      if (apiError?.status && apiError.status < 500) {
         return false;
       }
       return failureCount < 3;
@@ -146,9 +153,9 @@ export function useOptimisticUpdate() {
 
   const updateCache = <T>(
     queryKey: readonly unknown[],
-    updater: (oldData: T | undefined) => T,
+    updater: (oldData: T | undefined) => T | undefined,
   ) => {
-    queryClient.setQueryData(queryKey, updater);
+    queryClient.setQueryData<T | undefined>(queryKey, updater);
   };
 
   const invalidateQueries = (queryKey: readonly unknown[]) => {
@@ -200,7 +207,7 @@ export function usePagination<T>(
     [...queryKey, page, limit],
     () => queryFn(page, limit),
     {
-      keepPreviousData: true,
+      placeholderData: (previous) => previous,
     },
   );
 
@@ -242,33 +249,33 @@ export function usePagination<T>(
 }
 
 // Infinite query hook for infinite scrolling
-export function useInfiniteApiQuery<TData = unknown, TError = ApiError>(
+export function useInfiniteApiQuery<TData = unknown, TError extends ApiError = ApiError>(
   queryKey: readonly unknown[],
-  queryFn: ({
-    pageParam,
-  }: {
-    pageParam: number;
-  }) => Promise<
+  queryFn: (context: { pageParam: number }) => Promise<
     ApiResponse<{ items: TData[]; nextPage?: number; hasMore: boolean }>
   >,
   options?: Omit<
     UseInfiniteQueryOptions<
       ApiResponse<{ items: TData[]; nextPage?: number; hasMore: boolean }>,
-      TError
+      TError,
+      ApiResponse<{ items: TData[]; nextPage?: number; hasMore: boolean }>,
+      readonly unknown[],
+      number
     >,
-    "queryKey" | "queryFn" | "getNextPageParam"
+    "queryKey" | "queryFn" | "getNextPageParam" | "initialPageParam"
   >,
 ) {
   return useInfiniteQuery({
     queryKey,
-    queryFn,
+    initialPageParam: 1,
+    queryFn: ({ pageParam = 1 }) => queryFn({ pageParam }),
     getNextPageParam: (lastPage) => lastPage.data?.nextPage,
-    select: (data) => ({
-      pages: data.pages.map((page) => page.data),
-      pageParams: data.pageParams,
-    }),
     ...options,
   });
 }
 
 export default useApiQuery;
+
+
+
+

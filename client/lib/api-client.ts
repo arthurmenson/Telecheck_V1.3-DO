@@ -25,12 +25,15 @@ export interface ApiRequestConfig extends RequestInit {
   retries?: number;
   skipAuth?: boolean;
   skipErrorHandling?: boolean;
+  url?: string;
 }
 
 export interface ApiError extends Error {
   status?: number;
   code?: string;
   details?: any;
+  response?: Response;
+  payload?: unknown;
 }
 
 // Centralized API Client Class
@@ -48,7 +51,7 @@ export class ApiClient {
   constructor(baseURL = API_CONFIG.BASE_URL) {
     this.baseURL = baseURL;
     this.defaultHeaders = {
-      "Content-Type": "application/json",
+      Accept: "application/json",
     };
     this.interceptors = {
       request: [],
@@ -103,11 +106,28 @@ export class ApiClient {
   }
 
   private async createApiError(response: Response): Promise<ApiError> {
-    let errorData: any = {};
-    try {
-      errorData = await response.json();
-    } catch {
-      errorData = { message: response.statusText };
+    const contentType = response.headers.get("content-type");
+    let errorPayload: any = null;
+
+    if (contentType?.includes("application/json")) {
+      try {
+        errorPayload = await response.json();
+      } catch {
+        errorPayload = null;
+      }
+    } else {
+      try {
+        const textPayload = await response.text();
+        if (textPayload) {
+          errorPayload = { message: textPayload };
+        }
+      } catch {
+        errorPayload = null;
+      }
+    }
+
+    if (!errorPayload) {
+      errorPayload = { message: response.statusText };
     }
 
     console.error(
@@ -119,7 +139,7 @@ export class ApiClient {
         {
           status: response.status,
           statusText: response.statusText,
-          errorData,
+          errorData: errorPayload,
           headers: Object.fromEntries(response.headers.entries()),
         },
         null,
@@ -127,15 +147,77 @@ export class ApiClient {
       ),
     );
 
-    const error = new Error(
-      errorData.message ||
-        `API Error: ${response.status} ${response.statusText}`,
-    ) as ApiError;
+    const message =
+      (typeof errorPayload === "object" && errorPayload && "message" in errorPayload
+        ? (errorPayload as any).message
+        : undefined) || `API Error: ${response.status} ${response.statusText}`;
+
+    const error = new Error(message) as ApiError;
     error.status = response.status;
-    error.code = errorData.code;
-    error.details = errorData.details;
+    if (errorPayload && typeof errorPayload === "object") {
+      error.code = (errorPayload as any).code ?? error.code;
+      error.details = (errorPayload as any).details ?? errorPayload;
+    } else {
+      error.details = errorPayload;
+    }
+    error.payload = errorPayload;
     error.response = response;
     return error;
+  }
+
+  private mergeHeaders(headers?: HeadersInit): Headers {
+    const merged = new Headers(this.defaultHeaders);
+
+    if (!headers) {
+      return merged;
+    }
+
+    if (headers instanceof Headers) {
+      headers.forEach((value, key) => merged.set(key, value));
+      return merged;
+    }
+
+    if (Array.isArray(headers)) {
+      headers.forEach(([key, value]) => merged.set(key, String(value)));
+      return merged;
+    }
+
+    Object.entries(headers).forEach(([key, value]) => {
+      if (Array.isArray(value)) {
+        merged.set(key, value.join(", "));
+      } else if (value !== undefined) {
+        merged.set(key, String(value));
+      }
+    });
+
+    return merged;
+  }
+
+  private isFormData(body: BodyInit | null | undefined): body is FormData {
+    return typeof FormData !== "undefined" && body instanceof FormData;
+  }
+
+  private shouldParseJson(response: Response): boolean {
+    if (response.status === 204 || response.status === 205) {
+      return false;
+    }
+    const contentType = response.headers.get("content-type");
+    return !!contentType && contentType.includes("application/json");
+  }
+
+  private toApiError(error: unknown): ApiError {
+    if (error instanceof Error) {
+      return error as ApiError;
+    }
+    const fallback = new Error("Unknown error") as ApiError;
+    fallback.details = error;
+    return fallback;
+  }
+
+  private getRetryDelay(error: ApiError, attempt: number): number {
+    const baseDelay =
+      error.status === 429 ? API_CONFIG.RETRY_DELAY * 2 : API_CONFIG.RETRY_DELAY;
+    return baseDelay * Math.pow(2, attempt);
   }
 
   private shouldRetry(error: ApiError): boolean {
@@ -182,73 +264,125 @@ export class ApiClient {
       ...requestConfig
     } = config;
 
-    // Apply request interceptors
-    let finalConfig = { ...requestConfig, skipAuth, skipErrorHandling };
+    let finalConfig: ApiRequestConfig = {
+      ...requestConfig,
+      skipAuth,
+      skipErrorHandling,
+      url,
+    };
+
     for (const interceptor of this.interceptors.request) {
       finalConfig = await interceptor(finalConfig);
     }
 
-    // Merge headers
-    finalConfig.headers = {
-      ...this.defaultHeaders,
-      ...finalConfig.headers,
-    };
+    const headers = this.mergeHeaders(finalConfig.headers);
+    const isFormData = this.isFormData(finalConfig.body as BodyInit | null | undefined);
 
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), timeout);
+    if (!isFormData && typeof finalConfig.body === "string" && !headers.has("content-type")) {
+      headers.set("Content-Type", "application/json");
+    }
 
-    finalConfig.signal = controller.signal;
+    finalConfig.headers = headers;
 
-    let lastError: ApiError;
+    const {
+      signal: externalSignal,
+      skipAuth: _skipAuth,
+      skipErrorHandling: _skipErrorHandling,
+      url: _url,
+      ...baseConfig
+    } = finalConfig;
 
-    // Retry logic
+    let lastError: ApiError | undefined;
+
     for (let attempt = 0; attempt <= retries; attempt++) {
-      const t0 = (typeof performance !== "undefined" && performance.now) ? performance.now() : Date.now();
-      try {
-        let response = await fetch(url, finalConfig);
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), timeout);
+      let abortHandler: (() => void) | undefined;
 
-        // Apply response interceptors
+      if (externalSignal) {
+        if (externalSignal.aborted) {
+          controller.abort();
+        } else {
+          abortHandler = () => controller.abort();
+          externalSignal.addEventListener("abort", abortHandler, { once: true });
+        }
+      }
+
+      const attemptConfig: RequestInit = {
+        ...baseConfig,
+        signal: controller.signal,
+      };
+
+      const startedAt =
+        typeof performance !== "undefined" && typeof performance.now === "function"
+          ? performance.now()
+          : Date.now();
+
+      try {
+        let response = await fetch(url, attemptConfig);
+
         for (const interceptor of this.interceptors.response) {
           response = await interceptor(response);
         }
 
-        const ms = Math.round(((typeof performance !== "undefined" && performance.now) ? performance.now() : Date.now()) - t0);
-        track("tc:http:done", { url, status: response.status, ms });
-        clearTimeout(timeoutId);
-        return await response.json();
+        const duration =
+          (typeof performance !== "undefined" && typeof performance.now === "function"
+            ? performance.now()
+            : Date.now()) - startedAt;
+
+        track("tc:http:done", {
+          url,
+          status: response.status,
+          ms: Math.round(duration),
+        });
+
+        if (!this.shouldParseJson(response)) {
+          return { success: response.ok } as ApiResponse<T>;
+        }
+
+        try {
+          return (await response.json()) as ApiResponse<T>;
+        } catch (parseError) {
+          console.warn(
+            `[ApiClient] Failed to parse JSON response from ${response.url}`,
+            parseError,
+          );
+          return { success: response.ok } as ApiResponse<T>;
+        }
       } catch (error) {
-        const ms = Math.round(((typeof performance !== "undefined" && performance.now) ? performance.now() : Date.now()) - t0);
-        track("tc:http:done", { url, status: undefined, ms });
-        clearTimeout(timeoutId);
+        let apiError = this.toApiError(error);
 
-        const apiError =
-          error instanceof Error
-            ? (error as ApiError)
-            : (new Error("Unknown error") as ApiError);
+        const duration =
+          (typeof performance !== "undefined" && typeof performance.now === "function"
+            ? performance.now()
+            : Date.now()) - startedAt;
 
-        // Apply error interceptors
+        track("tc:http:done", {
+          url,
+          status: apiError.status,
+          ms: Math.round(duration),
+        });
+
         for (const interceptor of this.interceptors.error) {
-          await interceptor(apiError);
+          apiError = await interceptor(apiError);
         }
 
         lastError = apiError;
 
-        // Don't retry on the last attempt or if shouldn't retry
         if (attempt === retries || !this.shouldRetry(apiError)) {
           break;
         }
 
-        // Wait before retry with exponential backoff
-        // For rate limiting (429), use longer delays
-        const baseDelay =
-          error.status === 429
-            ? API_CONFIG.RETRY_DELAY * 2
-            : API_CONFIG.RETRY_DELAY;
-        await this.delay(baseDelay * Math.pow(2, attempt));
+        await this.delay(this.getRetryDelay(apiError, attempt));
+      } finally {
+        if (abortHandler && externalSignal) {
+          externalSignal.removeEventListener("abort", abortHandler);
+        }
+        clearTimeout(timeoutId);
       }
     }
 
-    throw lastError!;
+    throw lastError ?? new Error("Unknown error");
   }
 
   // HTTP method helpers
@@ -316,7 +450,6 @@ export class ApiClient {
       method: "POST",
       body: formData,
       headers: {
-        // Don't set Content-Type for FormData - let browser set it
         ...Object.fromEntries(
           Object.entries(config?.headers || {}).filter(
             ([key]) => key.toLowerCase() !== "content-type",
@@ -332,3 +465,4 @@ export const apiClient = new ApiClient();
 
 // Export configured instance as default
 export default apiClient;
+

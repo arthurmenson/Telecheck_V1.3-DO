@@ -9,7 +9,7 @@ import {
   TrendingDown,
   Users,
   Target,
-  Alert,
+  AlertTriangle,
   CheckCircle,
   Activity,
   Heart,

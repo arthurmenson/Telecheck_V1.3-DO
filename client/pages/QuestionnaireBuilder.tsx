@@ -472,7 +472,7 @@ export function QuestionnaireBuilder() {
     const template = QUESTIONNAIRE_TEMPLATES.find((t) => t.id === templateId);
 
     // Handle GLP1 Dynamic Questionnaire
-    if (template && template.dynamicData) {
+    if (template && (template as any).dynamicData) {
       if (templateId === "glp1_weight_loss") {
         setShowGLP1Template(true);
         return;
@@ -480,7 +480,7 @@ export function QuestionnaireBuilder() {
     }
 
     // Handle Men's ED Ro.co-style template
-    if (template && template.isRocoStyle) {
+    if (template && (template as any).isRocoStyle) {
       if (templateId === "mens_ed_roco_style") {
         setShowMensEDTemplate(true);
         return;
@@ -488,8 +488,8 @@ export function QuestionnaireBuilder() {
     }
 
     // Handle other dynamic questionnaires
-    if (template && template.dynamicData) {
-      const dynamicQuestions = template.dynamicData.questions.map(
+    if (template && (template as any).dynamicData) {
+      const dynamicQuestions = (template as any).dynamicData.questions.map(
         (q: any, index: number) => ({
           id: q.id,
           type: q.type,
@@ -508,7 +508,7 @@ export function QuestionnaireBuilder() {
 
       setQuestions(dynamicQuestions);
       setQuestionnaireName(template.name);
-      setCurrentTemplate(template.dynamicData);
+      setCurrentTemplate((template as any).dynamicData);
       setActiveTab("builder");
       setSelectedQuestion(null);
       setPreviewResponses({});
@@ -516,8 +516,8 @@ export function QuestionnaireBuilder() {
     }
 
     // Handle MCQ Templates
-    if (template && template.mcqData) {
-      const mcqQuestions = template.mcqData.questions.map((q, index) => ({
+    if (template && (template as any).mcqData) {
+      const mcqQuestions = (template as any).mcqData.questions.map((q, index) => ({
         id: q.id,
         type: q.type,
         title: q.title,
@@ -535,7 +535,7 @@ export function QuestionnaireBuilder() {
 
       setQuestions(mcqQuestions);
       setQuestionnaireName(template.name);
-      setCurrentTemplate(template.mcqData);
+      setCurrentTemplate((template as any).mcqData);
       setActiveTab("builder");
       setSelectedQuestion(null);
       setPreviewResponses({});
@@ -1785,7 +1785,7 @@ export function QuestionnaireBuilder() {
                                 }
                                 onValueChange={(value) =>
                                   updateQuestion(selectedQuestionData.id, {
-                                    medicationType: value,
+                                    medicationType: value as "prescription" | "otc" | "supplement" | "any",
                                   })
                                 }
                               >
@@ -1973,19 +1973,19 @@ export function QuestionnaireBuilder() {
                               <Label className="text-xs">
                                 Smart Validation
                               </Label>
-                              <Switch size="sm" />
+                              <Switch />
                             </div>
                             <div className="flex items-center justify-between">
                               <Label className="text-xs">
                                 Auto-categorization
                               </Label>
-                              <Switch size="sm" />
+                              <Switch />
                             </div>
                             <div className="flex items-center justify-between">
                               <Label className="text-xs">
                                 Response Insights
                               </Label>
-                              <Switch size="sm" />
+                              <Switch />
                             </div>
                           </div>
                         </div>
@@ -2050,7 +2050,7 @@ export function QuestionnaireBuilder() {
                 <Card
                   key={template.id}
                   className={`hover:shadow-lg transition-shadow ${
-                    template.isFeatured
+                    (template as any).isFeatured
                       ? "ring-2 ring-emerald-500 shadow-lg"
                       : ""
                   }`}
@@ -2062,7 +2062,7 @@ export function QuestionnaireBuilder() {
                           <h3 className="font-semibold text-foreground">
                             {template.name}
                           </h3>
-                          {template.isFeatured && (
+                          {(template as any).isFeatured && (
                             <Badge className="bg-emerald-100 text-emerald-800 text-xs">
                               <Sparkles className="w-3 h-3 mr-1" />
                               Featured
@@ -2076,31 +2076,31 @@ export function QuestionnaireBuilder() {
                           <Badge variant="secondary" className="text-xs">
                             {template.category}
                           </Badge>
-                          {(template.mcqData || template.aiPowered) && (
+                          {((template as any).mcqData || (template as any).aiPowered) && (
                             <Badge className="bg-purple-100 text-purple-800 text-xs">
                               <Brain className="w-3 h-3 mr-1" />
                               AI-Powered
                             </Badge>
                           )}
-                          {template.medicationsCount && (
+                          {(template as any).medicationsCount && (
                             <Badge className="bg-blue-100 text-blue-800 text-xs">
                               <Pill className="w-3 h-3 mr-1" />
-                              {template.medicationsCount} Medications
+                              {(template as any).medicationsCount} Medications
                             </Badge>
                           )}
-                          {template.educationalInserts && (
+                          {(template as any).educationalInserts && (
                             <Badge className="bg-yellow-100 text-yellow-800 text-xs">
                               <Lightbulb className="w-3 h-3 mr-1" />
                               Educational
                             </Badge>
                           )}
-                          {template.isRocoStyle && (
+                          {(template as any).isRocoStyle && (
                             <Badge className="bg-indigo-100 text-indigo-800 text-xs">
                               <Shield className="w-3 h-3 mr-1" />
                               Ro.co Style
                             </Badge>
                           )}
-                          {template.clinicalValidated && (
+                          {(template as any).clinicalValidated && (
                             <Badge className="bg-green-100 text-green-800 text-xs">
                               <CheckCircle className="w-3 h-3 mr-1" />
                               Clinical
@@ -2108,7 +2108,7 @@ export function QuestionnaireBuilder() {
                           )}
                         </div>
                       </div>
-                      {template.isPublic && !template.isFeatured && (
+                      {template.isPublic && !(template as any).isFeatured && (
                         <Badge className="bg-green-100 text-green-800">
                           Consultation MCQ
                         </Badge>
@@ -2128,14 +2128,14 @@ export function QuestionnaireBuilder() {
                       </div>
                     </div>
 
-                    {template.mcqData && (
+                    {(template as any).mcqData && (
                       <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
                         <h4 className="text-sm font-semibold text-blue-800 dark:text-blue-200 mb-2 flex items-center gap-1">
                           <Target className="w-3 h-3" />
                           Consultation Triggers
                         </h4>
                         <div className="text-xs text-blue-700 dark:text-blue-300 space-y-1">
-                          {template.consultationCriteria
+                          {(template as any).consultationCriteria
                             .slice(0, 3)
                             .map((criteria, index) => (
                               <div
@@ -2146,9 +2146,9 @@ export function QuestionnaireBuilder() {
                                 <span>{criteria}</span>
                               </div>
                             ))}
-                          {template.consultationCriteria.length > 3 && (
+                          {(template as any).consultationCriteria.length > 3 && (
                             <div className="text-xs text-blue-600 dark:text-blue-400 mt-1">
-                              +{template.consultationCriteria.length - 3} more
+                              +{(template as any).consultationCriteria.length - 3} more
                               criteria
                             </div>
                           )}
@@ -2171,14 +2171,14 @@ export function QuestionnaireBuilder() {
                       />
                     </div>
 
-                    {template.mcqData && (
+                    {(template as any).mcqData && (
                       <div className="mb-4 text-sm">
                         <div className="flex justify-between items-center">
                           <span className="text-muted-foreground">
                             Risk Threshold
                           </span>
                           <span className="font-medium text-orange-600">
-                            {template.riskThreshold} points
+                            {(template as any).riskThreshold} points
                           </span>
                         </div>
                       </div>
@@ -2197,8 +2197,8 @@ export function QuestionnaireBuilder() {
                         size="sm"
                         onClick={() => {
                           setEditingTemplate(
-                            template.dynamicData ||
-                              template.mcqData ||
+                    (template as any).dynamicData ||
+                              (template as any).mcqData ||
                               template,
                           );
                           setShowTemplateEditor(true);
@@ -2219,7 +2219,7 @@ export function QuestionnaireBuilder() {
                               {template.description}
                             </DialogDescription>
                           </DialogHeader>
-                          {template.mcqData && (
+                          {(template as any).mcqData && (
                             <div className="space-y-4">
                               <div className="grid grid-cols-3 gap-4 text-sm">
                                 <div className="text-center p-2 bg-blue-50 rounded">
@@ -2232,7 +2232,7 @@ export function QuestionnaireBuilder() {
                                 </div>
                                 <div className="text-center p-2 bg-orange-50 rounded">
                                   <div className="font-bold text-orange-600">
-                                    {template.riskThreshold}
+                                    {(template as any).riskThreshold}
                                   </div>
                                   <div className="text-orange-600/70">
                                     Risk Threshold
@@ -2253,7 +2253,7 @@ export function QuestionnaireBuilder() {
                                   Consultation Criteria
                                 </h4>
                                 <div className="space-y-1">
-                                  {template.consultationCriteria.map(
+                                  {(template as any).consultationCriteria.map(
                                     (criteria, index) => (
                                       <div
                                         key={index}
@@ -2272,7 +2272,7 @@ export function QuestionnaireBuilder() {
                                   Sample Questions Preview
                                 </h4>
                                 <div className="space-y-2">
-                                  {template.mcqData.questions
+                                  {(template as any).mcqData.questions
                                     .slice(0, 3)
                                     .map((question, index) => (
                                       <div

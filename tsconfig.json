@@ -33,12 +33,15 @@
       "@/utils/*": ["./client/utils/*"],
       "@/types/*": ["./shared/types.ts"],
       "@/api/*": ["./shared/api.ts"],
-      "@/server/*": ["./server/*"]
+      "@/server/*": ["./server/*"],
+      "@shared/types": ["./shared/types.ts"],
+      "@shared/api": ["./shared/api.ts"]
     }
   },
   "include": [
     "client/**/*",
     "server/**/*",
+    "server/types/**/*",
     "shared/**/*",
     "tests/**/*",
     "vite.config.ts",

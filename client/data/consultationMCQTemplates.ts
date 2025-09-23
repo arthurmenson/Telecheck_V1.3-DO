@@ -3,7 +3,7 @@
 
 export interface MCQQuestion {
   id: string;
-  type: "multiple_choice" | "checkbox" | "boolean" | "rating";
+  type: "multiple_choice" | "checkbox" | "boolean" | "rating" | "text" | "textarea";
   title: string;
   subtitle?: string; // Supportive sub-message
   description?: string;

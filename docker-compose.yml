@@ -131,6 +131,8 @@ services:
       FILES_SERVICE_URL: http://files:3008
       BILLING_SERVICE_URL: http://billing:3009
       MESSAGING_ADMIN_SERVICE_URL: http://messaging_admin:3010
+      ERX_SERVICE_URL: http://erx:3011
+      PHARMACY_SERVICE_URL: http://pharmacy:3012
     ports:
       - "8080:3000"
     depends_on:
@@ -141,6 +143,8 @@ services:
       - medications
       - billing
       - messaging_admin
+      - erx
+      - pharmacy
       - redis
     networks:
       - telecheck_network
@@ -214,6 +218,30 @@ services:
       PORT: 3005
     expose:
       - "3005"
+    networks:
+      - telecheck_network
+
+  erx:
+    build:
+      context: ./services/erx
+    container_name: telecheck_erx
+    environment:
+      NODE_ENV: development
+      PORT: 3011
+    expose:
+      - "3011"
+    networks:
+      - telecheck_network
+
+  pharmacy:
+    build:
+      context: ./services/pharmacy
+    container_name: telecheck_pharmacy
+    environment:
+      NODE_ENV: development
+      PORT: 3012
+    expose:
+      - "3012"
     networks:
       - telecheck_network
 

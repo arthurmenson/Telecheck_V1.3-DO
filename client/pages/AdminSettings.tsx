@@ -94,11 +94,11 @@ export default function AdminSettings() {
       ]);
 
       if (configResult.success && configResult.config) {
-        setMessagingConfig(configResult.config);
+        setMessagingConfig(configResult.config as unknown as MessagingConfig);
       }
 
       if (analyticsResult.success && analyticsResult.analytics) {
-        setMessagingAnalytics(analyticsResult.analytics);
+        setMessagingAnalytics(analyticsResult.analytics as unknown as MessagingAnalytics);
       }
     } catch (error) {
       console.error("Error loading messaging data:", error);
@@ -117,9 +117,9 @@ export default function AdminSettings() {
 
     try {
       const result = await messagingAdminService.updateConfig({
-        ...messagingConfig,
+        ...(messagingConfig || {}),
         ...updates,
-      });
+      } as any);
 
       if (result.success) {
         setMessagingConfig({ ...messagingConfig, ...updates });

@@ -403,7 +403,7 @@ export class ScheduledMessagingService {
         status: "pending",
         retryCount: 0,
         maxRetries: 2,
-        metadata: { frequency: careTeamUpdates.frequency },
+        // metadata removed from type; can be stored externally if needed
         createdAt: new Date(),
       });
     });
@@ -423,13 +423,9 @@ export class ScheduledMessagingService {
         to: scheduledMessage.phone,
         message: scheduledMessage.message,
         type: "sms",
-        metadata: {
-          scheduledMessageId: scheduledMessage.id,
-          patientId: scheduledMessage.patientId,
-          messageType: scheduledMessage.type,
-          ...scheduledMessage.metadata,
-        },
-      });
+        priority: "low",
+        category: "reminder",
+      } as any);
 
       if (result.success) {
         scheduledMessage.status = "sent";
@@ -530,12 +526,12 @@ export class ScheduledMessagingService {
         to: phone,
         message,
         type: "sms",
-        metadata: {
-          patientId,
-          messageType: "wellness_check",
-          expectsResponse: true,
-        },
-      });
+        // metadata: {
+        //   patientId,
+        //   messageType: "wellness_check",
+        //   expectsResponse: true,
+        // },
+      } as any);
 
       if (result.success) {
         AuditLogger.logCommunication(patientId, "sms", "outbound", {

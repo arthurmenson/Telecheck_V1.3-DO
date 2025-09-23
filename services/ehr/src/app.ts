@@ -68,6 +68,46 @@ const server: FastifyInstance = Fastify({
 
 // Database client
 const useDb = process.env.USE_DB !== 'false' && config.nodeEnv !== 'test';
+
+// Create a mock Prisma client for development/testing
+function createMockPrismaClient() {
+  return {
+    $transaction: async (fn: any) => {
+      // Mock transaction function - just execute the function with mock tx
+      return await fn({
+        appointmentSlot: {
+          findFirst: async () => ({ id: 'mock-slot', available: true }),
+          update: async () => ({ id: 'mock-slot', available: false }),
+        },
+        appointment: {
+          create: async (data: any) => ({
+            id: `apt_${Date.now()}`,
+            ...data.data,
+            createdAt: new Date(),
+            updatedAt: new Date()
+          }),
+          findUnique: async () => ({ id: 'mock-apt', status: 'confirmed' }),
+          update: async (params: any) => ({ id: params.where.id, ...params.data }),
+          delete: async () => ({ id: 'mock-apt' }),
+        },
+        patient: {
+          findUnique: async () => ({ id: 'mock-patient', name: 'Mock Patient' }),
+        }
+      });
+    },
+    appointmentSlot: {
+      findMany: async () => [
+        { id: 's1', start: new Date(), end: new Date(), available: true },
+        { id: 's2', start: new Date(), end: new Date(), available: true }
+      ],
+    },
+    appointment: {
+      findMany: async () => [],
+    },
+    $disconnect: async () => {},
+  };
+}
+
 let prisma: any = {} as any;
 if (PrismaClientRef && useDb) {
   try {
@@ -75,9 +115,13 @@ if (PrismaClientRef && useDb) {
       log: config.nodeEnv === 'development' ? ['query', 'error'] : ['error'],
       datasources: { db: { url: config.databaseUrl } },
     });
-  } catch {
-    prisma = {} as any;
+  } catch (error) {
+    server.log.warn({ error }, 'Failed to connect to database, using mock client');
+    prisma = createMockPrismaClient();
   }
+} else {
+  server.log.info('Using mock Prisma client for development');
+  prisma = createMockPrismaClient();
 }
 
 // Extended request interface

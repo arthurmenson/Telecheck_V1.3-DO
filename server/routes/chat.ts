@@ -31,7 +31,7 @@ export const handleChat: RequestHandler = async (req, res) => {
     }
 
     // Save user message
-    const userMessage = db.createChatMessage({
+    const userMessage = await db.addChatMessage({
       userId,
       type: "user",
       content: message,
@@ -40,12 +40,12 @@ export const handleChat: RequestHandler = async (req, res) => {
     });
 
     // Get user's health data for context
-    const userLabResults = db.getLabResults(userId);
-    const userMedications = db.getMedications(userId);
-    const recentMessages = db.getChatMessages(userId).slice(-10); // Last 10 messages
+    const userLabResults = await db.getLabResults(userId);
+    const userMedications = await db.getMedications(userId);
+    const recentMessages = (await db.getChatMessages(userId)).slice(-10); // Last 10 messages
 
     // Generate AI response
-    const aiResponse = AIService.generateChatResponse(
+    const aiResponse = await AIService.generateChatResponse(
       message,
       context,
       userLabResults,
@@ -54,7 +54,7 @@ export const handleChat: RequestHandler = async (req, res) => {
     );
 
     // Save AI response
-    const aiMessage = db.createChatMessage({
+    const aiMessage = await db.addChatMessage({
       userId,
       type: "ai",
       content: aiResponse.response,
@@ -82,7 +82,7 @@ export const handleChat: RequestHandler = async (req, res) => {
 export const getChatHistory: RequestHandler = async (req, res) => {
   try {
     const userId = req.params.userId || "user-1";
-    const messages = db.getChatMessages(userId);
+    const messages = await db.getChatMessages(userId);
 
     const response: ApiResponse<ChatMessage[]> = {
       success: true,

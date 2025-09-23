@@ -32,7 +32,7 @@ export class EncryptionService {
       const key = this.deriveKey(password, salt);
 
       // Create cipher
-      const cipher = crypto.createCipher(this.ALGORITHM, key);
+      const cipher = crypto.createCipheriv(this.ALGORITHM, key, iv);
       cipher.setAAD(Buffer.from("PHI_DATA")); // Additional authenticated data
 
       // Encrypt data
@@ -74,7 +74,7 @@ export class EncryptionService {
       const key = this.deriveKey(password, salt);
 
       // Create decipher
-      const decipher = crypto.createDecipher(this.ALGORITHM, key);
+      const decipher = crypto.createDecipheriv(this.ALGORITHM, key, iv);
       decipher.setAAD(Buffer.from("PHI_DATA"));
       decipher.setAuthTag(tag);
 
@@ -120,7 +120,7 @@ export class EncryptionService {
       const iv = crypto.randomBytes(this.IV_LENGTH);
       const key = this.deriveKey(password, salt);
 
-      const cipher = crypto.createCipher(this.ALGORITHM, key);
+      const cipher = crypto.createCipheriv(this.ALGORITHM, key, iv);
       cipher.setAAD(Buffer.from("FILE_DATA"));
 
       const encrypted = Buffer.concat([
@@ -158,7 +158,7 @@ export class EncryptionService {
       const tag = Buffer.from(encryptedData.tag, "hex");
       const key = this.deriveKey(password, salt);
 
-      const decipher = crypto.createDecipher(this.ALGORITHM, key);
+      const decipher = crypto.createDecipheriv(this.ALGORITHM, key, iv);
       decipher.setAAD(Buffer.from("FILE_DATA"));
       decipher.setAuthTag(tag);
 

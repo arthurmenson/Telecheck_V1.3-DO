@@ -436,8 +436,8 @@ export function PatientRegistry() {
 
     try {
       await updatePatientMutation.mutateAsync({
-        id: selectedPatient.id,
-        data: editForm,
+        patientId: selectedPatient.id,
+        updateData: editForm,
       });
       setShowEditDialog(false);
       setEditForm({});

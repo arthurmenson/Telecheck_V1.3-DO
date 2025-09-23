@@ -407,7 +407,7 @@ export class MessagingService {
       const category = alert.severity === "critical" ? "emergency" : "alert";
 
       const messageRequest: MessageRequest = {
-        to: careTeam[0]?.phone || "", // Send to primary care team member
+        to: (careTeam[0] as any)?.phoneNumber || "", // Send to primary care team member
         message: alert.alertMessage,
         type: alert.severity === "critical" ? "voice" : "sms",
         priority: priority as "low" | "medium" | "high" | "critical",
@@ -636,7 +636,7 @@ export class MessagingService {
    */
   private isCareTeamMemberAvailable(member: CareTeamMember): boolean {
     const now = new Date();
-    const currentDay = now.toLocaleLowerCase();
+    const currentDay = now.toLocaleDateString("en-us", { weekday: "long" }).toLowerCase();
     const currentTime = now.toTimeString().substring(0, 5); // HH:MM
 
     // Check if today is in available days

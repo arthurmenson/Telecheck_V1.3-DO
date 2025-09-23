@@ -1086,24 +1086,3 @@ export function RPMDeviceIntegration() {
   );
 }
 
-function Label({
-  children,
-  className,
-  htmlFor,
-  ...props
-}: {
-  children: React.ReactNode;
-  className?: string;
-  htmlFor?: string;
-  [key: string]: any;
-}) {
-  return (
-    <label
-      htmlFor={htmlFor}
-      className={`text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 ${className}`}
-      {...props}
-    >
-      {children}
-    </label>
-  );
-}

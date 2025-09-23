@@ -1,0 +1,29 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm test)",
+      "Bash(npm run build:*)",
+      "Bash(npm run build:client:*)",
+      "Bash(npm install)",
+      "Bash(timeout 10s npm run dev)",
+      "Bash(timeout 5s npm run dev)",
+      "Bash(timeout 3s npm run dev)",
+      "Bash(timeout:*)",
+      "Bash(npx prisma generate:*)",
+      "Bash(docker build:*)",
+      "Bash(DATABASE_URL=\"postgresql://test:test@localhost:5432/telecheck\" timeout 5s node dist/server/node-build.mjs)",
+      "Bash(npm run dev:*)",
+      "Bash(curl:*)",
+      "Bash(ENABLE_EXPRESS=1 npm run dev)",
+      "Bash(npm run typecheck:*)",
+      "Bash(npm run type-check:*)",
+      "Bash(npx tsc:*)",
+      "Bash(grep:*)",
+      "Bash(npm run lint:*)",
+      "Bash(xargs ls:*)",
+      "Bash(cat:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

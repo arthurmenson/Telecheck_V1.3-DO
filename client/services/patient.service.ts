@@ -130,8 +130,9 @@ export class PatientService {
   static async getPatientStats(): Promise<PatientStats> {
     try {
       const response = await apiClient.get(`${PatientService.baseUrl}/stats`);
+      const payload: any = (response as any).data ?? response;
       return (
-        response.data?.data || {
+        payload?.data || {
           total_patients: 0,
           active_patients: 0,
           inactive_patients: 0,
@@ -178,8 +179,9 @@ export class PatientService {
       const response = await apiClient.get(
         `${PatientService.baseUrl}/search?${params}`,
       );
+      const payload: any = (response as any).data ?? response;
       return (
-        response.data?.data || {
+        payload?.data || {
           patients: [],
           total: 0,
           page: page,
@@ -220,8 +222,9 @@ export class PatientService {
       const response = await apiClient.get(
         `${PatientService.baseUrl}?${params}`,
       );
+      const payload: any = (response as any).data ?? response;
       return (
-        response.data?.data || {
+        payload?.data || {
           patients: [],
           total: 0,
           page: page,
@@ -260,21 +263,22 @@ export class PatientService {
         );
 
         // Check different possible response structures
-        if (response.data && response.data.data) {
+        const payload: any = (response as any).data ?? response;
+        if (payload && payload.data) {
           console.log(`[PatientService] Using response.data.data structure`);
-          return response.data.data;
+          return payload.data;
         } else if (
-          response.data &&
-          response.data.success &&
-          response.data.data
+          payload &&
+          payload.success &&
+          payload.data
         ) {
           console.log(
             `[PatientService] Using response.data.data with success flag`,
           );
-          return response.data.data;
-        } else if (response.data && !response.data.data) {
+          return payload.data;
+        } else if (payload && !payload.data) {
           console.log(`[PatientService] Using direct response.data structure`);
-          return response.data;
+          return payload;
         } else {
           console.warn(
             `[PatientService] Unexpected response structure:`,
@@ -370,7 +374,8 @@ export class PatientService {
         PatientService.baseUrl,
         patientData,
       );
-      return response.data.data;
+      const payload: any = (response as any).data ?? response;
+      return payload.data ?? payload;
     } catch (error: any) {
       console.error("[PatientService] Error creating patient:", error);
 
@@ -413,7 +418,8 @@ export class PatientService {
         `${PatientService.baseUrl}/${patientId}`,
         updateData,
       );
-      return response.data.data;
+      const payload: any = (response as any).data ?? response;
+      return payload.data;
     } catch (error: any) {
       console.error("Error updating patient:", error);
       if (error.response?.status === 404) {
@@ -465,25 +471,26 @@ export class PatientService {
         );
 
         // Check different possible response structures
-        if (response.data && Array.isArray(response.data.data)) {
+        const payload: any = (response as any).data ?? response;
+        if (payload && Array.isArray(payload.data)) {
           console.log(
             `[PatientService] Using response.data.data array structure for appointments`,
           );
-          return response.data.data;
+          return payload.data;
         } else if (
-          response.data &&
-          response.data.success &&
-          Array.isArray(response.data.data)
+          payload &&
+          payload.success &&
+          Array.isArray(payload.data)
         ) {
           console.log(
             `[PatientService] Using response.data.data with success flag for appointments`,
           );
-          return response.data.data;
-        } else if (response.data && Array.isArray(response.data)) {
+          return payload.data;
+        } else if (payload && Array.isArray(payload)) {
           console.log(
             `[PatientService] Using direct response.data array for appointments`,
           );
-          return response.data;
+          return payload;
         } else {
           console.warn(
             `[PatientService] Unexpected appointments response structure:`,
@@ -543,25 +550,26 @@ export class PatientService {
         );
 
         // Check different possible response structures
-        if (response.data && Array.isArray(response.data.data)) {
+        const payload: any = (response as any).data ?? response;
+        if (payload && Array.isArray(payload.data)) {
           console.log(
             `[PatientService] Using response.data.data array structure for vitals`,
           );
-          return response.data.data;
+          return payload.data;
         } else if (
-          response.data &&
-          response.data.success &&
-          Array.isArray(response.data.data)
+          payload &&
+          payload.success &&
+          Array.isArray(payload.data)
         ) {
           console.log(
             `[PatientService] Using response.data.data with success flag for vitals`,
           );
-          return response.data.data;
-        } else if (response.data && Array.isArray(response.data)) {
+          return payload.data;
+        } else if (payload && Array.isArray(payload)) {
           console.log(
             `[PatientService] Using direct response.data array for vitals`,
           );
-          return response.data;
+          return payload;
         } else {
           console.warn(
             `[PatientService] Unexpected vitals response structure:`,

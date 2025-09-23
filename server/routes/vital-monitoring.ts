@@ -40,7 +40,7 @@ export async function submitVitalReading(req: Request, res: Response) {
     await db.query(
       `INSERT INTO vital_signs 
        (id, user_id, type, value, unit, measured_at, created_at)
-       VALUES (?, ?, ?, ?, ?, ?, datetime('now'))`,
+       VALUES ($1, $2, $3, $4, $5, $6, NOW())`,
       [
         vitalId,
         patientId,
@@ -61,9 +61,12 @@ export async function submitVitalReading(req: Request, res: Response) {
     let alertResponse = null;
     if (alert) {
       // Get care team for this patient
-      const careTeam = await careTeamService.getCareTeamForPatient(patientId);
+      const team = careTeamService.getCareTeam(patientId);
+      const careTeam = team
+        ? [team.primaryPhysician, team.careCoordinator, team.onCallProvider, ...team.specialists].filter(Boolean)
+        : [];
 
-      if (careTeam && careTeam.length > 0) {
+      if (careTeam.length > 0) {
         // Send alert using messaging service
         const thresholdCheck = await messagingService.checkVitalThreshold(
           patientId,

@@ -233,11 +233,9 @@ export function PatientRPMDashboard() {
                   <Alert
                     key={index}
                     className={
-                      alert.priority === "high"
-                        ? "border-red-200 bg-red-50"
-                        : alert.priority === "medium"
-                          ? "border-yellow-200 bg-yellow-50"
-                          : "border-blue-200 bg-blue-50"
+                      alert.priority === "medium"
+                        ? "border-yellow-200 bg-yellow-50"
+                        : "border-blue-200 bg-blue-50"
                     }
                   >
                     <AlertTriangle className="h-4 w-4" />

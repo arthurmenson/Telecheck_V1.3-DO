@@ -6,7 +6,7 @@ import { ApiResponse, HealthInsight } from "@shared/types";
 export const getHealthInsights: RequestHandler = async (req, res) => {
   try {
     const userId = req.params.userId || "user-1";
-    const insights = db.getHealthInsights(userId);
+    const insights = await db.getHealthInsights(userId);
 
     const response: ApiResponse<HealthInsight[]> = {
       success: true,
@@ -55,9 +55,9 @@ export const generateInsights: RequestHandler = async (req, res) => {
     const userId = req.params.userId || "user-1";
 
     // Get user's current data
-    const labResults = db.getLabResults(userId);
-    const medications = db.getMedications(userId);
-    const vitals = db.getVitalSigns(userId);
+    const labResults = await db.getLabResults(userId);
+    const medications = await db.getMedications(userId);
+    const vitals = await db.getVitalSigns(userId);
 
     const newInsights = [];
 
@@ -130,7 +130,7 @@ export const generateInsights: RequestHandler = async (req, res) => {
     // Save new insights
     const savedInsights = [];
     for (const insight of newInsights) {
-      const saved = db.createHealthInsight({
+      const saved = await db.addHealthInsight({
         ...insight,
         userId,
       });

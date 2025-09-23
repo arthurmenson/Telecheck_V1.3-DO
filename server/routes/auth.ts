@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { v4 as uuidv4 } from "uuid";
 import { dbPool } from "../config/database";
-import { redisClient } from "../config/database";
+import { safeSetEx, safeGet, safeDel } from "../utils/redisSafe";
 import {
   validateRegister,
   validateLogin,
@@ -64,11 +64,7 @@ router.post(
       );
 
       // Store refresh token in Redis
-      await redisClient.setEx(
-        `refresh_token:${user.id}`,
-        7 * 24 * 60 * 60,
-        refreshToken,
-      );
+      await safeSetEx(`refresh_token:${user.id}`, 7 * 24 * 60 * 60, refreshToken);
 
       res.status(201).json({
         message: "User registered successfully",
@@ -150,11 +146,7 @@ router.post("/login", validateLogin, async (req: Request, res: Response) => {
     );
 
     // Store refresh token in Redis
-    await redisClient.setEx(
-      `refresh_token:${user.id}`,
-      7 * 24 * 60 * 60,
-      refreshToken,
-    );
+    await safeSetEx(`refresh_token:${user.id}`, 7 * 24 * 60 * 60, refreshToken);
 
     res.json({
       message: "Login successful",
@@ -200,9 +192,7 @@ router.post("/refresh", async (req: Request, res: Response) => {
     }
 
     // Check if refresh token exists in Redis
-    const storedToken = await redisClient.get(
-      `refresh_token:${decoded.userId}`,
-    );
+    const storedToken = await safeGet(`refresh_token:${decoded.userId}`);
     if (!storedToken || storedToken !== refreshToken) {
       return res.status(401).json({
         error: "Invalid refresh token",
@@ -303,11 +293,9 @@ router.post(
         [resetTokenHash, new Date(Date.now() + 3600000), user.id], // 1 hour expiration
       );
 
-      // TODO: Send email with reset link
-      // For now, just return the token (in production, send via email)
+      // TODO: Send email with reset link (out-of-band)
       res.json({
         message: "Password reset link sent",
-        resetToken, // Remove this in production
       });
     } catch (error) {
       console.error("Forgot password error:", error);
@@ -375,7 +363,7 @@ router.post("/reset-password", async (req: Request, res: Response) => {
     );
 
     // Invalidate all refresh tokens
-    await redisClient.del(`refresh_token:${user.id}`);
+    await safeDel(`refresh_token:${user.id}`);
 
     res.json({
       message: "Password reset successfully",

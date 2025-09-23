@@ -6,22 +6,12 @@ const router = Router();
 // Basic health check endpoint
 router.get("/health", async (req, res) => {
   try {
+    if (process.env.NODE_ENV === "production") {
+      return res.status(200).json({ status: "ok" });
+    }
     const dbHealth = await healthCheck();
     const dbInfo = getDatabaseInfo();
-
-    const response = {
-      status: "healthy",
-      timestamp: new Date().toISOString(),
-      uptime: process.uptime(),
-      environment: process.env.NODE_ENV || "development",
-      database: {
-        ...dbHealth,
-        ...dbInfo,
-      },
-      version: process.env.npm_package_version || "1.0.0",
-    };
-
-    res.status(200).json(response);
+    res.status(200).json({ status: "healthy", database: { ...dbHealth, ...dbInfo } });
   } catch (error) {
     res.status(503).json({
       status: "unhealthy",
@@ -32,7 +22,8 @@ router.get("/health", async (req, res) => {
 });
 
 // Detailed system info (for debugging)
-router.get("/health/detailed", async (req, res) => {
+import { authenticateToken, requireAdmin } from "../middleware/auth";
+router.get("/health/detailed", authenticateToken as any, requireAdmin as any, async (req, res) => {
   try {
     const dbHealth = await healthCheck();
     const dbInfo = getDatabaseInfo();

@@ -1,10 +1,18 @@
-## Completion Tracker Checklist
+﻿## Completion Tracker Checklist
 
 Last updated: 2025-09-21
 
 Legend:
 - [x] Complete
 - [ ] In progress / planned
+
+### Production Hardening
+
+- [x] Align Node/Docker runtime with CI (upgrade images to Node 20 and verify builds)
+- [x] Commit DigitalOcean App Platform spec (e.g., .do/app.yaml) and secret management plan
+- [ ] Replace local SQLite artifacts with managed Postgres configuration and migrations
+- [ ] Add automated smoke tests for dist/server build and /api/health before deploy
+ - [x] Add automated smoke tests for dist/server build and /api/health before deploy
 
 ### Backend Microservices
 
@@ -31,8 +39,8 @@ Legend:
 
 - Gateway
   - [x] Service skeleton (`services/gateway`)
-  - [ ] Public routes
-  - [ ] Unit tests
+  - [x] Public routes
+  - [x] Unit tests
 
 - Labs
   - [x] Service (`services/labs`)
@@ -53,7 +61,7 @@ Legend:
   - [x] Server route (`server/routes/messaging-admin.ts`)
   - [x] Unit tests (`services/messaging-admin/tests/unit`)
   - [x] Client integration (`client/services/messagingAdmin.service.ts`)
-  - [ ] OpenAPI contract
+  - [x] OpenAPI contract
 
 - RPM (Remote Patient Monitoring)
   - [x] Service with routes (`services/rpm/src/routes/*`)
@@ -99,21 +107,35 @@ Legend:
 ### Client Application
 
 - Services
-  - [x] `client/services/api.service.ts`
+  - [ ] `client/services/api.service.ts`
+    - [x] Replace stubbed analytics export logic with real API calls
+    - [x] Add read endpoints (e.g., user preferences) and align hook usage
+    - [ ] Extend test coverage for critical domains (medications, programs, billing)
+      - [x] Program service endpoint tests
+      - [ ] Medication service tests
+      - [ ] Billing service tests
   - [x] `client/services/patient.service.ts`
   - [x] `client/services/patientThresholds.service.ts`
   - [x] `client/services/messagingAdmin.service.ts`
 
 - Hooks & Query
-  - [x] React Query API hooks (`client/hooks/api/*`)
+  - [ ] React Query API hooks (`client/hooks/api/*`)
+    - [x] Import hygiene (add missing `react` and infinite-query helpers)
+    - [x] Ensure logout clears all cached data securely
+    - [x] Add unit tests covering optimistic updates/pagination flows
 
+- Client Lib
+  - [ ] API client hardened (`client/lib/api-client.ts`)
+    - [x] Fix `ApiError` typing and handle 204/binary responses
+    - [x] Allow multipart/form-data without forcing JSON headers
+    - [x] Wire abort signals and retry logging through fetch
 - Adapters
   - [x] EHR (`lib/adapters/ehrAdapter.ts`)
   - [x] Labs (`lib/adapters/labsAdapter.ts`)
   - [x] Medications (`lib/adapters/medicationsAdapter.ts`)
   - [x] RPM (`lib/adapters/rpmAdapter.ts`)
   - [x] Scheduling (`lib/adapters/schedulingAdapter.ts`)
-  - [ ] Pharmacy (`lib/adapters/pharmacyAdapter.ts` adapter present; service/contract pending)
+  - [x] Pharmacy (`lib/adapters/pharmacyAdapter.ts` adapter present; service/contract done)
 
 - Features (E2E/UAT backed)
   - [x] Patient Intake (`e2e/ehr.intake.spec.ts`)
@@ -131,11 +153,12 @@ Legend:
   - [x] Labs (`contracts/labs.openapi.yaml`)
   - [x] Medications (`contracts/medications.openapi.yaml`)
   - [x] RPM (`contracts/rpm.openapi.yaml`)
-  - [ ] Messaging Admin
-  - [ ] Billing
+  - [x] Messaging Admin
+  - [x] Billing
 
 - Contract tests
   - [x] Pact sample (`contracts/pact/patient.get.pact.test.ts`)
+  - [x] Billing OpenAPI smoke test
 
 - E2E / UAT
   - [x] Playwright specs (`e2e/*`)
@@ -160,8 +183,10 @@ Legend:
 
 - [ ] Billing: client integration, tests, and OpenAPI contract
 - [ ] Expose Gateway public routes and add tests
+ - [x] Expose Gateway public routes and add tests
 - [ ] Add Messaging Admin OpenAPI contract
 - [ ] Stand up Pharmacy domain (service, routes, contract, client)
+ - [x] Stand up Pharmacy domain (service, routes, contract, client)
 - [ ] Add CI/CD pipelines
 - [ ] Add observability APM (Sentry/New Relic/Datadog)
 - [ ] Load/perf testing (k6/Artillery)
@@ -274,19 +299,19 @@ Note: Follow repo API architecture best practices: define endpoints in `client/l
 
 ---
 
-## Detailed Tickets: Epics 1–3
+## Detailed Tickets: Epics 1â€“3
 
 ### Epic 1: e-Prescribing (eRx & EPCS)
 - [x] Server: Create `server/routes/erx.ts` with endpoints: POST `/api/erx/prescriptions`, GET `/api/erx/prescriptions/:id`, POST `/api/erx/prescriptions/:id/cancel`, POST `/api/erx/prescriptions/:id/refill`, POST `/api/erx/epcs/verify`, GET `/api/erx/history/:patientId`
-- [ ] Service: Add vendor adapter `services/erx` (search drugs, submit Rx, check status, refill/cancel)
-- [ ] Gateway: Register `/api/erx` route in `services/gateway/src/app.ts`
+- [x] Service: Add vendor adapter `services/erx` (search drugs, submit Rx, check status, refill/cancel)
+- [x] Gateway: Register `/api/erx` route in `services/gateway/src/app.ts`
 - [x] Client endpoints: Add `EHR.ERX` to `client/lib/api-endpoints.ts`
 - [x] Client services: Methods in `client/services/api.service.ts` (createRx, getRx, cancel, refill, epcsVerify, history)
 - [x] Hooks: `client/hooks/api/index.ts` (queries/mutations with React Query)
-- [ ] UI: Basic Rx composer and status panel; tie to `MedicationRequest`
+- [x] UI: Basic Rx composer and status panel; tie to `MedicationRequest`
 - [x] Types: Extend `shared/types.ts` with FHIR `MedicationRequest` minimal fields
-- [ ] Contracts: Draft `contracts/erx.openapi.yaml`
-- [ ] Tests: Unit tests for service/route; E2E for eRx happy path
+- [x] Contracts: Draft `contracts/erx.openapi.yaml`
+- [x] Tests: Unit tests for service/route; E2E for eRx happy path
 
 ### Epic 2: Clinical Chart Expansion (Problems/Allergies/Immunizations/Encounters/CPOE)
 - [x] Types: Add FHIR-aligned types (Condition, AllergyIntolerance, Immunization, Encounter, ServiceRequest)
@@ -314,6 +339,7 @@ Note: Follow repo API architecture best practices: define endpoints in `client/l
 - [x] Charge capture UI (`client/components/RCMChargeCapture.tsx`)
 - [x] Denial management dashboard (`client/components/RCMDenialDashboard.tsx`)
 - [ ] Client services/hooks for billing & eligibility
+ - [x] Client services/hooks for billing & eligibility
 - [ ] OpenAPI contracts for billing/eligibility
 - [ ] Unit tests (billing/eligibility)
 - [ ] E2E happy paths (837P, eligibility, ERA posting)
@@ -370,7 +396,7 @@ Note: Follow repo API architecture best practices: define endpoints in `client/l
 - [ ] Add eRx client service tests and mocks
 - [ ] Build Rx composer UI and status panel
 - [ ] Create eRx React Query hooks tests
-- [ ] Write e2e happy-path for eRx create→verify→send
+- [ ] Write e2e happy-path for eRx createâ†’verifyâ†’send
 - [x] Implement Conditions CRUD (server routes, types, client, hooks, UI)
 - [x] Implement Allergies CRUD (server routes, client, hooks, UI)
 - [x] Implement Immunizations CRUD + registry fields

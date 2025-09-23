@@ -658,6 +658,7 @@ export const SAMPLE_PRODUCTS: Product[] = [
     reorderPoint: 25,
     reorderQuantity: 100,
     dosageForm: "device",
+    dosages: [],
     activeIngredients: [],
     indications: ["Hypertension Monitoring", "Blood Pressure Tracking"],
     contraindications: [
@@ -710,6 +711,7 @@ export const SAMPLE_PRODUCTS: Product[] = [
     reorderPoint: 60,
     reorderQuantity: 300,
     dosageForm: "capsule",
+    dosages: ["1 capsule daily"],
     activeIngredients: ["Folic Acid", "Iron", "Calcium", "DHA", "Vitamin D"],
     indications: ["Pregnancy Support", "Fetal Development", "Maternal Health"],
     contraindications: [

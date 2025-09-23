@@ -208,7 +208,7 @@ export function Labs() {
   const labResults = [
     {
       test: "Glucose (Fasting)",
-      value: "95",
+      value: 95,
       unit: "mg/dL",
       range: "70-100",
       status: "normal",
@@ -243,7 +243,7 @@ export function Labs() {
     },
     {
       test: "Total Cholesterol",
-      value: "205",
+      value: 205,
       unit: "mg/dL",
       range: "<200",
       status: "borderline",
@@ -283,7 +283,7 @@ export function Labs() {
     },
     {
       test: "HDL Cholesterol",
-      value: "58",
+      value: 58,
       unit: "mg/dL",
       range: ">40 (M), >50 (F)",
       status: "normal",
@@ -318,7 +318,7 @@ export function Labs() {
     },
     {
       test: "LDL Cholesterol",
-      value: "135",
+      value: 135,
       unit: "mg/dL",
       range: "<100",
       status: "high",
@@ -358,7 +358,7 @@ export function Labs() {
     },
     {
       test: "Hemoglobin A1C",
-      value: "5.4",
+      value: 5.4,
       unit: "%",
       range: "<5.7",
       status: "normal",
@@ -393,7 +393,7 @@ export function Labs() {
     },
     {
       test: "Thyroid Stimulating Hormone",
-      value: "2.1",
+      value: 2.1,
       unit: "mIU/L",
       range: "0.4-4.0",
       status: "normal",
@@ -821,7 +821,7 @@ export function Labs() {
 
             {/* Enhanced AI Analysis Results */}
             <LabCharts
-              labResults={labResults}
+              labResults={labResults as any}
               isAnalyzing={isAnalyzing}
               analysisComplete={analysisComplete}
               onRequestDoctorReview={handleRequestDoctorReview}

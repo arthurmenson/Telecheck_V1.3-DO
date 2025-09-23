@@ -1,7 +1,9 @@
-/**
+﻿/**
  * Domain-specific API Hooks
  * Ready-to-use hooks for different data domains
  */
+
+import { useQueryClient } from "@tanstack/react-query";
 
 import {
   useApiQuery,
@@ -21,6 +23,9 @@ import {
   FileService,
   TelehealthService,
   ErxService,
+  BillingService,
+  EligibilityService,
+  PharmacyService,
   ClinicalService,
   User,
   UserPreferences,
@@ -47,11 +52,13 @@ export function useUpdateProfile() {
     (userData: Partial<User>) => UserService.updateProfile(userData),
     {
       onMutate: async (newUserData) => {
-        // Optimistic update
-        updateCache(queryKeys.user.profile(), (old) => ({
-          ...old,
-          ...newUserData,
-        }));
+        updateCache<User>(
+          queryKeys.user.profile(),
+          (old) => {
+            const base = (old ?? ({} as User));
+            return { ...base, ...newUserData } as User;
+          },
+        );
       },
       onSettled: () => {
         // Invalidate to ensure fresh data
@@ -64,7 +71,7 @@ export function useUpdateProfile() {
 export function useUserPreferences() {
   return useApiQuery(
     queryKeys.user.preferences(),
-    () => UserService.updatePreferences({}), // Get current preferences
+    UserService.getPreferences,
     {
       staleTime: 10 * 60 * 1000,
     },
@@ -79,10 +86,13 @@ export function useUpdatePreferences() {
       UserService.updatePreferences(preferences),
     {
       onMutate: async (newPreferences) => {
-        updateCache(queryKeys.user.preferences(), (old) => ({
-          ...old,
-          ...newPreferences,
-        }));
+        updateCache<UserPreferences>(
+          queryKeys.user.preferences(),
+          (old) => {
+            const base = (old ?? ({} as UserPreferences));
+            return { ...base, ...newPreferences } as UserPreferences;
+          },
+        );
       },
       onSettled: () => {
         invalidateQueries(queryKeys.user.preferences());
@@ -319,6 +329,16 @@ export function usePrograms() {
   return useApiQuery(queryKeys.programs.list(), ProgramService.getPrograms);
 }
 
+export function useProgramDetails(id: string) {
+  return useApiQuery(
+    queryKeys.programs.details(id),
+    () => ProgramService.getProgram(id),
+    {
+      enabled: Boolean(id),
+    },
+  );
+}
+
 export function useCreateProgram() {
   const { invalidateQueries } = useOptimisticUpdate();
 
@@ -343,17 +363,52 @@ export function useUpdateProgram() {
         updateCache(queryKeys.programs.list(), (old: Program[] = []) =>
           old.map((p) => (p.id === id ? { ...p, ...program } : p)),
         );
+        updateCache(queryKeys.programs.details(id), (old: Program | undefined) =>
+          old ? { ...old, ...program } : old,
+        );
       },
-      onSettled: () => {
-        invalidateQueries(queryKeys.programs.all);
+      onSettled: (_data, _error, { id: programId }) => {
+        invalidateQueries(queryKeys.programs.list());
+        invalidateQueries(queryKeys.programs.details(programId));
+        invalidateQueries(queryKeys.programs.analytics(programId));
       },
     },
   );
 }
 
+export function useDeleteProgram() {
+  const { updateCache, invalidateQueries } = useOptimisticUpdate();
+
+  return useApiMutation((id: string) => ProgramService.deleteProgram(id), {
+    onMutate: async (id) => {
+      updateCache(queryKeys.programs.list(), (old: Program[] = []) =>
+        old.filter((program) => program.id !== id),
+      );
+    },
+    onSettled: (_data, _error, id) => {
+      invalidateQueries(queryKeys.programs.list());
+      invalidateQueries(queryKeys.programs.details(id));
+      invalidateQueries(queryKeys.programs.analytics(id));
+      invalidateQueries(queryKeys.programs.participants(id));
+    },
+  });
+}
+
 export function useProgramParticipants(programId: string) {
   return useApiQuery(queryKeys.programs.participants(programId), () =>
     ProgramService.getProgramParticipants(programId),
+    {
+      enabled: Boolean(programId),
+    },
+  );
+}
+
+export function useProgramAnalytics(programId: string) {
+  return useApiQuery(queryKeys.programs.analytics(programId), () =>
+    ProgramService.getProgramAnalytics(programId),
+    {
+      enabled: Boolean(programId),
+    },
   );
 }
 
@@ -463,6 +518,42 @@ export function useMedicationHistory(patientId: string) {
 }
 
 // ========================================
+// Billing & Eligibility Hooks
+// ========================================
+
+export function useGenerate837P() {
+  return useApiMutation((payload: any) => BillingService.generate837P(payload));
+}
+
+export function useClaimStatus(id: string) {
+  return useApiQuery(["billing", "claim", id], () => BillingService.getClaimStatus(id), { enabled: Boolean(id) });
+}
+
+export function useEligibilityCheck() {
+  return useApiMutation((payload: { member: any; payer: any; serviceType?: string }) => EligibilityService.checkEligibility(payload));
+}
+
+// ========================================
+// Pharmacy Commerce Hooks
+// ========================================
+
+export function useCommerceCatalog() {
+  return useApiQuery(["commerce", "catalog"], PharmacyService.getCatalog);
+}
+
+export function useCommerceSearch(q: string) {
+  return useApiQuery(["commerce", "search", q], () => PharmacyService.searchCatalog(q), { enabled: q.length > 2 });
+}
+
+export function useCreateOrder() {
+  return useApiMutation((payload: any) => PharmacyService.createOrder(payload));
+}
+
+export function useOrder(id: string) {
+  return useApiQuery(["commerce", "order", id], () => PharmacyService.getOrder(id), { enabled: Boolean(id) });
+}
+
+// ========================================
 // Clinical Hooks (Conditions/Allergies/Immunizations)
 // ========================================
 
@@ -533,12 +624,11 @@ export function useRegister() {
 }
 
 export function useLogout() {
-  const { invalidateQueries } = useOptimisticUpdate();
+  const queryClient = useQueryClient();
 
   return useApiMutation(() => AuthService.logout(), {
     onSuccess: () => {
-      // Clear all cached data on logout
-      invalidateQueries([]);
+      queryClient.clear();
     },
   });
 }
@@ -546,3 +636,5 @@ export function useLogout() {
 // Export everything
 export * from "./useQuery";
 export { queryKeys, useApiQuery, useApiMutation, useOptimisticUpdate };
+
+

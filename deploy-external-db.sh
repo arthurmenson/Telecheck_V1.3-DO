@@ -1,11 +1,11 @@
-#!/bin/bash
+﻿#!/bin/bash
 
-# 🚀 TeleCheck External Database Deployment Script
+# ðŸš€ TeleCheck External Database Deployment Script
 # This script helps you deploy TeleCheck with external PostgreSQL and Redis services
 
 set -e
 
-echo "🚀 TeleCheck External Database Deployment"
+echo "ðŸš€ TeleCheck External Database Deployment"
 echo "========================================"
 
 # Colors for output
@@ -45,7 +45,7 @@ check_requirements() {
     fi
     
     if ! command -v node &> /dev/null; then
-        print_error "Node.js not found. Please install Node.js 18+ first."
+        print_error "Node.js not found. Please install Node.js 20+ first."
         exit 1
     fi
     
@@ -239,7 +239,7 @@ main() {
     test_application
     echo
     
-    print_success "🎉 TeleCheck deployment completed successfully!"
+    print_success "ðŸŽ‰ TeleCheck deployment completed successfully!"
     echo
     print_status "Next steps:"
     echo "1. Review your .env file for production settings"

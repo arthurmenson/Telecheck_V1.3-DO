@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import crypto from "crypto";
 import { AuditLogger } from "../utils/auditLogger";
 import { telnyxService } from "../utils/telnyxService";
 
@@ -460,24 +461,69 @@ function getVoiceMessageFromCallId(callId: string): string | null {
  * Webhook signature verification for Telnyx
  */
 export function verifyTelnyxSignature(req: Request, res: Response, next: any) {
-  // In production, implement Telnyx webhook signature verification
-  // For now, we'll skip verification in development
-  if (process.env.NODE_ENV === "production") {
-    // TODO: Implement signature verification
-    console.log("⚠️ TODO: Implement Telnyx webhook signature verification");
+  try {
+    if (process.env.NODE_ENV !== "production") return next();
+    const signature = req.header("Telnyx-Signature-Ed25519");
+    const timestamp = req.header("Telnyx-Timestamp");
+    const publicKeyEnv = process.env.TELNYX_PUBLIC_KEY;
+    if (!signature || !timestamp || !publicKeyEnv) {
+      return res.status(400).send("Missing Telnyx signature headers");
+    }
+    const message = Buffer.from(`${timestamp}.${(req as any).rawBody?.toString() || ""}`);
+    const sig = Buffer.from(signature, "base64");
+
+    // Support PEM or base64 DER SPKI public key
+    let publicKey: crypto.KeyObject;
+    if (publicKeyEnv.includes("BEGIN PUBLIC KEY")) {
+      publicKey = crypto.createPublicKey({ key: publicKeyEnv, format: "pem", type: "spki" });
+    } else {
+      publicKey = crypto.createPublicKey({ key: Buffer.from(publicKeyEnv, "base64"), format: "der", type: "spki" });
+    }
+
+    const ok = crypto.verify(null, message, publicKey, sig);
+    if (!ok) return res.status(401).send("Invalid Telnyx signature");
+    next();
+  } catch (e) {
+    return res.status(401).send("Invalid Telnyx signature");
   }
-  next();
 }
 
 /**
  * Webhook signature verification for Twilio
  */
 export function verifyTwilioSignature(req: Request, res: Response, next: any) {
-  // In production, implement Twilio webhook signature verification
-  // For now, we'll skip verification in development
-  if (process.env.NODE_ENV === "production") {
-    // TODO: Implement signature verification
-    console.log("⚠️ TODO: Implement Twilio webhook signature verification");
+  try {
+    if (process.env.NODE_ENV !== "production") return next();
+    const twilioSignature = req.header("X-Twilio-Signature");
+    const authToken = process.env.TWILIO_AUTH_TOKEN;
+    if (!twilioSignature || !authToken) {
+      return res.status(400).send("Missing Twilio signature headers");
+    }
+    const fullUrl = `${process.env.BASE_URL || "http://localhost:3000"}${req.originalUrl}`;
+    const contentType = (req.headers["content-type"] || "").toString();
+
+    let dataToSign = fullUrl;
+    if (contentType.includes("application/x-www-form-urlencoded")) {
+      const raw = (req as any).rawBody?.toString() || "";
+      const params = new URLSearchParams(raw);
+      const keys = Array.from(params.keys()).sort();
+      for (const k of keys) {
+        const values = params.getAll(k);
+        for (const v of values) {
+          dataToSign += k + v;
+        }
+      }
+    } else {
+      // JSON or other bodies: concatenate raw body per Twilio guidance
+      dataToSign += (req as any).rawBody?.toString() || "";
+    }
+
+    const expected = crypto.createHmac("sha1", authToken).update(dataToSign).digest("base64");
+    if (expected !== twilioSignature) {
+      return res.status(401).send("Invalid Twilio signature");
+    }
+    next();
+  } catch (e) {
+    return res.status(401).send("Invalid Twilio signature");
   }
-  next();
 }

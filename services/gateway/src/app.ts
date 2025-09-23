@@ -42,30 +42,29 @@ const config = {
     files: process.env.FILES_SERVICE_URL || 'http://localhost:3008',
     billing: process.env.BILLING_SERVICE_URL || 'http://localhost:3009',
     messagingAdmin: process.env.MESSAGING_ADMIN_SERVICE_URL || 'http://localhost:3010',
+    erx: process.env.ERX_SERVICE_URL || 'http://localhost:3011',
+    pharmacy: process.env.PHARMACY_SERVICE_URL || 'http://localhost:3012'
   }
 };
 
 const skipAuth = process.env.SKIP_AUTH === 'true' || config.nodeEnv !== 'production';
 
-// Logger with PII redaction
-const logger = pino({
-  level: config.nodeEnv === 'production' ? 'info' : 'debug',
-  redact: {
-    paths: ['req.headers.authorization', 'password', 'ssn', 'email'],
-    censor: '[REDACTED]'
-  },
-  serializers: {
-    req: (req) => redactPII(req),
-    res: (res) => ({
-      statusCode: res.statusCode,
-      headers: res.headers
-    })
-  }
-});
-
 // Create Fastify instance
 const server: FastifyInstance = Fastify({
-  logger,
+  logger: {
+    level: config.nodeEnv === 'production' ? 'info' : 'debug',
+    redact: {
+      paths: ['req.headers.authorization', 'password', 'ssn', 'email'],
+      censor: '[REDACTED]'
+    },
+    serializers: {
+      req: (req) => redactPII(req),
+      res: (res) => ({
+        statusCode: res.statusCode,
+        headers: res.headers
+      })
+    }
+  },
   trustProxy: true,
   disableRequestLogging: false,
   requestIdHeader: 'x-request-id',
@@ -107,6 +106,13 @@ const serviceRoutes: ServiceRoute[] = [
     requiresAuth: true,
     permissions: ['admin:read'],
     rateLimit: { max: 100, timeWindow: '1 minute' }
+  },
+  {
+    prefix: '/api/erx',
+    target: config.services.erx,
+    requiresAuth: true,
+    permissions: ['erx:read', 'erx:write'],
+    rateLimit: { max: 50, timeWindow: '1 minute' }
   },
   {
     prefix: '/api/ehr',
@@ -155,6 +161,13 @@ const serviceRoutes: ServiceRoute[] = [
     target: config.services.analytics,
     requiresAuth: true,
     permissions: ['analytics:read'],
+    rateLimit: { max: 50, timeWindow: '1 minute' }
+  },
+  {
+    prefix: '/api/commerce',
+    target: config.services.pharmacy,
+    requiresAuth: true,
+    permissions: ['pharmacy:read', 'pharmacy:write'],
     rateLimit: { max: 50, timeWindow: '1 minute' }
   },
   {

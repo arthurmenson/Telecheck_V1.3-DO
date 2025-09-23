@@ -1,4 +1,4 @@
-import "./global.css";
+﻿import "./global.css";
 import "./builder/registry";
 
 import React from "react";
@@ -52,6 +52,8 @@ import { Scheduling } from "./pages/ehr/Scheduling";
 import { Reporting } from "./pages/ehr/Reporting";
 import { Telehealth } from "./pages/ehr/Telehealth";
 import { Televisit } from "./pages/ehr/Televisit";
+import { ErxComposer } from "./pages/ehr/ErxComposer";
+import { Billing } from "./pages/ehr/Billing";
 import { Messaging } from "./pages/ehr/Messaging";
 import { Journaling } from "./pages/ehr/Journaling";
 import { WorkflowAutomation } from "./pages/WorkflowAutomation";
@@ -121,6 +123,16 @@ const App = () => (
 								<Route path="/login" element={<Login />} />
 								<Route path="/register" element={<Register />} />
 								<Route
+									path="/ehr/billing"
+									element={
+										<ProtectedRoute allowedRoles={["admin", "doctor"]}>
+											<Layout>
+												<Billing />
+											</Layout>
+										</ProtectedRoute>
+									}
+								/>
+									<Route
 									path="/ehr/televisit/:appointmentId"
 									element={
 										<ProtectedRoute allowedRoles={["admin", "doctor", "nurse", "patient"]}>
@@ -343,6 +355,16 @@ const App = () => (
 
 								{/* EHR System Routes */}
 								<Route
+									path="/ehr/erx"
+									element={
+										<ProtectedRoute allowedRoles={["admin", "doctor", "pharmacist"]}>
+											<Layout>
+												<ErxComposer />
+											</Layout>
+										</ProtectedRoute>
+									}
+								/>
+									<Route
 									path="/ehr"
 									element={
 										<ProtectedRoute allowedRoles={["admin", "doctor", "nurse"]}>

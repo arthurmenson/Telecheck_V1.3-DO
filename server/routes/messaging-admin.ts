@@ -146,22 +146,24 @@ export async function testMessagingService(req: Request, res: Response) {
           to: phoneNumber,
           message: testMessage,
           type: "sms",
-          metadata: { isTest: true },
+          priority: "low",
+          category: "system",
         });
       }
     } else if (type === "voice") {
       if (provider === "telnyx") {
         const telnyxService = new TelnyxService();
-        result = await telnyxService.makeCall(phoneNumber, testMessage);
+        result = await telnyxService.makeCall(phoneNumber);
       } else if (provider === "twilio") {
         const twilioService = new TwilioService();
-        result = await twilioService.makeCall(phoneNumber, testMessage);
+        result = await twilioService.sendVoiceMessage(phoneNumber, testMessage);
       } else {
         result = await messagingService.sendMessage({
           to: phoneNumber,
           message: testMessage,
           type: "voice",
-          metadata: { isTest: true },
+          priority: "low",
+          category: "system",
         });
       }
     } else {

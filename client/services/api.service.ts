@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Type-safe API Service Layer
  * Domain-specific API methods with full type safety
  */
@@ -6,7 +6,7 @@
 import { apiClient } from "../lib/api-client";
 import { API_ENDPOINTS } from "../lib/api-endpoints";
 import { ApiResponse } from "../../shared/types";
-import { EHR as EHR_ENDPOINTS } from "../lib/api-endpoints";
+import { EHR as EHR_ENDPOINTS, ELIGIBILITY as ELIGIBILITY_ENDPOINTS } from "../lib/api-endpoints";
 
 // Type definitions for API responses
 export interface User {
@@ -72,6 +72,9 @@ export interface Program {
   image?: string;
   completionRate: number;
   rating: number;
+  modules?: number;
+  objectives?: string[];
+  curriculum?: string[];
 }
 
 // Authentication Service
@@ -109,6 +112,10 @@ export class AuthService {
 export class UserService {
   static async getProfile(): Promise<ApiResponse<User>> {
     return apiClient.get(API_ENDPOINTS.USERS.PROFILE);
+  }
+
+  static async getPreferences(): Promise<ApiResponse<UserPreferences>> {
+    return apiClient.get(API_ENDPOINTS.USERS.PREFERENCES);
   }
 
   static async updateProfile(
@@ -302,6 +309,10 @@ export class ProgramService {
     return apiClient.get(API_ENDPOINTS.EHR.PROGRAMS.LIST);
   }
 
+  static async getProgram(id: string): Promise<ApiResponse<Program>> {
+    return apiClient.get(API_ENDPOINTS.EHR.PROGRAMS.UPDATE(id));
+  }
+
   static async createProgram(
     program: Omit<Program, "id">,
   ): Promise<ApiResponse<Program>> {
@@ -396,17 +407,6 @@ export class FileService {
 }
 
 // Export all services
-export {
-  AuthService,
-  UserService,
-  LabService,
-  MedicationService,
-  VitalService,
-  ChatService,
-  ProgramService,
-  AnalyticsService,
-  FileService,
-};
 
 // Telehealth Service (open-source friendly: works with our simple endpoints)
 export class TelehealthService {
@@ -560,14 +560,53 @@ export class ClinicalService {
 // Reporting Service
 export class ReportingService {
   static async getAuditReports(): Promise<ApiResponse<any>> {
-    return apiClient.get("/reporting/audit");
+    return apiClient.get(API_ENDPOINTS.REPORTING.AUDIT);
   }
 
   static async getMipsMeasures(): Promise<ApiResponse<any>> {
-    return apiClient.get("/reporting/mips");
+    return apiClient.get(API_ENDPOINTS.REPORTING.MIPS);
   }
 
   static async exportData(format: "csv" | "xlsx", payload?: any): Promise<ApiResponse<{ url: string }>> {
-    return Promise.resolve({ success: true, data: { url: `/api/reporting/export.${format}` } } as any);
+    return apiClient.post(API_ENDPOINTS.REPORTING.EXPORT, {
+      format,
+      filters: payload ?? {},
+    });
+  }
+}
+
+// Billing & Eligibility Services
+export class BillingService {
+  static async generate837P(payload: any): Promise<ApiResponse<{ claimId: string; trackingId: string; status: string }>> {
+    return apiClient.post(EHR_ENDPOINTS.BILLING.X12_837P, payload);
+  }
+
+  static async getClaimStatus(id: string): Promise<ApiResponse<any>> {
+    return apiClient.get(EHR_ENDPOINTS.BILLING.CLAIM_STATUS(id));
+  }
+}
+
+export class EligibilityService {
+  static async checkEligibility(payload: { member: any; payer: any; serviceType?: string }): Promise<ApiResponse<any>> {
+    return apiClient.post(ELIGIBILITY_ENDPOINTS.CHECK, payload);
+  }
+}
+
+// Pharmacy Service
+export class PharmacyService {
+  static async getCatalog(): Promise<ApiResponse<any>> {
+    return apiClient.get(API_ENDPOINTS.COMMERCE.CATALOG);
+  }
+
+  static async searchCatalog(q: string): Promise<ApiResponse<any>> {
+    return apiClient.get(`${API_ENDPOINTS.COMMERCE.SEARCH}?q=${encodeURIComponent(q)}`);
+  }
+
+  static async createOrder(payload: any): Promise<ApiResponse<any>> {
+    return apiClient.post(API_ENDPOINTS.COMMERCE.ORDERS, payload);
+  }
+
+  static async getOrder(id: string): Promise<ApiResponse<any>> {
+    return apiClient.get(API_ENDPOINTS.COMMERCE.ORDER(id));
   }
 }

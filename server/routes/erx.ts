@@ -24,7 +24,12 @@ router.post(
         });
       }
       const id = `rx_${Date.now()}`;
-      const vendor = await ErxVendorAdapter.submitPrescription({ patientId: bookingData?.patientId || bookingData?.subject?.reference, medication: bookingData?.medicationCodeableConcept });
+      const vendor = await ErxVendorAdapter.submitPrescription({
+        patientId,
+        medication,
+        dosageInstruction,
+        requestedByUserId: req.user?.id,
+      });
       return res.status(201).json({
         success: true,
         data: {
@@ -65,7 +70,7 @@ router.get(
         },
       });
     } catch (e) {
-      res.status(500).njson({ success: false, error: "Failed to fetch Rx" });
+      res.status(500).json({ success: false, error: "Failed to fetch Rx" });
     }
   },
 );
@@ -78,10 +83,10 @@ router.post(
   async (req: AuthenticatedRequest, res: Response) => {
     try {
       const { id } = req.params;
-  await ErxVendorAdapter.cancelPrescription(id);
-  return res.json({ success: true, data: { id, status: "stopped" } });
+      await ErxVendorAdapter.cancelPrescription(id);
+      return res.json({ success: true, data: { id, status: "stopped" } });
     } catch (e) {
-      res.status(500).njson({ success: false, error: "Failed to cancel Rx" });
+      res.status(500).json({ success: false, error: "Failed to cancel Rx" });
     }
   },
 );
@@ -94,10 +99,10 @@ router.post(
   async (req: AuthenticatedRequest, res: Response) => {
     try {
       const { id } = req.params;
-  await ErxVendorAdapter.requestRefill(id);
-  return res.json({ success: true, data: { id, refillRequested: true } });
+      await ErxVendorAdapter.requestRefill(id);
+      return res.json({ success: true, data: { id, refillRequested: true } });
     } catch (e) {
-      res.status(500).njson({ success: false, error: "Failed to request refill" });
+      res.status(500).json({ success: false, error: "Failed to request refill" });
     }
   },
 );
@@ -139,7 +144,7 @@ router.get(
         ],
       });
     } catch (e) {
-      res.status(500).njson({ success: false, error: "Failed to fetch history" });
+      res.status(500).json({ success: false, error: "Failed to fetch history" });
     }
   },
 );

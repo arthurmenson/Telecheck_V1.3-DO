@@ -1,0 +1,534 @@
+openapi: 3.0.3
+info:
+  title: Telecheck Messaging Admin API
+  version: 1.0.0
+  description: Comprehensive messaging administration API for healthcare communication management
+  contact:
+    name: Telecheck Engineering
+servers:
+  - url: /api/admin/messaging
+    description: Messaging Admin API via Gateway
+components:
+  schemas:
+    MessagingConfig:
+      type: object
+      properties:
+        primaryProvider:
+          type: string
+          enum: [telnyx, twilio]
+        enableSMS:
+          type: boolean
+        enableVoice:
+          type: boolean
+        enableScheduled:
+          type: boolean
+        quietHoursStart:
+          type: string
+          pattern: '^([01]?[0-9]|2[0-3]):[0-5][0-9]$'
+        quietHoursEnd:
+          type: string
+          pattern: '^([01]?[0-9]|2[0-3]):[0-5][0-9]$'
+        maxRetries:
+          type: integer
+          minimum: 1
+          maximum: 10
+        retryDelay:
+          type: integer
+          minimum: 100
+        auditLogging:
+          type: boolean
+        thresholds:
+          $ref: '#/components/schemas/VitalThresholds'
+        careTeam:
+          $ref: '#/components/schemas/CareTeamConfig'
+
+    VitalThresholds:
+      type: object
+      properties:
+        glucoseLow:
+          type: number
+        glucoseHigh:
+          type: number
+        bpSystolicHigh:
+          type: number
+        bpDiastolicHigh:
+          type: number
+        heartRateHigh:
+          type: number
+        heartRateLow:
+          type: number
+        temperatureHigh:
+          type: number
+        temperatureLow:
+          type: number
+        oxygenSatLow:
+          type: number
+
+    CareTeamConfig:
+      type: object
+      properties:
+        enableAlerts:
+          type: boolean
+        escalationTimeout:
+          type: integer
+        maxEscalationLevels:
+          type: integer
+
+    AnalyticsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        analytics:
+          type: object
+          properties:
+            period:
+              type: string
+            overview:
+              $ref: '#/components/schemas/AnalyticsOverview'
+            providerStats:
+              type: array
+              items:
+                $ref: '#/components/schemas/ProviderStats'
+            scheduling:
+              $ref: '#/components/schemas/SchedulingStats'
+
+    AnalyticsOverview:
+      type: object
+      properties:
+        totalMessages:
+          type: integer
+        successfulMessages:
+          type: integer
+        failedMessages:
+          type: integer
+        successRate:
+          type: string
+
+    ProviderStats:
+      type: object
+      properties:
+        provider:
+          type: string
+        type:
+          type: string
+        count:
+          type: integer
+        success_rate:
+          type: number
+
+    SchedulingStats:
+      type: object
+      properties:
+        totalActiveJobs:
+          type: integer
+        messagesSentToday:
+          type: integer
+        messagesFailedToday:
+          type: integer
+        activePatients:
+          type: integer
+
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+
+    PaginatedResponse:
+      type: object
+      properties:
+        pagination:
+          type: object
+          properties:
+            page:
+              type: integer
+            limit:
+              type: integer
+            total:
+              type: integer
+            totalPages:
+              type: integer
+
+paths:
+  /config:
+    get:
+      summary: Get messaging configuration
+      description: Retrieve current messaging system configuration including provider settings and thresholds
+      responses:
+        '200':
+          description: Messaging configuration retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  config:
+                    $ref: '#/components/schemas/MessagingConfig'
+    post:
+      summary: Update messaging configuration
+      description: Update messaging system configuration settings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MessagingConfig'
+      responses:
+        '200':
+          description: Configuration updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /test:
+    post:
+      summary: Test messaging configuration
+      description: Test messaging system with current configuration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                provider:
+                  type: string
+                type:
+                  type: string
+                  enum: [sms, voice]
+                destination:
+                  type: string
+      responses:
+        '200':
+          description: Test message sent successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  result:
+                    type: object
+                    properties:
+                      provider:
+                        type: string
+                      type:
+                        type: string
+                      delivered:
+                        type: boolean
+
+  /analytics:
+    get:
+      summary: Get messaging analytics
+      description: Retrieve messaging analytics and performance metrics
+      parameters:
+        - name: period
+          in: query
+          schema:
+            type: string
+            enum: [1h, 24h, 7d, 30d]
+            default: 24h
+      responses:
+        '200':
+          description: Analytics retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnalyticsResponse'
+
+  /schedules:
+    get:
+      summary: Get patient messaging schedules
+      description: Retrieve paginated list of patient messaging schedules
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Schedules retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - $ref: '#/components/schemas/PaginatedResponse'
+                  - type: object
+                    properties:
+                      schedules:
+                        type: array
+                        items:
+                          type: object
+
+    post:
+      summary: Create messaging schedule
+      description: Create new patient messaging schedule
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                patientId:
+                  type: string
+                scheduleType:
+                  type: string
+                frequency:
+                  type: string
+                message:
+                  type: string
+      responses:
+        '201':
+          description: Schedule created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /schedules/{id}:
+    post:
+      summary: Update messaging schedule
+      description: Update existing patient messaging schedule
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Schedule updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /templates:
+    get:
+      summary: Get message templates
+      description: Retrieve available message templates
+      responses:
+        '200':
+          description: Templates retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      templates:
+                        type: array
+                        items:
+                          type: object
+
+    post:
+      summary: Create message template
+      description: Create new message template
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                content:
+                  type: string
+                type:
+                  type: string
+      responses:
+        '201':
+          description: Template created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /templates/{id}:
+    post:
+      summary: Update message template
+      description: Update existing message template
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Template updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /care-team:
+    get:
+      summary: Get care team configuration
+      description: Retrieve care team members and escalation rules
+      responses:
+        '200':
+          description: Care team configuration retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      careTeam:
+                        type: object
+                        properties:
+                          members:
+                            type: array
+                            items:
+                              type: object
+                          escalationRules:
+                            type: array
+                            items:
+                              type: object
+
+  /care-team/{id}:
+    post:
+      summary: Update care team member
+      description: Update care team member configuration
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Care team member updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /audit-logs:
+    get:
+      summary: Get messaging audit logs
+      description: Retrieve paginated messaging audit logs for compliance
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Audit logs retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - $ref: '#/components/schemas/PaginatedResponse'
+                  - type: object
+                    properties:
+                      logs:
+                        type: array
+                        items:
+                          type: object
+
+  /wellness-check:
+    post:
+      summary: Perform wellness check
+      description: Initiate wellness check for specified patients
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                patientIds:
+                  type: array
+                  items:
+                    type: string
+                checkType:
+                  type: string
+                  enum: [daily, weekly, emergency]
+      responses:
+        '200':
+          description: Wellness check initiated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /health:
+    get:
+      summary: Service health check
+      description: Check messaging admin service health status
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [healthy]
+                  service:
+                    type: string
+                  timestamp:
+                    type: string
+                    format: date-time
+
+

@@ -69,6 +69,30 @@ export class AuditLogger {
     console.log(`🔐 Auth: ${userId} ${action}`);
   }
 
+  // Generic log method for compatibility
+  static log(userId: string, event: string, operation: string, details?: any) {
+    if (!this.isEnabled) return;
+
+    const auditEntry = {
+      id: this.generateAuditId(),
+      timestamp: new Date().toISOString(),
+      userId,
+      action: "USER_EVENT",
+      operation,
+      event,
+      details: details || {},
+      ipAddress: this.getCurrentIP(),
+      userAgent: this.getCurrentUserAgent(),
+      compliance: {
+        hipaa: true,
+        gdpr: true,
+        sox: true,
+      },
+    };
+
+    this.addAuditEntry(userId, auditEntry);
+  }
+
   // Log system events
   static logSystemEvent(event: string, operation: string, details?: any) {
     if (!this.isEnabled) return;
@@ -208,6 +232,30 @@ export class AuditLogger {
     console.log(
       `🤖 AI Model: ${userId} used ${modelType} (confidence: ${confidence}%)`,
     );
+  }
+
+  // Log general events
+  static logEvent(
+    userId: string,
+    event: string,
+    operation: string,
+    details?: any,
+  ) {
+    if (!this.isEnabled) return;
+
+    const auditEntry = {
+      id: this.generateAuditId(),
+      timestamp: new Date().toISOString(),
+      userId,
+      action: event,
+      operation,
+      details: details || {},
+      ipAddress: this.getCurrentIP(),
+      userAgent: this.getCurrentUserAgent(),
+    };
+
+    this.addAuditEntry(userId, auditEntry);
+    console.log(`📋 Event: ${userId} - ${event} (${operation})`);
   }
 
   // Log data export/sharing events

@@ -2,16 +2,18 @@ import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { dbPool } from "../config/database";
 
-export interface AuthenticatedRequest extends Request {
+
+export type AuthenticatedRequest = Request & {
   user?: {
     id: string;
     email: string;
     role: string;
+    permissions: string[];
   };
-}
+};
 
 export const authenticateToken = async (
-  req: AuthenticatedRequest,
+  req: Request,
   res: Response,
   next: NextFunction,
 ) => {
@@ -32,23 +34,18 @@ export const authenticateToken = async (
 
     if (!token) {
       console.log("[Auth] No token provided");
-
-      // For demo deployments or patient routes, provide a demo user instead of failing
-      if (
-        process.env.FLY_APP_NAME ||
-        req.url.includes("/patients") ||
-        process.env.NODE_ENV !== "production"
-      ) {
-        console.log("[Auth] Providing demo user for demo deployment");
+      const allowSkip = process.env.NODE_ENV !== "production" && process.env.SKIP_AUTH === "true";
+      if (allowSkip) {
+        console.warn("[Auth] SKIP_AUTH enabled - granting demo admin user (non-production ONLY)");
         req.user = {
           id: "demo-user",
           email: "demo@example.com",
           role: "admin",
+          permissions: [],
         };
         next();
         return;
       }
-
       return res.status(401).json({
         error: "Access token required",
         code: "TOKEN_MISSING",
@@ -67,9 +64,10 @@ export const authenticateToken = async (
       console.log("[Auth] JWT token verified successfully");
     } catch (jwtError) {
       console.log("[Auth] JWT verification failed, trying mock token format");
-      // If JWT fails, try base64 decoding for mock tokens
+      // If JWT fails, try base64 decoding for mock tokens (dev-only)
       try {
-        const mockToken = atob(token);
+        if (process.env.NODE_ENV === "production") throw new Error("Mock token not allowed in production");
+        const mockToken = Buffer.from(token, "base64").toString("utf8");
         decoded = JSON.parse(mockToken);
         console.log("[Auth] Mock token decoded successfully:", {
           userId: decoded.id || decoded.userId,
@@ -90,24 +88,6 @@ export const authenticateToken = async (
           mockError: mockError.message,
           tokenPreview: token.substring(0, 20) + "...",
         });
-
-        // For demo deployments, provide a demo user instead of failing
-        if (
-          process.env.FLY_APP_NAME ||
-          req.url.includes("/patients") ||
-          process.env.NODE_ENV !== "production"
-        ) {
-          console.log(
-            "[Auth] Token validation failed, providing demo user for demo deployment",
-          );
-          req.user = {
-            id: "demo-user",
-            email: "demo@example.com",
-            role: "admin",
-          };
-          next();
-          return;
-        }
 
         return res.status(401).json({
           error: "Invalid token",
@@ -136,6 +116,7 @@ export const authenticateToken = async (
           id: user.id,
           email: user.email,
           role: user.role,
+          permissions: [],
         };
 
         console.log("[Auth] User authenticated successfully:", {
@@ -155,6 +136,7 @@ export const authenticateToken = async (
         id: decoded.id || decoded.userId || "demo-user",
         email: decoded.email || "demo@example.com",
         role: decoded.role || "admin",
+        permissions: [],
       };
     }
 
@@ -169,7 +151,7 @@ export const authenticateToken = async (
 };
 
 export const requireRole = (roles: string[]) => {
-  return (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  return (req: Request, res: Response, next: NextFunction) => {
     if (!req.user) {
       return res.status(401).json({
         error: "Authentication required",
@@ -177,7 +159,7 @@ export const requireRole = (roles: string[]) => {
       });
     }
 
-    if (!roles.includes(req.user.role)) {
+    if (!roles.includes((req.user as any).role)) {
       return res.status(403).json({
         error: "Insufficient permissions",
         code: "INSUFFICIENT_PERMISSIONS",

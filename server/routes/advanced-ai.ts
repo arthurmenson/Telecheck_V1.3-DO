@@ -24,8 +24,8 @@ const upload = multer({
 export const assessCardiovascularRisk: RequestHandler = async (req, res) => {
   try {
     const userId = req.params.userId || "user-1";
-    const labResults = db.getLabResults(userId);
-    const vitals = db.getVitalSigns(userId);
+    const labResults = await db.getLabResults(userId);
+    const vitals = await db.getVitalSigns(userId);
     const demographics = { age: 39, gender: "male" }; // Mock demographics
 
     const riskAssessment = MedicalAI.calculateCardiovascularRisk(
@@ -51,7 +51,7 @@ export const assessCardiovascularRisk: RequestHandler = async (req, res) => {
 export const analyzeAdvancedInteractions: RequestHandler = async (req, res) => {
   try {
     const userId = req.params.userId || "user-1";
-    const medications = db.getMedications(userId);
+    const medications = await db.getMedications(userId);
 
     // Mock PGx profile
     const pgxProfile = {
@@ -79,9 +79,9 @@ export const analyzeAdvancedInteractions: RequestHandler = async (req, res) => {
 export const generatePredictiveAnalytics: RequestHandler = async (req, res) => {
   try {
     const userId = req.params.userId || "user-1";
-    const labResults = db.getLabResults(userId);
-    const vitals = db.getVitalSigns(userId);
-    const medications = db.getMedications(userId);
+    const labResults = await db.getLabResults(userId);
+    const vitals = await db.getVitalSigns(userId);
+    const medications = await db.getMedications(userId);
 
     const analytics = MedicalAI.generatePredictiveAnalytics(
       labResults,
@@ -175,7 +175,7 @@ export const assessSymptoms: RequestHandler = async (req, res) => {
       });
     }
 
-    const vitals = db.getVitalSigns(userId);
+    const vitals = await db.getVitalSigns(userId);
     const latestVital = vitals[vitals.length - 1];
 
     const assessment = MedicalAI.assessSymptoms(
@@ -204,9 +204,9 @@ export const calculateAdvancedHealthScore: RequestHandler = async (
 ) => {
   try {
     const userId = req.params.userId || "user-1";
-    const labResults = db.getLabResults(userId);
-    const vitals = db.getVitalSigns(userId);
-    const medications = db.getMedications(userId);
+    const labResults = await db.getLabResults(userId);
+    const vitals = await db.getVitalSigns(userId);
+    const medications = await db.getMedications(userId);
 
     const healthScore = MedicalAI.calculateHealthScore(
       labResults,
@@ -231,9 +231,9 @@ export const calculateAdvancedHealthScore: RequestHandler = async (
 export const getClinicalRecommendations: RequestHandler = async (req, res) => {
   try {
     const userId = req.params.userId || "user-1";
-    const labResults = db.getLabResults(userId);
-    const medications = db.getMedications(userId);
-    const vitals = db.getVitalSigns(userId);
+    const labResults = await db.getLabResults(userId);
+    const medications = await db.getMedications(userId);
+    const vitals = await db.getVitalSigns(userId);
     const demographics = { age: 39, gender: "male" };
 
     const clinicalSupport = MedicalAI.generateClinicalRecommendations(

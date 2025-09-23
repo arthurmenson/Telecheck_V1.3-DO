@@ -1,8 +1,8 @@
-# Telecheck - Healthcare Management Platform
+﻿# Telecheck - Healthcare Management Platform
 
 A comprehensive healthcare management platform built with modern web technologies, featuring AI-powered lab analysis, patient management, telemedicine capabilities, and wearable device integration.
 
-## 🏥 Features
+## ðŸ¥ Features
 
 ### Core Healthcare Management
 
@@ -42,7 +42,7 @@ A comprehensive healthcare management platform built with modern web technologie
 - **Audit Logging**: Comprehensive activity tracking
 - **Data Encryption**: End-to-end data protection
 
-## 🛠 Technology Stack
+## ðŸ›  Technology Stack
 
 ### Frontend
 
@@ -76,11 +76,11 @@ A comprehensive healthcare management platform built with modern web technologie
 - **GitHub Actions** for CI/CD
 - **Netlify** for deployment
 
-## 🚀 Quick Start
+## ðŸš€ Quick Start
 
 ### Prerequisites
 
-- Node.js 18+ and npm
+- Node.js 20+ and npm
 - PostgreSQL 14+
 - Redis 6+
 - Git
@@ -129,31 +129,31 @@ A comprehensive healthcare management platform built with modern web technologie
    npm test
    ```
 
-## 📁 Project Structure
+## ðŸ“ Project Structure
 
 ```
 telecheck/
-├── client/                 # Frontend React application
-│   ├── components/        # Reusable UI components
-│   ├── pages/            # Page components
-│   ├── hooks/            # Custom React hooks
-│   ├── contexts/         # React contexts
-│   └── services/         # API service layer
-├── server/               # Backend Node.js application
-│   ├── routes/           # API route handlers
-│   ├── middleware/       # Express middleware
-│   ├── config/           # Configuration files
-│   └── utils/            # Utility functions
-├── shared/               # Shared types and utilities
-├── tests/                # Test files
-│   ├── api/             # API integration tests
-│   ├── unit/            # Unit tests
-│   └── utils/           # Test utilities
-├── docs/                 # Documentation
-└── public/               # Static assets
+â”œâ”€â”€ client/                 # Frontend React application
+â”‚   â”œâ”€â”€ components/        # Reusable UI components
+â”‚   â”œâ”€â”€ pages/            # Page components
+â”‚   â”œâ”€â”€ hooks/            # Custom React hooks
+â”‚   â”œâ”€â”€ contexts/         # React contexts
+â”‚   â””â”€â”€ services/         # API service layer
+â”œâ”€â”€ server/               # Backend Node.js application
+â”‚   â”œâ”€â”€ routes/           # API route handlers
+â”‚   â”œâ”€â”€ middleware/       # Express middleware
+â”‚   â”œâ”€â”€ config/           # Configuration files
+â”‚   â””â”€â”€ utils/            # Utility functions
+â”œâ”€â”€ shared/               # Shared types and utilities
+â”œâ”€â”€ tests/                # Test files
+â”‚   â”œâ”€â”€ api/             # API integration tests
+â”‚   â”œâ”€â”€ unit/            # Unit tests
+â”‚   â””â”€â”€ utils/           # Test utilities
+â”œâ”€â”€ docs/                 # Documentation
+â””â”€â”€ public/               # Static assets
 ```
 
-## 🔧 API Endpoints
+## ðŸ”§ API Endpoints
 
 ### Authentication
 
@@ -193,7 +193,7 @@ telecheck/
 - `PUT /api/medications/:id` - Update medication
 - `DELETE /api/medications/:id` - Delete medication
 
-## 🧪 Testing
+## ðŸ§ª Testing
 
 ### Running Tests
 
@@ -220,7 +220,7 @@ npm run test:integration
 - **API Tests**: Test complete API workflows
 - **E2E Tests**: Test complete user workflows
 
-## 🚀 Deployment
+## ðŸš€ Deployment
 
 ### Development
 
@@ -242,14 +242,14 @@ docker build -t telecheck .
 docker run -p 3000:3000 telecheck
 ```
 
-## 📊 Monitoring & Analytics
+## ðŸ“Š Monitoring & Analytics
 
 - **Health Checks**: `/api/health` endpoint for system status
 - **Performance Monitoring**: Built-in performance tracking
 - **Error Logging**: Comprehensive error tracking and reporting
 - **Audit Trails**: Complete activity logging for compliance
 
-## 🔒 Security Features
+## ðŸ”’ Security Features
 
 - **Authentication**: JWT-based secure authentication
 - **Authorization**: Role-based access control
@@ -258,7 +258,7 @@ docker run -p 3000:3000 telecheck
 - **CORS**: Configurable cross-origin resource sharing
 - **HTTPS**: Secure communication in production
 
-## 🤝 Contributing
+## ðŸ¤ Contributing
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
@@ -266,15 +266,15 @@ docker run -p 3000:3000 telecheck
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## 📄 License
+## ðŸ“„ License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🆘 Support
+## ðŸ†˜ Support
 
 For support, email support@telecheck.com or join our Slack channel.
 
-## 🙏 Acknowledgments
+## ðŸ™ Acknowledgments
 
 - Healthcare professionals who provided domain expertise
 - Open source community for amazing tools and libraries

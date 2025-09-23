@@ -68,7 +68,7 @@ interface Product {
   genericName?: string;
   brand?: string;
   category: string;
-  type: "prescription" | "otc" | "supplement" | "device";
+  type: "prescription" | "otc" | "supplement" | "device" | "bundle";
   requiresConsultation: boolean;
   price: number;
   image?: string;

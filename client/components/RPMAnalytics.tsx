@@ -541,7 +541,7 @@ export function RPMAnalytics() {
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm">Hyperglycemia Events</span>
-                  <Badge variant="warning">12 today</Badge>
+                  <Badge variant="outline">12 today</Badge>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm">Device Disconnections</span>

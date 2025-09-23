@@ -34,6 +34,7 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     outDir: "dist/spa",
+    target: "es2022", // Support top-level await and modern JS features
     rollupOptions: {
       output: {
         manualChunks: {

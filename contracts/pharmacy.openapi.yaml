@@ -1,0 +1,49 @@
+openapi: 3.0.3
+info:
+  title: Telecheck Pharmacy API
+  version: 0.1.0
+  description: Commerce endpoints for pharmacy catalog and orders
+servers:
+  - url: /api/commerce
+paths:
+  /catalog:
+    get:
+      summary: List catalog items
+      responses:
+        '200':
+          description: OK
+  /search:
+    get:
+      summary: Search catalog
+      parameters:
+        - in: query
+          name: q
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+  /orders:
+    post:
+      summary: Create order
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '201':
+          description: Created
+  /orders/{id}:
+    get:
+      summary: Get order by id
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+
+

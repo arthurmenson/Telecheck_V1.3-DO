@@ -1,4 +1,4 @@
-/**
+﻿/**
  * API Endpoints Configuration
  * Centralized endpoint definitions with type safety
  */
@@ -145,6 +145,8 @@ export const API_ENDPOINTS = {
       CLAIMS: "/ehr/billing/claims",
       REVENUE: "/ehr/billing/revenue",
       STATEMENTS: "/ehr/billing/statements",
+      X12_837P: "/billing/claims/837p",
+      CLAIM_STATUS: (id: string) => `/billing/claims/${id}/status`,
     },
 
     // Messaging
@@ -248,6 +250,16 @@ export const API_ENDPOINTS = {
     POPULATION_HEALTH: "/analytics/population-health",
   },
 
+  REPORTING: {
+    AUDIT: "/reporting/audit",
+    MIPS: "/reporting/mips",
+    EXPORT: "/reporting/export",
+  },
+
+  ELIGIBILITY: {
+    CHECK: "/eligibility/check",
+  },
+
   // System Administration
   ADMIN: {
     USERS: "/admin/users",
@@ -272,6 +284,14 @@ export const API_ENDPOINTS = {
     MARK_ALL_READ: "/notifications/mark-all-read",
     PREFERENCES: "/notifications/preferences",
     SUBSCRIBE: "/notifications/subscribe",
+  },
+
+  // Pharmacy Commerce
+  COMMERCE: {
+    CATALOG: "/commerce/catalog",
+    SEARCH: "/commerce/search",
+    ORDERS: "/commerce/orders",
+    ORDER: (id: string) => `/commerce/orders/${id}`,
   },
 } as const;
 
@@ -300,6 +320,8 @@ export const {
   CHAT,
   EHR,
   ANALYTICS,
+  REPORTING,
+  ELIGIBILITY,
   ADMIN,
   FILES,
   NOTIFICATIONS,

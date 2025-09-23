@@ -300,8 +300,7 @@ router.post(
 
       const user = result.rows[0];
 
-      // TODO: Send invitation email with temporary password
-      // For now, return the temporary password (remove in production)
+      // TODO: Send invitation email with temporary password (out-of-band)
       res.status(201).json({
         message: "User invited successfully",
         user: {
@@ -311,7 +310,6 @@ router.post(
           lastName: user.last_name,
           role: user.role,
         },
-        temporaryPassword: tempPassword, // Remove this in production
       });
     } catch (error) {
       console.error("Invite user error:", error);

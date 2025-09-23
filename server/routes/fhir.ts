@@ -4,7 +4,7 @@ import { db } from "../utils/databaseAdapter";
 import { ApiResponse } from "@shared/types";
 import { Router } from "express";
 import { AuditLogger } from "../utils/auditLogger";
-import { authenticateToken, AuthenticatedRequest } from "../middleware/auth";
+import { authenticateToken } from "../middleware/auth";
 
 // Export health data in FHIR format
 export const exportFHIRData: RequestHandler = async (req, res) => {
@@ -19,9 +19,9 @@ export const exportFHIRData: RequestHandler = async (req, res) => {
 
     // Audit log
     try {
-      const userId = (req as any).user?.id || userId;
+      const auditUser = (req as any).user?.id || userId;
       await AuditLogger.logDataAccess(
-        userId,
+        auditUser,
         "fhir_export",
         "export",
         { dataTypes },
@@ -83,7 +83,7 @@ export const importFHIRData: RequestHandler = async (req, res) => {
 export const getFHIRPatient: RequestHandler = async (req, res) => {
   try {
     const userId = req.params.userId || "user-1";
-    const user = db.getUser(userId);
+    const user = await db.getUserById(userId);
 
     if (!user) {
       return res.status(404).json({
@@ -122,9 +122,9 @@ export const getFHIRPatient: RequestHandler = async (req, res) => {
 export const getFHIRObservations: RequestHandler = async (req, res) => {
   try {
     const userId = req.params.userId || "user-1";
-    const labResults = db.getLabResults(userId);
+    const labResults = await db.getLabResults(userId);
 
-    const fhirObservations = labResults.map((result) =>
+    const fhirObservations = labResults.map((result: any) =>
       FHIRIntegrationService.convertToFHIRObservation(result),
     );
 

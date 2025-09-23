@@ -357,7 +357,7 @@ export function OrderManager({ isOpen = true, onClose }: OrderManagerProps) {
   const [orders, setOrders] = useState<Order[]>(SAMPLE_ORDERS);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [dateRange, setDateRange] = useState<{ from?: Date; to?: Date }>({});
+  const [dateRange, setDateRange] = useState<{ from: Date; to?: Date } | undefined>(undefined);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
@@ -388,14 +388,14 @@ export function OrderManager({ isOpen = true, onClose }: OrderManagerProps) {
     }
 
     // Date range filter
-    if (dateRange.from) {
+    if (dateRange?.from) {
       filtered = filtered.filter((order) =>
-        isAfter(new Date(order.createdAt), dateRange.from!),
+        isAfter(new Date(order.createdAt), dateRange.from),
       );
     }
-    if (dateRange.to) {
+    if (dateRange?.to) {
       filtered = filtered.filter((order) =>
-        isBefore(new Date(order.createdAt), addDays(dateRange.to!, 1)),
+        isBefore(new Date(order.createdAt), addDays(dateRange.to, 1)),
       );
     }
 

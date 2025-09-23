@@ -902,7 +902,7 @@ export function Programs() {
                 >
                   <div className="relative">
                     <img
-                      src={program.image}
+                      src={(program as any).image || '/api/placeholder/400/320'}
                       alt={program.title}
                       className="w-full h-48 object-cover"
                     />
@@ -949,13 +949,13 @@ export function Programs() {
                           <span>Participants</span>
                           <span>
                             {program.enrolledParticipants}/
-                            {program.maxParticipants || "∞"}
+                            {(program as any).maxParticipants || "∞"}
                           </span>
                         </div>
                         <Progress
                           value={
                             (program.enrolledParticipants /
-                              (program.maxParticipants || 100)) *
+                              ((program as any).maxParticipants || 100)) *
                             100
                           }
                           className="h-2"

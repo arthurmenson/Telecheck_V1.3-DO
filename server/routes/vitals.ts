@@ -6,7 +6,7 @@ import { ApiResponse, VitalSigns } from "@shared/types";
 export const getVitalSigns: RequestHandler = async (req, res) => {
   try {
     const userId = req.params.userId || "user-1";
-    const vitals = db.getVitalSigns(userId);
+    const vitals = await db.getVitalSigns(userId);
 
     const response: ApiResponse<VitalSigns[]> = {
       success: true,
@@ -29,7 +29,7 @@ export const addVitalSigns: RequestHandler = async (req, res) => {
     const userId = req.body.userId || "user-1";
     const vitalData = req.body;
 
-    const vital = db.createVitalSigns({
+    const vital = await db.addVitalSigns({
       ...vitalData,
       userId,
       recordedAt: new Date().toISOString(),
@@ -58,7 +58,7 @@ export const getVitalTrends: RequestHandler = async (req, res) => {
     const userId = req.params.userId || "user-1";
     const days = parseInt(req.query.days as string) || 30;
 
-    const vitals = db.getVitalSigns(userId);
+    const vitals = await db.getVitalSigns(userId);
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - days);
 
