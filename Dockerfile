@@ -4,6 +4,9 @@ FROM node:20-alpine AS builder
 # Set working directory
 WORKDIR /app
 
+# System deps for building native modules (e.g., canvas)
+RUN apk add --no-cache python3 build-base pkgconfig cairo-dev pango-dev jpeg-dev giflib-dev librsvg-dev
+
 # Copy package files
 COPY package*.json ./
 
@@ -16,11 +19,14 @@ COPY . .
 # Build application
 RUN npm run build:prod
 
+# Prune dev dependencies to keep only production deps (prebuilt in builder)
+RUN npm prune --omit=dev
+
 # Production stage
 FROM node:20-alpine AS production
 
-# Install dumb-init for proper signal handling
-RUN apk add --no-cache dumb-init
+# Install runtime libs for native modules and dumb-init
+RUN apk add --no-cache dumb-init cairo pango libjpeg-turbo giflib librsvg
 
 # Create app user
 RUN addgroup -g 1001 -S nodejs
@@ -29,12 +35,11 @@ RUN adduser -S nodejs -u 1001
 # Set working directory
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Copy production node_modules from builder (already pruned)
+COPY --from=builder --chown=nodejs:nodejs /app/node_modules ./node_modules
 
-# Install only production dependencies (fallback if lock is out-of-sync)
-RUN npm ci --only=production || npm install --omit=dev --no-audit --no-fund \
-  && npm cache clean --force
+# Copy package files (kept for transparency/debugging)
+COPY package*.json ./
 
 # Copy built application from builder stage
 COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
