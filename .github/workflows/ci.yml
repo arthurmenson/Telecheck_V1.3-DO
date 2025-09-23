@@ -12,6 +12,7 @@ concurrency:
 
 env:
   NODE_VERSION: '20.14.0'
+  NPM_VERSION: '10.8.2'
 
 jobs:
   build-test:
@@ -23,26 +24,38 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
-      - name: Enable Corepack
-        run: corepack enable
+          cache: 'npm'
+      - name: Pin npm version
+        run: npm i -g npm@${{ env.NPM_VERSION }}
       - name: Verify toolchain
         run: |
           node -v
-          pnpm -v
+          npm -v
+      - name: Format check
+        run: npm run format:check
       - name: Install (frozen)
-        run: pnpm install --frozen-lockfile
+        run: npm ci
       - name: Typecheck
-        run: pnpm run typecheck
+        run: npm run typecheck
       - name: Build
-        run: pnpm run build --if-present
+        run: npm run build --if-present
       - name: Unit tests
-        run: pnpm run test:unit --if-present
+        run: npm run test:unit --if-present
       - name: Smoke health (dev server)
         run: |
-          nohup pnpm start &
+          nohup npm start &
           sleep 5
-          pnpm run smoke:health
+          npm run smoke:health
+      - name: Diagnostics on failure
+        if: failure()
+        run: |
+          echo "=== ENV ==="
+          node -v
+          npm -v
+          echo "=== NPM LS (depth 0) ==="
+          npm ls --depth=0 || true
+          echo "=== Lockfile checksum ==="
+          shasum -a 256 package-lock.json || true
 
   contracts:
     runs-on: ubuntu-latest
@@ -51,11 +64,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
-      - name: Enable Corepack
-        run: corepack enable
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm run gen:sdk
+          cache: 'npm'
+      - name: Pin npm version
+        run: npm i -g npm@${{ env.NPM_VERSION }}
+      - run: npm ci
+      - run: npm run gen:sdk
 
   services:
     runs-on: ubuntu-latest
@@ -67,19 +80,19 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
-      - name: Enable Corepack
-        run: corepack enable
+          cache: 'npm'
+      - name: Pin npm version
+        run: npm i -g npm@${{ env.NPM_VERSION }}
       - name: Install root (frozen)
-        run: pnpm install --frozen-lockfile
+        run: npm ci
       - name: Install service deps (frozen)
         run: |
           cd services/${{ matrix.service }}
-          pnpm install --frozen-lockfile || pnpm install
+          npm ci || npm install
       - name: Unit tests (per service)
         run: |
           cd services/${{ matrix.service }}
-          USE_DB=false pnpm dlx vitest run --root . tests/unit --reporter=dot
+          USE_DB=false npx vitest run --root . tests/unit --reporter=dot
 
   pact:
     runs-on: ubuntu-latest
@@ -88,11 +101,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
-      - name: Enable Corepack
-        run: corepack enable
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm run test:contract
+          cache: 'npm'
+      - name: Pin npm version
+        run: npm i -g npm@${{ env.NPM_VERSION }}
+      - run: npm ci
+      - run: npm run test:contract
 
   e2e_mock:
     runs-on: ubuntu-latest
@@ -101,16 +114,16 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
-      - name: Enable Corepack
-        run: corepack enable
-      - run: pnpm install --frozen-lockfile
+          cache: 'npm'
+      - name: Pin npm version
+        run: npm i -g npm@${{ env.NPM_VERSION }}
+      - run: npm ci
       - run: npx playwright install --with-deps
       - name: Run Playwright (MOCK)
         env:
           VITE_MODE: MOCK
           ENABLE_EXPRESS: '0'
-        run: pnpm run test:e2e
+        run: npm run test:e2e
 
   sbom:
     runs-on: ubuntu-latest
@@ -119,8 +132,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
-      - name: Enable Corepack
-        run: corepack enable
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm run sbom
+          cache: 'npm'
+      - name: Pin npm version
+        run: npm i -g npm@${{ env.NPM_VERSION }}
+      - run: npm ci
+      - run: npm run sbom
