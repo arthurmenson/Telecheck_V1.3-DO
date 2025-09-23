@@ -2,34 +2,47 @@ name: CI
 
 on:
   push:
-    branches:
-      - main
-      - master
-      - ETM_telecheck
+    branches: [ main, master, ETM_telecheck ]
   pull_request:
-    branches:
-      - main
-      - master
-      - ETM_telecheck
+    branches: [ main, master, ETM_telecheck ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '20.14.0'
 
 jobs:
   build-test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
-          cache: "npm"
-      - run: npm ci
-      - run: npm run typecheck
-      - run: npm run build --if-present
-      - run: npm run test:unit --if-present
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+      - name: Enable Corepack
+        run: corepack enable
+      - name: Verify toolchain
+        run: |
+          node -v
+          pnpm -v
+      - name: Install (frozen)
+        run: pnpm install --frozen-lockfile
+      - name: Typecheck
+        run: pnpm run typecheck
+      - name: Build
+        run: pnpm run build --if-present
+      - name: Unit tests
+        run: pnpm run test:unit --if-present
       - name: Smoke health (dev server)
         run: |
-          nohup npm start &
+          nohup pnpm start &
           sleep 5
-          npm run smoke:health
+          pnpm run smoke:health
 
   contracts:
     runs-on: ubuntu-latest
@@ -37,30 +50,36 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
-      - run: npm ci
-      - run: npm run gen:sdk
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+      - name: Enable Corepack
+        run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run gen:sdk
 
   services:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        service:
-          [auth, ehr, rpm, labs, medications, billing, messaging-admin, erx]
+        service: [auth, ehr, rpm, labs, medications, billing, messaging-admin, erx]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
-      - run: npm ci
-      - name: Install service deps
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+      - name: Enable Corepack
+        run: corepack enable
+      - name: Install root (frozen)
+        run: pnpm install --frozen-lockfile
+      - name: Install service deps (frozen)
         run: |
           cd services/${{ matrix.service }}
-          npm ci || npm install
+          pnpm install --frozen-lockfile || pnpm install
       - name: Unit tests (per service)
         run: |
           cd services/${{ matrix.service }}
-          USE_DB=false npx vitest run --root . tests/unit --reporter=dot
+          USE_DB=false pnpm dlx vitest run --root . tests/unit --reporter=dot
 
   pact:
     runs-on: ubuntu-latest
@@ -68,9 +87,12 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
-      - run: npm ci
-      - run: npm run test:contract
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+      - name: Enable Corepack
+        run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run test:contract
 
   e2e_mock:
     runs-on: ubuntu-latest
@@ -78,14 +100,17 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
-      - run: npm ci
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+      - name: Enable Corepack
+        run: corepack enable
+      - run: pnpm install --frozen-lockfile
       - run: npx playwright install --with-deps
       - name: Run Playwright (MOCK)
         env:
           VITE_MODE: MOCK
-          ENABLE_EXPRESS: "0"
-        run: npm run test:e2e
+          ENABLE_EXPRESS: '0'
+        run: pnpm run test:e2e
 
   sbom:
     runs-on: ubuntu-latest
@@ -93,6 +118,9 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
-      - run: npm ci
-      - run: npm run sbom
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+      - name: Enable Corepack
+        run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run sbom
