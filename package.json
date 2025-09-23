@@ -2,7 +2,7 @@
   "name": "fusion-starter",
   "private": true,
   "type": "module",
-  "packageManager": "pnpm@9.12.0",
+  "packageManager": "npm@10.8.2",
   "engines": {
     "node": ">=20.14.0 <21"
   },
@@ -48,10 +48,10 @@
     "deploy:check": "npm run typecheck && npm run build:prod && npm run test",
     "smoke:health": "node --loader tsx ./scripts/smoke-health.ts",
     "test:contract": "vitest run contracts/pact/**/*.pact.test.ts",
-    "ci:install": "corepack enable && pnpm --version && pnpm install --frozen-lockfile",
-    "ci:build": "pnpm -r build",
-    "ci:test": "pnpm -r test -- --run",
-    "ci:lint": "pnpm -r lint"
+    "ci:install": "npm ci",
+    "ci:build": "npm run build --workspaces --if-present",
+    "ci:test": "npm run test --workspaces --if-present -- --run",
+    "ci:lint": "npm run lint --workspaces --if-present"
   },
   "dependencies": {
     "@builder.io/react": "^4.0.0",
