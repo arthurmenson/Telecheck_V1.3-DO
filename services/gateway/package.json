@@ -16,14 +16,18 @@
   },
   "dependencies": {
     "@aws-sdk/client-eventbridge": "^3.462.0",
-    "@fastify/redis": "^6.1.1"
-  },
-  "devDependencies": {
+    "@fastify/redis": "^6.1.1",
     "@fastify/cors": "^11.1.0",
     "@fastify/helmet": "^13.0.1",
     "@fastify/jwt": "^10.0.0",
     "@fastify/multipart": "^9.2.1",
     "@fastify/rate-limit": "^10.3.0",
+    "fastify": "^5.6.0",
+    "pino": "^9.11.0",
+    "uuid": "^13.0.0",
+    "zod": "^4.1.11"
+  },
+  "devDependencies": {
     "@prisma/client": "^6.16.2",
     "@types/node": "^20.9.0",
     "@types/uuid": "^9.0.7",
@@ -31,14 +35,10 @@
     "@typescript-eslint/parser": "^6.12.0",
     "@vitest/coverage-v8": "^1.0.0",
     "eslint": "^8.54.0",
-    "fastify": "^5.6.0",
-    "pino": "^9.11.0",
     "prisma": "^6.16.2",
     "tsx": "^4.6.0",
     "typescript": "^5.2.2",
-    "uuid": "^13.0.0",
-    "vitest": "^1.0.0",
-    "zod": "^4.1.11"
+    "vitest": "^1.0.0"
   },
   "engines": {
     "node": ">=20.0.0"

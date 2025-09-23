@@ -17,7 +17,12 @@ import Fastify, {
 } from "fastify";
 import cors from "@fastify/cors";
 import helmet from "@fastify/helmet";
-import multipart from "@fastify/multipart";
+// Make multipart optional in test env
+let multipart: any;
+try {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  multipart = require("@fastify/multipart");
+} catch {}
 let PrismaClientRef: any;
 try {
   // Lazy require to avoid prisma generate requirement during unit tests
@@ -26,7 +31,6 @@ try {
 } catch {
   PrismaClientRef = undefined;
 }
-import pino from "pino";
 import { z } from "zod";
 import { schedulingRoutes } from "./routes/scheduling";
 import { patientsRoutes } from "./routes/patients";
@@ -48,25 +52,25 @@ const config = {
   jwtSecret: process.env.JWT_SECRET || "your-secret-key-change-in-production",
 };
 
-// Logger with PII redaction
-const logger = pino({
-  level: config.nodeEnv === "production" ? "info" : "debug",
-  redact: {
-    paths: ["req.headers.authorization", "password", "ssn", "email"],
-    censor: "[REDACTED]",
-  },
-  serializers: {
-    req: (req) => redactPII(req),
-    res: (res) => ({
-      statusCode: res.statusCode,
-      headers: res.headers,
-    }),
-  },
-});
-
 // Create Fastify instance
 const server: FastifyInstance = Fastify({
-  logger,
+  logger:
+    config.nodeEnv === "test"
+      ? false
+      : {
+          level: config.nodeEnv === "production" ? "info" : "debug",
+          redact: {
+            paths: ["req.headers.authorization", "password", "ssn", "email"],
+            censor: "[REDACTED]",
+          },
+          serializers: {
+            req: (req) => redactPII(req),
+            res: (res) => ({
+              statusCode: res.statusCode,
+              headers: res.headers,
+            }),
+          },
+        },
   trustProxy: true,
   disableRequestLogging: false,
   requestIdHeader: "x-request-id",
@@ -229,11 +233,17 @@ async function registerPlugins() {
   });
 
   // File upload support
-  await server.register(multipart, {
-    limits: {
-      fileSize: 10 * 1024 * 1024, // 10MB
-    },
-  });
+  if (multipart) {
+    await server.register(multipart, {
+      limits: {
+        fileSize: 10 * 1024 * 1024, // 10MB
+      },
+    });
+  } else {
+    server.log.warn(
+      "@fastify/multipart not installed; skipping file upload plugin",
+    );
+  }
 }
 
 // Authentication middleware

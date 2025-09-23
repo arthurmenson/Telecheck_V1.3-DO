@@ -24,7 +24,6 @@ try {
 } catch {
   PrismaClientRef = undefined;
 }
-import pino from "pino";
 import { z } from "zod";
 import { vitalsRoutes } from "./routes/vitals";
 import { rpmRoutes } from "./routes/rpm";
@@ -45,25 +44,25 @@ const config = {
   jwtSecret: process.env.JWT_SECRET || "your-secret-key-change-in-production",
 };
 
-// Logger with PII redaction
-const logger = pino({
-  level: config.nodeEnv === "production" ? "info" : "debug",
-  redact: {
-    paths: ["req.headers.authorization", "password", "ssn", "email"],
-    censor: "[REDACTED]",
-  },
-  serializers: {
-    req: (req) => redactPII(req),
-    res: (res) => ({
-      statusCode: res.statusCode,
-      headers: res.headers,
-    }),
-  },
-});
-
-// Create Fastify instance
+// Logger configuration
 const server: FastifyInstance = Fastify({
-  logger,
+  logger:
+    config.nodeEnv === "test"
+      ? false
+      : {
+          level: config.nodeEnv === "production" ? "info" : "debug",
+          redact: {
+            paths: ["req.headers.authorization", "password", "ssn", "email"],
+            censor: "[REDACTED]",
+          },
+          serializers: {
+            req: (req) => redactPII(req),
+            res: (res) => ({
+              statusCode: res.statusCode,
+              headers: res.headers,
+            }),
+          },
+        },
   trustProxy: true,
   disableRequestLogging: false,
   requestIdHeader: "x-request-id",

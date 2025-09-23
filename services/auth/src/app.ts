@@ -10,19 +10,17 @@
 import Fastify, { FastifyInstance } from "fastify";
 import cors from "@fastify/cors";
 import helmet from "@fastify/helmet";
-import pino from "pino";
-
 const config = {
   port: parseInt(process.env.PORT || "3001"),
   host: process.env.HOST || "0.0.0.0",
   nodeEnv: process.env.NODE_ENV || "development",
 };
 
-const logger = pino({
-  level: config.nodeEnv === "production" ? "info" : "debug",
-});
 const server: FastifyInstance = Fastify({
-  logger,
+  logger:
+    config.nodeEnv === "test"
+      ? false
+      : { level: config.nodeEnv === "production" ? "info" : "debug" },
   trustProxy: true,
   requestIdHeader: "x-request-id",
 });

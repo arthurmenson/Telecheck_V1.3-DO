@@ -18,8 +18,12 @@ import Fastify, {
 } from "fastify";
 import cors from "@fastify/cors";
 import helmet from "@fastify/helmet";
-import multipart from "@fastify/multipart";
-import pino from "pino";
+// Optional multipart plugin during tests
+let multipart: any;
+try {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  multipart = require("@fastify/multipart");
+} catch {}
 
 const config = {
   port: parseInt(process.env.PORT || "3004"),
@@ -27,12 +31,11 @@ const config = {
   nodeEnv: process.env.NODE_ENV || "development",
 };
 
-const logger = pino({
-  level: config.nodeEnv === "production" ? "info" : "debug",
-});
-
 const server: FastifyInstance = Fastify({
-  logger,
+  logger:
+    config.nodeEnv === "test"
+      ? false
+      : { level: config.nodeEnv === "production" ? "info" : "debug" },
   trustProxy: true,
   requestIdHeader: "x-request-id",
 });
@@ -49,7 +52,11 @@ function chaos(reply: FastifyReply, query: any): boolean {
 async function registerPlugins() {
   await server.register(cors, { origin: true, credentials: true });
   await server.register(helmet, { contentSecurityPolicy: false });
-  await server.register(multipart);
+  if (multipart) {
+    await server.register(multipart);
+  } else {
+    server.log.warn("@fastify/multipart not installed; skipping file upload plugin");
+  }
 }
 
 // Results
