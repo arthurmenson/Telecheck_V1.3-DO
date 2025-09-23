@@ -23,6 +23,7 @@ coverage
 .eslintcache
 *.log
 *.lock
+!package-lock.json
 *.tmp
 *.tmp.*
 log.txt
