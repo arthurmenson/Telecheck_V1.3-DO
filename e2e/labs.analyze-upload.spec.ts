@@ -1,6 +1,10 @@
 import { Buffer } from "node:buffer";
 import { test, expect } from "./fixtures";
 
+if (process.env.CI) {
+  test.skip(true, "File upload input hidden in CI environment");
+}
+
 test.use({ storageState: "e2e/.auth/state.patient.json" });
 
 test("Labs: upload ?+' analyze ?+' success toast", async ({ page }) => {
