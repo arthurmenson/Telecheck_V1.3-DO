@@ -53,7 +53,8 @@
     "ci:install": "npm ci",
     "ci:build": "npm run build --workspaces --if-present",
     "ci:test": "npm run test --workspaces --if-present -- --run",
-    "ci:lint": "npm run lint --workspaces --if-present"
+    "ci:lint": "npm run lint --workspaces --if-present",
+    "prestart:playwright": "npm run build"
   },
   "dependencies": {
     "@builder.io/react": "^4.0.0",
