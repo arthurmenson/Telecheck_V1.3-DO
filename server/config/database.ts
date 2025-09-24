@@ -99,25 +99,30 @@ const initializeSchema = async (pool: Pool) => {
   try {
     console.log("Initializing database schema...");
     
-    // Check if tables already exist by trying to query a simple table
-    let schemaExists = false;
-    try {
-      await pool.query("SELECT 1 FROM users LIMIT 1");
-      schemaExists = true;
-      console.log("Database schema already exists, skipping initialization");
-    } catch (error: any) {
-      if (error.code === '42P01') {
-        // Table doesn't exist, proceed with initialization
-        schemaExists = false;
-        console.log("Database schema not found, proceeding with initialization");
-      } else {
-        // Some other error, re-throw
-        throw error;
+    // Check if all required tables exist
+    const requiredTables = ['users', 'patient_schedules', 'messaging_config'];
+    let schemaExists = true;
+    
+    for (const table of requiredTables) {
+      try {
+        await pool.query(`SELECT 1 FROM ${table} LIMIT 1`);
+        console.log(`✅ Table ${table} exists`);
+      } catch (error: any) {
+        if (error.code === '42P01') {
+          console.log(`❌ Table ${table} does not exist`);
+          schemaExists = false;
+        } else {
+          // Some other error, re-throw
+          throw error;
+        }
       }
     }
     
     if (schemaExists) {
+      console.log("Database schema already exists, skipping initialization");
       return;
+    } else {
+      console.log("Database schema incomplete, proceeding with initialization");
     }
     
     // Read and execute init.sql
