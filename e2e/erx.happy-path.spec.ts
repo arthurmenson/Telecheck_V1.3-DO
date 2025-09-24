@@ -7,6 +7,7 @@ test("eRx happy path: create ?+' verify ?+' poll ?+' cancel", async ({
 }) => {
   await page.goto("/login");
   await page.getByRole("heading", { name: "Doctor Portal" }).click();
+  await page.waitForSelector('input[name="email"]', { state: "visible" });
   await page.fill('input[name="email"]', "doctor@telecheck.com");
   await page.fill('input[name="password"]', "password");
   await page.click('button:has-text("Sign In")');

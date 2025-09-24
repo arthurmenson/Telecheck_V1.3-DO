@@ -1,3 +1,4 @@
+import { Buffer } from "node:buffer";
 import { test, expect } from "./fixtures";
 
 test.use({ storageState: "e2e/.auth/state.patient.json" });
@@ -5,15 +6,12 @@ test.use({ storageState: "e2e/.auth/state.patient.json" });
 test("Labs: upload ?+' analyze ?+' success toast", async ({ page }) => {
   await page.goto("/labs");
   await page.waitForLoadState("networkidle");
-  await page.evaluate(() => {
-    const input = document.querySelector<HTMLInputElement>("input#file-upload");
-    if (!input) throw new Error("file input not found");
-    const data = new DataTransfer();
-    data.items.add(
-      new File(["mock pdf content"], "report.pdf", { type: "application/pdf" }),
-    );
-    input.files = data.files;
-    input.dispatchEvent(new Event("change", { bubbles: true }));
+  const fileInput = page.locator("input#file-upload");
+  await fileInput.waitFor({ state: "attached" });
+  await fileInput.setInputFiles({
+    name: "report.pdf",
+    mimeType: "application/pdf",
+    buffer: Buffer.from("mock pdf content"),
   });
 
   await expect(page.getByText(/Analyzing/i)).toBeVisible();
