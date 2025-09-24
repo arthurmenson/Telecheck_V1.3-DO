@@ -141,6 +141,11 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
+DROP TRIGGER IF EXISTS update_patient_schedules_updated_at ON patient_schedules;
 CREATE TRIGGER update_patient_schedules_updated_at BEFORE UPDATE ON patient_schedules FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS update_care_team_members_updated_at ON care_team_members;
 CREATE TRIGGER update_care_team_members_updated_at BEFORE UPDATE ON care_team_members FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS update_escalation_rules_updated_at ON escalation_rules;
 CREATE TRIGGER update_escalation_rules_updated_at BEFORE UPDATE ON escalation_rules FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
