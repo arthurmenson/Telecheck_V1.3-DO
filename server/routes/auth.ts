@@ -73,6 +73,23 @@ router.post(
 
       const user = result.rows[0];
 
+      // Initialize empty patient profile for new patients
+      if (role === 'patient') {
+        try {
+          // Use a default date of birth (1900-01-01) since the field is NOT NULL
+          // Users can update this later when they complete their profile
+          await dbPool.query(
+            `INSERT INTO patients (user_id, date_of_birth, gender, allergies, emergency_contacts, insurance_info)
+             VALUES ($1, '1900-01-01', NULL, '{}', '{}', '{}')`,
+            [user.id]
+          );
+          console.log(`[Auth] Initialized empty patient profile for user ${user.id}`);
+        } catch (error) {
+          console.error(`[Auth] Failed to initialize patient profile for user ${user.id}:`, error);
+          // Don't fail registration if patient profile creation fails
+        }
+      }
+
       // Generate JWT token
       const token = jwt.sign(
         { userId: user.id, email: user.email, role: user.role },

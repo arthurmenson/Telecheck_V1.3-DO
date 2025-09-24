@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { AuthService } from "../services/api.service";
 import {
   Card,
   CardContent,
@@ -274,25 +275,39 @@ export function Register() {
     setIsSubmitting(true);
 
     try {
-      // Simulate registration API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      // Call the real registration API
+      const registrationData = {
+        email: formData.email,
+        password: formData.password,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        role: formData.role,
+        phone: formData.phone,
+      };
 
-      toast({
-        title: "Registration Successful!",
-        description: "Welcome to Telecheck! Check your email for next steps.",
-      });
+      const response = await AuthService.register(registrationData);
 
-      // Redirect to onboarding or login
-      navigate("/login", {
-        state: {
-          message: "Registration complete! Please log in to continue.",
-          registrationComplete: true,
-        },
-      });
-    } catch (error) {
+      if (response.success) {
+        toast({
+          title: "Registration Successful!",
+          description: "Welcome to Telecheck! You can now log in.",
+        });
+
+        // Redirect to login page
+        navigate("/login", {
+          state: {
+            message: "Registration complete! Please log in to continue.",
+            registrationComplete: true,
+          },
+        });
+      } else {
+        throw new Error(response.error || "Registration failed");
+      }
+    } catch (error: any) {
+      console.error("Registration error:", error);
       toast({
         title: "Registration Failed",
-        description: "Something went wrong. Please try again.",
+        description: error.message || "Something went wrong. Please try again.",
         variant: "destructive",
       });
     } finally {

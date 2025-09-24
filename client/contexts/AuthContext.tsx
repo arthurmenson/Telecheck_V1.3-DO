@@ -5,6 +5,7 @@ import React, {
   useEffect,
   ReactNode,
 } from "react";
+import { AuthService, UserService } from "../services/api.service";
 
 export type UserRole =
   | "patient"
@@ -31,7 +32,7 @@ export interface User {
 interface AuthContextType {
   user: User | null;
   login: (email: string, password: string, role: UserRole) => Promise<boolean>;
-  logout: () => void;
+  logout: () => Promise<void>;
   isAuthenticated: boolean;
   isLoading: boolean;
   hasPermission: (permission: string) => boolean;
@@ -49,68 +50,23 @@ export function useAuth() {
   return context;
 }
 
-// Mock user database with different roles
-const mockUsers: Record<string, User> = {
-  "patient@telecheck.com": {
-    id: "1",
-    email: "patient@telecheck.com",
-    name: "John Patient",
-    role: "patient",
-    avatar: "/avatars/patient.jpg",
-    permissions: [
+// Helper function to get permissions for a role
+const getPermissionsForRole = (role: string): string[] => {
+  const rolePermissions: Record<string, string[]> = {
+    patient: [
       "view_own_records",
       "book_appointments",
       "order_medications",
       "view_lab_results",
     ],
-    isActive: true,
-    lastLogin: new Date().toISOString(),
-  },
-  "doctor@telecheck.com": {
-    id: "2",
-    email: "doctor@telecheck.com",
-    name: "Dr. Sarah Wilson",
-    role: "doctor",
-    avatar: "/avatars/doctor.jpg",
-    permissions: [
+    doctor: [
       "view_all_patients",
       "prescribe_medications",
       "review_labs",
       "telehealth_consults",
       "approve_treatments",
     ],
-    organization: "Telecheck Medical Center",
-    license: "MD-123456",
-    specialization: "Internal Medicine",
-    isActive: true,
-    lastLogin: new Date().toISOString(),
-  },
-  "pharmacist@telecheck.com": {
-    id: "3",
-    email: "pharmacist@telecheck.com",
-    name: "PharmD Mike Chen",
-    role: "pharmacist",
-    avatar: "/avatars/pharmacist.jpg",
-    permissions: [
-      "dispense_medications",
-      "review_prescriptions",
-      "drug_interactions",
-      "inventory_management",
-      "patient_counseling",
-    ],
-    organization: "Telecheck Pharmacy",
-    license: "PharmD-789012",
-    specialization: "Clinical Pharmacy",
-    isActive: true,
-    lastLogin: new Date().toISOString(),
-  },
-  "nurse@telecheck.com": {
-    id: "4",
-    email: "nurse@telecheck.com",
-    name: "Nurse Jennifer Smith",
-    role: "nurse",
-    avatar: "/avatars/nurse.jpg",
-    permissions: [
+    nurse: [
       "view_all_patients",
       "patient_assessment",
       "vital_monitoring",
@@ -120,39 +76,14 @@ const mockUsers: Record<string, User> = {
       "wound_management",
       "rpm_monitoring",
     ],
-    organization: "Telecheck Medical Center",
-    license: "RN-345678",
-    specialization: "Critical Care Nursing",
-    isActive: true,
-    lastLogin: new Date().toISOString(),
-  },
-  "caregiver@telecheck.com": {
-    id: "5",
-    email: "caregiver@telecheck.com",
-    name: "Maria Rodriguez",
-    role: "caregiver",
-    avatar: "/avatars/caregiver.jpg",
-    permissions: [
-      "view_assigned_patients",
-      "submit_vitals",
-      "medication_tracking",
-      "appointment_scheduling",
-      "family_communication",
-      "basic_patient_care",
-      "rpm_data_entry",
+    pharmacist: [
+      "dispense_medications",
+      "review_prescriptions",
+      "drug_interactions",
+      "inventory_management",
+      "patient_counseling",
     ],
-    organization: "Family Care Services",
-    specialization: "Home Health Aide",
-    isActive: true,
-    lastLogin: new Date().toISOString(),
-  },
-  "admin@telecheck.com": {
-    id: "6",
-    email: "admin@telecheck.com",
-    name: "Admin User",
-    role: "admin",
-    avatar: "/avatars/admin.jpg",
-    permissions: [
+    admin: [
       "full_access",
       "user_management",
       "system_settings",
@@ -160,11 +91,11 @@ const mockUsers: Record<string, User> = {
       "platform_analytics",
       "security_controls",
     ],
-    organization: "Telecheck Platform",
-    isActive: true,
-    lastLogin: new Date().toISOString(),
-  },
+  };
+  return rolePermissions[role] || [];
 };
+
+// Mock users removed - now using real API authentication
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -227,46 +158,66 @@ export function AuthProvider({ children }: AuthProviderProps) {
   ): Promise<boolean> => {
     setIsLoading(true);
 
-    // Simulate API call delay
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    try {
+      // Call the real API
+      const response = await AuthService.login(email, password);
+      
+      if (response.success && response.data) {
+        const { user: apiUser, token } = response.data;
+        
+        // Check if the user's role matches the requested role
+        if (apiUser.role !== role) {
+          console.warn(`[AuthContext] Role mismatch: expected ${role}, got ${apiUser.role}`);
+          setIsLoading(false);
+          return false;
+        }
+        
+        // Transform API user to frontend User format
+        const user: User = {
+          id: apiUser.id,
+          email: apiUser.email,
+          name: `${apiUser.firstName} ${apiUser.lastName}`,
+          role: apiUser.role as UserRole,
+          permissions: getPermissionsForRole(apiUser.role),
+          isActive: true,
+          lastLogin: new Date().toISOString(),
+        };
 
-    const user = mockUsers[email];
+        console.log(`[AuthContext] Login successful for ${user.email}:`, {
+          userId: user.id,
+          role: user.role,
+          tokenLength: token.length,
+        });
 
-    if (user && user.role === role && user.isActive) {
-      // Update last login
-      user.lastLogin = new Date().toISOString();
-
-      // Generate a mock JWT token for API requests
-      const tokenPayload = {
-        userId: user.id,
-        email: user.email,
-        role: user.role,
-        permissions: user.permissions,
-        exp: Date.now() + 24 * 60 * 60 * 1000, // 24 hours
-      };
-      const mockToken = btoa(JSON.stringify(tokenPayload));
-
-      console.log(`[AuthContext] Generated token for user ${user.email}:`, {
-        tokenPayload,
-        tokenLength: mockToken.length,
-        tokenPreview: mockToken.substring(0, 50) + "...",
-      });
-
-      setUser(user);
-      localStorage.setItem("telecheck_user", JSON.stringify(user));
-      localStorage.setItem("auth_token", mockToken); // Store token for API client
+        setUser(user);
+        localStorage.setItem("telecheck_user", JSON.stringify(user));
+        localStorage.setItem("auth_token", token);
+        setIsLoading(false);
+        return true;
+      } else {
+        console.error("[AuthContext] Login failed:", response);
+        setIsLoading(false);
+        return false;
+      }
+    } catch (error) {
+      console.error("[AuthContext] Login error:", error);
       setIsLoading(false);
-      return true;
+      return false;
     }
-
-    setIsLoading(false);
-    return false;
   };
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+      // Call the real API logout endpoint
+      await AuthService.logout();
+    } catch (error) {
+      console.error("[AuthContext] Logout API call failed:", error);
+      // Continue with local logout even if API call fails
+    }
+    
     setUser(null);
     localStorage.removeItem("telecheck_user");
-    localStorage.removeItem("auth_token"); // Remove token on logout
+    localStorage.removeItem("auth_token");
   };
 
   const hasPermission = (permission: string): boolean => {
@@ -285,13 +236,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
     // Only admins can switch roles for testing purposes
     if (!user || user.role !== "admin") return false;
 
-    const targetUser = Object.values(mockUsers).find((u) => u.role === newRole);
-    if (targetUser) {
-      setUser({ ...targetUser });
-      localStorage.setItem("telecheck_user", JSON.stringify(targetUser));
-      return true;
-    }
-    return false;
+    // For now, just update the current user's role
+    // In a real implementation, this would require additional backend support
+    const updatedUser = { ...user, role: newRole, permissions: getPermissionsForRole(newRole) };
+    setUser(updatedUser);
+    localStorage.setItem("telecheck_user", JSON.stringify(updatedUser));
+    return true;
   };
 
   const value: AuthContextType = {

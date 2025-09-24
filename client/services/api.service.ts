@@ -638,6 +638,42 @@ export class EligibilityService {
   }
 }
 
+// Patient Service
+export class PatientService {
+  static async getPatientById(patientId: string): Promise<ApiResponse<any>> {
+    return apiClient.get(`/patients/${patientId}`);
+  }
+
+  static async getPatientStats(): Promise<ApiResponse<any>> {
+    return apiClient.get("/patients/stats");
+  }
+
+  static async searchPatients(filters: any = {}, page: number = 1, limit: number = 20): Promise<ApiResponse<any>> {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString(),
+      ...filters
+    });
+    return apiClient.get(`/patients/search?${params}`);
+  }
+
+  static async createPatient(patientData: any): Promise<ApiResponse<any>> {
+    return apiClient.post("/patients", patientData);
+  }
+
+  static async updatePatient(patientId: string, updateData: any): Promise<ApiResponse<any>> {
+    return apiClient.put(`/patients/${patientId}`, updateData);
+  }
+
+  static async getPatientAppointments(patientId: string): Promise<ApiResponse<any>> {
+    return apiClient.get(`/patients/${patientId}/appointments`);
+  }
+
+  static async getPatientVitals(patientId: string): Promise<ApiResponse<any>> {
+    return apiClient.get(`/patients/${patientId}/vitals`);
+  }
+}
+
 // Pharmacy Service
 export class PharmacyService {
   static async getCatalog(): Promise<ApiResponse<any>> {

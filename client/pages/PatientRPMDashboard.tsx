@@ -1,10 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useAuth } from "@/contexts/AuthContext";
+import { PatientService } from "@/services/api.service";
+import { PatientProfileCompletion } from "@/components/PatientProfileCompletion";
 import {
   Activity,
   Heart,
@@ -29,15 +32,142 @@ import {
 
 export function PatientRPMDashboard() {
   const [selectedDevice, setSelectedDevice] = useState("glucose");
+  const [patientData, setPatientData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [showProfileCompletion, setShowProfileCompletion] = useState(false);
+  const { user } = useAuth();
 
-  // Mock patient data
-  const patientData = {
-    name: "John Smith",
-    id: "PT-001",
-    program: "Diabetes Management",
-    enrollmentDate: "2024-01-15",
-    nextAppointment: "2024-02-20",
-  };
+  useEffect(() => {
+    const fetchPatientData = async () => {
+      if (!user) {
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        setIsLoading(true);
+        setError(null);
+        
+        const response = await PatientService.getPatientById(user.id);
+        
+        if (response.success && response.data) {
+          const patient = response.data;
+          const patientProfile = {
+            name: `${patient.firstName} ${patient.lastName}`,
+            id: patient.id,
+            program: patient.program || "Not enrolled",
+            enrollmentDate: patient.enrollmentDate || "Not set",
+            nextAppointment: patient.nextAppointment || "Not scheduled",
+            // Add other patient data
+            dateOfBirth: patient.dateOfBirth,
+            gender: patient.gender,
+            allergies: patient.allergies || [],
+            emergencyContacts: patient.emergencyContacts || {},
+            insuranceInfo: patient.insuranceInfo || {},
+          };
+          
+          setPatientData(patientProfile);
+          
+          // Check if profile needs completion (has default/empty values)
+          const needsCompletion = 
+            !patient.dateOfBirth || 
+            patient.dateOfBirth === '1900-01-01' ||
+            !patient.gender ||
+            (patient.allergies && patient.allergies.length === 0) ||
+            !patient.emergencyContacts?.name ||
+            !patient.insuranceInfo?.provider;
+            
+          setShowProfileCompletion(needsCompletion);
+        } else {
+          // Initialize empty profile for new users
+          setPatientData({
+            name: user.name,
+            id: user.id,
+            program: "Not enrolled",
+            enrollmentDate: "Not set",
+            nextAppointment: "Not scheduled",
+            dateOfBirth: null,
+            gender: null,
+            allergies: [],
+            emergencyContacts: {},
+            insuranceInfo: {},
+          });
+          setShowProfileCompletion(true);
+        }
+      } catch (err: any) {
+        console.error("Failed to fetch patient data:", err);
+        setError("Failed to load patient data");
+        
+        // Initialize empty profile on error
+        setPatientData({
+          name: user.name,
+          id: user.id,
+          program: "Not enrolled",
+          enrollmentDate: "Not set",
+          nextAppointment: "Not scheduled",
+          dateOfBirth: null,
+          gender: null,
+          allergies: [],
+          emergencyContacts: {},
+          insuranceInfo: {},
+        });
+        setShowProfileCompletion(true);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchPatientData();
+  }, [user]);
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading patient data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Alert className="max-w-md">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
+
+  // Show empty state if no patient data
+  if (!patientData) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <p className="text-gray-600">No patient data available</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show profile completion for new users
+  if (showProfileCompletion) {
+    return (
+      <PatientProfileCompletion 
+        onComplete={() => {
+          setShowProfileCompletion(false);
+          // Refresh patient data after completion
+          window.location.reload();
+        }} 
+      />
+    );
+  }
 
   const deviceStatus = {
     glucose: { connected: true, battery: 78, lastReading: "2 min ago" },

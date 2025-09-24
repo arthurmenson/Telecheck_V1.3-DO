@@ -121,38 +121,15 @@ export class SimplePatientService {
       );
       const total = totalResult[0]?.total || 0;
 
-      // If no users in database, create sample patients for demonstration
+      // Return empty stats if no users exist (no automatic sample data creation)
       if (total === 0) {
-        console.log(
-          "No users found, creating sample patients for demonstration",
-        );
-        await SimplePatientService.createSamplePatients();
-
-        // Re-count after creating sample patients
-        const newTotalResult = await database.query(
-          "SELECT COUNT(*) as total FROM users",
-        );
-        const newTotal = newTotalResult[0]?.total || 0;
-
-        if (newTotal > 0) {
-          return {
-            total_patients: newTotal,
-            active_patients: Math.floor(newTotal * 0.9),
-            inactive_patients: Math.floor(newTotal * 0.1),
-            new_this_month: Math.floor(newTotal * 0.25), // Higher percentage for demo
-            pediatric_patients: Math.floor(newTotal * 0.15),
-            senior_patients: Math.floor(newTotal * 0.25),
-          };
-        }
-
-        // Fallback to mock data if creation failed
         return {
-          total_patients: 4,
-          active_patients: 4,
+          total_patients: 0,
+          active_patients: 0,
           inactive_patients: 0,
-          new_this_month: 1,
-          pediatric_patients: 1,
-          senior_patients: 1,
+          new_this_month: 0,
+          pediatric_patients: 0,
+          senior_patients: 0,
         };
       }
 
@@ -251,31 +228,15 @@ export class SimplePatientService {
       const countResult = await database.query(countQuery, params);
       const total = countResult[0]?.total || 0;
 
-      // If no users found, create sample patients for demonstration
+      // Return empty results if no users found (no automatic sample data creation)
       if (total === 0) {
-        console.log(
-          "No users found, creating sample patients for demonstration",
-        );
-        await SimplePatientService.createSamplePatients();
-
-        // Re-run the search after creating sample patients
-        const newCountResult = await database.query(
-          countQuery,
-          params.slice(0, -2),
-        ); // Remove limit/offset
-        const newTotal = newCountResult[0]?.total || 0;
-
-        if (newTotal > 0) {
-          // Recursive call to get the actual patients now that they exist
-          return SimplePatientService.searchPatients(filters, page, limit);
-        }
-
-        // Fallback to mock data if creation failed
-        return SimplePatientService.getMockPatientsForSearch(
-          filters,
+        return {
+          patients: [],
+          total: 0,
           page,
           limit,
-        );
+          totalPages: 0,
+        };
       }
 
       // Calculate pagination
