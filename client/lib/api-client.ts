@@ -13,7 +13,8 @@ import { track } from "../../lib/telemetry";
 
 // API Configuration
 const API_CONFIG = {
-  BASE_URL: import.meta.env.VITE_API_URL || "/api",
+  BASE_URL: import.meta.env.VITE_API_URL || 
+    (window.location.hostname === 'localhost' ? "/api" : "https://whale-app-bs3xa.ondigitalocean.app/api"),
   TIMEOUT: 30000,
   MAX_RETRIES: 3,
   RETRY_DELAY: 1000,
