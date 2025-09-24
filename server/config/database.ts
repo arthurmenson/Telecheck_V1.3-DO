@@ -99,33 +99,47 @@ const initializeSchema = async (pool: Pool) => {
   try {
     console.log("Initializing database schema...");
     
-    // Check if tables already exist
-    const result = await pool.query(`
-      SELECT table_name 
-      FROM information_schema.tables 
-      WHERE table_schema = 'public' 
-      AND table_name IN ('users', 'patient_schedules', 'messaging_config')
-    `);
-    
-    if (result.rows.length > 0) {
+    // Check if tables already exist by trying to query a simple table
+    let schemaExists = false;
+    try {
+      await pool.query("SELECT 1 FROM users LIMIT 1");
+      schemaExists = true;
       console.log("Database schema already exists, skipping initialization");
+    } catch (error: any) {
+      if (error.code === '42P01') {
+        // Table doesn't exist, proceed with initialization
+        schemaExists = false;
+        console.log("Database schema not found, proceeding with initialization");
+      } else {
+        // Some other error, re-throw
+        throw error;
+      }
+    }
+    
+    if (schemaExists) {
       return;
     }
     
     // Read and execute init.sql
     const initSqlPath = path.join(process.cwd(), "server/config/init.sql");
     if (fs.existsSync(initSqlPath)) {
+      console.log("Executing init.sql...");
       const initSql = fs.readFileSync(initSqlPath, "utf8");
       await pool.query(initSql);
       console.log("✅ init.sql executed successfully");
+    } else {
+      console.log("⚠️ init.sql not found at:", initSqlPath);
     }
     
     // Read and execute messaging-tables.sql
     const messagingSqlPath = path.join(process.cwd(), "server/config/messaging-tables.sql");
     if (fs.existsSync(messagingSqlPath)) {
+      console.log("Executing messaging-tables.sql...");
       const messagingSql = fs.readFileSync(messagingSqlPath, "utf8");
       await pool.query(messagingSql);
       console.log("✅ messaging-tables.sql executed successfully");
+    } else {
+      console.log("⚠️ messaging-tables.sql not found at:", messagingSqlPath);
     }
     
     console.log("Database schema initialized successfully");
