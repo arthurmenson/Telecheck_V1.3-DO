@@ -22,7 +22,7 @@ export default defineConfig({
   webServer: {
     command: WEB_SERVER_CMD,
     url: BASE_URL,
-    timeout: 120000,
+    timeout: 240000,
     reuseExistingServer: REUSE_SERVER,
   },
 });
