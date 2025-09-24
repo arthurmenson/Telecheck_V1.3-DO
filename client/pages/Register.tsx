@@ -276,16 +276,16 @@ export function Register() {
 
     try {
       // Call the real registration API
-      const registrationData = {
-        email: formData.email,
-        password: formData.password,
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        role: formData.role,
-        phone: formData.phone,
+      const registrationPayload = {
+        email: registrationData.email,
+        password: registrationData.password,
+        firstName: registrationData.firstName,
+        lastName: registrationData.lastName,
+        role: "patient", // Default role for registration
+        phone: registrationData.phone,
       };
 
-      const response = await AuthService.register(registrationData);
+      const response = await AuthService.register(registrationPayload);
 
       if (response.success) {
         toast({
