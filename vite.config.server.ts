@@ -1,11 +1,18 @@
 import { defineConfig } from "vite";
-import path from "path";
+import { fileURLToPath } from "node:url";
+import { dirname } from "node:path";
+
+const configUrl = new URL(import.meta.url);
+const rootDir = dirname(fileURLToPath(configUrl));
+const serverEntry = fileURLToPath(new URL("./server/node-build.ts", configUrl));
+const clientDir = fileURLToPath(new URL("./client", configUrl));
+const sharedDir = fileURLToPath(new URL("./shared", configUrl));
 
 // Server build configuration
 export default defineConfig({
   build: {
     lib: {
-      entry: path.resolve(__dirname, "server/node-build.ts"),
+      entry: serverEntry,
       name: "server",
       fileName: "production",
       formats: ["es"],
@@ -43,8 +50,8 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./client"),
-      "@shared": path.resolve(__dirname, "./shared"),
+      "@": clientDir,
+      "@shared": sharedDir,
     },
   },
   define: {
