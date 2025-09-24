@@ -1,21 +1,28 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "./fixtures";
 
-test("Medications: search → select → interactions", async ({ page }) => {
+test.use({ storageState: "e2e/.auth/state.patient.json" });
+
+test("Medications: search ?+' select ?+' interactions", async ({
+  page,
+  request,
+}) => {
   await page.goto("/medications");
 
-  const search = await page.evaluate(async () => {
-    const r = await fetch("/api/medications/search?q=lipitor");
-    return r.json();
-  });
-  expect(Array.isArray(search.items)).toBeTruthy();
-  expect(search.items[0]).toMatchObject({ id: "lipitor" });
+  const searchResponse = await request.get("/api/medications/search?q=lipitor");
+  expect(searchResponse.ok()).toBeTruthy();
+  const search = await searchResponse.json();
+  expect(search.success).toBeTruthy();
+  expect(Array.isArray(search.data?.items)).toBeTruthy();
+  expect(search.data?.items?.[0]).toMatchObject({ id: "lipitor" });
 
-  const interactions = await page.evaluate(async () => {
-    const r = await fetch(
-      "/api/medications/interactions?drugA=lipitor&drugB=warfarin",
-    );
-    return r.json();
+  const interactionsResponse = await request.get(
+    "/api/medications/interactions?drugA=lipitor&drugB=warfarin",
+  );
+  expect(interactionsResponse.ok()).toBeTruthy();
+  const interactions = await interactionsResponse.json();
+  expect(interactions.success).toBeTruthy();
+  expect(Array.isArray(interactions.data?.interactions)).toBeTruthy();
+  expect(interactions.data?.interactions?.[0]).toMatchObject({
+    severity: "major",
   });
-  expect(Array.isArray(interactions.interactions)).toBeTruthy();
-  expect(interactions.interactions[0]).toMatchObject({ severity: "major" });
 });

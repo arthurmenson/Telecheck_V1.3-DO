@@ -37,6 +37,7 @@ import {
   registerWearableDevice,
   getConnectedDevices,
 } from "./routes/wearables";
+import { createPlaywrightMockRouter } from "./routes/playwright-mocks";
 import {
   getAvailableProviders,
   scheduleAppointment,
@@ -146,6 +147,8 @@ export async function createServer() {
   await initializeDatabase();
 
   const app = express();
+  const isPlaywright =
+    process.env.NODE_ENV === "playwright" || process.env.PLAYWRIGHT === "1";
 
   // Security middleware
   app.use(helmet());
@@ -173,6 +176,10 @@ export async function createServer() {
   // Health check routes (available at both /health and /api/health)
   app.use(healthRoutes);
   app.use("/api", healthRoutes);
+
+  if (isPlaywright) {
+    app.use("/api", createPlaywrightMockRouter());
+  }
 
   app.get("/api/ehr/scheduling/slots", (_req, res) => {
     res.json({

@@ -1,18 +1,26 @@
 import { defineConfig } from "@playwright/test";
 
+const PW_PORT = Number(process.env.PW_PORT || 3000);
+const PW_HOST = process.env.PW_HOST || "127.0.0.1";
+const BASE_URL = process.env.PW_BASE_URL || `http://${PW_HOST}:${PW_PORT}`;
+const WEB_SERVER_CMD =
+  process.env.PW_WEB_SERVER_CMD || "npm run start:playwright";
+const REUSE_SERVER =
+  process.env.PW_REUSE_SERVER === "1" || process.env.CI ? false : true;
+
 export default defineConfig({
   testDir: "e2e",
   globalSetup: "./e2e/helpers/auth.ts",
   use: {
-    baseURL: process.env.PW_BASE_URL || "http://localhost:8082",
+    baseURL: BASE_URL,
     trace: "on-first-retry",
     storageState: "e2e/.auth/state.json",
     serviceWorkers: "allow",
   },
   webServer: {
-    command: "cross-env VITE_MODE=MOCK VITE_API_BASE=/api PORT=8082 vite",
-    port: 8082,
+    command: WEB_SERVER_CMD,
+    url: BASE_URL,
     timeout: 120000,
-    reuseExistingServer: false,
+    reuseExistingServer: REUSE_SERVER,
   },
 });

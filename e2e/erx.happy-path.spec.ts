@@ -1,19 +1,22 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "./fixtures";
 
-test("eRx happy path: create → verify → poll → cancel", async ({ page }) => {
-  // Login helper assumed exists in other specs; fallback to navigating directly
+test.use({ storageState: "e2e/.auth/state.logged-out.json" });
+
+test("eRx happy path: create ?+' verify ?+' poll ?+' cancel", async ({
+  page,
+}) => {
   await page.goto("/login");
-  await page.fill('input[name="email"]', "doctor@example.com");
+  await page.getByRole("heading", { name: "Doctor Portal" }).click();
+  await page.fill('input[name="email"]', "doctor@telecheck.com");
   await page.fill('input[name="password"]', "password");
   await page.click('button:has-text("Sign In")');
+  await page.waitForURL("**/doctor-dashboard");
 
-  await page.waitForURL("**/");
   await page.goto("/ehr/erx");
+  await page.waitForSelector("#patientId");
 
   await page.fill("#patientId", "Patient/123");
   await page.fill("#medication", "amoxicillin");
-  await page.waitForTimeout(300); // allow debounce-ish results
-  await page.click("text=amoxicillin", { trial: true }).catch(() => {});
 
   await page.click('button:has-text("Create Prescription")');
   await expect(page.locator("text=Created Rx ID")).toBeVisible();
