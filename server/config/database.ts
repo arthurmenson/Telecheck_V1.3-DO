@@ -1,17 +1,11 @@
 import { Pool } from "pg";
-import { createClient } from "redis";
+import { createClient, RedisClientType } from "redis";
 
-// PostgreSQL is required in production, optional in development
-const usePostgreSQL = !!(process.env.DATABASE_URL || process.env.DB_HOST);
+// Determine if PostgreSQL is configured via environment (DATABASE_URL takes precedence)
+const shouldUsePostgreSQL = !!(process.env.DATABASE_URL || process.env.DB_HOST);
+let postgresAvailable = shouldUsePostgreSQL;
 
-// Warn if PostgreSQL is missing in production instead of crashing (allows CI smoke tests without DB)
-if (process.env.NODE_ENV === "production" && !usePostgreSQL) {
-  console.warn(
-    "PostgreSQL is not configured. Set DATABASE_URL or DB_HOST to enable database features.",
-  );
-}
-
-// Database configuration for PostgreSQL
+// PostgreSQL configuration (used when connections are enabled)
 const dbConfig = {
   connectionString: process.env.DATABASE_URL,
   host:
@@ -63,11 +57,13 @@ const redisConfig = {
       : undefined,
 };
 
-// Create database pool
-export const dbPool = usePostgreSQL ? new Pool(dbConfig) : null;
+// Lazily created database pool (null when DB features are disabled)
+export let dbPool: Pool | null = shouldUsePostgreSQL
+  ? new Pool(dbConfig)
+  : null;
 
-// Create Redis client
-let redisClient: any = null;
+// Redis client is optional
+export let redisClient: RedisClientType | null = null;
 try {
   if (
     process.env.REDIS_URL ||
@@ -77,16 +73,42 @@ try {
     redisClient = createClient(redisConfig);
   }
 } catch (error) {
-  console.log("ℹ️  Redis not available, continuing without cache");
+  console.log("Redis not available, continuing without cache");
 }
 
-export { redisClient };
+const logPostgresNotConfigured = () => {
+  console.warn(
+    "PostgreSQL not configured. Continuing with database features disabled.",
+  );
+};
+
+const logPostgresDisabled = (reason: string) => {
+  console.warn(
+    `PostgreSQL disabled for this process (${reason}). Features that depend on the database are unavailable.`,
+  );
+};
+
+const canRunDegraded = () =>
+  process.env.ALLOW_DB_FAILURE === "true" ||
+  process.env.NODE_ENV === "production";
 
 // Initialize connections
 export const initializeDatabase = async () => {
-  try {
-    if (usePostgreSQL && dbPool) {
+  if (!shouldUsePostgreSQL) {
+    if (process.env.NODE_ENV === "production") {
+      logPostgresNotConfigured();
+    }
+    postgresAvailable = false;
+  }
+
+  if (shouldUsePostgreSQL && !dbPool) {
+    dbPool = new Pool(dbConfig);
+  }
+
+  if (dbPool) {
+    try {
       await dbPool.query("SELECT NOW()");
+      postgresAvailable = true;
       console.log("PostgreSQL connected successfully");
 
       const connectionInfo = dbPool.options;
@@ -98,27 +120,40 @@ export const initializeDatabase = async () => {
         ssl: !!connectionInfo.ssl,
         maxConnections: connectionInfo.max,
       });
-    } else {
-      console.warn(
-        "PostgreSQL not configured. Continuing with database features disabled.",
-      );
-    }
+    } catch (error) {
+      postgresAvailable = false;
+      console.error("Database connection failed:", error);
 
-    if (redisClient) {
       try {
-        await redisClient.connect();
-        console.log("Redis connected successfully");
-      } catch (error) {
-        console.log(
-          "Redis connection failed, continuing without cache:",
-          (error as Error).message,
+        await dbPool.end();
+      } catch (shutdownError) {
+        console.warn(
+          "Failed to close database pool after startup failure:",
+          shutdownError,
         );
-        redisClient = null;
       }
+
+      dbPool = null;
+
+      if (!canRunDegraded()) {
+        throw error;
+      }
+
+      logPostgresDisabled("startup failure");
     }
-  } catch (error) {
-    console.error("Database connection failed:", error);
-    throw error;
+  }
+
+  if (redisClient) {
+    try {
+      await redisClient.connect();
+      console.log("Redis connected successfully");
+    } catch (error) {
+      console.log(
+        "Redis connection failed, continuing without cache:",
+        (error as Error).message,
+      );
+      redisClient = null;
+    }
   }
 };
 
@@ -127,20 +162,21 @@ export const closeDatabase = async () => {
   try {
     if (dbPool) {
       await dbPool.end();
+      dbPool = null;
     }
     if (redisClient) {
       await redisClient.quit();
     }
-    console.log("✅ Database connections closed");
+    console.log("Database connections closed");
   } catch (error) {
-    console.error("❌ Error closing database connections:", error);
+    console.error("Error closing database connections:", error);
   }
 };
 
 // Health check
 export const healthCheck = async () => {
   try {
-    if (usePostgreSQL && dbPool) {
+    if (postgresAvailable && dbPool) {
       await dbPool.query("SELECT 1");
 
       const redisStatus = redisClient
@@ -161,8 +197,8 @@ export const healthCheck = async () => {
     const redisStatus = redisClient ? "not_connected" : "not_configured";
 
     return {
-      status: "degraded",
-      database: "not_configured",
+      status: shouldUsePostgreSQL ? "degraded" : "not_configured",
+      database: shouldUsePostgreSQL ? "unavailable" : "not_configured",
       redis: redisStatus,
       timestamp: new Date().toISOString(),
     };
@@ -177,12 +213,12 @@ export const healthCheck = async () => {
 
 // Query helper for PostgreSQL
 export const query = async (text: string, params: any[] = []): Promise<any> => {
-  if (usePostgreSQL && dbPool) {
+  if (postgresAvailable && dbPool) {
     const result = await dbPool.query(text, params);
     return result.rows;
-  } else {
-    throw new Error("PostgreSQL not configured");
   }
+
+  throw new Error("PostgreSQL is not available");
 };
 
 // Export database type info
@@ -193,4 +229,5 @@ export const getDatabaseInfo = () => ({
   connectionString: process.env.DATABASE_URL
     ? "[REDACTED]"
     : `${process.env.DB_HOST}:${process.env.DB_PORT}`,
+  available: postgresAvailable,
 });
