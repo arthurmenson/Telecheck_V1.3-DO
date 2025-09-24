@@ -25,7 +25,7 @@ const logger = pino({
   level: config.nodeEnv === "production" ? "info" : "debug",
 });
 const server: FastifyInstance = Fastify({
-  logger,
+  logger: { instance: logger },
   trustProxy: true,
   requestIdHeader: "x-request-id",
 });
