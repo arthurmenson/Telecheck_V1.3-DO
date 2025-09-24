@@ -22,7 +22,7 @@
     "gen:mocks": "npx openapi-msw contracts/*.openapi.yaml -o mocks/msw/generated",
     "check:openapi": "openapi-diff contracts/main.yaml contracts/next.yaml --fail-on-changed",
     "pact:verify": "pact-provider-verifier --provider-base-url=$API_BASE --publish-verification-results=false contracts/pact/*.json",
-    "sbom": "cyclonedx-npm --json -o sbom.json",
+    "sbom": "cyclonedx-npm --ignore-npm-errors --output-format JSON --output-file sbom.json",
     "prepare": "husky install",
     "build": "npm run build:client && npm run build:server",
     "build:client": "vite build",
