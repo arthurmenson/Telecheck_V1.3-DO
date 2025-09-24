@@ -1,5 +1,7 @@
 import { Pool } from "pg";
 import { createClient, RedisClientType } from "redis";
+import fs from "fs";
+import path from "path";
 
 // Determine if PostgreSQL is configured via environment (DATABASE_URL takes precedence)
 const shouldUsePostgreSQL = !!(process.env.DATABASE_URL || process.env.DB_HOST);
@@ -92,6 +94,47 @@ const canRunDegraded = () =>
   process.env.ALLOW_DB_FAILURE === "true" ||
   process.env.NODE_ENV === "production";
 
+// Initialize database schema
+const initializeSchema = async (pool: Pool) => {
+  try {
+    console.log("Initializing database schema...");
+    
+    // Check if tables already exist
+    const result = await pool.query(`
+      SELECT table_name 
+      FROM information_schema.tables 
+      WHERE table_schema = 'public' 
+      AND table_name IN ('users', 'patient_schedules', 'messaging_config')
+    `);
+    
+    if (result.rows.length > 0) {
+      console.log("Database schema already exists, skipping initialization");
+      return;
+    }
+    
+    // Read and execute init.sql
+    const initSqlPath = path.join(process.cwd(), "server/config/init.sql");
+    if (fs.existsSync(initSqlPath)) {
+      const initSql = fs.readFileSync(initSqlPath, "utf8");
+      await pool.query(initSql);
+      console.log("✅ init.sql executed successfully");
+    }
+    
+    // Read and execute messaging-tables.sql
+    const messagingSqlPath = path.join(process.cwd(), "server/config/messaging-tables.sql");
+    if (fs.existsSync(messagingSqlPath)) {
+      const messagingSql = fs.readFileSync(messagingSqlPath, "utf8");
+      await pool.query(messagingSql);
+      console.log("✅ messaging-tables.sql executed successfully");
+    }
+    
+    console.log("Database schema initialized successfully");
+  } catch (error) {
+    console.error("Error initializing database schema:", error);
+    throw error;
+  }
+};
+
 // Initialize connections
 export const initializeDatabase = async () => {
   if (!shouldUsePostgreSQL) {
@@ -120,6 +163,9 @@ export const initializeDatabase = async () => {
         ssl: !!connectionInfo.ssl,
         maxConnections: connectionInfo.max,
       });
+      
+      // Initialize database schema
+      await initializeSchema(dbPool);
     } catch (error) {
       postgresAvailable = false;
       console.error("Database connection failed:", error);
