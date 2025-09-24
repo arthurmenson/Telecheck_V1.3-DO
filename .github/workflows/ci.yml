@@ -40,12 +40,15 @@ jobs:
       - name: Build
         run: npm run build --if-present
       - name: Unit tests
-        run: npm run test:unit --if-present
+        run: |
+          set -o pipefail
+          npm run test:unit --if-present 2>&1 | tee unit-tests.log
       - name: Smoke health (dev server)
         run: |
           nohup npm start &
           sleep 5
-          npm run smoke:health
+          set -o pipefail
+          npm run smoke:health 2>&1 | tee smoke-health.log
       - name: Diagnostics on failure
         if: failure()
         run: |
@@ -56,6 +59,22 @@ jobs:
           npm ls --depth=0 || true
           echo "=== Lockfile checksum ==="
           shasum -a 256 package-lock.json || true
+
+      - name: Upload CI logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-logs-${{ github.run_id }}
+          path: |
+            unit-tests.log
+            smoke-health.log
+
+      - name: Append failure summary
+        if: failure()
+        run: |
+          echo "### CI failure logs (tail)" >> $GITHUB_STEP_SUMMARY
+          if [ -f unit-tests.log ]; then echo "\n#### Unit tests" >> $GITHUB_STEP_SUMMARY; tail -n 200 unit-tests.log >> $GITHUB_STEP_SUMMARY; fi
+          if [ -f smoke-health.log ]; then echo "\n#### Smoke health" >> $GITHUB_STEP_SUMMARY; tail -n 200 smoke-health.log >> $GITHUB_STEP_SUMMARY; fi
 
   contracts:
     runs-on: ubuntu-latest
@@ -124,7 +143,25 @@ jobs:
         env:
           VITE_MODE: MOCK
           ENABLE_EXPRESS: "0"
-        run: npm run test:e2e
+        run: |
+          set -o pipefail
+          npm run test:e2e 2>&1 | tee e2e.log
+
+      - name: Upload E2E artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-artifacts-${{ github.run_id }}
+          path: |
+            e2e.log
+            playwright-report/**
+            test-results/**
+
+      - name: Append E2E failure summary
+        if: failure()
+        run: |
+          echo "### E2E failure logs (tail)" >> $GITHUB_STEP_SUMMARY
+          if [ -f e2e.log ]; then tail -n 200 e2e.log >> $GITHUB_STEP_SUMMARY; fi
 
   sbom:
     runs-on: ubuntu-latest
