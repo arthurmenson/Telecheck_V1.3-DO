@@ -98,17 +98,17 @@ const canRunDegraded = () =>
 const initializeSchema = async (pool: Pool) => {
   try {
     console.log("Initializing database schema...");
-    
+
     // Check if all required tables exist
-    const requiredTables = ['users', 'patient_schedules', 'messaging_config'];
+    const requiredTables = ["users", "patient_schedules", "messaging_config"];
     let schemaExists = true;
-    
+
     for (const table of requiredTables) {
       try {
         await pool.query(`SELECT 1 FROM ${table} LIMIT 1`);
         console.log(`✅ Table ${table} exists`);
       } catch (error: any) {
-        if (error.code === '42P01') {
+        if (error.code === "42P01") {
           console.log(`❌ Table ${table} does not exist`);
           schemaExists = false;
         } else {
@@ -117,14 +117,14 @@ const initializeSchema = async (pool: Pool) => {
         }
       }
     }
-    
+
     if (schemaExists) {
       console.log("Database schema already exists, skipping initialization");
       return;
     } else {
       console.log("Database schema incomplete, proceeding with initialization");
     }
-    
+
     // Read and execute init.sql
     const initSqlPath = path.join(process.cwd(), "server/config/init.sql");
     if (fs.existsSync(initSqlPath)) {
@@ -135,9 +135,12 @@ const initializeSchema = async (pool: Pool) => {
     } else {
       console.log("⚠️ init.sql not found at:", initSqlPath);
     }
-    
+
     // Read and execute messaging-tables.sql
-    const messagingSqlPath = path.join(process.cwd(), "server/config/messaging-tables.sql");
+    const messagingSqlPath = path.join(
+      process.cwd(),
+      "server/config/messaging-tables.sql",
+    );
     if (fs.existsSync(messagingSqlPath)) {
       console.log("Executing messaging-tables.sql...");
       const messagingSql = fs.readFileSync(messagingSqlPath, "utf8");
@@ -146,7 +149,7 @@ const initializeSchema = async (pool: Pool) => {
     } else {
       console.log("⚠️ messaging-tables.sql not found at:", messagingSqlPath);
     }
-    
+
     console.log("Database schema initialized successfully");
   } catch (error) {
     console.error("Error initializing database schema:", error);
@@ -182,7 +185,7 @@ export const initializeDatabase = async () => {
         ssl: !!connectionInfo.ssl,
         maxConnections: connectionInfo.max,
       });
-      
+
       // Initialize database schema
       await initializeSchema(dbPool);
     } catch (error) {
