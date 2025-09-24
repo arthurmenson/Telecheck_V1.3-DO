@@ -180,7 +180,7 @@ export function Login() {
 
     setSelectedRole(role);
     setEmail(credentials[role]);
-    setPassword("demo123");
+    setPassword("DemoPassword123!");
   };
 
   const currentRoleConfig = roleConfigs[selectedRole];
