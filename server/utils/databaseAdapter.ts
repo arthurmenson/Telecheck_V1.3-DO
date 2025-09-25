@@ -91,9 +91,21 @@ class DatabaseAdapter {
   async getVitalSigns(userId: string, limit: number = 100): Promise<any[]> {
     return await this.query(
       `
-      SELECT * FROM vital_signs 
-      WHERE user_id = $1 
-      ORDER BY measured_at DESC 
+      SELECT
+        id,
+        user_id,
+        heart_rate,
+        blood_pressure_systolic,
+        blood_pressure_diastolic,
+        temperature,
+        oxygen_saturation,
+        weight,
+        height,
+        recorded_at,
+        source
+      FROM vital_signs
+      WHERE user_id = $1
+      ORDER BY recorded_at DESC
       LIMIT $2
     `,
       [userId, limit],
@@ -101,15 +113,54 @@ class DatabaseAdapter {
   }
 
   async addVitalSigns(vitalData: any): Promise<any> {
-    const { userId, type, value, unit, measuredAt, deviceId } = vitalData;
+    const {
+      userId,
+      type,
+      value,
+      unit,
+      measuredAt,
+      deviceId,
+      heartRate,
+      bloodPressureSystolic,
+      bloodPressureDiastolic,
+      temperature,
+      oxygenSaturation,
+      weight,
+      height,
+      source,
+    } = vitalData;
+
+    const recordedAt = measuredAt || vitalData.recordedAt || new Date();
 
     const result = await this.query(
       `
-      INSERT INTO vital_signs (user_id, type, value, unit, measured_at, device_id)
-      VALUES ($1, $2, $3, $4, $5, $6)
+      INSERT INTO vital_signs (
+        user_id,
+        heart_rate,
+        blood_pressure_systolic,
+        blood_pressure_diastolic,
+        temperature,
+        oxygen_saturation,
+        weight,
+        height,
+        recorded_at,
+        source
+      )
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
       RETURNING *
     `,
-      [userId, type, value, unit, measuredAt || new Date(), deviceId],
+      [
+        userId,
+        heartRate ?? value ?? null,
+        bloodPressureSystolic ?? null,
+        bloodPressureDiastolic ?? null,
+        temperature ?? null,
+        oxygenSaturation ?? null,
+        weight ?? null,
+        height ?? null,
+        recordedAt,
+        source || "manual",
+      ],
     );
     return result[0];
   }
