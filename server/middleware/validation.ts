@@ -26,7 +26,7 @@ export const validateRegister = [
   body("firstName").trim().isLength({ min: 1, max: 100 }),
   body("lastName").trim().isLength({ min: 1, max: 100 }),
   body("role").isIn(["patient", "doctor", "pharmacist", "admin"]),
-  body("phone").optional().isMobilePhone("en-US"),
+  body("phone").optional().isLength({ min: 10, max: 15 }),
   handleValidationErrors,
 ];
 
@@ -45,7 +45,7 @@ export const validatePasswordReset = [
 export const validateUpdateProfile = [
   body("firstName").optional().trim().isLength({ min: 1, max: 100 }),
   body("lastName").optional().trim().isLength({ min: 1, max: 100 }),
-  body("phone").optional().isMobilePhone("en-US"),
+  body("phone").optional().isLength({ min: 10, max: 15 }),
   handleValidationErrors,
 ];
 
