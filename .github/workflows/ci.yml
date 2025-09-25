@@ -86,7 +86,12 @@ jobs:
           cache: "npm"
       - name: Pin npm version
         run: npm i -g npm@${{ env.NPM_VERSION }}
-      - run: npm install --omit=optional --ignore-scripts
+      - run: npm install --force --omit=optional --ignore-scripts --no-audit --no-fund
+        env:
+          npm_config_target_platform: linux
+          npm_config_target_arch: x64
+          npm_config_target_libc: glibc
+          npm_config_force: true
       - run: npm run gen:sdk
 
   services:
@@ -124,7 +129,12 @@ jobs:
           cache: "npm"
       - name: Pin npm version
         run: npm i -g npm@${{ env.NPM_VERSION }}
-      - run: npm install --omit=optional --ignore-scripts
+      - run: npm install --force --omit=optional --ignore-scripts --no-audit --no-fund
+        env:
+          npm_config_target_platform: linux
+          npm_config_target_arch: x64
+          npm_config_target_libc: glibc
+          npm_config_force: true
       - run: npm run test:contract
 
   sbom:
@@ -137,5 +147,10 @@ jobs:
           cache: "npm"
       - name: Pin npm version
         run: npm i -g npm@${{ env.NPM_VERSION }}
-      - run: npm install --omit=optional --ignore-scripts
+      - run: npm install --force --omit=optional --ignore-scripts --no-audit --no-fund
+        env:
+          npm_config_target_platform: linux
+          npm_config_target_arch: x64
+          npm_config_target_libc: glibc
+          npm_config_force: true
       - run: npm run sbom

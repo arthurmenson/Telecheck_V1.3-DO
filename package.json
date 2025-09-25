@@ -6,9 +6,6 @@
   "engines": {
     "node": ">=20.14.0 <25"
   },
-  "overrides": {
-    "@rollup/rollup-darwin-arm64": false
-  },
   "pkg": {
     "assets": [
       "dist/spa/*"
@@ -184,8 +181,8 @@
     "tsx": "^4.7.0",
     "typescript": "^5.5.3",
     "vaul": "^0.9.3",
-    "vite": "^6.3.5",
-    "vitest": "^3.1.4"
+    "vite": "^4.5.3",
+    "vitest": "^1.6.0"
   },
   "msw": {
     "workerDirectory": [
