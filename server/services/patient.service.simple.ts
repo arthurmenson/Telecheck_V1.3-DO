@@ -161,12 +161,6 @@ export class SimplePatientService {
    */
   static async getPatientById(patientId: string): Promise<any> {
     try {
-      // Check for mock intake patients first
-      const mockPatient = SimplePatientService.getMockIntakePatient(patientId);
-      if (mockPatient) {
-        return mockPatient;
-      }
-
       const user = await database.getUserById(patientId);
       if (!user) {
         return null;
