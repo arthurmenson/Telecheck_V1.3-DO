@@ -125,6 +125,7 @@ import {
   comparePatientThresholds,
   getThresholdAlertsHistory,
 } from "./routes/vital-monitoring";
+import legacySeedRoutes from "./routes/legacy-seed";
 
 // Configure multer for file uploads
 const upload = multer({
@@ -380,6 +381,7 @@ export async function createServer() {
   app.use("/api/reporting", reportingRoutes);
   app.use("/api/labs-hl7", labsHl7Routes);
   app.use("/api/imaging", imagingRoutes);
+  app.use("/api/legacy", legacySeedRoutes);
 
   // Messaging routes
   app.post("/api/messaging/send", sendMessage);
