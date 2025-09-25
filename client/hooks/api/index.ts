@@ -650,8 +650,10 @@ export function useRegister() {
     (userData: {
       email: string;
       password: string;
-      name: string;
+      firstName: string;
+      lastName: string;
       role?: string;
+      phone?: string;
     }) => AuthService.register(userData),
   );
 }
