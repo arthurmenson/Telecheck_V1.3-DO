@@ -32,7 +32,7 @@ jobs:
           node -v
           npm -v
       - name: Install (frozen)
-        run: npm install --force --omit=optional --ignore-scripts --no-audit --no-fund
+        run: npm install --force --ignore-scripts --no-audit --no-fund
         env:
           npm_config_target_platform: linux
           npm_config_target_arch: x64
