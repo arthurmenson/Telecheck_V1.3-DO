@@ -6,6 +6,9 @@
   "engines": {
     "node": ">=20.14.0 <25"
   },
+  "overrides": {
+    "@rollup/rollup-darwin-arm64": false
+  },
   "pkg": {
     "assets": [
       "dist/spa/*"
