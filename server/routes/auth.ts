@@ -223,16 +223,19 @@ router.post("/login", validateLogin, async (req: Request, res: Response) => {
     await safeSetEx(`refresh_token:${user.id}`, 7 * 24 * 60 * 60, refreshToken);
 
     res.json({
+      success: true,
       message: "Login successful",
-      user: {
-        id: user.id,
-        email: user.email,
-        firstName: user.first_name,
-        lastName: user.last_name,
-        role: user.role,
+      data: {
+        user: {
+          id: user.id,
+          email: user.email,
+          firstName: user.first_name,
+          lastName: user.last_name,
+          role: user.role,
+        },
+        token,
+        refreshToken,
       },
-      token,
-      refreshToken,
     });
   } catch (error) {
     console.error("Login error:", error);
