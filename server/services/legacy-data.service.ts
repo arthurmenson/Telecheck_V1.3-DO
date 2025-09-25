@@ -24,6 +24,121 @@ function seededNumber(
   return Math.round(value * factor) / factor;
 }
 
+async function insertBaselineVitals(userId: string) {
+  if (!dbPool) return;
+  const existing = await dbPool.query(
+    "SELECT 1 FROM vital_signs WHERE user_id = $1 LIMIT 1",
+    [userId],
+  );
+  if (existing.rows.length > 0) return;
+
+  await dbPool.query(
+    `INSERT INTO vital_signs (
+        user_id,
+        heart_rate,
+        blood_pressure_systolic,
+        blood_pressure_diastolic,
+        temperature,
+        oxygen_saturation,
+        weight,
+        height,
+        recorded_at,
+        source
+      )
+      VALUES ($1, 0, 0, 0, 0, 0, 0, 0, NOW(), 'manual')`,
+    [userId],
+  );
+}
+
+async function insertBaselineLabResults(userId: string) {
+  if (!dbPool) return;
+  const existing = await dbPool.query(
+    "SELECT 1 FROM lab_reports WHERE user_id = $1 LIMIT 1",
+    [userId],
+  );
+  if (existing.rows.length > 0) return;
+
+  const reportResult = await dbPool.query(
+    `INSERT INTO lab_reports (
+        user_id,
+        file_name,
+        file_size,
+        file_url,
+        upload_date,
+        analysis_status,
+        ai_summary,
+        confidence
+      )
+      VALUES ($1, $2, $3, $4, NOW(), 'completed', $5, $6)
+      RETURNING id`,
+    [
+      userId,
+      "baseline-panel.pdf",
+      0,
+      `/baseline/${userId}`,
+      "Baseline values initialized. Awaiting real lab results.",
+      0,
+    ],
+  );
+
+  const reportId = reportResult.rows[0].id;
+
+  const tests = [
+    { name: "Creatinine", unit: "mg/dL", range: "0" },
+    { name: "Total Cholesterol", unit: "mg/dL", range: "0" },
+    { name: "HDL", unit: "mg/dL", range: "0" },
+    { name: "HbA1c", unit: "%", range: "0" },
+  ];
+
+  for (const test of tests) {
+    await dbPool.query(
+      `INSERT INTO lab_results (
+          lab_report_id,
+          test_name,
+          value,
+          unit,
+          reference_range,
+          status,
+          test_date,
+          lab_name,
+          doctor_notes
+        )
+        VALUES ($1, $2, 0, $3, $4, 'normal', NOW(), 'Baseline Initialization', $5)`,
+      [
+        reportId,
+        test.name,
+        test.unit,
+        test.range,
+        "Baseline entry - replace with real lab data",
+      ],
+    );
+  }
+}
+
+async function insertBaselineMedication(userId: string) {
+  if (!dbPool) return;
+  const existing = await dbPool.query(
+    "SELECT 1 FROM medications WHERE user_id = $1 LIMIT 1",
+    [userId],
+  );
+  if (existing.rows.length > 0) return;
+
+  await dbPool.query(
+    `INSERT INTO medications (
+        user_id,
+        name,
+        dosage,
+        frequency,
+        start_date,
+        prescribed_by,
+        instructions,
+        is_active
+      )
+      VALUES ($1, 'Pending Assignment', '0 mg', 'None', NOW(), 'Telecheck Team', 'No medications assigned yet.', false)`,
+    [userId],
+  );
+}
+
 async function fetchLegacyUserIds(): Promise<string[]> {
   if (!dbPool) return [];
   const result = await dbPool.query(
@@ -42,6 +157,17 @@ async function isLegacyUser(userId: string) {
   if (result.rows.length === 0) return false;
   const createdAt = result.rows[0].created_at as Date;
   return createdAt < LEGACY_USER_CUTOFF;
+}
+
+async function isNewUser(userId: string) {
+  if (!dbPool) return false;
+  const result = await dbPool.query(
+    "SELECT created_at FROM users WHERE id = $1",
+    [userId],
+  );
+  if (result.rows.length === 0) return false;
+  const createdAt = result.rows[0].created_at as Date;
+  return createdAt >= LEGACY_USER_CUTOFF;
 }
 
 async function seedMedications(userId: string) {
@@ -210,9 +336,21 @@ async function seedLabResults(userId: string) {
   });
 }
 
+async function seedNewUserBaseline(userId: string) {
+  if (!dbPool) return;
+  await insertBaselineVitals(userId);
+  await insertBaselineLabResults(userId);
+  await insertBaselineMedication(userId);
+}
+
 export async function ensureLegacyClinicalData(userId: string) {
   if (!dbPool) return;
-  if (!(await isLegacyUser(userId))) return;
+  if (!(await isLegacyUser(userId))) {
+    if (await isNewUser(userId)) {
+      await seedNewUserBaseline(userId);
+    }
+    return;
+  }
 
   await seedMedications(userId);
   await seedVitals(userId);
