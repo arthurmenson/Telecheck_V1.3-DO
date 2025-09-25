@@ -235,7 +235,7 @@ export class MedicationService {
 }
 
 // Vital Signs Service
-export class VitalService {
+export class VitalsService {
   static async getVitalSigns(
     userId?: string,
   ): Promise<ApiResponse<VitalSigns[]>> {

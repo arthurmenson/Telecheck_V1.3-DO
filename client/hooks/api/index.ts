@@ -16,7 +16,7 @@ import {
   UserService,
   LabService,
   MedicationService,
-  VitalService,
+  VitalsService,
   ChatService,
   ProgramService,
   AnalyticsService,
@@ -228,39 +228,21 @@ export function useSearchMedications(query: string) {
 // Vital Signs Hooks
 // ========================================
 
-export function useVitalSigns(userId?: string) {
-  return useApiQuery(queryKeys.vitals.list(userId), () =>
-    VitalService.getVitalSigns(userId),
+export function useVitals(userId?: string) {
+  return useApiQuery(["vitals", userId], () =>
+    VitalsService.getVitalSigns(userId),
   );
 }
 
-export function useAddVitalSigns() {
-  const { updateCache, invalidateQueries } = useOptimisticUpdate();
-
-  return useApiMutation(
-    ({ vitals, userId }: { vitals: Omit<VitalSigns, "id">; userId?: string }) =>
-      VitalService.addVitalSigns(vitals, userId),
-    {
-      onMutate: async ({ vitals, userId }) => {
-        const tempId = `temp-${Date.now()}`;
-        const optimisticVitals = { ...vitals, id: tempId };
-
-        updateCache(queryKeys.vitals.list(userId), (old: VitalSigns[] = []) => [
-          optimisticVitals,
-          ...old,
-        ]);
-      },
-      onSettled: (data, error, { userId }) => {
-        invalidateQueries(queryKeys.vitals.list(userId));
-        invalidateQueries(queryKeys.vitals.trends(userId));
-      },
-    },
+export function useAddVitalSigns(userId?: string) {
+  return useApiMutation((vitals: Omit<VitalSigns, "id">) =>
+    VitalsService.addVitalSigns(vitals, userId),
   );
 }
 
 export function useVitalTrends(userId?: string, days?: number) {
-  return useApiQuery(queryKeys.vitals.trends(userId, days), () =>
-    VitalService.getVitalTrends(userId, days),
+  return useApiQuery(["vitalTrends", userId, days], () =>
+    VitalsService.getVitalTrends(userId, days),
   );
 }
 
