@@ -15,7 +15,8 @@ import {
 export interface User {
   id: string;
   email: string;
-  name: string;
+  firstName: string;
+  lastName: string;
   role: "patient" | "doctor" | "admin" | "pharmacist" | "nurse";
   avatar?: string;
   preferences?: UserPreferences;
@@ -92,8 +93,10 @@ export class AuthService {
   static async register(userData: {
     email: string;
     password: string;
-    name: string;
+    firstName: string;
+    lastName: string;
     role?: string;
+    phone?: string;
   }): Promise<ApiResponse<{ user: User; token: string }>> {
     return apiClient.post(API_ENDPOINTS.AUTH.REGISTER, userData);
   }
