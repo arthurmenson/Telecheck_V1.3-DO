@@ -86,7 +86,7 @@ jobs:
           cache: "npm"
       - name: Pin npm version
         run: npm i -g npm@${{ env.NPM_VERSION }}
-      - run: npm ci --omit=optional --ignore-scripts
+      - run: npm ci --force
       - run: npm run gen:sdk
 
   services:
@@ -124,7 +124,7 @@ jobs:
           cache: "npm"
       - name: Pin npm version
         run: npm i -g npm@${{ env.NPM_VERSION }}
-      - run: npm ci --omit=optional --ignore-scripts
+      - run: npm ci --force
       - run: npm run test:contract
 
   sbom:
@@ -137,5 +137,5 @@ jobs:
           cache: "npm"
       - name: Pin npm version
         run: npm i -g npm@${{ env.NPM_VERSION }}
-      - run: npm ci --omit=optional --ignore-scripts
+      - run: npm ci --force
       - run: npm run sbom
