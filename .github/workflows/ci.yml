@@ -114,7 +114,12 @@ jobs:
       - name: Pin npm version
         run: npm i -g npm@${{ env.NPM_VERSION }}
       - name: Install root (frozen)
-        run: npm ci
+        run: npm install --force --ignore-scripts --no-audit --no-fund
+        env:
+          npm_config_target_platform: linux
+          npm_config_target_arch: x64
+          npm_config_target_libc: glibc
+          npm_config_force: true
       - name: Install service deps (frozen)
         run: |
           cd services/${{ matrix.service }}
