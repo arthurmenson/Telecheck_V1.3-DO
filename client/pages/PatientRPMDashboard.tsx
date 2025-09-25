@@ -102,7 +102,7 @@ export function PatientRPMDashboard() {
       } catch (err: any) {
         console.error("Failed to fetch patient data:", err);
         setError("Failed to load patient data. Please try again later.");
-        
+
         // Initialize empty profile on error
         setPatientData({
           name: user?.name || "Unknown Patient",

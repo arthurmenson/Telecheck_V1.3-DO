@@ -32,14 +32,14 @@ export default defineConfig(({ mode }) => ({
             },
           }
         : process.env.VITE_API_URL
-        ? {
-            "/api": {
-              target: process.env.VITE_API_URL.replace("/api", ""),
-              changeOrigin: true,
-              secure: true,
-            },
-          }
-        : undefined,
+          ? {
+              "/api": {
+                target: process.env.VITE_API_URL.replace("/api", ""),
+                changeOrigin: true,
+                secure: true,
+              },
+            }
+          : undefined,
     fs: {
       allow: ["./client", "./shared", "./lib", "./mocks"],
       deny: [".env", ".env.*", "*.{crt,pem}", "**/.git/**", "server/**"],
