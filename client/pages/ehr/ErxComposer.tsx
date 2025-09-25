@@ -82,10 +82,15 @@ export function ErxComposer() {
         : { text: medicationText },
       dosageInstruction: dosage ? { text: dosage } : undefined,
     } as any;
-    const res = await createRx.mutateAsync(payload);
-    const newId = (res as any)?.data?.id;
-    if (newId) setCurrentRxId(newId);
-    toast.success("Prescription created");
+    try {
+      const res = await createRx.mutateAsync(payload);
+      const newId = (res as any)?.data?.id;
+      if (newId) setCurrentRxId(newId);
+      toast.success("Prescription created");
+    } catch (error) {
+      console.error("Prescription creation failed:", error);
+      toast.error("Failed to create prescription. Please try again.");
+    }
   };
 
   const handleVerify = async () => {

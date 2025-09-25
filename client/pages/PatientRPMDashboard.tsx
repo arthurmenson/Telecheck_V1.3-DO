@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -37,11 +38,14 @@ export function PatientRPMDashboard() {
   const [error, setError] = useState<string | null>(null);
   const [showProfileCompletion, setShowProfileCompletion] = useState(false);
   const { user } = useAuth();
+  const [searchParams] = useSearchParams();
+  const patientId = searchParams.get("patientId");
 
   useEffect(() => {
     const fetchPatientData = async () => {
-      if (!user) {
+      if (!patientId) {
         setIsLoading(false);
+        setError("No patient ID provided");
         return;
       }
 
@@ -49,7 +53,7 @@ export function PatientRPMDashboard() {
         setIsLoading(true);
         setError(null);
 
-        const response = await PatientService.getPatientById(user.id);
+        const response = await PatientService.getPatientById(patientId);
 
         if (response.success && response.data) {
           const patient = response.data;
@@ -97,12 +101,12 @@ export function PatientRPMDashboard() {
         }
       } catch (err: any) {
         console.error("Failed to fetch patient data:", err);
-        setError("Failed to load patient data");
-
+        setError("Failed to load patient data. Please try again later.");
+        
         // Initialize empty profile on error
         setPatientData({
-          name: user.name,
-          id: user.id,
+          name: user?.name || "Unknown Patient",
+          id: patientId || "unknown",
           program: "Not enrolled",
           enrollmentDate: "Not set",
           nextAppointment: "Not scheduled",
@@ -119,7 +123,7 @@ export function PatientRPMDashboard() {
     };
 
     fetchPatientData();
-  }, [user]);
+  }, [patientId]);
 
   // Show loading state
   if (isLoading) {

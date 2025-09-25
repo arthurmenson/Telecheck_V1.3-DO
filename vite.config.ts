@@ -31,6 +31,14 @@ export default defineConfig(({ mode }) => ({
               secure: true,
             },
           }
+        : process.env.VITE_API_URL
+        ? {
+            "/api": {
+              target: process.env.VITE_API_URL.replace("/api", ""),
+              changeOrigin: true,
+              secure: true,
+            },
+          }
         : undefined,
     fs: {
       allow: ["./client", "./shared", "./lib", "./mocks"],
@@ -60,9 +68,6 @@ export default defineConfig(({ mode }) => ({
     process.env.VITE_MODE !== "MOCK" &&
     process.env.ENABLE_EXPRESS === "1"
       ? expressPlugin()
-      : undefined,
-    mode === "development" && process.env.VITE_MODE === "MOCK"
-      ? mockApiPlugin()
       : undefined,
   ].filter(Boolean),
   resolve: {
@@ -124,130 +129,6 @@ function expressPlugin(): Plugin {
         .catch((error) => {
           console.error("❌ Failed to load server module:", error);
         });
-    },
-  };
-}
-
-function mockApiPlugin(): Plugin {
-  return {
-    name: "mock-api-plugin",
-    enforce: "pre",
-    apply: "serve",
-    configureServer(server) {
-      server.middlewares.use("/api", async (req, res, next) => {
-        try {
-          const url = new URL(req.url || "", "http://localhost");
-          const pathname = url.pathname;
-          const method = (req.method || "GET").toUpperCase();
-          res.setHeader("Content-Type", "application/json");
-
-          // Labs
-          if (method === "GET" && pathname === "/api/labs/results") {
-            const chaos = url.searchParams.get("chaos");
-            if (chaos === "1") {
-              res.statusCode = Math.random() < 0.5 ? 500 : 401;
-              return res.end(JSON.stringify({ message: "chaos" }));
-            }
-            return res.end(JSON.stringify({ results: [] }));
-          }
-          if (method === "POST" && pathname === "/api/labs/analyze") {
-            const chaos = url.searchParams.get("chaos");
-            if (chaos === "1") {
-              res.statusCode = Math.random() < 0.5 ? 500 : 401;
-              return res.end(JSON.stringify({ message: "chaos" }));
-            }
-            return res.end(JSON.stringify({ analysisId: "a1", status: "ok" }));
-          }
-          if (method === "POST" && pathname === "/api/analyze-lab") {
-            const chaos = url.searchParams.get("chaos");
-            if (chaos === "1") {
-              res.statusCode = Math.random() < 0.5 ? 500 : 401;
-              return res.end(JSON.stringify({ message: "chaos" }));
-            }
-            return res.end(JSON.stringify({ analysisId: "a1", status: "ok" }));
-          }
-          if (method === "GET" && pathname === "/api/labs/trends") {
-            const chaos = url.searchParams.get("chaos");
-            if (chaos === "1") {
-              res.statusCode = Math.random() < 0.5 ? 500 : 401;
-              return res.end(JSON.stringify({ message: "chaos" }));
-            }
-            return res.end(JSON.stringify({ series: [] }));
-          }
-
-          // Scheduling
-          if (method === "GET" && pathname === "/api/ehr/scheduling/slots") {
-            const chaos = url.searchParams.get("chaos");
-            if (chaos === "1") {
-              res.statusCode = Math.random() < 0.5 ? 500 : 401;
-              return res.end(JSON.stringify({ message: "chaos" }));
-            }
-            return res.end(
-              JSON.stringify({
-                slots: [
-                  {
-                    id: "s1",
-                    start: "2025-01-02T09:00:00Z",
-                    end: "2025-01-02T09:30:00Z",
-                  },
-                ],
-              }),
-            );
-          }
-          if (method === "POST" && pathname === "/api/ehr/scheduling/book") {
-            const chaos = url.searchParams.get("chaos");
-            if (chaos === "1") {
-              res.statusCode = Math.random() < 0.5 ? 500 : 401;
-              return res.end(JSON.stringify({ message: "chaos" }));
-            }
-            return res.end(JSON.stringify({ id: "apt1", status: "booked" }));
-          }
-          if (
-            method === "POST" &&
-            pathname.match(/^\/api\/ehr\/scheduling\/.+\/(cancel|reschedule)$/)
-          ) {
-            const id = pathname.split("/").slice(-2)[0];
-            const action = pathname.split("/").pop();
-            const chaos = url.searchParams.get("chaos");
-            if (chaos === "1") {
-              res.statusCode = Math.random() < 0.5 ? 500 : 401;
-              return res.end(JSON.stringify({ message: "chaos" }));
-            }
-            const status = action === "cancel" ? "canceled" : "rescheduled";
-            return res.end(JSON.stringify({ id, status }));
-          }
-
-          // Medications
-          if (method === "GET" && pathname === "/api/medications/search") {
-            const q = url.searchParams.get("q")?.toLowerCase() || "";
-            if (q.includes("lipitor")) {
-              return res.end(
-                JSON.stringify({
-                  items: [
-                    { id: "lipitor", name: "Lipitor", generic: "atorvastatin" },
-                  ],
-                  q,
-                }),
-              );
-            }
-            return res.end(JSON.stringify({ items: [], q }));
-          }
-
-          // RPM minimal endpoints
-          if (method === "GET" && pathname === "/api/vitals") {
-            return res.end(JSON.stringify({ items: [] }));
-          }
-          if (method === "GET" && pathname === "/api/vitals/trends") {
-            return res.end(
-              JSON.stringify({ series: [{ name: "glucose", data: [] }] }),
-            );
-          }
-
-          return next();
-        } catch (e) {
-          return next();
-        }
-      });
     },
   };
 }

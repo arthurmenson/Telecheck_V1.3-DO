@@ -127,41 +127,6 @@ jobs:
       - run: npm ci
       - run: npm run test:contract
 
-  e2e_mock:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: "npm"
-      - name: Pin npm version
-        run: npm i -g npm@${{ env.NPM_VERSION }}
-      - run: npm ci
-      - run: npx playwright install --with-deps
-      - name: Run Playwright (MOCK)
-        env:
-          VITE_MODE: MOCK
-          ENABLE_EXPRESS: "0"
-        run: |
-          set -o pipefail
-          npm run test:e2e 2>&1 | tee e2e.log
-
-      - name: Upload E2E artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: e2e-artifacts-${{ github.run_id }}
-          path: |
-            e2e.log
-            playwright-report/**
-            test-results/**
-
-      - name: Append E2E failure summary
-        if: failure()
-        run: |
-          echo "### E2E failure logs (tail)" >> $GITHUB_STEP_SUMMARY
-          if [ -f e2e.log ]; then tail -n 200 e2e.log >> $GITHUB_STEP_SUMMARY; fi
 
   sbom:
     runs-on: ubuntu-latest

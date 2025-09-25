@@ -2,7 +2,7 @@
   "cookies": [],
   "origins": [
     {
-      "origin": "http://localhost:8082",
+      "origin": "http://127.0.0.1:3000",
       "localStorage": [
         {
           "name": "telecheck_user",
@@ -10,7 +10,7 @@
         },
         {
           "name": "auth_token",
-          "value": "eyJ1c2VySWQiOiIyIiwiZW1haWwiOiJkb2N0b3JAdGVsZWNoZWNrLmNvbSIsInJvbGUiOiJkb2N0b3IiLCJwZXJtaXNzaW9ucyI6WyJ2aWV3X2FsbF9wYXRpZW50cyIsInByZXNjcmliZV9tZWRpY2F0aW9ucyIsInJldmlld19sYWJzIiwidGVsZWhlYWx0aF9jb25zdWx0cyIsImFwcHJvdmVfdHJlYXRtZW50cyJdLCJleHAiOjE3NTg1NjUwMTYzMTl9"
+          "value": "eyJ1c2VySWQiOiIyIiwiZW1haWwiOiJkb2N0b3JAdGVsZWNoZWNrLmNvbSIsInJvbGUiOiJkb2N0b3IiLCJwZXJtaXNzaW9ucyI6WyJ2aWV3X2FsbF9wYXRpZW50cyIsInByZXNjcmliZV9tZWRpY2F0aW9ucyIsInJldmlld19sYWJzIiwidGVsZWhlYWx0aF9jb25zdWx0cyIsImFwcHJvdmVfdHJlYXRtZW50cyJdLCJleHAiOjE3NTg4NTAxNjg0NzR9"
         }
       ]
     }

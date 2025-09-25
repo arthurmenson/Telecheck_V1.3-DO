@@ -1,0 +1,18 @@
+{
+  "cookies": [],
+  "origins": [
+    {
+      "origin": "http://127.0.0.1:3000",
+      "localStorage": [
+        {
+          "name": "telecheck_user",
+          "value": "{\"id\":\"1\",\"email\":\"patient@telecheck.com\",\"name\":\"John Patient\",\"role\":\"patient\",\"permissions\":[\"view_own_records\",\"book_appointments\",\"order_medications\",\"view_lab_results\"],\"isActive\":true}"
+        },
+        {
+          "name": "auth_token",
+          "value": "eyJ1c2VySWQiOiIxIiwiZW1haWwiOiJwYXRpZW50QHRlbGVjaGVjay5jb20iLCJyb2xlIjoicGF0aWVudCIsInBlcm1pc3Npb25zIjpbInZpZXdfb3duX3JlY29yZHMiLCJib29rX2FwcG9pbnRtZW50cyIsIm9yZGVyX21lZGljYXRpb25zIiwidmlld19sYWJfcmVzdWx0cyJdLCJleHAiOjE3NTg4NTAxNjg0NzR9"
+        }
+      ]
+    }
+  ]
+}
