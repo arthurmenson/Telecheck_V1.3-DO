@@ -117,16 +117,19 @@ router.post(
       );
 
       res.status(201).json({
+        success: true,
         message: "User registered successfully",
-        user: {
-          id: user.id,
-          email: user.email,
-          firstName: user.first_name,
-          lastName: user.last_name,
-          role: user.role,
+        data: {
+          user: {
+            id: user.id,
+            email: user.email,
+            firstName: user.first_name,
+            lastName: user.last_name,
+            role: user.role,
+          },
+          token,
+          refreshToken,
         },
-        token,
-        refreshToken,
       });
     } catch (error) {
       console.error("Registration error:", error);
