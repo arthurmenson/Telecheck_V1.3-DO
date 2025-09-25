@@ -486,6 +486,17 @@ export async function createServer() {
   app.post("/api/vitals/compare-thresholds", comparePatientThresholds);
   app.get("/api/vitals/alerts-history", getThresholdAlertsHistory);
 
+  app.get("/dashboard", authenticateToken, async (req, res, next) => {
+    try {
+      if (req.user?.id) {
+        await ensureLegacyClinicalData(req.user.id);
+      }
+    } catch (err) {
+      console.error("Failed to ensure baseline data for user", req.user?.id, err);
+    }
+    next();
+  });
+
   return app;
 }
 const isDbConfigured = !!dbPool;
