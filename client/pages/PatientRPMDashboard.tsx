@@ -48,9 +48,9 @@ export function PatientRPMDashboard() {
       try {
         setIsLoading(true);
         setError(null);
-        
+
         const response = await PatientService.getPatientById(user.id);
-        
+
         if (response.success && response.data) {
           const patient = response.data;
           const patientProfile = {
@@ -66,18 +66,18 @@ export function PatientRPMDashboard() {
             emergencyContacts: patient.emergencyContacts || {},
             insuranceInfo: patient.insuranceInfo || {},
           };
-          
+
           setPatientData(patientProfile);
-          
+
           // Check if profile needs completion (has default/empty values)
-          const needsCompletion = 
-            !patient.dateOfBirth || 
-            patient.dateOfBirth === '1900-01-01' ||
+          const needsCompletion =
+            !patient.dateOfBirth ||
+            patient.dateOfBirth === "1900-01-01" ||
             !patient.gender ||
             (patient.allergies && patient.allergies.length === 0) ||
             !patient.emergencyContacts?.name ||
             !patient.insuranceInfo?.provider;
-            
+
           setShowProfileCompletion(needsCompletion);
         } else {
           // Initialize empty profile for new users
@@ -98,7 +98,7 @@ export function PatientRPMDashboard() {
       } catch (err: any) {
         console.error("Failed to fetch patient data:", err);
         setError("Failed to load patient data");
-        
+
         // Initialize empty profile on error
         setPatientData({
           name: user.name,
@@ -159,12 +159,12 @@ export function PatientRPMDashboard() {
   // Show profile completion for new users
   if (showProfileCompletion) {
     return (
-      <PatientProfileCompletion 
+      <PatientProfileCompletion
         onComplete={() => {
           setShowProfileCompletion(false);
           // Refresh patient data after completion
           window.location.reload();
-        }} 
+        }}
       />
     );
   }

@@ -648,11 +648,15 @@ export class PatientService {
     return apiClient.get("/patients/stats");
   }
 
-  static async searchPatients(filters: any = {}, page: number = 1, limit: number = 20): Promise<ApiResponse<any>> {
+  static async searchPatients(
+    filters: any = {},
+    page: number = 1,
+    limit: number = 20,
+  ): Promise<ApiResponse<any>> {
     const params = new URLSearchParams({
       page: page.toString(),
       limit: limit.toString(),
-      ...filters
+      ...filters,
     });
     return apiClient.get(`/patients/search?${params}`);
   }
@@ -661,11 +665,16 @@ export class PatientService {
     return apiClient.post("/patients", patientData);
   }
 
-  static async updatePatient(patientId: string, updateData: any): Promise<ApiResponse<any>> {
+  static async updatePatient(
+    patientId: string,
+    updateData: any,
+  ): Promise<ApiResponse<any>> {
     return apiClient.put(`/patients/${patientId}`, updateData);
   }
 
-  static async getPatientAppointments(patientId: string): Promise<ApiResponse<any>> {
+  static async getPatientAppointments(
+    patientId: string,
+  ): Promise<ApiResponse<any>> {
     return apiClient.get(`/patients/${patientId}/appointments`);
   }
 

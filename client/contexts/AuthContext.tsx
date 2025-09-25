@@ -161,17 +161,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       // Call the real API
       const response = await AuthService.login(email, password);
-      
+
       if (response.success && response.data) {
         const { user: apiUser, token } = response.data;
-        
+
         // Check if the user's role matches the requested role
         if (apiUser.role !== role) {
-          console.warn(`[AuthContext] Role mismatch: expected ${role}, got ${apiUser.role}`);
+          console.warn(
+            `[AuthContext] Role mismatch: expected ${role}, got ${apiUser.role}`,
+          );
           setIsLoading(false);
           return false;
         }
-        
+
         // Transform API user to frontend User format
         const user: User = {
           id: apiUser.id,
@@ -214,7 +216,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       console.error("[AuthContext] Logout API call failed:", error);
       // Continue with local logout even if API call fails
     }
-    
+
     setUser(null);
     localStorage.removeItem("telecheck_user");
     localStorage.removeItem("auth_token");
@@ -238,7 +240,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     // For now, just update the current user's role
     // In a real implementation, this would require additional backend support
-    const updatedUser = { ...user, role: newRole, permissions: getPermissionsForRole(newRole) };
+    const updatedUser = {
+      ...user,
+      role: newRole,
+      permissions: getPermissionsForRole(newRole),
+    };
     setUser(updatedUser);
     localStorage.setItem("telecheck_user", JSON.stringify(updatedUser));
     return true;

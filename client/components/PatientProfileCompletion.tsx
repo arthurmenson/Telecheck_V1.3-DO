@@ -4,7 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CheckCircle, AlertTriangle } from "lucide-react";
 import { PatientService } from "@/services/api.service";
@@ -14,7 +20,9 @@ interface PatientProfileCompletionProps {
   onComplete?: () => void;
 }
 
-export function PatientProfileCompletion({ onComplete }: PatientProfileCompletionProps) {
+export function PatientProfileCompletion({
+  onComplete,
+}: PatientProfileCompletionProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -33,7 +41,7 @@ export function PatientProfileCompletion({ onComplete }: PatientProfileCompletio
   });
 
   const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -47,7 +55,9 @@ export function PatientProfileCompletion({ onComplete }: PatientProfileCompletio
       const updateData = {
         dateOfBirth: formData.dateOfBirth || null,
         gender: formData.gender || null,
-        allergies: formData.allergies ? formData.allergies.split(',').map(a => a.trim()) : [],
+        allergies: formData.allergies
+          ? formData.allergies.split(",").map((a) => a.trim())
+          : [],
         emergencyContacts: {
           name: formData.emergencyContactName || null,
           phone: formData.emergencyContactPhone || null,
@@ -61,7 +71,7 @@ export function PatientProfileCompletion({ onComplete }: PatientProfileCompletio
       };
 
       const response = await PatientService.updatePatient(user.id, updateData);
-      
+
       if (response.success) {
         setSuccess(true);
         setTimeout(() => {
@@ -72,7 +82,9 @@ export function PatientProfileCompletion({ onComplete }: PatientProfileCompletio
       }
     } catch (err: any) {
       console.error("Profile update error:", err);
-      setError("An error occurred while updating your profile. Please try again.");
+      setError(
+        "An error occurred while updating your profile. Please try again.",
+      );
     } finally {
       setIsLoading(false);
     }
@@ -85,8 +97,12 @@ export function PatientProfileCompletion({ onComplete }: PatientProfileCompletio
           <CardContent className="pt-6">
             <div className="text-center">
               <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
-              <h2 className="text-2xl font-bold text-green-700 mb-2">Profile Updated!</h2>
-              <p className="text-gray-600">Your patient profile has been successfully updated.</p>
+              <h2 className="text-2xl font-bold text-green-700 mb-2">
+                Profile Updated!
+              </h2>
+              <p className="text-gray-600">
+                Your patient profile has been successfully updated.
+              </p>
             </div>
           </CardContent>
         </Card>
@@ -98,9 +114,12 @@ export function PatientProfileCompletion({ onComplete }: PatientProfileCompletio
     <div className="max-w-2xl mx-auto p-6">
       <Card>
         <CardHeader>
-          <CardTitle className="text-2xl">Complete Your Patient Profile</CardTitle>
+          <CardTitle className="text-2xl">
+            Complete Your Patient Profile
+          </CardTitle>
           <p className="text-gray-600">
-            Please fill out your patient profile to get the most out of your healthcare experience.
+            Please fill out your patient profile to get the most out of your
+            healthcare experience.
           </p>
         </CardHeader>
         <CardContent>
@@ -115,7 +134,7 @@ export function PatientProfileCompletion({ onComplete }: PatientProfileCompletio
             {/* Basic Information */}
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Basic Information</h3>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="dateOfBirth">Date of Birth</Label>
@@ -123,13 +142,20 @@ export function PatientProfileCompletion({ onComplete }: PatientProfileCompletio
                     id="dateOfBirth"
                     type="date"
                     value={formData.dateOfBirth}
-                    onChange={(e) => handleInputChange("dateOfBirth", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("dateOfBirth", e.target.value)
+                    }
                   />
                 </div>
 
                 <div>
                   <Label htmlFor="gender">Gender</Label>
-                  <Select value={formData.gender} onValueChange={(value) => handleInputChange("gender", value)}>
+                  <Select
+                    value={formData.gender}
+                    onValueChange={(value) =>
+                      handleInputChange("gender", value)
+                    }
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select gender" />
                     </SelectTrigger>
@@ -137,7 +163,9 @@ export function PatientProfileCompletion({ onComplete }: PatientProfileCompletio
                       <SelectItem value="male">Male</SelectItem>
                       <SelectItem value="female">Female</SelectItem>
                       <SelectItem value="other">Other</SelectItem>
-                      <SelectItem value="prefer_not_to_say">Prefer not to say</SelectItem>
+                      <SelectItem value="prefer_not_to_say">
+                        Prefer not to say
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -149,7 +177,9 @@ export function PatientProfileCompletion({ onComplete }: PatientProfileCompletio
                   id="allergies"
                   placeholder="e.g., Penicillin, Shellfish, Latex"
                   value={formData.allergies}
-                  onChange={(e) => handleInputChange("allergies", e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("allergies", e.target.value)
+                  }
                 />
               </div>
             </div>
@@ -157,7 +187,7 @@ export function PatientProfileCompletion({ onComplete }: PatientProfileCompletio
             {/* Emergency Contact */}
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Emergency Contact</h3>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="emergencyContactName">Contact Name</Label>
@@ -165,7 +195,9 @@ export function PatientProfileCompletion({ onComplete }: PatientProfileCompletio
                     id="emergencyContactName"
                     placeholder="Full name"
                     value={formData.emergencyContactName}
-                    onChange={(e) => handleInputChange("emergencyContactName", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("emergencyContactName", e.target.value)
+                    }
                   />
                 </div>
 
@@ -175,14 +207,23 @@ export function PatientProfileCompletion({ onComplete }: PatientProfileCompletio
                     id="emergencyContactPhone"
                     placeholder="(555) 123-4567"
                     value={formData.emergencyContactPhone}
-                    onChange={(e) => handleInputChange("emergencyContactPhone", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("emergencyContactPhone", e.target.value)
+                    }
                   />
                 </div>
               </div>
 
               <div>
-                <Label htmlFor="emergencyContactRelationship">Relationship</Label>
-                <Select value={formData.emergencyContactRelationship} onValueChange={(value) => handleInputChange("emergencyContactRelationship", value)}>
+                <Label htmlFor="emergencyContactRelationship">
+                  Relationship
+                </Label>
+                <Select
+                  value={formData.emergencyContactRelationship}
+                  onValueChange={(value) =>
+                    handleInputChange("emergencyContactRelationship", value)
+                  }
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select relationship" />
                   </SelectTrigger>
@@ -201,14 +242,16 @@ export function PatientProfileCompletion({ onComplete }: PatientProfileCompletio
             {/* Insurance Information */}
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Insurance Information</h3>
-              
+
               <div>
                 <Label htmlFor="insuranceProvider">Insurance Provider</Label>
                 <Input
                   id="insuranceProvider"
                   placeholder="e.g., Blue Cross Blue Shield"
                   value={formData.insuranceProvider}
-                  onChange={(e) => handleInputChange("insuranceProvider", e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("insuranceProvider", e.target.value)
+                  }
                 />
               </div>
 
@@ -219,7 +262,9 @@ export function PatientProfileCompletion({ onComplete }: PatientProfileCompletio
                     id="insurancePolicyNumber"
                     placeholder="Policy number"
                     value={formData.insurancePolicyNumber}
-                    onChange={(e) => handleInputChange("insurancePolicyNumber", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("insurancePolicyNumber", e.target.value)
+                    }
                   />
                 </div>
 
@@ -229,7 +274,9 @@ export function PatientProfileCompletion({ onComplete }: PatientProfileCompletio
                     id="insuranceGroupNumber"
                     placeholder="Group number"
                     value={formData.insuranceGroupNumber}
-                    onChange={(e) => handleInputChange("insuranceGroupNumber", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("insuranceGroupNumber", e.target.value)
+                    }
                   />
                 </div>
               </div>
