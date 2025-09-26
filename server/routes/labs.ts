@@ -293,7 +293,73 @@ router.post(
   },
 );
 
-// Get lab results for a specific report
+// Get lab results for a user across all reports
+router.get(
+  "/results/user/:userId",
+  requireAuth,
+  async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (!isDbConfigured) {
+        return res.json({ success: true, data: mockLabResults });
+      }
+
+      const userId = req.params.userId;
+
+      if (req.user!.role !== "admin" && req.user!.id !== userId) {
+        return res.status(403).json({
+          success: false,
+          error: "Insufficient permissions",
+          code: "INSUFFICIENT_PERMISSIONS",
+        });
+      }
+
+      const query = `
+        SELECT
+          lr.id,
+          lr.lab_report_id,
+          lr.test_name,
+          lr.value,
+          lr.unit,
+          lr.reference_range,
+          lr.status,
+          lr.test_date,
+          lr.lab_name,
+          lr.doctor_notes
+        FROM lab_results lr
+        INNER JOIN lab_reports r ON r.id = lr.lab_report_id
+        WHERE r.user_id = $1
+        ORDER BY lr.test_date DESC
+      `;
+
+      const results = await dbPool.query(query, [userId]);
+
+      res.json({
+        success: true,
+        data: results.rows.map((row) => ({
+          id: row.id,
+          labReportId: row.lab_report_id,
+          testName: row.test_name,
+          value: row.value,
+          unit: row.unit,
+          referenceRange: row.reference_range,
+          status: row.status,
+          testDate: row.test_date,
+          labName: row.lab_name,
+          doctorNotes: row.doctor_notes,
+        })),
+      });
+    } catch (error) {
+      console.error("Get lab results by user error:", error);
+      res.status(500).json({
+        success: false,
+        error: "Internal server error",
+        code: "INTERNAL_ERROR",
+      });
+    }
+  },
+);
+
+// Existing route to get lab results for a specific report
 router.get(
   "/results/:reportId",
   requireAuth,

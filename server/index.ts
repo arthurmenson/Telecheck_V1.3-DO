@@ -492,7 +492,11 @@ export async function createServer() {
         await ensureLegacyClinicalData(req.user.id);
       }
     } catch (err) {
-      console.error("Failed to ensure baseline data for user", req.user?.id, err);
+      console.error(
+        "Failed to ensure baseline data for user",
+        req.user?.id,
+        err,
+      );
     }
     next();
   });
