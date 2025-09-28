@@ -29,6 +29,30 @@ export interface UserPreferences {
   timezone: string;
 }
 
+export interface UserListResponse {
+  users: User[];
+  pagination: {
+    page: number;
+    limit: number;
+    totalUsers: number;
+    totalPages: number;
+    hasNext: boolean;
+    hasPrevious: boolean;
+  };
+}
+
+export interface UserStatsResponse {
+  totalUsers: number;
+  activeUsers: number;
+  inactiveUsers: number;
+  patients: number;
+  doctors: number;
+  pharmacists: number;
+  admins: number;
+  activeLast7Days: number;
+  activeLast30Days: number;
+}
+
 export interface LabResult {
   id: string;
   testName: string;
@@ -143,13 +167,434 @@ export class UserService {
   }
 }
 
+export interface ListUsersParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+}
+
+type RawUserRecord = Record<string, any>;
+
+export class UserAdminService {
+  private static normalizeUser(user: RawUserRecord): User {
+    const firstName = user?.firstName ?? user?.first_name ?? "";
+    const lastName = user?.lastName ?? user?.last_name ?? "";
+    const email = user?.email ?? "";
+    const createdAt =
+      user?.createdAt ?? user?.created_at ?? new Date().toISOString();
+    const updatedAt = user?.updatedAt ?? user?.updated_at ?? createdAt;
+    const isActiveValue =
+      typeof user?.isActive === "boolean"
+        ? user.isActive
+        : user?.is_active !== undefined
+          ? Boolean(user.is_active)
+          : true;
+
+    const idCandidate =
+      user?.id ?? user?.user_id ?? user?.userId ?? email ?? "unknown-user";
+
+    const normalized: User = {
+      id: idCandidate,
+      email,
+      firstName: firstName || undefined,
+      lastName: lastName || undefined,
+      name:
+        user?.name ||
+        [firstName, lastName].filter(Boolean).join(" ") ||
+        email ||
+        "Unknown User",
+      role: user?.role && typeof user.role === "string" ? user.role : "patient",
+      avatar: user?.avatarUrl ?? user?.avatar_url ?? user?.avatar ?? undefined,
+      phone: user?.phone ?? user?.phoneNumber ?? undefined,
+      isActive: isActiveValue,
+      lastLoginAt: user?.lastLoginAt ?? user?.last_login_at ?? undefined,
+      createdAt,
+      updatedAt,
+    };
+
+    return normalized;
+  }
+
+  private static normalizePagination(
+    pagination: RawUserRecord | undefined,
+    defaults: { page: number; limit: number; totalUsers?: number },
+  ) {
+    const pageRaw = pagination?.page ?? pagination?.currentPage;
+    const limitRaw = pagination?.limit ?? pagination?.pageSize;
+    const page =
+      typeof pageRaw === "string"
+        ? parseInt(pageRaw, 10)
+        : typeof pageRaw === "number"
+          ? pageRaw
+          : defaults.page;
+    const limit =
+      typeof limitRaw === "string"
+        ? parseInt(limitRaw, 10)
+        : typeof limitRaw === "number"
+          ? limitRaw
+          : defaults.limit;
+
+    const totalRaw =
+      pagination?.totalUsers ??
+      pagination?.total_users ??
+      pagination?.total ??
+      defaults.totalUsers ??
+      0;
+    const totalUsers =
+      typeof totalRaw === "string" ? parseInt(totalRaw, 10) : Number(totalRaw);
+
+    const totalPagesRaw =
+      pagination?.totalPages ?? pagination?.total_pages ?? undefined;
+    const totalPages =
+      typeof totalPagesRaw === "string"
+        ? parseInt(totalPagesRaw, 10)
+        : typeof totalPagesRaw === "number"
+          ? totalPagesRaw
+          : limit > 0
+            ? Math.ceil(totalUsers / limit)
+            : 0;
+
+    const parseBool = (value: unknown, fallback: boolean) => {
+      if (typeof value === "boolean") return value;
+      if (typeof value === "number") return value !== 0;
+      if (typeof value === "string") {
+        return (
+          value === "true" || value === "1" || value.toLowerCase() === "yes"
+        );
+      }
+      return fallback;
+    };
+
+    return {
+      page,
+      limit,
+      totalUsers,
+      totalPages,
+      hasNext: parseBool(
+        pagination?.hasNext ?? pagination?.has_next,
+        page < totalPages,
+      ),
+      hasPrevious: parseBool(
+        pagination?.hasPrevious ?? pagination?.has_previous,
+        page > 1,
+      ),
+    };
+  }
+
+  private static buildListResponse(
+    payload: any,
+    defaults: { page: number; limit: number },
+  ): ApiResponse<UserListResponse> {
+    const container =
+      (payload?.data && typeof payload.data === "object"
+        ? payload.data
+        : undefined) ??
+      payload ??
+      {};
+
+    const rawUsers = Array.isArray(container?.users)
+      ? container.users
+      : Array.isArray(container)
+        ? container
+        : [];
+
+    const normalizedUsers = rawUsers.map((raw: RawUserRecord) =>
+      UserAdminService.normalizeUser(raw),
+    );
+
+    const paginationSource =
+      container?.pagination ?? payload?.pagination ?? undefined;
+
+    const pagination = UserAdminService.normalizePagination(paginationSource, {
+      page: defaults.page,
+      limit: defaults.limit,
+      totalUsers:
+        paginationSource?.totalUsers ??
+        paginationSource?.total_users ??
+        container?.totalUsers ??
+        container?.total_users ??
+        normalizedUsers.length,
+    });
+
+    return {
+      success: true,
+      data: {
+        users: normalizedUsers,
+        pagination,
+      },
+    };
+  }
+
+  static async listUsers(
+    params: ListUsersParams = {},
+  ): Promise<ApiResponse<UserListResponse>> {
+    const page = params.page ?? 1;
+    const limit = params.limit ?? 20;
+    const search = params.search?.trim();
+
+    const searchParams = new URLSearchParams();
+    if (page) searchParams.set("page", String(page));
+    if (limit) searchParams.set("limit", String(limit));
+    if (search) searchParams.set("q", search);
+
+    const queryString = searchParams.toString();
+    const endpoint =
+      queryString.length > 0
+        ? `${API_ENDPOINTS.USERS.ADMIN.LIST}?${queryString}`
+        : API_ENDPOINTS.USERS.ADMIN.LIST;
+
+    try {
+      const response = await apiClient.get(endpoint);
+      const payload = (response as any)?.data ?? response;
+
+      if (payload?.success === false) {
+        return {
+          success: false,
+          error: payload?.error ?? "Failed to load users",
+        };
+      }
+
+      return UserAdminService.buildListResponse(payload, { page, limit });
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error?.message ?? "Failed to load users",
+      };
+    }
+  }
+
+  static async getUser(id: string): Promise<ApiResponse<User>> {
+    try {
+      const response = await apiClient.get(
+        API_ENDPOINTS.USERS.ADMIN.DETAIL(id),
+      );
+      const payload = (response as any)?.data ?? response;
+
+      if (payload?.success === true && payload.data) {
+        const record = payload.data.user ?? payload.data;
+        return {
+          success: true,
+          data: UserAdminService.normalizeUser(record as RawUserRecord),
+        };
+      }
+
+      if (payload?.user) {
+        return {
+          success: true,
+          data: UserAdminService.normalizeUser(payload.user as RawUserRecord),
+        };
+      }
+
+      return {
+        success: false,
+        error: payload?.error ?? "Unable to retrieve user",
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error?.message ?? "Unable to retrieve user",
+      };
+    }
+  }
+
+  static async inviteUser(user: {
+    email: string;
+    firstName: string;
+    lastName: string;
+    role: User["role"];
+    phone?: string;
+  }): Promise<ApiResponse<User>> {
+    try {
+      const response = await apiClient.post(
+        API_ENDPOINTS.USERS.ADMIN.INVITE,
+        user,
+      );
+      const payload = (response as any)?.data ?? response;
+
+      if (payload?.success === true && payload.data) {
+        const invited = payload.data.user ?? payload.data;
+        return {
+          success: true,
+          data: UserAdminService.normalizeUser(invited as RawUserRecord),
+          message: payload.message ?? "User invited successfully",
+        };
+      }
+
+      if (payload?.user) {
+        return {
+          success: true,
+          data: UserAdminService.normalizeUser(payload.user as RawUserRecord),
+          message: payload?.message ?? "User invited successfully",
+        };
+      }
+
+      return {
+        success: false,
+        error: payload?.error ?? "Failed to invite user",
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error?.message ?? "Failed to invite user",
+      };
+    }
+  }
+
+  static async updateUser(
+    id: string,
+    updates: Partial<{
+      firstName: string;
+      lastName: string;
+      phone: string;
+      role: User["role"];
+      isActive: boolean;
+    }>,
+  ): Promise<ApiResponse<User>> {
+    try {
+      const response = await apiClient.put(
+        API_ENDPOINTS.USERS.ADMIN.DETAIL(id),
+        updates,
+      );
+      const payload = (response as any)?.data ?? response;
+
+      if (payload?.success === true && payload.data) {
+        const updated = payload.data.user ?? payload.data;
+        return {
+          success: true,
+          data: UserAdminService.normalizeUser(updated as RawUserRecord),
+          message: payload?.message ?? "User updated successfully",
+        };
+      }
+
+      if (payload?.user) {
+        return {
+          success: true,
+          data: UserAdminService.normalizeUser(payload.user as RawUserRecord),
+          message: payload?.message ?? "User updated successfully",
+        };
+      }
+
+      return {
+        success: false,
+        error: payload?.error ?? "Failed to update user",
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error?.message ?? "Failed to update user",
+      };
+    }
+  }
+
+  static async deactivateUser(id: string): Promise<ApiResponse<void>> {
+    try {
+      const response = await apiClient.delete(
+        API_ENDPOINTS.USERS.ADMIN.DEACTIVATE(id),
+      );
+      const payload = (response as any)?.data ?? response;
+
+      if (payload?.success === false) {
+        return {
+          success: false,
+          error: payload?.error ?? "Failed to deactivate user",
+        };
+      }
+
+      return {
+        success: true,
+        message: payload?.message ?? "User deactivated successfully",
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error?.message ?? "Failed to deactivate user",
+      };
+    }
+  }
+
+  private static normalizeStats(stats: RawUserRecord): UserStatsResponse {
+    const toNumber = (value: unknown): number => {
+      if (typeof value === "number") return value;
+      if (typeof value === "string") {
+        const parsed = parseInt(value, 10);
+        return Number.isNaN(parsed) ? 0 : parsed;
+      }
+      return 0;
+    };
+
+    return {
+      totalUsers: toNumber(stats?.totalUsers ?? stats?.total_users),
+      activeUsers: toNumber(stats?.activeUsers ?? stats?.active_users),
+      inactiveUsers: toNumber(stats?.inactiveUsers ?? stats?.inactive_users),
+      patients: toNumber(stats?.patients),
+      doctors: toNumber(stats?.doctors),
+      pharmacists: toNumber(stats?.pharmacists),
+      admins: toNumber(stats?.admins),
+      activeLast7Days: toNumber(
+        stats?.activeLast7Days ?? stats?.active_last_7_days,
+      ),
+      activeLast30Days: toNumber(
+        stats?.activeLast30Days ?? stats?.active_last_30_days,
+      ),
+    };
+  }
+
+  static async getUserStats(): Promise<ApiResponse<UserStatsResponse>> {
+    try {
+      const response = await apiClient.get(API_ENDPOINTS.USERS.ADMIN.STATS);
+      const payload = (response as any)?.data ?? response;
+
+      if (payload?.success === true && payload.data) {
+        const stats = payload.data.stats ?? payload.data;
+        return {
+          success: true,
+          data: UserAdminService.normalizeStats(stats as RawUserRecord),
+        };
+      }
+
+      if (payload?.stats) {
+        return {
+          success: true,
+          data: UserAdminService.normalizeStats(payload.stats as RawUserRecord),
+        };
+      }
+
+      return {
+        success: false,
+        error: payload?.error ?? "Failed to load user statistics",
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error?.message ?? "Failed to load user statistics",
+      };
+    }
+  }
+}
+
 // Lab Service
 export class LabService {
   static async getResults(userId?: string): Promise<ApiResponse<LabResult[]>> {
     const endpoint = userId
-      ? `${API_ENDPOINTS.LABS.RESULTS}/${userId}`
+      ? `${API_ENDPOINTS.LABS.RESULTS}/user/${userId}`
       : API_ENDPOINTS.LABS.RESULTS;
-    return apiClient.get(endpoint);
+
+    const response = await apiClient.get(endpoint);
+    const payload: any = (response as any).data ?? response;
+
+    if (payload?.success === true && Array.isArray(payload.data)) {
+      return payload;
+    }
+
+    if (Array.isArray(payload?.results)) {
+      return { success: true, data: payload.results };
+    }
+
+    if (Array.isArray(payload)) {
+      return { success: true, data: payload };
+    }
+
+    return payload;
   }
 
   static async uploadLabReport(
@@ -196,7 +641,22 @@ export class MedicationService {
     const endpoint = userId
       ? `${API_ENDPOINTS.MEDICATIONS.LIST}/${userId}`
       : API_ENDPOINTS.MEDICATIONS.LIST;
-    return apiClient.get(endpoint);
+    const response = await apiClient.get(endpoint);
+    const payload: any = (response as any).data ?? response;
+
+    if (payload?.success === true && Array.isArray(payload.data)) {
+      return payload;
+    }
+
+    if (Array.isArray(payload?.medications)) {
+      return { success: true, data: payload.medications };
+    }
+
+    if (Array.isArray(payload)) {
+      return { success: true, data: payload };
+    }
+
+    return payload;
   }
 
   static async addMedication(

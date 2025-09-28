@@ -87,9 +87,8 @@ export async function updateMessagingConfig(
 
     // Save configuration
     await db.query(
-      `INSERT OR REPLACE INTO messaging_config 
-       (config_data, updated_by, updated_at) 
-       VALUES (?, ?, datetime('now'))`,
+      `INSERT INTO messaging_config (config_data, updated_by, created_at, updated_at)
+       VALUES ($1::jsonb, $2, NOW(), NOW())`,
       [JSON.stringify(config), userId],
     );
 
@@ -212,28 +211,27 @@ export async function testMessagingService(
 export async function getMessagingAnalytics(req: Request, res: Response) {
   try {
     const { period = "24h" } = req.query;
-
-    let dateFilter = "";
-    if (period === "24h") {
-      dateFilter = "datetime(sent_at) >= datetime('now', '-1 day')";
-    } else if (period === "7d") {
-      dateFilter = "datetime(sent_at) >= datetime('now', '-7 days')";
-    } else if (period === "30d") {
-      dateFilter = "datetime(sent_at) >= datetime('now', '-30 days')";
-    } else {
-      dateFilter = "datetime(sent_at) >= datetime('now', '-1 day')";
-    }
+    const periodValue = Array.isArray(period) ? period[0] : period;
+    const intervalMap: Record<string, string> = {
+      "24h": "1 day",
+      "7d": "7 days",
+      "30d": "30 days",
+    };
+    const interval =
+      intervalMap[typeof periodValue === "string" ? periodValue : "24h"] ||
+      "1 day";
+    const dateCondition = `"sent_at" >= NOW() - INTERVAL '${interval}'`;
 
     const [totalMessages, successfulMessages, failedMessages, providerStats] =
       await Promise.all([
         db.query(
-          `SELECT COUNT(*) as count FROM communication_logs WHERE ${dateFilter}`,
+          `SELECT COUNT(*) as count FROM communication_logs WHERE ${dateCondition}`,
         ),
         db.query(
-          `SELECT COUNT(*) as count FROM communication_logs WHERE ${dateFilter} AND status = 'success'`,
+          `SELECT COUNT(*) as count FROM communication_logs WHERE ${dateCondition} AND status = 'success'`,
         ),
         db.query(
-          `SELECT COUNT(*) as count FROM communication_logs WHERE ${dateFilter} AND status = 'failed'`,
+          `SELECT COUNT(*) as count FROM communication_logs WHERE ${dateCondition} AND status = 'failed'`,
         ),
         db.query(`
         SELECT 
@@ -242,7 +240,7 @@ export async function getMessagingAnalytics(req: Request, res: Response) {
           COUNT(*) as count,
           AVG(CASE WHEN status = 'success' THEN 1 ELSE 0 END) * 100 as success_rate
         FROM communication_logs 
-        WHERE ${dateFilter}
+        WHERE ${dateCondition}
         GROUP BY provider, type
       `),
       ]);
@@ -251,7 +249,7 @@ export async function getMessagingAnalytics(req: Request, res: Response) {
       await scheduledMessagingService.getSchedulingStats();
 
     const analytics = {
-      period,
+      period: periodValue ?? "24h",
       overview: {
         totalMessages: totalMessages?.[0]?.count || 0,
         successfulMessages: successfulMessages?.[0]?.count || 0,
@@ -260,7 +258,7 @@ export async function getMessagingAnalytics(req: Request, res: Response) {
           totalMessages?.[0]?.count > 0
             ? (
                 ((successfulMessages?.[0]?.count || 0) /
-                  totalMessages[0].count) *
+                  (totalMessages?.[0]?.count || 1)) *
                 100
               ).toFixed(1)
             : "0.0",
@@ -292,53 +290,94 @@ export async function getMessagingAnalytics(req: Request, res: Response) {
 export async function getPatientSchedules(req: Request, res: Response) {
   try {
     const { page = 1, limit = 20, search, status } = req.query;
-    const offset = (Number(page) - 1) * Number(limit);
+    const pageNumber = Number(page) || 1;
+    const limitNumber = Number(limit) || 20;
+    const offset = (pageNumber - 1) * limitNumber;
 
-    let whereClause = "WHERE 1=1";
-    const params: any[] = [];
+    const conditions: string[] = [];
+    const filterParams: any[] = [];
+    const addParam = (value: any) => {
+      filterParams.push(value);
+      return `$${filterParams.length}`;
+    };
 
-    if (search) {
-      whereClause += " AND (patient_id LIKE ? OR schedule_data LIKE ?)";
-      params.push(`%${search}%`, `%${search}%`);
+    const searchValue = Array.isArray(search) ? search[0] : search;
+    if (typeof searchValue === "string" && searchValue.trim().length > 0) {
+      const idPlaceholder = addParam(`%${searchValue.trim()}%`);
+      const schedulePlaceholder = addParam(`%${searchValue.trim()}%`);
+      conditions.push(
+        `(CAST(patient_id AS TEXT) ILIKE ${idPlaceholder} OR CAST(schedule_data AS TEXT) ILIKE ${schedulePlaceholder})`,
+      );
     }
 
-    if (status) {
-      whereClause += " AND active = ?";
-      params.push(status === "active" ? 1 : 0);
+    const statusValue = Array.isArray(status) ? status[0] : status;
+    if (typeof statusValue === "string" && statusValue.trim().length > 0) {
+      if (statusValue === "active" || statusValue === "inactive") {
+        const isActive = statusValue === "active";
+        const statusPlaceholder = addParam(isActive);
+        conditions.push(`active = ${statusPlaceholder}`);
+      }
     }
+
+    const whereClause = conditions.length
+      ? `WHERE ${conditions.join(" AND ")}`
+      : "";
+
+    const listParams = [...filterParams, limitNumber, offset];
+    const limitPlaceholder = `$${filterParams.length + 1}`;
+    const offsetPlaceholder = `$${filterParams.length + 2}`;
 
     const [schedules, totalCount] = await Promise.all([
       db.query(
-        `SELECT * FROM patient_schedules ${whereClause} ORDER BY updated_at DESC LIMIT ? OFFSET ?`,
-        [...params, Number(limit), offset],
+        `SELECT * FROM patient_schedules ${whereClause} ORDER BY updated_at DESC LIMIT ${limitPlaceholder} OFFSET ${offsetPlaceholder}`,
+        listParams,
       ),
       db.query(
         `SELECT COUNT(*) as count FROM patient_schedules ${whereClause}`,
-        params,
+        filterParams,
       ),
     ]);
 
     const processedSchedules =
-      schedules?.map((schedule: any) => ({
-        id: schedule.id,
-        patientId: schedule.patient_id,
-        active: schedule.active === 1,
-        scheduleData: JSON.parse(schedule.schedule_data),
-        createdAt: schedule.created_at,
-        updatedAt: schedule.updated_at,
-        activeJobs: scheduledMessagingService.getActiveJobsForPatient(
-          schedule.patient_id,
-        ),
-      })) || [];
+      schedules?.map((schedule: any) => {
+        const rawSchedule = schedule.schedule_data;
+        const rawActive =
+          typeof schedule.active !== "undefined" ? schedule.active : null;
+        const isActive =
+          typeof rawActive === "boolean"
+            ? rawActive
+            : rawActive == null
+              ? true
+              : rawActive === 1 ||
+                rawActive === "1" ||
+                `${rawActive}`.toLowerCase() === "true";
+
+        return {
+          id: schedule.id,
+          patientId: schedule.patient_id,
+          active: isActive,
+          scheduleData:
+            typeof rawSchedule === "string"
+              ? JSON.parse(rawSchedule)
+              : rawSchedule,
+          createdAt: schedule.created_at,
+          updatedAt: schedule.updated_at,
+          activeJobs: scheduledMessagingService.getActiveJobsForPatient(
+            schedule.patient_id,
+          ),
+        };
+      }) || [];
 
     res.json({
       success: true,
       schedules: processedSchedules,
       pagination: {
-        page: Number(page),
-        limit: Number(limit),
-        total: totalCount?.[0]?.count || 0,
-        totalPages: Math.ceil((totalCount?.[0]?.count || 0) / Number(limit)),
+        page: pageNumber,
+        limit: limitNumber,
+        total: Number(totalCount?.[0]?.count || 0),
+        totalPages: Math.ceil(
+          Number(totalCount?.[0]?.count || 0) / Math.max(limitNumber, 1),
+        ),
       },
     });
   } catch (error) {
@@ -467,9 +506,26 @@ export async function updateMessageTemplate(
     }
 
     await db.query(
-      `INSERT OR REPLACE INTO message_templates 
-       (id, type, name, content, variables, updated_by, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, datetime('now'))`,
+      `
+        INSERT INTO message_templates (
+          id,
+          type,
+          name,
+          content,
+          variables,
+          updated_by,
+          updated_at
+        )
+        VALUES ($1, $2, $3, $4, $5::jsonb, $6, NOW())
+        ON CONFLICT (id)
+        DO UPDATE SET
+          type = EXCLUDED.type,
+          name = EXCLUDED.name,
+          content = EXCLUDED.content,
+          variables = EXCLUDED.variables,
+          updated_by = EXCLUDED.updated_by,
+          updated_at = EXCLUDED.updated_at
+      `,
       [
         templateId,
         type,
@@ -555,11 +611,42 @@ export async function updateCareTeamMember(
     } = req.body;
     const userId = req.user?.id || "admin";
 
+    const isActiveValue =
+      typeof active === "boolean"
+        ? active
+        : typeof active === "string"
+          ? active.toLowerCase() === "true"
+          : Boolean(active);
+
     await db.query(
-      `INSERT OR REPLACE INTO care_team_members
-       (id, name, role, phone, email, priority_level, availability_schedule, 
-        notification_preferences, active, updated_by, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))`,
+      `
+        INSERT INTO care_team_members (
+          id,
+          name,
+          role,
+          phone,
+          email,
+          priority_level,
+          availability_schedule,
+          notification_preferences,
+          active,
+          updated_by,
+          updated_at
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7::jsonb, $8::jsonb, $9, $10, NOW())
+        ON CONFLICT (id)
+        DO UPDATE SET
+          name = EXCLUDED.name,
+          role = EXCLUDED.role,
+          phone = EXCLUDED.phone,
+          email = EXCLUDED.email,
+          priority_level = EXCLUDED.priority_level,
+          availability_schedule = EXCLUDED.availability_schedule,
+          notification_preferences = EXCLUDED.notification_preferences,
+          active = EXCLUDED.active,
+          updated_by = EXCLUDED.updated_by,
+          updated_at = EXCLUDED.updated_at
+      `,
       [
         memberId,
         name,
@@ -569,7 +656,7 @@ export async function updateCareTeamMember(
         priorityLevel,
         JSON.stringify(availability || {}),
         JSON.stringify(preferences || {}),
-        active ? 1 : 0,
+        isActiveValue,
         userId,
       ],
     );
@@ -603,34 +690,58 @@ export async function updateCareTeamMember(
 export async function getMessagingAuditLogs(req: Request, res: Response) {
   try {
     const { page = 1, limit = 50, type, startDate, endDate } = req.query;
-    const offset = (Number(page) - 1) * Number(limit);
+    const pageNumber = Number(page) || 1;
+    const limitNumber = Number(limit) || 50;
+    const offset = (pageNumber - 1) * limitNumber;
 
-    let whereClause = "WHERE 1=1";
-    const params: any[] = [];
+    const conditions: string[] = [];
+    const filterParams: any[] = [];
+    const addParam = (value: any) => {
+      filterParams.push(value);
+      return `$${filterParams.length}`;
+    };
 
-    if (type) {
-      whereClause += " AND action LIKE ?";
-      params.push(`%${type}%`);
+    const typeValue = Array.isArray(type) ? type[0] : type;
+    if (typeof typeValue === "string" && typeValue.trim().length > 0) {
+      const placeholder = addParam(`%${typeValue.trim()}%`);
+      conditions.push(`action ILIKE ${placeholder}`);
     }
 
-    if (startDate) {
-      whereClause += " AND datetime(timestamp) >= datetime(?)";
-      params.push(startDate);
+    const parseDateParam = (value: unknown) => {
+      const raw = Array.isArray(value) ? value[0] : value;
+      if (typeof raw !== "string") return null;
+      const parsed = new Date(raw);
+      return Number.isNaN(parsed.getTime()) ? null : parsed.toISOString();
+    };
+
+    const startIso = parseDateParam(startDate);
+    if (startIso) {
+      const placeholder = addParam(startIso);
+      conditions.push(`"timestamp" >= ${placeholder}::timestamp`);
     }
 
-    if (endDate) {
-      whereClause += " AND datetime(timestamp) <= datetime(?)";
-      params.push(endDate);
+    const endIso = parseDateParam(endDate);
+    if (endIso) {
+      const placeholder = addParam(endIso);
+      conditions.push(`"timestamp" <= ${placeholder}::timestamp`);
     }
+
+    const whereClause = conditions.length
+      ? `WHERE ${conditions.join(" AND ")}`
+      : "";
+
+    const listParams = [...filterParams, limitNumber, offset];
+    const limitPlaceholder = `$${filterParams.length + 1}`;
+    const offsetPlaceholder = `$${filterParams.length + 2}`;
 
     const [logs, totalCount] = await Promise.all([
       db.query(
-        `SELECT * FROM audit_logs ${whereClause} ORDER BY timestamp DESC LIMIT ? OFFSET ?`,
-        [...params, Number(limit), offset],
+        `SELECT * FROM audit_logs ${whereClause} ORDER BY "timestamp" DESC LIMIT ${limitPlaceholder} OFFSET ${offsetPlaceholder}`,
+        listParams,
       ),
       db.query(
         `SELECT COUNT(*) as count FROM audit_logs ${whereClause}`,
-        params,
+        filterParams,
       ),
     ]);
 
@@ -638,10 +749,12 @@ export async function getMessagingAuditLogs(req: Request, res: Response) {
       success: true,
       logs: logs || [],
       pagination: {
-        page: Number(page),
-        limit: Number(limit),
-        total: totalCount?.[0]?.count || 0,
-        totalPages: Math.ceil((totalCount?.[0]?.count || 0) / Number(limit)),
+        page: pageNumber,
+        limit: limitNumber,
+        total: Number(totalCount?.[0]?.count || 0),
+        totalPages: Math.ceil(
+          Number(totalCount?.[0]?.count || 0) / Math.max(limitNumber, 1),
+        ),
       },
     });
   } catch (error) {

@@ -23,6 +23,13 @@ export const API_ENDPOINTS = {
     PREFERENCES: "/users/preferences",
     AVATAR: "/users/avatar",
     DELETE_ACCOUNT: "/users/delete",
+    ADMIN: {
+      LIST: "/users",
+      DETAIL: (id: string) => `/users/${id}`,
+      INVITE: "/users/invite",
+      STATS: "/users/stats/overview",
+      DEACTIVATE: (id: string) => `/users/${id}`,
+    },
   },
 
   // Lab Results

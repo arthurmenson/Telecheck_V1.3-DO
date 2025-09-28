@@ -252,109 +252,35 @@ export class PatientService {
    */
   static async getPatientById(patientId: string): Promise<Patient> {
     try {
-      console.log(`[PatientService] Fetching patient with ID: ${patientId}`);
-
-      try {
-        const response = await apiClient.get(
-          `${PatientService.baseUrl}/${patientId}`,
-        );
-        console.log(
-          `[PatientService] Successfully fetched patient for ID: ${patientId}`,
-        );
-
-        // Check different possible response structures
-        const payload: any = (response as any).data ?? response;
-        if (payload && payload.data) {
-          console.log(`[PatientService] Using response.data.data structure`);
-          return payload.data;
-        } else if (payload && payload.success && payload.data) {
-          console.log(
-            `[PatientService] Using response.data.data with success flag`,
-          );
-          return payload.data;
-        } else if (payload && !payload.data) {
-          console.log(`[PatientService] Using direct response.data structure`);
-          return payload;
-        } else {
-          console.warn(
-            `[PatientService] Unexpected response structure:`,
-            response,
-          );
-          throw new Error("Invalid response structure");
-        }
-      } catch (error: any) {
-        console.error("[PatientService] Error fetching patient:", error);
-
-        // Log the full error for debugging
-        console.error("Patient error details:");
-        console.error("- Status:", error.response?.status);
-        console.error("- Data:", error.response?.data);
-        console.error("- Patient ID:", patientId);
-        console.error("- Message:", error.message);
-        console.error("- Error name:", error.name);
-
-        // For React Query compatibility, return a fallback patient object instead of throwing
-        // This prevents the "Query data cannot be undefined" error
-        const fallbackPatient = {
-          id: patientId,
-          userId: `user-${patientId.slice(-4)}`,
-          mrn: `MRN-${patientId.slice(-4)}`,
-          firstName: "Unknown",
-          lastName: "Patient",
-          email: "unknown@example.com",
-          phone: "(000) 000-0000",
-          dateOfBirth: "1990-01-01",
-          gender: "unknown",
-          address: "",
-          city: "",
-          state: "",
-          zipCode: "",
-          allergies: [],
-          emergencyContacts: {},
-          insuranceInfo: {},
-          status: "inactive" as const,
-          primaryProviderId: "",
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          _error: error.response?.data?.error || "Failed to fetch patient",
-        } as Patient & { _error: string };
-
-        console.log(
-          `[PatientService] Returning fallback patient:`,
-          fallbackPatient,
-        );
-        return fallbackPatient;
-      }
-    } catch (outerError) {
-      console.error(
-        "[PatientService] Unexpected error in getPatientById:",
-        outerError,
+      const response = await apiClient.get(
+        `${PatientService.baseUrl}/${patientId}`,
       );
 
-      // Ultimate fallback to ensure we never return undefined
-      return {
-        id: patientId,
-        userId: `user-${patientId.slice(-4)}`,
-        mrn: `MRN-${patientId.slice(-4)}`,
-        firstName: "Error",
-        lastName: "Loading Patient",
-        email: "error@example.com",
-        phone: "(000) 000-0000",
-        dateOfBirth: "1990-01-01",
-        gender: "unknown",
-        address: "",
-        city: "",
-        state: "",
-        zipCode: "",
-        allergies: [],
-        emergencyContacts: {},
-        insuranceInfo: {},
-        status: "inactive" as const,
-        primaryProviderId: "",
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        _error: "Unexpected error occurred",
-      } as Patient & { _error: string };
+      const payload: any = (response as any).data ?? response;
+      if (payload?.data) {
+        return payload.data;
+      }
+
+      if (payload?.success === true && payload?.data) {
+        return payload.data;
+      }
+
+      if (payload?.success === false) {
+        throw new Error(payload?.error || "Failed to fetch patient");
+      }
+
+      if (payload) {
+        return payload;
+      }
+
+      throw new Error("Patient response missing data");
+    } catch (error: any) {
+      const detailMessage =
+        error?.details?.error ||
+        error?.response?.data?.error ||
+        error?.message ||
+        "Failed to fetch patient";
+      throw new Error(detailMessage);
     }
   }
 
@@ -365,7 +291,6 @@ export class PatientService {
     patientData: CreatePatientRequest,
   ): Promise<Patient> {
     try {
-      console.log("[PatientService] Creating patient with data:", patientData);
       const response = await apiClient.post(
         PatientService.baseUrl,
         patientData,

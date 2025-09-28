@@ -27,6 +27,15 @@ export const queryKeys = {
     preferences: () => [...queryKeys.user.all, "preferences"] as const,
   },
 
+  adminUsers: {
+    all: ["admin", "users"] as const,
+    list: (page = 1, limit = 20, search = "") =>
+      [...queryKeys.adminUsers.all, "list", page, limit, search] as const,
+    detail: (id: string) =>
+      [...queryKeys.adminUsers.all, "detail", id] as const,
+    stats: () => [...queryKeys.adminUsers.all, "stats"] as const,
+  },
+
   // Lab queries
   labs: {
     all: ["labs"] as const,

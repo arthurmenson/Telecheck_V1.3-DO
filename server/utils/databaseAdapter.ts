@@ -25,7 +25,16 @@ class DatabaseAdapter {
       return [];
     }
     try {
-      const result = await dbPool.query(sql, params);
+      let finalSql = sql;
+      if (typeof sql === "string" && sql.includes("?")) {
+        let placeholderIndex = 0;
+        finalSql = sql.replace(/\?/g, () => {
+          placeholderIndex += 1;
+          return `$${placeholderIndex}`;
+        });
+      }
+
+      const result = await dbPool.query(finalSql, params);
       return result.rows;
     } catch (error) {
       console.error("Database query failed:", error);
@@ -61,31 +70,97 @@ class DatabaseAdapter {
 
   // Helper methods for common operations
   async getUserById(id: string): Promise<any> {
-    const users = await this.query("SELECT * FROM users WHERE id = $1", [id]);
+    const users = await this.query(
+      `
+        SELECT 
+          u.*,
+          p.date_of_birth,
+          p.gender,
+          p.allergies AS patient_allergies,
+          p.emergency_contacts,
+          p.insurance_info
+        FROM users u
+        LEFT JOIN patients p ON p.user_id = u.id
+        WHERE u.id = $1
+      `,
+      [id],
+    );
     return users[0] || null;
   }
 
   async getUserByEmail(email: string): Promise<any> {
-    const users = await this.query("SELECT * FROM users WHERE email = $1", [
-      email,
-    ]);
+    const users = await this.query(
+      `
+        SELECT 
+          u.*,
+          p.date_of_birth,
+          p.gender,
+          p.allergies AS patient_allergies,
+          p.emergency_contacts,
+          p.insurance_info
+        FROM users u
+        LEFT JOIN patients p ON p.user_id = u.id
+        WHERE u.email = $1
+      `,
+      [email],
+    );
     return users[0] || null;
   }
 
-  async createUser(userData: any): Promise<any> {
-    const { firstName, lastName, email, ...rest } = userData;
-    const restKeys = Object.keys(rest);
-    const restValues = Object.values(rest);
+  async createUser(userData: {
+    email: string;
+    passwordHash: string;
+    firstName: string;
+    lastName: string;
+    role: string;
+    phone?: string;
+    avatarUrl?: string;
+    isActive?: boolean;
+  }): Promise<any> {
+    if (!dbPool) {
+      throw new Error("Database not configured");
+    }
 
-    const result = await this.query(
-      `
-      INSERT INTO users (first_name, last_name, email, ${restKeys.join(", ")})
-      VALUES ($1, $2, $3, ${restKeys.map((_, i) => `$${i + 4}`).join(", ")})
-      RETURNING *
-    `,
-      [firstName, lastName, email, ...restValues],
+    const columns = [
+      "email",
+      "password_hash",
+      "first_name",
+      "last_name",
+      "role",
+    ];
+    const values = [
+      userData.email,
+      userData.passwordHash,
+      userData.firstName,
+      userData.lastName,
+      userData.role,
+    ];
+
+    if (userData.phone !== undefined) {
+      columns.push("phone");
+      values.push(userData.phone);
+    }
+
+    if (userData.avatarUrl !== undefined) {
+      columns.push("avatar_url");
+      values.push(userData.avatarUrl);
+    }
+
+    if (userData.isActive !== undefined) {
+      columns.push("is_active");
+      values.push(userData.isActive);
+    }
+
+    const placeholders = columns.map((_, index) => `$${index + 1}`);
+
+    const result = await dbPool.query(
+      `INSERT INTO users (${columns.join(", ")})
+       VALUES (${placeholders.join(", ")})
+       RETURNING *`,
+      values,
     );
-    return result[0];
+
+    return result.rows[0];
   }
 
   async getVitalSigns(userId: string, limit: number = 100): Promise<any[]> {

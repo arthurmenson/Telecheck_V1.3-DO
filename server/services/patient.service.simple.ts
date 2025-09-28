@@ -1,5 +1,8 @@
 import { db as database } from "../utils/databaseAdapter";
 import { AuditLogger } from "../utils/auditLogger";
+import bcrypt from "bcryptjs";
+import crypto from "crypto";
+import { dbPool } from "../config/database";
 
 export interface PatientStats {
   total_patients: number;
@@ -87,7 +90,7 @@ export class SimplePatientService {
         try {
           // Check if patient already exists
           const existingUser = await database.query(
-            "SELECT id FROM users WHERE email = ?",
+            "SELECT id FROM users WHERE email = $1",
             [patientData.email],
           );
           if (existingUser.length === 0) {
@@ -97,7 +100,7 @@ export class SimplePatientService {
             );
           }
         } catch (error: any) {
-          if (!error.message.includes("UNIQUE constraint")) {
+          if (error?.code !== "23505") {
             console.error(
               `Error creating sample patient ${patientData.firstName} ${patientData.lastName}:`,
               error.message,
@@ -205,22 +208,28 @@ export class SimplePatientService {
     limit: number = 20,
   ): Promise<any> {
     try {
-      let whereClause = "";
-      let params: any[] = [];
-      let paramIndex = 1;
+      const whereFragments: string[] = [];
+      const whereParams: any[] = [];
 
-      // Simple text search
       if (filters.query) {
-        whereClause = `WHERE (first_name LIKE ? OR last_name LIKE ? OR email LIKE ?)`;
+        const baseIndex = whereParams.length;
         const searchTerm = `%${filters.query}%`;
-        params.push(searchTerm, searchTerm, searchTerm);
-        paramIndex += 3;
+        whereParams.push(searchTerm, searchTerm, searchTerm);
+        const firstNamePlaceholder = `$${baseIndex + 1}`;
+        const lastNamePlaceholder = `$${baseIndex + 2}`;
+        const emailPlaceholder = `$${baseIndex + 3}`;
+        whereFragments.push(
+          `(first_name ILIKE ${firstNamePlaceholder} OR last_name ILIKE ${lastNamePlaceholder} OR email ILIKE ${emailPlaceholder})`,
+        );
       }
 
-      // Get total count
+      const whereClause = whereFragments.length
+        ? `WHERE ${whereFragments.join(" AND ")}`
+        : "";
+
       const countQuery = `SELECT COUNT(*) as total FROM users ${whereClause}`;
-      const countResult = await database.query(countQuery, params);
-      const total = countResult[0]?.total || 0;
+      const countResult = await database.query(countQuery, whereParams);
+      const total = parseInt(countResult[0]?.total ?? 0, 10);
 
       // Return empty results if no users found (no automatic sample data creation)
       if (total === 0) {
@@ -236,17 +245,20 @@ export class SimplePatientService {
       // Calculate pagination
       const offset = (page - 1) * limit;
       const totalPages = Math.ceil(total / limit);
-
-      // Get paginated results
+      const limitPlaceholder = `$${whereParams.length + 1}`;
+      const offsetPlaceholder = `$${whereParams.length + 2}`;
       const searchQuery = `
-        SELECT * FROM users 
+        SELECT * FROM users
         ${whereClause}
         ORDER BY last_name, first_name
-        LIMIT ? OFFSET ?
+        LIMIT ${limitPlaceholder} OFFSET ${offsetPlaceholder}
       `;
-      params.push(limit, offset);
 
-      const users = await database.query(searchQuery, params);
+      const users = await database.query(searchQuery, [
+        ...whereParams,
+        limit,
+        offset,
+      ]);
 
       // Transform users to patient format
       const patients = users.map((user: any) => ({
@@ -289,49 +301,119 @@ export class SimplePatientService {
     createdBy: string,
   ): Promise<any> {
     try {
-      const userData = {
-        firstName: patientData.firstName,
-        lastName: patientData.lastName,
-        email: patientData.email,
-        phone: patientData.phone,
-        date_of_birth: patientData.dateOfBirth,
-        allergies: JSON.stringify(patientData.allergies || []),
-        emergency_contact_name: patientData.emergencyContacts?.name,
-        emergency_contact_phone: patientData.emergencyContacts?.phone,
-        insurance_provider: patientData.insuranceInfo?.provider,
-        insurance_policy_number: patientData.insuranceInfo?.policyNumber,
-        primary_care_physician: patientData.primaryProviderId,
-      };
+      if (!dbPool) {
+        throw new Error("Database not configured for patient creation");
+      }
 
-      const user = await database.createUser(userData);
+      if (!patientData.dateOfBirth) {
+        throw new Error("dateOfBirth is required for patient creation");
+      }
 
-      // Log the creation
-      await database.logActivity(
-        createdBy,
-        "patient_created",
-        `Created patient record for ${patientData.firstName} ${patientData.lastName}`,
-        { patientId: user.id, email: patientData.email },
-      );
+      const tempPassword =
+        typeof patientData.password === "string" &&
+        patientData.password.length >= 8
+          ? patientData.password
+          : crypto.randomUUID().replace(/-/g, "").slice(0, 12);
 
-      // Transform to patient format
-      return {
-        id: user.id,
-        userId: user.id,
-        firstName: user.first_name,
-        lastName: user.last_name,
-        email: user.email,
-        phone: user.phone,
-        dateOfBirth: user.date_of_birth,
-        allergies: JSON.parse(user.allergies || "[]"),
-        emergencyContacts: {
-          name: user.emergency_contact_name,
-          phone: user.emergency_contact_phone,
-        },
-        status: "active",
-        mrn: `MRN${user.id.slice(-8)}`,
-        createdAt: user.created_at,
-        updatedAt: user.updated_at,
-      };
+      const passwordHash = await bcrypt.hash(tempPassword, 12);
+
+      const client = await dbPool.connect();
+
+      try {
+        await client.query("BEGIN");
+
+        const userResult = await client.query(
+          `
+            INSERT INTO users (
+              email,
+              password_hash,
+              first_name,
+              last_name,
+              role,
+              phone,
+              is_active
+            )
+            VALUES ($1, $2, $3, $4, 'patient', $5, true)
+            RETURNING *
+          `,
+          [
+            patientData.email,
+            passwordHash,
+            patientData.firstName,
+            patientData.lastName,
+            patientData.phone || null,
+          ],
+        );
+
+        const user = userResult.rows[0];
+
+        await client.query(
+          `
+            INSERT INTO patients (
+              user_id,
+              date_of_birth,
+              gender,
+              allergies,
+              emergency_contacts,
+              insurance_info,
+              created_at,
+              updated_at
+            )
+            VALUES ($1, $2::date, $3, $4::text[], $5::jsonb, $6::jsonb, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+            ON CONFLICT (user_id) DO UPDATE SET
+              date_of_birth = EXCLUDED.date_of_birth,
+              gender = EXCLUDED.gender,
+              allergies = EXCLUDED.allergies,
+              emergency_contacts = EXCLUDED.emergency_contacts,
+              insurance_info = EXCLUDED.insurance_info,
+              updated_at = CURRENT_TIMESTAMP
+          `,
+          [
+            user.id,
+            patientData.dateOfBirth,
+            patientData.gender || null,
+            (patientData.allergies || []).length ? patientData.allergies : null,
+            patientData.emergencyContacts
+              ? JSON.stringify(patientData.emergencyContacts)
+              : JSON.stringify({}),
+            patientData.insuranceInfo
+              ? JSON.stringify(patientData.insuranceInfo)
+              : JSON.stringify({}),
+          ],
+        );
+
+        await client.query("COMMIT");
+
+        await database.logActivity(
+          createdBy,
+          "patient_created",
+          `Created patient record for ${patientData.firstName} ${patientData.lastName}`,
+          { patientId: user.id, email: patientData.email },
+        );
+
+        return {
+          id: user.id,
+          userId: user.id,
+          firstName: user.first_name,
+          lastName: user.last_name,
+          email: user.email,
+          phone: user.phone,
+          dateOfBirth: patientData.dateOfBirth,
+          gender: patientData.gender || null,
+          allergies: patientData.allergies || [],
+          emergencyContacts: patientData.emergencyContacts || {},
+          insuranceInfo: patientData.insuranceInfo || {},
+          status: user.is_active ? "active" : "inactive",
+          mrn: `MRN${user.id.slice(-8)}`,
+          createdAt: user.created_at,
+          updatedAt: user.updated_at,
+        };
+      } catch (error) {
+        await client.query("ROLLBACK");
+        throw error;
+      } finally {
+        client.release();
+      }
     } catch (error) {
       console.error("Error creating patient:", error);
       throw error;

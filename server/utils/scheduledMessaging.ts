@@ -631,15 +631,30 @@ export class ScheduledMessagingService {
 
   private async savePatientSchedule(schedule: PatientSchedule): Promise<void> {
     try {
+      const now = new Date().toISOString();
+      const isActive =
+        typeof schedule.active === "boolean"
+          ? schedule.active
+          : schedule.active == null
+            ? true
+            : schedule.active === 1 ||
+              schedule.active === "1" ||
+              `${schedule.active}`.toLowerCase() === "true";
       const query = `
-        INSERT OR REPLACE INTO patient_schedules 
-        (patient_id, schedule_data, created_at, updated_at)
-        VALUES (?, ?, datetime('now'), datetime('now'))
+        INSERT INTO patient_schedules (patient_id, schedule_data, active, created_at, updated_at)
+        VALUES ($1, $2, $3, $4::timestamptz, $4::timestamptz)
+        ON CONFLICT (patient_id)
+        DO UPDATE SET
+          schedule_data = EXCLUDED.schedule_data,
+          active = EXCLUDED.active,
+          updated_at = EXCLUDED.updated_at
       `;
 
       await database.query(query, [
         schedule.patientId,
         JSON.stringify(schedule),
+        isActive,
+        now,
       ]);
     } catch (error) {
       console.error("Error saving patient schedule:", error);
@@ -652,9 +667,53 @@ export class ScheduledMessagingService {
   ): Promise<void> {
     try {
       const query = `
-        INSERT OR REPLACE INTO scheduled_messages 
-        (id, patient_id, type, message, scheduled_time, timezone, phone, status, retry_count, max_retries, metadata, created_at, sent_at, error_message)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO scheduled_messages (
+          id,
+          patient_id,
+          type,
+          message,
+          scheduled_time,
+          timezone,
+          phone,
+          status,
+          retry_count,
+          max_retries,
+          metadata,
+          created_at,
+          sent_at,
+          error_message
+        )
+        VALUES (
+          $1,
+          $2,
+          $3,
+          $4,
+          $5::timestamptz,
+          $6,
+          $7,
+          $8,
+          $9,
+          $10,
+          $11::jsonb,
+          $12::timestamptz,
+          $13::timestamptz,
+          $14
+        )
+        ON CONFLICT (id)
+        DO UPDATE SET
+          patient_id = EXCLUDED.patient_id,
+          type = EXCLUDED.type,
+          message = EXCLUDED.message,
+          scheduled_time = EXCLUDED.scheduled_time,
+          timezone = EXCLUDED.timezone,
+          phone = EXCLUDED.phone,
+          status = EXCLUDED.status,
+          retry_count = EXCLUDED.retry_count,
+          max_retries = EXCLUDED.max_retries,
+          metadata = EXCLUDED.metadata,
+          created_at = LEAST(scheduled_messages.created_at, EXCLUDED.created_at),
+          sent_at = EXCLUDED.sent_at,
+          error_message = EXCLUDED.error_message
       `;
 
       await database.query(query, [
@@ -684,15 +743,15 @@ export class ScheduledMessagingService {
       console.log("Loading active patient schedules...");
 
       const schedules = await database.query(
-        "SELECT * FROM patient_schedules WHERE active = 1",
+        "SELECT * FROM patient_schedules WHERE active = TRUE",
       );
 
       if (schedules && schedules.length > 0) {
         for (const scheduleRow of schedules) {
           try {
-            const schedule: PatientSchedule = JSON.parse(
-              scheduleRow.schedule_data,
-            );
+            const raw = scheduleRow.schedule_data;
+            const schedule: PatientSchedule =
+              typeof raw === "string" ? JSON.parse(raw) : raw;
             await this.schedulePatientMessages(schedule);
           } catch (error) {
             console.error(
@@ -713,7 +772,7 @@ export class ScheduledMessagingService {
   async getPatientSchedule(patientId: string): Promise<PatientSchedule | null> {
     try {
       const result = await database.query(
-        "SELECT schedule_data FROM patient_schedules WHERE patient_id = ? AND active = 1",
+        "SELECT schedule_data FROM patient_schedules WHERE patient_id = $1 AND active = TRUE",
         [patientId],
       );
 
@@ -736,7 +795,7 @@ export class ScheduledMessagingService {
 
     try {
       await database.query(
-        "UPDATE patient_schedules SET active = 0 WHERE patient_id = ?",
+        "UPDATE patient_schedules SET active = FALSE WHERE patient_id = $1",
         [patientId],
       );
 
@@ -757,7 +816,7 @@ export class ScheduledMessagingService {
   async resumePatientSchedule(patientId: string): Promise<void> {
     try {
       await database.query(
-        "UPDATE patient_schedules SET active = 1 WHERE patient_id = ?",
+        "UPDATE patient_schedules SET active = TRUE WHERE patient_id = $1",
         [patientId],
       );
 
@@ -805,15 +864,15 @@ export class ScheduledMessagingService {
 
       const [sentToday, failedToday, activePatients] = await Promise.all([
         database.query(
-          "SELECT COUNT(*) as count FROM scheduled_messages WHERE status = 'sent' AND date(sent_at) = ?",
+          "SELECT COUNT(*) as count FROM scheduled_messages WHERE status = 'sent' AND DATE(sent_at) = $1::date",
           [today],
         ),
         database.query(
-          "SELECT COUNT(*) as count FROM scheduled_messages WHERE status = 'failed' AND date(created_at) = ?",
+          "SELECT COUNT(*) as count FROM scheduled_messages WHERE status = 'failed' AND DATE(created_at) = $1::date",
           [today],
         ),
         database.query(
-          "SELECT COUNT(DISTINCT patient_id) as count FROM patient_schedules WHERE active = 1",
+          "SELECT COUNT(DISTINCT patient_id) as count FROM patient_schedules WHERE active = TRUE",
         ),
       ]);
 

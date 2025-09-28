@@ -148,30 +148,51 @@ export async function getPatientVitals(req: Request, res: Response) {
       });
     }
 
-    let whereClause = "WHERE user_id = ?";
-    const params: any[] = [patientId];
+    const conditions: string[] = ["user_id = $1"];
+    const queryParams: any[] = [patientId];
 
-    if (vitalType) {
-      whereClause += " AND type = ?";
-      params.push(vitalType);
+    const addParam = (value: any, transform?: (value: any) => any) => {
+      const nextValue = transform ? transform(value) : value;
+      queryParams.push(nextValue);
+      return `$${queryParams.length}`;
+    };
+
+    if (typeof vitalType === "string" && vitalType.trim().length > 0) {
+      const placeholder = addParam(vitalType.trim());
+      conditions.push(`type = ${placeholder}`);
     }
 
-    if (startDate) {
-      whereClause += " AND datetime(measured_at) >= datetime(?)";
-      params.push(startDate);
+    const parseDate = (value: unknown) => {
+      const raw = Array.isArray(value) ? value[0] : value;
+      if (typeof raw !== "string") return null;
+      const parsed = new Date(raw);
+      return Number.isNaN(parsed.getTime()) ? null : parsed.toISOString();
+    };
+
+    const startIso = parseDate(startDate);
+    if (startIso) {
+      const placeholder = addParam(startIso);
+      conditions.push(`measured_at >= ${placeholder}::timestamptz`);
     }
 
-    if (endDate) {
-      whereClause += " AND datetime(measured_at) <= datetime(?)";
-      params.push(endDate);
+    const endIso = parseDate(endDate);
+    if (endIso) {
+      const placeholder = addParam(endIso);
+      conditions.push(`measured_at <= ${placeholder}::timestamptz`);
     }
+
+    const limitNumber = Math.max(parseInt(limit as string, 10) || 50, 1);
+    const limitPlaceholder = `$${queryParams.length + 1}`;
+    const whereClause = conditions.length
+      ? `WHERE ${conditions.join(" AND ")}`
+      : "";
 
     const vitals = await db.query(
       `SELECT * FROM vital_signs 
-       ${whereClause} 
+       ${whereClause}
        ORDER BY measured_at DESC 
-       LIMIT ?`,
-      [...params, parseInt(limit as string)],
+       LIMIT ${limitPlaceholder}`,
+      [...queryParams, limitNumber],
     );
 
     // Analyze each vital against thresholds
@@ -314,30 +335,44 @@ export async function getThresholdAlertsHistory(req: Request, res: Response) {
   try {
     const { patientId, limit = 100, startDate, endDate } = req.query;
 
-    let whereClause = "WHERE action = 'threshold_alert'";
-    const params: any[] = [];
+    const filters: string[] = ["action = 'threshold_alert'"];
+    const queryParams: any[] = [];
+    const addParam = (value: any) => {
+      queryParams.push(value);
+      return `$${queryParams.length}`;
+    };
 
-    if (patientId) {
-      whereClause += " AND user_id = ?";
-      params.push(patientId);
+    if (typeof patientId === "string" && patientId.trim().length > 0) {
+      const placeholder = addParam(patientId.trim());
+      filters.push(`user_id = ${placeholder}`);
     }
 
-    if (startDate) {
-      whereClause += " AND datetime(timestamp) >= datetime(?)";
-      params.push(startDate);
+    const parseDate = (value: unknown) => {
+      const raw = Array.isArray(value) ? value[0] : value;
+      if (typeof raw !== "string") return null;
+      const parsed = new Date(raw);
+      return Number.isNaN(parsed.getTime()) ? null : parsed.toISOString();
+    };
+
+    const startIso = parseDate(startDate);
+    if (startIso) {
+      const placeholder = addParam(startIso);
+      filters.push(`"timestamp" >= ${placeholder}::timestamptz`);
     }
 
-    if (endDate) {
-      whereClause += " AND datetime(timestamp) <= datetime(?)";
-      params.push(endDate);
+    const endIso = parseDate(endDate);
+    if (endIso) {
+      const placeholder = addParam(endIso);
+      filters.push(`"timestamp" <= ${placeholder}::timestamptz`);
     }
+
+    const whereClause = filters.length ? `WHERE ${filters.join(" AND ")}` : "";
+    const limitNumber = Math.max(parseInt(limit as string, 10) || 100, 1);
+    const limitPlaceholder = `$${queryParams.length + 1}`;
 
     const alerts = await db.query(
-      `SELECT * FROM audit_logs 
-       ${whereClause} 
-       ORDER BY timestamp DESC 
-       LIMIT ?`,
-      [...params, parseInt(limit as string)],
+      `SELECT * FROM audit_logs ${whereClause} ORDER BY "timestamp" DESC LIMIT ${limitPlaceholder}`,
+      [...queryParams, limitNumber],
     );
 
     const processedAlerts =

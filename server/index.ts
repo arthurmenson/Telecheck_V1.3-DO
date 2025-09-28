@@ -46,7 +46,11 @@ import {
   generateConsultationSummary,
   triageEmergency,
 } from "./routes/telemedicine";
-import { authenticateToken, requireDoctor } from "./middleware/auth";
+import {
+  authenticateToken,
+  requireDoctor,
+  requireAdmin,
+} from "./middleware/auth";
 import {
   exportFHIRData,
   importFHIRData,
@@ -196,7 +200,7 @@ export async function createServer() {
           { id: "slot-3", time: "14:00", provider: "Dr. Smith" },
         ],
         date: new Date().toISOString().slice(0, 10),
-        source: isDbConfigured ? "database" : "mock",
+        source: isDbConfigured() ? "database" : "mock",
       },
     });
   });
@@ -384,16 +388,66 @@ export async function createServer() {
   app.use("/api/legacy", legacySeedRoutes);
 
   // Messaging routes
-  app.post("/api/messaging/send", sendMessage);
-  app.post("/api/messaging/critical-alert", sendCriticalAlert);
-  app.post("/api/messaging/daily-reminders", sendDailyReminders);
-  app.post("/api/messaging/appointment-reminders", sendAppointmentReminders);
-  app.get("/api/messaging/status/:messageId/:provider", getMessageStatus);
-  app.post("/api/messaging/medication-reminder", sendMedicationReminder);
-  app.post("/api/messaging/device-alert", sendDeviceAlert);
-  app.post("/api/messaging/care-plan-update", sendCarePlanUpdate);
-  app.post("/api/messaging/test", testMessagingService);
-  app.get("/api/messaging/status", getMessagingStatus);
+  app.post(
+    "/api/messaging/send",
+    authenticateToken as any,
+    requireDoctor as any,
+    sendMessage,
+  );
+  app.post(
+    "/api/messaging/critical-alert",
+    authenticateToken as any,
+    requireDoctor as any,
+    sendCriticalAlert,
+  );
+  app.post(
+    "/api/messaging/daily-reminders",
+    authenticateToken as any,
+    requireDoctor as any,
+    sendDailyReminders,
+  );
+  app.post(
+    "/api/messaging/appointment-reminders",
+    authenticateToken as any,
+    requireDoctor as any,
+    sendAppointmentReminders,
+  );
+  app.get(
+    "/api/messaging/status/:messageId/:provider",
+    authenticateToken as any,
+    requireDoctor as any,
+    getMessageStatus,
+  );
+  app.post(
+    "/api/messaging/medication-reminder",
+    authenticateToken as any,
+    requireDoctor as any,
+    sendMedicationReminder,
+  );
+  app.post(
+    "/api/messaging/device-alert",
+    authenticateToken as any,
+    requireDoctor as any,
+    sendDeviceAlert,
+  );
+  app.post(
+    "/api/messaging/care-plan-update",
+    authenticateToken as any,
+    requireDoctor as any,
+    sendCarePlanUpdate,
+  );
+  app.post(
+    "/api/messaging/test",
+    authenticateToken as any,
+    requireDoctor as any,
+    testMessagingService,
+  );
+  app.get(
+    "/api/messaging/status",
+    authenticateToken as any,
+    requireDoctor as any,
+    getMessagingStatus,
+  );
 
   // Webhook routes for Telnyx
   app.post(
@@ -443,18 +497,78 @@ export async function createServer() {
   app.get("/api/twiml/voice", generateTwiMLVoice);
 
   // Messaging administration routes
-  app.get("/api/admin/messaging/config", getMessagingConfig);
-  app.post("/api/admin/messaging/config", updateMessagingConfig);
-  app.post("/api/admin/messaging/test", testMessagingAdmin);
-  app.get("/api/admin/messaging/analytics", getMessagingAnalytics);
-  app.get("/api/admin/messaging/schedules", getPatientSchedules);
-  app.post("/api/admin/messaging/schedules/:patientId", updatePatientSchedule);
-  app.get("/api/admin/messaging/templates", getMessageTemplates);
-  app.post("/api/admin/messaging/templates/:templateId", updateMessageTemplate);
-  app.get("/api/admin/messaging/care-team", getCareTeamConfig);
-  app.post("/api/admin/messaging/care-team/:memberId", updateCareTeamMember);
-  app.get("/api/admin/messaging/audit-logs", getMessagingAuditLogs);
-  app.post("/api/admin/messaging/wellness-check", sendWellnessCheck);
+  app.get(
+    "/api/admin/messaging/config",
+    authenticateToken as any,
+    requireAdmin as any,
+    getMessagingConfig,
+  );
+  app.post(
+    "/api/admin/messaging/config",
+    authenticateToken as any,
+    requireAdmin as any,
+    updateMessagingConfig,
+  );
+  app.post(
+    "/api/admin/messaging/test",
+    authenticateToken as any,
+    requireAdmin as any,
+    testMessagingAdmin,
+  );
+  app.get(
+    "/api/admin/messaging/analytics",
+    authenticateToken as any,
+    requireAdmin as any,
+    getMessagingAnalytics,
+  );
+  app.get(
+    "/api/admin/messaging/schedules",
+    authenticateToken as any,
+    requireAdmin as any,
+    getPatientSchedules,
+  );
+  app.post(
+    "/api/admin/messaging/schedules/:patientId",
+    authenticateToken as any,
+    requireAdmin as any,
+    updatePatientSchedule,
+  );
+  app.get(
+    "/api/admin/messaging/templates",
+    authenticateToken as any,
+    requireAdmin as any,
+    getMessageTemplates,
+  );
+  app.post(
+    "/api/admin/messaging/templates/:templateId",
+    authenticateToken as any,
+    requireAdmin as any,
+    updateMessageTemplate,
+  );
+  app.get(
+    "/api/admin/messaging/care-team",
+    authenticateToken as any,
+    requireAdmin as any,
+    getCareTeamConfig,
+  );
+  app.post(
+    "/api/admin/messaging/care-team/:memberId",
+    authenticateToken as any,
+    requireAdmin as any,
+    updateCareTeamMember,
+  );
+  app.get(
+    "/api/admin/messaging/audit-logs",
+    authenticateToken as any,
+    requireAdmin as any,
+    getMessagingAuditLogs,
+  );
+  app.post(
+    "/api/admin/messaging/wellness-check",
+    authenticateToken as any,
+    requireAdmin as any,
+    sendWellnessCheck,
+  );
 
   // Patient thresholds routes
   app.get("/api/admin/thresholds/types", getThresholdTypes);
@@ -503,4 +617,4 @@ export async function createServer() {
 
   return app;
 }
-const isDbConfigured = !!dbPool;
+const isDbConfigured = () => !!dbPool;

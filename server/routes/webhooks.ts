@@ -3,6 +3,23 @@ import crypto from "crypto";
 import { AuditLogger } from "../utils/auditLogger";
 import { telnyxService } from "../utils/telnyxService";
 
+const sanitizeTwimlText = (value: string) =>
+  value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
+
+const sanitizeVoiceParam = (value: unknown) => {
+  if (typeof value !== "string") {
+    return "alice";
+  }
+
+  const trimmed = value.trim();
+  return /^[a-z0-9_-]+$/i.test(trimmed) ? trimmed : "alice";
+};
+
 /**
  * Telnyx SMS webhook handler
  */
@@ -257,15 +274,19 @@ export async function handleTwilioCallWebhook(req: Request, res: Response) {
  */
 export function generateTwiMLVoice(req: Request, res: Response) {
   try {
-    const { message, voice = "alice" } = req.query;
+    const { message, voice } = req.query;
+    const rawMessage = Array.isArray(message) ? message[0] : message;
 
-    if (!message) {
+    if (typeof rawMessage !== "string" || rawMessage.trim().length === 0) {
       return res.status(400).send("Message parameter is required");
     }
 
+    const sanitizedMessage = sanitizeTwimlText(rawMessage.trim());
+    const sanitizedVoice = sanitizeVoiceParam(voice);
+
     const twiml = `<?xml version="1.0" encoding="UTF-8"?>
 <Response>
-    <Say voice="${voice}">${message}</Say>
+    <Say voice="${sanitizedVoice}">${sanitizedMessage}</Say>
     <Hangup/>
 </Response>`;
 

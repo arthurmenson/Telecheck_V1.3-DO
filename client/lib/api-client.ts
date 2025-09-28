@@ -11,13 +11,44 @@
 import { ApiResponse } from "../../shared/types";
 import { track } from "../../lib/telemetry";
 
+const DEFAULT_REMOTE_API = "https://whale-app-bs3xa.ondigitalocean.app/api";
+
+const readEnv = (key: string): string | undefined => {
+  const metaEnv =
+    typeof import.meta !== "undefined" ? (import.meta as any).env : undefined;
+  if (metaEnv && typeof metaEnv[key] === "string") {
+    return metaEnv[key];
+  }
+
+  if (
+    typeof process !== "undefined" &&
+    process.env &&
+    typeof process.env[key] === "string"
+  ) {
+    return process.env[key];
+  }
+
+  return undefined;
+};
+
+const resolveBaseUrl = () => {
+  const configured = readEnv("VITE_API_URL");
+  if (configured && configured.trim().length > 0) {
+    return configured;
+  }
+
+  if (typeof window !== "undefined") {
+    return window.location.hostname === "localhost"
+      ? "/api"
+      : DEFAULT_REMOTE_API;
+  }
+
+  return DEFAULT_REMOTE_API;
+};
+
 // API Configuration
 const API_CONFIG = {
-  BASE_URL:
-    import.meta.env.VITE_API_URL ||
-    (window.location.hostname === "localhost"
-      ? "/api"
-      : "https://whale-app-bs3xa.ondigitalocean.app/api"),
+  BASE_URL: resolveBaseUrl(),
   TIMEOUT: 30000,
   MAX_RETRIES: 3,
   RETRY_DELAY: 1000,

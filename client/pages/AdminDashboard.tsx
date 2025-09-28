@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -8,620 +8,885 @@ import {
 import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
-import { Progress } from "../components/ui/progress";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "../components/ui/alert-dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../components/ui/dropdown-menu";
+import { Label } from "../components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../components/ui/select";
+import { Switch } from "../components/ui/switch";
+import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
+import { useToast } from "../hooks/use-toast";
+import {
+  useAdminUsers,
+  useAdminUserStats,
+  useDeactivateAdminUser,
+  useInviteAdminUser,
+  useUpdateAdminUser,
+} from "../hooks/api";
+import type { User } from "@shared/types";
 import { useAuth } from "../contexts/AuthContext";
 import {
-  Shield,
-  Users,
   Activity,
-  BarChart3,
-  AlertTriangle,
-  CheckCircle,
-  TrendingUp,
-  TrendingDown,
-  Server,
-  Database,
-  Lock,
-  Eye,
-  Settings,
-  UserPlus,
-  FileText,
-  Bell,
-  Search,
-  Filter,
-  Download,
+  Ban,
+  ChevronLeft,
+  ChevronRight,
+  Edit,
+  Loader2,
+  MoreHorizontal,
   RefreshCw,
-  Zap,
-  Brain,
-  Stethoscope,
-  Pill,
-  Building,
-  Dna,
+  Search,
+  Shield,
+  UserPlus,
+  Users,
 } from "lucide-react";
-import { Link } from "react-router-dom";
+
+interface InviteFormState {
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: User["role"];
+  phone?: string;
+}
+
+interface EditFormState {
+  firstName: string;
+  lastName: string;
+  phone?: string;
+  role: User["role"];
+  isActive: boolean;
+}
+
+const ROLE_OPTIONS: Array<{ value: User["role"]; label: string }> = [
+  { value: "admin", label: "Administrator" },
+  { value: "doctor", label: "Doctor" },
+  { value: "nurse", label: "Nurse" },
+  { value: "pharmacist", label: "Pharmacist" },
+  { value: "patient", label: "Patient" },
+];
+
+const formatDate = (value?: string) => {
+  if (!value) return "—";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "—";
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  }).format(date);
+};
+
+const formatRelative = (value?: string) => {
+  if (!value) return "—";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "—";
+  const diff = Date.now() - date.getTime();
+  const minute = 60 * 1000;
+  const hour = 60 * minute;
+  const day = 24 * hour;
+
+  if (diff < minute) return "Just now";
+  if (diff < hour) {
+    const minutes = Math.floor(diff / minute);
+    return `${minutes} min ago`;
+  }
+  if (diff < day) {
+    const hours = Math.floor(diff / hour);
+    return `${hours} hr ago`;
+  }
+  const days = Math.floor(diff / day);
+  return `${days} day${days === 1 ? "" : "s"} ago`;
+};
+
+const getInitials = (user: User) => {
+  const firstInitial = user.firstName?.charAt(0);
+  const lastInitial = user.lastName?.charAt(0);
+  if (firstInitial || lastInitial) {
+    return `${firstInitial ?? ""}${lastInitial ?? ""}`.toUpperCase();
+  }
+  return user.email.charAt(0).toUpperCase();
+};
+
+const roleBadgeVariant: Record<User["role"], string> = {
+  admin:
+    "bg-purple-100 text-purple-700 dark:bg-purple-500/10 dark:text-purple-200",
+  doctor: "bg-blue-100 text-blue-700 dark:bg-blue-500/10 dark:text-blue-200",
+  nurse: "bg-teal-100 text-teal-700 dark:bg-teal-500/10 dark:text-teal-200",
+  pharmacist:
+    "bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-200",
+  patient:
+    "bg-slate-100 text-slate-700 dark:bg-slate-500/10 dark:text-slate-200",
+};
 
 export function AdminDashboard() {
-  const { user, switchRole } = useAuth();
-  const [searchTerm, setSearchTerm] = useState("");
+  const { user } = useAuth();
+  const { toast } = useToast();
 
-  const systemMetrics = {
-    totalUsers: 15420,
-    activeUsers: 12845,
-    dailyTransactions: 8965,
-    systemUptime: 99.97,
-    responseTime: 1.2,
-    errorRate: 0.03,
-  };
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [searchInput, setSearchInput] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [inviteOpen, setInviteOpen] = useState(false);
+  const [editUser, setEditUser] = useState<User | null>(null);
+  const [deactivateUser, setDeactivateUser] = useState<User | null>(null);
+  const [inviteForm, setInviteForm] = useState<InviteFormState>({
+    email: "",
+    firstName: "",
+    lastName: "",
+    role: "doctor",
+    phone: "",
+  });
+  const [editForm, setEditForm] = useState<EditFormState | null>(null);
 
-  const usersByRole = [
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchInput.trim());
+      setPage(1);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchInput]);
+
+  useEffect(() => {
+    if (editUser) {
+      setEditForm({
+        firstName: editUser.firstName ?? "",
+        lastName: editUser.lastName ?? "",
+        phone: editUser.phone,
+        role: editUser.role,
+        isActive: editUser.isActive,
+      });
+    } else {
+      setEditForm(null);
+    }
+  }, [editUser]);
+
+  const usersQuery = useAdminUsers({
+    page,
+    limit,
+    search: debouncedSearch,
+  });
+  const statsQuery = useAdminUserStats();
+
+  const inviteMutation = useInviteAdminUser();
+  const updateMutation = useUpdateAdminUser();
+  const deactivateMutation = useDeactivateAdminUser();
+
+  const users = usersQuery.data?.users ?? [];
+  const pagination = usersQuery.data?.pagination;
+  const stats = statsQuery.data;
+
+  const summaryCards = [
     {
-      role: "Patients",
-      count: 12845,
-      percentage: 83.3,
-      trend: "up",
-      change: "+245",
+      title: "Total Users",
+      value: stats?.totalUsers ?? 0,
+      icon: Users,
+      sublabel: "Across all roles",
     },
     {
-      role: "Doctors",
-      count: 1876,
-      percentage: 12.1,
-      trend: "up",
-      change: "+18",
+      title: "Active Users",
+      value: stats?.activeUsers ?? 0,
+      icon: Activity,
+      sublabel: `Active last 30d: ${stats?.activeLast30Days ?? 0}`,
     },
     {
-      role: "Pharmacists",
-      count: 645,
-      percentage: 4.2,
-      trend: "stable",
-      change: "+3",
+      title: "Administrators",
+      value: stats?.admins ?? 0,
+      icon: Shield,
+      sublabel: `${stats?.doctors ?? 0} clinicians`,
     },
     {
-      role: "Admins",
-      count: 54,
-      percentage: 0.4,
-      trend: "stable",
-      change: "0",
+      title: "Inactive",
+      value: stats?.inactiveUsers ?? 0,
+      icon: Ban,
+      sublabel: "Soft-deactivated accounts",
     },
   ];
 
-  const recentActivities = [
-    {
-      id: "1",
-      type: "user_registration",
-      description: "New patient registered: Sarah Johnson",
-      timestamp: "5 minutes ago",
-      severity: "info",
-    },
-    {
-      id: "2",
-      type: "security_alert",
-      description: "Multiple failed login attempts detected",
-      timestamp: "15 minutes ago",
-      severity: "warning",
-    },
-    {
-      id: "3",
-      type: "system_update",
-      description: "AI model updated to version 2.1.4",
-      timestamp: "1 hour ago",
-      severity: "success",
-    },
-    {
-      id: "4",
-      type: "prescription_volume",
-      description: "Daily prescription limit reached: 500 processed",
-      timestamp: "2 hours ago",
-      severity: "info",
-    },
-  ];
+  const handleInviteSubmit = async (
+    event: React.FormEvent<HTMLFormElement>,
+  ) => {
+    event.preventDefault();
+    const payload: InviteFormState = {
+      ...inviteForm,
+      email: inviteForm.email.trim(),
+      firstName: inviteForm.firstName.trim(),
+      lastName: inviteForm.lastName.trim(),
+      phone: inviteForm.phone?.trim() || undefined,
+    };
 
-  const securityAlerts = [
-    {
-      id: "1",
-      type: "Failed Login Attempts",
-      description: "15 failed attempts from IP 192.168.1.100",
-      severity: "high",
-      timestamp: "30 minutes ago",
-      status: "investigating",
-    },
-    {
-      id: "2",
-      type: "Unusual Data Access",
-      description: "Doctor accessed 50+ patient records in 1 hour",
-      severity: "medium",
-      timestamp: "2 hours ago",
-      status: "resolved",
-    },
-    {
-      id: "3",
-      type: "System Anomaly",
-      description: "API response time increased by 300%",
-      severity: "low",
-      timestamp: "4 hours ago",
-      status: "monitoring",
-    },
-  ];
-
-  const platformStats = [
-    {
-      title: "AI Consultations",
-      value: "1,245",
-      change: "+12%",
-      trend: "up",
-      icon: Brain,
-      color: "bg-purple-500",
-    },
-    {
-      title: "Prescriptions",
-      value: "3,876",
-      change: "+8%",
-      trend: "up",
-      icon: Pill,
-      color: "bg-green-500",
-    },
-    {
-      title: "Telehealth Sessions",
-      value: "892",
-      change: "+15%",
-      trend: "up",
-      icon: Stethoscope,
-      color: "bg-blue-500",
-    },
-    {
-      title: "Organizations",
-      value: "156",
-      change: "+2%",
-      trend: "up",
-      icon: Building,
-      color: "bg-orange-500",
-    },
-  ];
-
-  const getSeverityColor = (severity: string) => {
-    switch (severity) {
-      case "high":
-        return "bg-red-100 text-red-800 border-red-200";
-      case "medium":
-        return "bg-yellow-100 text-yellow-800 border-yellow-200";
-      case "low":
-        return "bg-blue-100 text-blue-800 border-blue-200";
-      default:
-        return "bg-gray-100 text-gray-800 border-gray-200";
+    try {
+      const result = await inviteMutation.mutateAsync(payload);
+      if (result.success) {
+        toast({
+          title: "Invitation sent",
+          description: result.message ?? "The user has been invited.",
+        });
+        setInviteOpen(false);
+        setInviteForm({
+          email: "",
+          firstName: "",
+          lastName: "",
+          role: "doctor",
+          phone: "",
+        });
+      } else {
+        throw new Error(result.error ?? "Unable to invite user");
+      }
+    } catch (error: any) {
+      toast({
+        title: "Invite failed",
+        description: error?.message ?? "Please try again.",
+        variant: "destructive",
+      });
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "resolved":
-        return "bg-green-100 text-green-800";
-      case "investigating":
-        return "bg-orange-100 text-orange-800";
-      case "monitoring":
-        return "bg-blue-100 text-blue-800";
-      default:
-        return "bg-gray-100 text-gray-800";
+  const handleEditSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!editUser || !editForm) return;
+
+    try {
+      const result = await updateMutation.mutateAsync({
+        id: editUser.id,
+        updates: {
+          firstName: editForm.firstName.trim() || undefined,
+          lastName: editForm.lastName.trim() || undefined,
+          phone: editForm.phone?.trim() || undefined,
+          role: editForm.role,
+          isActive: editForm.isActive,
+        },
+      });
+
+      if (result.success && result.data) {
+        toast({
+          title: "User updated",
+          description: `${result.data.name} has been updated successfully.`,
+        });
+        setEditUser(null);
+      } else {
+        throw new Error(result.error ?? "Update failed");
+      }
+    } catch (error: any) {
+      toast({
+        title: "Update failed",
+        description: error?.message ?? "Please try again.",
+        variant: "destructive",
+      });
     }
   };
 
-  const getTrendIcon = (trend: string) => {
-    switch (trend) {
-      case "up":
-        return <TrendingUp className="w-4 h-4 text-green-500" />;
-      case "down":
-        return <TrendingDown className="w-4 h-4 text-red-500" />;
-      default:
-        return <div className="w-4 h-4 bg-gray-300 rounded-full" />;
+  const handleDeactivate = async () => {
+    if (!deactivateUser) return;
+    try {
+      const result = await deactivateMutation.mutateAsync(deactivateUser.id);
+      if (result.success) {
+        toast({
+          title: "User deactivated",
+          description: `${deactivateUser.name} has been deactivated.`,
+        });
+        setDeactivateUser(null);
+      } else {
+        throw new Error(result.error ?? "Unable to deactivate user");
+      }
+    } catch (error: any) {
+      toast({
+        title: "Action failed",
+        description: error?.message ?? "Please try again.",
+        variant: "destructive",
+      });
     }
   };
+
+  const isInitialLoading = usersQuery.isLoading;
+  const isFetching = usersQuery.isFetching;
+  const showEmptyState = !isInitialLoading && users.length === 0;
 
   return (
-    <div className="min-h-screen aurora-bg">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center space-x-4">
-              <div className="w-16 h-16 bg-red-500 rounded-xl flex items-center justify-center">
-                <Shield className="w-8 h-8 text-white" />
-              </div>
-              <div>
-                <h1 className="text-3xl font-bold text-foreground">
-                  Admin Portal
-                </h1>
-                <p className="text-muted-foreground">
-                  Platform Administration • {user?.name}
-                </p>
-                <div className="flex items-center space-x-2 mt-1">
-                  <Badge variant="outline">Super Admin</Badge>
-                  <Badge variant="outline">{user?.organization}</Badge>
-                </div>
-              </div>
+    <div className="min-h-screen bg-background">
+      <div className="mx-auto max-w-7xl space-y-6 p-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <div className="flex items-center gap-3">
+              <Shield className="h-8 w-8 text-primary" />
+              <h1 className="text-3xl font-bold text-foreground">
+                Admin Dashboard
+              </h1>
             </div>
-            <div className="flex items-center space-x-3">
-              <Button variant="outline" size="sm">
-                <Download className="w-4 h-4 mr-2" />
-                Export Data
-              </Button>
-              <Button variant="outline" size="sm">
-                <Settings className="w-4 h-4 mr-2" />
-                System Settings
-              </Button>
-              <div className="relative">
-                <Button variant="outline" size="sm">
-                  <Bell className="w-4 h-4 mr-2" />
-                  Alerts
-                  <Badge className="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center p-0">
-                    3
-                  </Badge>
-                </Button>
-              </div>
-            </div>
+            <p className="text-muted-foreground">
+              Manage users, invitations, and access controls
+            </p>
           </div>
-
-          {/* Role Switcher */}
-          <Card className="glass-morphism border border-blue-200 bg-blue-50/50 dark:bg-blue-900/20">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <Zap className="w-4 h-4 text-blue-600" />
-                  <span className="font-semibold text-blue-900 dark:text-blue-100">
-                    Admin Tools
-                  </span>
-                  <span className="text-sm text-blue-800 dark:text-blue-200">
-                    Switch to different role portals for testing
-                  </span>
-                </div>
-                <div className="flex space-x-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => switchRole("patient")}
-                  >
-                    Patient View
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => switchRole("doctor")}
-                  >
-                    Doctor View
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => switchRole("pharmacist")}
-                  >
-                    Pharmacist View
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* System Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card className="glass-morphism border border-border/20">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Total Users</p>
-                  <p className="text-3xl font-bold text-foreground">
-                    {systemMetrics.totalUsers.toLocaleString()}
-                  </p>
-                  <p className="text-sm text-green-600">+2.5% this month</p>
-                </div>
-                <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center">
-                  <Users className="w-6 h-6 text-white" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="glass-morphism border border-border/20">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">System Uptime</p>
-                  <p className="text-3xl font-bold text-foreground">
-                    {systemMetrics.systemUptime}%
-                  </p>
-                  <p className="text-sm text-green-600">Excellent</p>
-                </div>
-                <div className="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center">
-                  <Server className="w-6 h-6 text-white" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="glass-morphism border border-border/20">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">
-                    Daily Transactions
-                  </p>
-                  <p className="text-3xl font-bold text-foreground">
-                    {systemMetrics.dailyTransactions.toLocaleString()}
-                  </p>
-                  <p className="text-sm text-green-600">+15% vs yesterday</p>
-                </div>
-                <div className="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center">
-                  <Activity className="w-6 h-6 text-white" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="glass-morphism border border-border/20">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">
-                    Security Score
-                  </p>
-                  <p className="text-3xl font-bold text-foreground">9.8</p>
-                  <p className="text-sm text-green-600">Excellent security</p>
-                </div>
-                <div className="w-12 h-12 bg-red-500 rounded-xl flex items-center justify-center">
-                  <Lock className="w-6 h-6 text-white" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Platform Statistics */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {platformStats.map((stat, index) => {
-            const Icon = stat.icon;
-            return (
-              <Card
-                key={index}
-                className="glass-morphism border border-border/20"
-              >
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-muted-foreground">
-                        {stat.title}
-                      </p>
-                      <p className="text-2xl font-bold text-foreground">
-                        {stat.value}
-                      </p>
-                      <div className="flex items-center space-x-1 mt-1">
-                        {getTrendIcon(stat.trend)}
-                        <span className="text-sm text-green-600">
-                          {stat.change}
-                        </span>
-                      </div>
+          <div className="flex items-center gap-3">
+            {user?.email && <Badge variant="outline">{user.email}</Badge>}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                usersQuery.refetch();
+                statsQuery.refetch();
+              }}
+              disabled={usersQuery.isFetching || statsQuery.isFetching}
+            >
+              {usersQuery.isFetching || statsQuery.isFetching ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <RefreshCw className="mr-2 h-4 w-4" />
+              )}
+              Refresh
+            </Button>
+            <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
+              <DialogTrigger asChild>
+                <Button>
+                  <UserPlus className="mr-2 h-4 w-4" />
+                  Invite User
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Invite a new user</DialogTitle>
+                  <DialogDescription>
+                    Send an invitation email with a temporary password.
+                  </DialogDescription>
+                </DialogHeader>
+                <form onSubmit={handleInviteSubmit} className="space-y-4">
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="sm:col-span-2">
+                      <Label htmlFor="email">Email</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        required
+                        value={inviteForm.email}
+                        onChange={(event) =>
+                          setInviteForm((prev) => ({
+                            ...prev,
+                            email: event.target.value,
+                          }))
+                        }
+                        placeholder="user@example.com"
+                      />
                     </div>
-                    <div
-                      className={`w-12 h-12 ${stat.color} rounded-xl flex items-center justify-center`}
-                    >
-                      <Icon className="w-6 h-6 text-white" />
+                    <div>
+                      <Label htmlFor="firstName">First name</Label>
+                      <Input
+                        id="firstName"
+                        required
+                        value={inviteForm.firstName}
+                        onChange={(event) =>
+                          setInviteForm((prev) => ({
+                            ...prev,
+                            firstName: event.target.value,
+                          }))
+                        }
+                        placeholder="Taylor"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="lastName">Last name</Label>
+                      <Input
+                        id="lastName"
+                        required
+                        value={inviteForm.lastName}
+                        onChange={(event) =>
+                          setInviteForm((prev) => ({
+                            ...prev,
+                            lastName: event.target.value,
+                          }))
+                        }
+                        placeholder="Morgan"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="role">Role</Label>
+                      <Select
+                        value={inviteForm.role}
+                        onValueChange={(value: User["role"]) =>
+                          setInviteForm((prev) => ({
+                            ...prev,
+                            role: value,
+                          }))
+                        }
+                      >
+                        <SelectTrigger id="role">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {ROLE_OPTIONS.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label htmlFor="phone">Phone</Label>
+                      <Input
+                        id="phone"
+                        value={inviteForm.phone ?? ""}
+                        onChange={(event) =>
+                          setInviteForm((prev) => ({
+                            ...prev,
+                            phone: event.target.value,
+                          }))
+                        }
+                        placeholder="+1 (555) 123-4567"
+                      />
                     </div>
                   </div>
+                  <DialogFooter>
+                    <Button type="submit" disabled={inviteMutation.isPending}>
+                      {inviteMutation.isPending && (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      )}
+                      Send invite
+                    </Button>
+                  </DialogFooter>
+                </form>
+              </DialogContent>
+            </Dialog>
+          </div>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          {summaryCards.map((card) => {
+            const Icon = card.icon;
+            return (
+              <Card key={card.title}>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    {card.title}
+                  </CardTitle>
+                  <Icon className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-semibold">
+                    {statsQuery.isLoading ? (
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                    ) : (
+                      card.value
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {card.sublabel}
+                  </p>
                 </CardContent>
               </Card>
             );
           })}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* User Analytics */}
-          <div className="lg:col-span-2">
-            <Card className="glass-morphism border border-border/20 mb-6">
-              <CardHeader>
-                <CardTitle className="text-xl font-bold text-foreground flex items-center">
-                  <Users className="w-5 h-5 mr-2" />
-                  User Distribution
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {usersByRole.map((userGroup, index) => (
-                    <div key={index} className="glass-morphism p-4 rounded-xl">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center space-x-3">
-                          <h3 className="font-semibold text-foreground">
-                            {userGroup.role}
-                          </h3>
-                          <Badge variant="outline">
-                            {userGroup.count.toLocaleString()}
-                          </Badge>
+        <Card>
+          <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <CardTitle>User directory</CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Search and manage all accounts that have access to TeleCheck.
+              </p>
+            </div>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+              <div className="relative w-full sm:w-72">
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  className="pl-8"
+                  placeholder="Search by name or email"
+                  value={searchInput}
+                  onChange={(event) => setSearchInput(event.target.value)}
+                />
+              </div>
+              <Select
+                value={String(limit)}
+                onValueChange={(value) => {
+                  setLimit(Number(value));
+                  setPage(1);
+                }}
+              >
+                <SelectTrigger className="w-[120px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {[10, 20, 50].map((option) => (
+                    <SelectItem key={option} value={String(option)}>
+                      {option} / page
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Role</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Last active</TableHead>
+                    <TableHead>Created</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {isInitialLoading && (
+                    <TableRow>
+                      <TableCell colSpan={7} className="h-24 text-center">
+                        <div className="flex items-center justify-center gap-2 text-muted-foreground">
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          Loading users…
                         </div>
-                        <div className="flex items-center space-x-2">
-                          {getTrendIcon(userGroup.trend)}
-                          <span className="text-sm text-muted-foreground">
-                            {userGroup.change}
+                      </TableCell>
+                    </TableRow>
+                  )}
+
+                  {showEmptyState && (
+                    <TableRow>
+                      <TableCell colSpan={7} className="h-24 text-center">
+                        <div className="space-y-1">
+                          <p className="font-medium text-foreground">
+                            No users found
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            Adjust your search term or invite a new teammate.
+                          </p>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  )}
+
+                  {!isInitialLoading &&
+                    users.map((item) => (
+                      <TableRow key={item.id}>
+                        <TableCell>
+                          <div className="flex items-center gap-3">
+                            <Avatar className="h-9 w-9">
+                              {item.avatar ? (
+                                <AvatarImage
+                                  src={item.avatar}
+                                  alt={item.name}
+                                />
+                              ) : (
+                                <AvatarFallback>
+                                  {getInitials(item)}
+                                </AvatarFallback>
+                              )}
+                            </Avatar>
+                            <div>
+                              <p className="font-medium text-foreground">
+                                {item.name}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                {item.id}
+                              </p>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <span className="text-sm text-foreground">
+                            {item.email}
                           </span>
-                        </div>
-                      </div>
-                      <Progress
-                        value={userGroup.percentage}
-                        className="h-2 mb-2"
-                      />
-                      <div className="text-sm text-muted-foreground">
-                        {userGroup.percentage}% of total users
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+                        </TableCell>
+                        <TableCell>
+                          <span
+                            className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${roleBadgeVariant[item.role]}`}
+                          >
+                            {item.role.charAt(0).toUpperCase() +
+                              item.role.slice(1)}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <Badge
+                            variant={item.isActive ? "default" : "outline"}
+                            className={
+                              item.isActive
+                                ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-200"
+                                : "text-muted-foreground"
+                            }
+                          >
+                            {item.isActive ? "Active" : "Inactive"}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <span className="text-sm text-muted-foreground">
+                            {formatRelative(item.lastLoginAt)}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <span className="text-sm text-muted-foreground">
+                            {formatDate(item.createdAt)}
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon">
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem
+                                onSelect={() => setEditUser(item)}
+                              >
+                                <Edit className="mr-2 h-4 w-4" />
+                                Edit user
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                disabled={
+                                  !item.isActive || deactivateMutation.isPending
+                                }
+                                className="text-destructive focus:text-destructive"
+                                onSelect={() => setDeactivateUser(item)}
+                              >
+                                <Ban className="mr-2 h-4 w-4" />
+                                Deactivate
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                </TableBody>
+              </Table>
+            </div>
 
-            {/* Recent Activities */}
-            <Card className="glass-morphism border border-border/20">
-              <CardHeader>
-                <CardTitle className="text-xl font-bold text-foreground flex items-center">
-                  <Activity className="w-5 h-5 mr-2" />
-                  Recent System Activities
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {recentActivities.map((activity) => (
-                    <div
-                      key={activity.id}
-                      className="flex items-center space-x-3 p-3 rounded-lg bg-background/50 border border-border/10"
-                    >
-                      <div
-                        className={`w-3 h-3 rounded-full ${
-                          activity.severity === "warning"
-                            ? "bg-yellow-500"
-                            : activity.severity === "success"
-                              ? "bg-green-500"
-                              : "bg-blue-500"
-                        }`}
-                      />
-                      <div className="flex-1">
-                        <div className="text-sm font-medium text-foreground">
-                          {activity.description}
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          {activity.timestamp}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Sidebar */}
-          <div className="space-y-6">
-            {/* Security Alerts */}
-            <Card className="glass-morphism border border-border/20">
-              <CardHeader>
-                <CardTitle className="text-lg font-bold text-foreground flex items-center">
-                  <AlertTriangle className="w-5 h-5 text-red-500 mr-2" />
-                  Security Alerts
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {securityAlerts.map((alert) => (
-                    <div
-                      key={alert.id}
-                      className="p-3 rounded-lg border border-border/10 bg-background/50"
-                    >
-                      <div className="flex items-center justify-between mb-2">
-                        <Badge className={getSeverityColor(alert.severity)}>
-                          {alert.severity} priority
-                        </Badge>
-                        <Badge className={getStatusColor(alert.status)}>
-                          {alert.status}
-                        </Badge>
-                      </div>
-                      <div className="text-sm font-medium text-foreground mb-1">
-                        {alert.type}
-                      </div>
-                      <div className="text-xs text-muted-foreground mb-2">
-                        {alert.description}
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        {alert.timestamp}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Quick Actions */}
-            <Card className="glass-morphism border border-border/20">
-              <CardHeader>
-                <CardTitle className="text-lg font-bold text-foreground">
-                  Admin Actions
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <Button variant="outline" className="w-full justify-start">
-                  <UserPlus className="w-4 h-4 mr-2" />
-                  Manage Users
-                </Button>
-                <Button variant="outline" className="w-full justify-start">
-                  <Database className="w-4 h-4 mr-2" />
-                  System Backup
-                </Button>
-                <Button variant="outline" className="w-full justify-start">
-                  <BarChart3 className="w-4 h-4 mr-2" />
-                  Generate Reports
-                </Button>
-                <Button variant="outline" className="w-full justify-start">
-                  <Lock className="w-4 h-4 mr-2" />
-                  Security Audit
-                </Button>
-                <Button variant="outline" className="w-full justify-start">
-                  <Settings className="w-4 h-4 mr-2" />
-                  System Configuration
-                </Button>
+            <div className="flex flex-col items-center justify-between gap-3 border-t pt-4 text-sm text-muted-foreground sm:flex-row">
+              <div className="flex items-center gap-2">
+                <span>
+                  Showing {users.length} of{" "}
+                  {pagination?.totalUsers ?? users.length} users
+                </span>
+                {isFetching && !isInitialLoading && (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
+                )}
+              </div>
+              <div className="flex items-center gap-2">
                 <Button
                   variant="outline"
-                  className="w-full justify-start"
-                  asChild
+                  size="sm"
+                  onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+                  disabled={page === 1 || isInitialLoading || isFetching}
                 >
-                  <Link to="/algorithm-config">
-                    <Dna className="w-4 h-4 mr-2" />
-                    Health Score Algorithm
-                  </Link>
+                  <ChevronLeft className="mr-1 h-4 w-4" /> Prev
                 </Button>
-              </CardContent>
-            </Card>
-
-            {/* System Health */}
-            <Card className="glass-morphism border border-border/20">
-              <CardHeader>
-                <CardTitle className="text-lg font-bold text-foreground">
-                  System Health
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span className="text-muted-foreground">CPU Usage</span>
-                      <span className="font-medium">45%</span>
-                    </div>
-                    <Progress value={45} className="h-2" />
-                  </div>
-
-                  <div>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span className="text-muted-foreground">
-                        Memory Usage
-                      </span>
-                      <span className="font-medium">62%</span>
-                    </div>
-                    <Progress value={62} className="h-2" />
-                  </div>
-
-                  <div>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span className="text-muted-foreground">Storage</span>
-                      <span className="font-medium">78%</span>
-                    </div>
-                    <Progress value={78} className="h-2" />
-                  </div>
-
-                  <div>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span className="text-muted-foreground">Network</span>
-                      <span className="font-medium text-green-600">
-                        Optimal
-                      </span>
-                    </div>
-                    <Progress value={95} className="h-2" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
+                <span>
+                  Page {page} of {pagination?.totalPages ?? page}
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    setPage((prev) => (pagination?.hasNext ? prev + 1 : prev))
+                  }
+                  disabled={
+                    !pagination?.hasNext || isInitialLoading || isFetching
+                  }
+                >
+                  Next <ChevronRight className="ml-1 h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
+
+      <Dialog
+        open={Boolean(editUser)}
+        onOpenChange={(open) => !open && setEditUser(null)}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit user</DialogTitle>
+            <DialogDescription>
+              Update profile details, roles, or activation status.
+            </DialogDescription>
+          </DialogHeader>
+          {editUser && editForm && (
+            <form onSubmit={handleEditSubmit} className="space-y-4">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <Label htmlFor="edit-first-name">First name</Label>
+                  <Input
+                    id="edit-first-name"
+                    required
+                    value={editForm.firstName}
+                    onChange={(event) =>
+                      setEditForm((prev) =>
+                        prev
+                          ? {
+                              ...prev,
+                              firstName: event.target.value,
+                            }
+                          : prev,
+                      )
+                    }
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="edit-last-name">Last name</Label>
+                  <Input
+                    id="edit-last-name"
+                    required
+                    value={editForm.lastName}
+                    onChange={(event) =>
+                      setEditForm((prev) =>
+                        prev
+                          ? {
+                              ...prev,
+                              lastName: event.target.value,
+                            }
+                          : prev,
+                      )
+                    }
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="edit-role">Role</Label>
+                  <Select
+                    value={editForm.role}
+                    onValueChange={(value: User["role"]) =>
+                      setEditForm((prev) =>
+                        prev
+                          ? {
+                              ...prev,
+                              role: value,
+                            }
+                          : prev,
+                      )
+                    }
+                  >
+                    <SelectTrigger id="edit-role">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {ROLE_OPTIONS.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="edit-phone">Phone</Label>
+                  <Input
+                    id="edit-phone"
+                    value={editForm.phone ?? ""}
+                    onChange={(event) =>
+                      setEditForm((prev) =>
+                        prev
+                          ? {
+                              ...prev,
+                              phone: event.target.value,
+                            }
+                          : prev,
+                      )
+                    }
+                  />
+                </div>
+              </div>
+              <div className="flex items-center justify-between rounded-md border p-3">
+                <div>
+                  <p className="text-sm font-medium text-foreground">
+                    Account status
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Inactive accounts cannot sign in until reactivated.
+                  </p>
+                </div>
+                <Switch
+                  checked={editForm.isActive}
+                  onCheckedChange={(checked) =>
+                    setEditForm((prev) =>
+                      prev
+                        ? {
+                            ...prev,
+                            isActive: checked,
+                          }
+                        : prev,
+                    )
+                  }
+                />
+              </div>
+              <DialogFooter>
+                <Button type="submit" disabled={updateMutation.isPending}>
+                  {updateMutation.isPending && (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  )}
+                  Save changes
+                </Button>
+              </DialogFooter>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      <AlertDialog
+        open={Boolean(deactivateUser)}
+        onOpenChange={(open) => !open && setDeactivateUser(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Deactivate this account?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {deactivateUser
+                ? `This will disable sign-in access for ${deactivateUser.name}. You can reactivate the account later from this dashboard.`
+                : ""}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deactivateMutation.isPending}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={handleDeactivate}
+              disabled={deactivateMutation.isPending}
+            >
+              {deactivateMutation.isPending && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
+              Deactivate
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

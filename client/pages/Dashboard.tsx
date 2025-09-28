@@ -732,23 +732,33 @@ export function Dashboard() {
           VitalsService.getVitalSigns(user.id),
         ]);
 
-        if (labsRes.success && labsRes.data) {
-          setLabResults(labsRes.data as LabResult[]);
-        } else {
-          setLabResults([]);
-        }
+        const normalizeLabs = Array.isArray(labsRes?.data)
+          ? labsRes.data
+          : Array.isArray((labsRes as any)?.results)
+            ? (labsRes as any).results
+            : Array.isArray(labsRes)
+              ? (labsRes as LabResult[])
+              : [];
 
-        if (medsRes.success && medsRes.data) {
-          setMedications(medsRes.data as Medication[]);
-        } else {
-          setMedications([]);
-        }
+        setLabResults(normalizeLabs as LabResult[]);
 
-        if (vitalsRes.success && vitalsRes.data) {
-          setVitals(vitalsRes.data as VitalSigns[]);
-        } else {
-          setVitals([]);
-        }
+        const normalizeMedications = Array.isArray(medsRes?.data)
+          ? medsRes.data
+          : Array.isArray((medsRes as any)?.medications)
+            ? (medsRes as any).medications
+            : Array.isArray(medsRes)
+              ? (medsRes as Medication[])
+              : [];
+
+        setMedications(normalizeMedications as Medication[]);
+
+        const normalizeVitals = Array.isArray(vitalsRes?.data)
+          ? (vitalsRes.data as VitalSigns[])
+          : Array.isArray(vitalsRes)
+            ? (vitalsRes as VitalSigns[])
+            : [];
+
+        setVitals(normalizeVitals);
       } catch (err: any) {
         console.error("Failed to load dashboard data", err);
         setError(err?.message || "Failed to load dashboard data");

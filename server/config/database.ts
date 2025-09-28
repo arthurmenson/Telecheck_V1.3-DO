@@ -90,9 +90,7 @@ const logPostgresDisabled = (reason: string) => {
   );
 };
 
-const canRunDegraded = () =>
-  process.env.ALLOW_DB_FAILURE === "true" ||
-  process.env.NODE_ENV === "production";
+const canRunDegraded = () => process.env.ALLOW_DB_FAILURE === "true";
 
 // Initialize database schema
 const initializeSchema = async (pool: Pool) => {

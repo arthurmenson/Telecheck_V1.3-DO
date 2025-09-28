@@ -11,6 +11,19 @@ export type AuthenticatedRequest = Request & {
   };
 };
 
+const resolveJwtSecret = () => {
+  const secret = process.env.JWT_SECRET;
+  if (secret && secret.trim().length > 0) {
+    return secret;
+  }
+
+  if (process.env.NODE_ENV === "production") {
+    return null;
+  }
+
+  return "dev-secret";
+};
+
 export const authenticateToken = async (
   req: Request,
   res: Response,
@@ -22,7 +35,6 @@ export const authenticateToken = async (
 
     console.log("[Auth] Authentication attempt:", {
       hasAuthHeader: !!authHeader,
-      authHeaderPrefix: authHeader?.substring(0, 20) + "...",
       hasToken: !!token,
       userAgent: req.headers["user-agent"],
       url: req.url,
@@ -55,15 +67,21 @@ export const authenticateToken = async (
       });
     }
 
+    const jwtSecret = resolveJwtSecret();
+    if (!jwtSecret) {
+      console.error("[Auth] JWT_SECRET is not configured in production");
+      return res.status(500).json({
+        error: "Authentication configuration error",
+        code: "AUTH_CONFIG_MISSING",
+      });
+    }
+
     // In development, handle both JWT and mock tokens
     let decoded: any;
 
     try {
       // First try JWT verification
-      decoded = jwt.verify(
-        token,
-        process.env.JWT_SECRET || "dev-secret",
-      ) as any;
+      decoded = jwt.verify(token, jwtSecret) as any;
       console.log("[Auth] JWT token verified successfully");
     } catch (jwtError) {
       console.log("[Auth] JWT verification failed, trying mock token format");

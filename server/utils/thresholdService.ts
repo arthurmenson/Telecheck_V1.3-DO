@@ -72,7 +72,7 @@ export class ThresholdService {
       // First check for patient-specific threshold
       const patientThreshold = await database.query(
         `SELECT * FROM patient_thresholds 
-         WHERE patient_id = ? AND threshold_type = ? AND is_active = 1`,
+         WHERE patient_id = $1 AND threshold_type = $2 AND is_active = TRUE`,
         [patientId, thresholdType],
       );
 
@@ -213,19 +213,41 @@ export class ThresholdService {
     threshold: Omit<PatientThreshold, "id" | "createdAt" | "updatedAt">,
   ): Promise<boolean> {
     try {
+      const now = new Date().toISOString();
       await database.query(
-        `INSERT OR REPLACE INTO patient_thresholds 
-         (patient_id, threshold_type, threshold_value, unit, notes, is_active, created_by, updated_by, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))`,
+        `
+          INSERT INTO patient_thresholds (
+            patient_id,
+            threshold_type,
+            threshold_value,
+            unit,
+            notes,
+            is_active,
+            created_by,
+            updated_by,
+            created_at,
+            updated_at
+          )
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9::timestamptz, $9::timestamptz)
+          ON CONFLICT (patient_id, threshold_type)
+          DO UPDATE SET
+            threshold_value = EXCLUDED.threshold_value,
+            unit = EXCLUDED.unit,
+            notes = EXCLUDED.notes,
+            is_active = EXCLUDED.is_active,
+            updated_by = EXCLUDED.updated_by,
+            updated_at = EXCLUDED.updated_at
+        `,
         [
           threshold.patientId,
           threshold.thresholdType,
           threshold.thresholdValue,
           threshold.unit,
           threshold.notes || null,
-          threshold.isActive ? 1 : 0,
+          threshold.isActive,
           threshold.createdBy,
           threshold.updatedBy || threshold.createdBy,
+          now,
         ],
       );
 
@@ -255,7 +277,7 @@ export class ThresholdService {
     try {
       const thresholds = await database.query(
         `SELECT * FROM patient_thresholds 
-         WHERE patient_id = ? AND is_active = 1 
+         WHERE patient_id = $1 AND is_active = TRUE 
          ORDER BY threshold_type`,
         [patientId],
       );
@@ -268,7 +290,8 @@ export class ThresholdService {
           thresholdValue: t.threshold_value,
           unit: t.unit,
           notes: t.notes,
-          isActive: t.is_active === 1,
+          isActive:
+            typeof t.is_active === "boolean" ? t.is_active : t.is_active === 1,
           createdBy: t.created_by,
           updatedBy: t.updated_by,
           createdAt: t.created_at,
@@ -295,9 +318,11 @@ export class ThresholdService {
     try {
       await database.query(
         `UPDATE patient_thresholds 
-         SET is_active = 0, updated_by = ?, updated_at = datetime('now')
-         WHERE patient_id = ? AND threshold_type = ?`,
-        [userId, patientId, thresholdType],
+         SET is_active = FALSE,
+             updated_by = $1,
+             updated_at = $2::timestamptz
+         WHERE patient_id = $3 AND threshold_type = $4`,
+        [userId, new Date().toISOString(), patientId, thresholdType],
       );
 
       AuditLogger.log(
@@ -330,7 +355,7 @@ export class ThresholdService {
           patient_id, 
           COUNT(*) as threshold_count
         FROM patient_thresholds 
-        WHERE is_active = 1 
+        WHERE is_active = TRUE 
         GROUP BY patient_id
         ORDER BY patient_id
       `);

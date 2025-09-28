@@ -27,6 +27,10 @@ import {
   EligibilityService,
   PharmacyService,
   ClinicalService,
+  UserAdminService,
+  ListUsersParams,
+  UserListResponse,
+  UserStatsResponse,
   User,
   UserPreferences,
   LabResult,
@@ -87,6 +91,84 @@ export function useUpdatePreferences() {
       },
     },
   );
+}
+
+// ========================================
+// Admin User Hooks
+// ========================================
+
+type AdminUserUpdateInput = {
+  id: string;
+  updates: Parameters<typeof UserAdminService.updateUser>[1];
+};
+
+export function useAdminUsers(params: ListUsersParams = {}) {
+  const page = params.page ?? 1;
+  const limit = params.limit ?? 20;
+  const search = params.search ?? "";
+
+  return useApiQuery<UserListResponse>(
+    queryKeys.adminUsers.list(page, limit, search),
+    () => UserAdminService.listUsers({ page, limit, search }),
+    {
+      keepPreviousData: true,
+    },
+  );
+}
+
+export function useAdminUserStats() {
+  return useApiQuery<UserStatsResponse>(
+    queryKeys.adminUsers.stats(),
+    () => UserAdminService.getUserStats(),
+    {
+      staleTime: 60 * 1000,
+    },
+  );
+}
+
+export function useInviteAdminUser() {
+  const queryClient = useQueryClient();
+
+  return useApiMutation(UserAdminService.inviteUser, {
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.adminUsers.all });
+    },
+  });
+}
+
+export function useUpdateAdminUser() {
+  const queryClient = useQueryClient();
+
+  return useApiMutation(
+    ({ id, updates }: AdminUserUpdateInput) =>
+      UserAdminService.updateUser(id, updates),
+    {
+      onSuccess: (data) => {
+        queryClient.invalidateQueries({ queryKey: queryKeys.adminUsers.all });
+        if (data?.data?.id) {
+          queryClient.setQueryData(
+            queryKeys.adminUsers.detail(data.data.id),
+            data.data,
+          );
+        }
+      },
+    },
+  );
+}
+
+export function useDeactivateAdminUser() {
+  const queryClient = useQueryClient();
+
+  return useApiMutation((id: string) => UserAdminService.deactivateUser(id), {
+    onSuccess: (_, id) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.adminUsers.all });
+      if (id) {
+        queryClient.removeQueries({
+          queryKey: queryKeys.adminUsers.detail(id),
+        });
+      }
+    },
+  });
 }
 
 // ========================================

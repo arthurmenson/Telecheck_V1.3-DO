@@ -322,44 +322,30 @@ export async function searchPatients(req: Request, res: Response) {
       });
     }
 
-    // This is a simplified search - in a real system, you'd search a patients table
-    // For now, we'll search based on existing data in our system
-    const searchResults = await db.query(
-      `
-      SELECT DISTINCT patient_id as id, patient_id as name
-      FROM patient_schedules 
-      WHERE patient_id LIKE ? 
-      LIMIT ?
-    `,
-      [`%${query}%`, parseInt(limit as string)],
-    );
+    const trimmedQuery = query.trim();
+    const limitNumber = Math.max(parseInt(limit as string, 10) || 20, 1);
+    const pattern = `%${trimmedQuery}%`;
 
-    // Also search from communication logs
-    const communicationResults = await db.query(
+    const uniqueResults = await db.query(
       `
-      SELECT DISTINCT patient_id as id, patient_id as name
-      FROM communication_logs 
-      WHERE patient_id LIKE ? 
-      LIMIT ?
-    `,
-      [`%${query}%`, parseInt(limit as string)],
+        SELECT DISTINCT id, name
+        FROM (
+          SELECT DISTINCT patient_id::text AS id, patient_id::text AS name
+          FROM patient_schedules
+          WHERE patient_id::text ILIKE $1
+          UNION ALL
+          SELECT DISTINCT patient_id::text AS id, patient_id::text AS name
+          FROM communication_logs
+          WHERE patient_id::text ILIKE $1
+        ) merged
+        LIMIT $2
+      `,
+      [pattern, limitNumber],
     );
-
-    // Combine and deduplicate results
-    const allResults = [
-      ...(searchResults || []),
-      ...(communicationResults || []),
-    ];
-    const uniqueResults = allResults
-      .filter(
-        (result, index, self) =>
-          index === self.findIndex((r) => r.id === result.id),
-      )
-      .slice(0, parseInt(limit as string));
 
     res.json({
       success: true,
-      patients: uniqueResults.map((result) => ({
+      patients: (uniqueResults || []).map((result) => ({
         id: result.id,
         name: result.name || result.id,
         displayName: `${result.name || result.id} (ID: ${result.id})`,
