@@ -110,7 +110,9 @@ export class AuthService {
   static async login(
     email: string,
     password: string,
-  ): Promise<ApiResponse<{ user: User; token: string }>> {
+  ): Promise<
+    ApiResponse<{ user: User; token: string; refreshToken?: string }>
+  > {
     return apiClient.post(API_ENDPOINTS.AUTH.LOGIN, { email, password });
   }
 
@@ -129,8 +131,25 @@ export class AuthService {
     return apiClient.post(API_ENDPOINTS.AUTH.LOGOUT);
   }
 
-  static async refreshToken(): Promise<ApiResponse<{ token: string }>> {
-    return apiClient.post(API_ENDPOINTS.AUTH.REFRESH);
+  static async refreshToken(
+    refreshToken: string,
+  ): Promise<ApiResponse<{ token: string }>> {
+    const response = await apiClient.post(
+      API_ENDPOINTS.AUTH.REFRESH,
+      { refreshToken },
+      { skipAuth: true },
+    );
+    const payload: any = (response as any).data ?? response;
+
+    if (payload?.token) {
+      return {
+        success: true,
+        data: { token: payload.token },
+        message: payload.message,
+      };
+    }
+
+    return payload;
   }
 
   static async resetPassword(email: string): Promise<ApiResponse<void>> {

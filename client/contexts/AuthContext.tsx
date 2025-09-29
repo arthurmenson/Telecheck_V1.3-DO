@@ -106,49 +106,73 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check for stored authentication
-    const storedUser = localStorage.getItem("telecheck_user");
-    const storedToken = localStorage.getItem("auth_token");
+    let isMounted = true;
 
-    if (storedUser) {
-      try {
-        const parsedUser = JSON.parse(storedUser);
-        setUser(parsedUser);
+    const bootstrapSession = async () => {
+      const storedUser = localStorage.getItem("telecheck_user");
+      const storedToken = localStorage.getItem("auth_token");
+      const storedRefreshToken = localStorage.getItem("refresh_token");
 
-        // Generate auth token if it doesn't exist
-        if (!storedToken) {
-          const tokenPayload = {
-            userId: parsedUser.id,
-            email: parsedUser.email,
-            role: parsedUser.role,
-            permissions: parsedUser.permissions,
-            exp: Date.now() + 24 * 60 * 60 * 1000, // 24 hours
-          };
-          const mockToken = btoa(JSON.stringify(tokenPayload));
-          console.log(
-            `[AuthContext] Generated startup token for ${parsedUser.email}:`,
-            {
-              tokenPayload,
-              tokenLength: mockToken.length,
-            },
-          );
-          localStorage.setItem("auth_token", mockToken);
-        } else {
-          console.log(
-            `[AuthContext] Using existing token for ${parsedUser.email}:`,
-            {
-              tokenLength: storedToken.length,
-              tokenPreview: storedToken.substring(0, 50) + "...",
-            },
-          );
+      if (!storedUser) {
+        if (isMounted) {
+          setUser(null);
+          setIsLoading(false);
         }
-      } catch (error) {
-        console.error("Failed to parse stored user:", error);
+        return;
+      }
+
+      try {
+        const parsedUser: User = JSON.parse(storedUser);
+
+        if (storedToken) {
+          if (isMounted) {
+            setUser(parsedUser);
+            setIsLoading(false);
+          }
+          return;
+        }
+
+        if (storedRefreshToken) {
+          try {
+            const refreshResponse =
+              await AuthService.refreshToken(storedRefreshToken);
+            if (refreshResponse.success && refreshResponse.data?.token) {
+              localStorage.setItem("auth_token", refreshResponse.data.token);
+              if (isMounted) {
+                setUser(parsedUser);
+                setIsLoading(false);
+              }
+              return;
+            }
+          } catch (error) {
+            console.error("[AuthContext] Failed to refresh token", error);
+          }
+        }
+
         localStorage.removeItem("telecheck_user");
         localStorage.removeItem("auth_token");
+        localStorage.removeItem("refresh_token");
+        if (isMounted) {
+          setUser(null);
+          setIsLoading(false);
+        }
+      } catch (error) {
+        console.error("[AuthContext] Failed to parse stored user", error);
+        localStorage.removeItem("telecheck_user");
+        localStorage.removeItem("auth_token");
+        localStorage.removeItem("refresh_token");
+        if (isMounted) {
+          setUser(null);
+          setIsLoading(false);
+        }
       }
-    }
-    setIsLoading(false);
+    };
+
+    bootstrapSession();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const login = async (
@@ -163,7 +187,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const response = await AuthService.login(email, password);
 
       if (response.success && response.data) {
-        const { user: apiUser, token } = response.data;
+        const { user: apiUser, token, refreshToken } = response.data;
 
         // Check if the user's role matches the requested role
         if (apiUser.role !== role) {
@@ -185,15 +209,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
           lastLogin: new Date().toISOString(),
         };
 
-        console.log(`[AuthContext] Login successful for ${user.email}:`, {
-          userId: user.id,
-          role: user.role,
-          tokenLength: token.length,
-        });
-
         setUser(user);
         localStorage.setItem("telecheck_user", JSON.stringify(user));
         localStorage.setItem("auth_token", token);
+        if (refreshToken) {
+          localStorage.setItem("refresh_token", refreshToken);
+        } else {
+          localStorage.removeItem("refresh_token");
+        }
         setIsLoading(false);
         return true;
       } else {
@@ -220,6 +243,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setUser(null);
     localStorage.removeItem("telecheck_user");
     localStorage.removeItem("auth_token");
+    localStorage.removeItem("refresh_token");
   };
 
   const hasPermission = (permission: string): boolean => {
