@@ -221,9 +221,13 @@ const toDateString = (value: unknown, fallback = "--"): string => {
   return Number.isNaN(date.getTime()) ? fallback : date.toLocaleDateString();
 };
 
-const sanitizeLabResult = (result: LabResult, index = 0): DashboardLabResult => {
+const sanitizeLabResult = (
+  result: LabResult,
+  index = 0,
+): DashboardLabResult => {
   const status = typeof result.status === "string" ? result.status : "unknown";
-  const testDate = result.testDate || (result as any).date || new Date().toISOString();
+  const testDate =
+    result.testDate || (result as any).date || new Date().toISOString();
 
   return {
     id: result.id ?? `${result.testName ?? "lab"}-${index}`,
@@ -237,7 +241,10 @@ const sanitizeLabResult = (result: LabResult, index = 0): DashboardLabResult => 
   };
 };
 
-const sanitizeMedication = (medication: Medication, index = 0): DashboardMedication => ({
+const sanitizeMedication = (
+  medication: Medication,
+  index = 0,
+): DashboardMedication => ({
   id: medication.id ?? `${medication.name ?? "med"}-${index}`,
   name: medication.name ?? "Medication",
   dosage: medication.dosage ?? "As prescribed",
@@ -257,7 +264,8 @@ const sanitizeVital = (vital: VitalSigns, index = 0): DashboardVitals => ({
   temperature: vital.temperature ?? null,
   oxygenSaturation: vital.oxygenSaturation ?? null,
   weight: vital.weight ?? null,
-  recordedAt: vital.recordedAt ?? (vital as any).date ?? new Date().toISOString(),
+  recordedAt:
+    vital.recordedAt ?? (vital as any).date ?? new Date().toISOString(),
   source: vital.source ?? "manual",
 });
 
