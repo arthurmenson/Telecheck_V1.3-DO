@@ -59,7 +59,7 @@ import {
   useInviteAdminUser,
   useUpdateAdminUser,
 } from "../hooks/api";
-import type { User } from "@shared/types";
+import type { User } from "../services/api.service";
 import { useAuth } from "../contexts/AuthContext";
 import {
   Activity,

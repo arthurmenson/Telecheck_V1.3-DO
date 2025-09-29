@@ -6,6 +6,7 @@ import React, {
   ReactNode,
 } from "react";
 import { AuthService, UserService } from "../services/api.service";
+import type { User as ApiUser } from "../services/api.service";
 
 export type UserRole =
   | "patient"
@@ -105,6 +106,25 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  const mapApiUserToAuthUser = (apiUser: ApiUser): User => {
+    const resolvedRole = apiUser.role as UserRole;
+    const displayName =
+      apiUser.name?.trim() ||
+      [apiUser.firstName, apiUser.lastName].filter(Boolean).join(" ") ||
+      apiUser.email;
+
+    return {
+      id: apiUser.id,
+      email: apiUser.email,
+      name: displayName,
+      role: resolvedRole,
+      permissions: getPermissionsForRole(resolvedRole),
+      avatar: apiUser.avatar,
+      isActive: apiUser.isActive ?? true,
+      lastLogin: apiUser.lastLoginAt ?? new Date().toISOString(),
+    };
+  };
+
   useEffect(() => {
     let isMounted = true;
 
@@ -199,18 +219,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
         }
 
         // Transform API user to frontend User format
-        const user: User = {
-          id: apiUser.id,
-          email: apiUser.email,
-          name: `${apiUser.firstName} ${apiUser.lastName}`,
-          role: apiUser.role as UserRole,
-          permissions: getPermissionsForRole(apiUser.role),
-          isActive: true,
-          lastLogin: new Date().toISOString(),
-        };
+        const authUser = mapApiUserToAuthUser(apiUser);
 
-        setUser(user);
-        localStorage.setItem("telecheck_user", JSON.stringify(user));
+        setUser(authUser);
+        localStorage.setItem("telecheck_user", JSON.stringify(authUser));
         localStorage.setItem("auth_token", token);
         if (refreshToken) {
           localStorage.setItem("refresh_token", refreshToken);

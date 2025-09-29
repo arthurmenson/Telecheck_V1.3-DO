@@ -12,13 +12,32 @@ import {
 } from "../lib/api-endpoints";
 
 // Type definitions for API responses
+const USER_ROLES = [
+  "patient",
+  "doctor",
+  "admin",
+  "pharmacist",
+  "nurse",
+] as const;
+
+type UserRole = (typeof USER_ROLES)[number];
+
+const isUserRole = (value: unknown): value is UserRole =>
+  typeof value === "string" && USER_ROLES.includes(value as UserRole);
+
 export interface User {
   id: string;
   email: string;
-  firstName: string;
-  lastName: string;
-  role: "patient" | "doctor" | "admin" | "pharmacist" | "nurse";
+  firstName?: string;
+  lastName?: string;
+  name?: string;
+  role: UserRole;
   avatar?: string;
+  phone?: string;
+  isActive?: boolean;
+  lastLoginAt?: string;
+  createdAt?: string;
+  updatedAt?: string;
   preferences?: UserPreferences;
 }
 
@@ -28,6 +47,61 @@ export interface UserPreferences {
   language: string;
   timezone: string;
 }
+
+type RawUserRecord = Record<string, any>;
+
+const toIsoString = (value?: string | Date | null): string => {
+  if (!value) {
+    return new Date().toISOString();
+  }
+
+  const date = value instanceof Date ? value : new Date(value);
+  return Number.isNaN(date.getTime())
+    ? new Date().toISOString()
+    : date.toISOString();
+};
+
+const normalizeUserRecord = (user: RawUserRecord): User => {
+  const firstName = user?.firstName ?? user?.first_name ?? "";
+  const lastName = user?.lastName ?? user?.last_name ?? "";
+  const email = user?.email ?? "";
+  const createdAtRaw = user?.createdAt ?? user?.created_at ?? null;
+  const updatedAtRaw = user?.updatedAt ?? user?.updated_at ?? createdAtRaw;
+  const lastLoginAtRaw = user?.lastLoginAt ?? user?.last_login_at ?? null;
+  const isActiveValue =
+    typeof user?.isActive === "boolean"
+      ? user.isActive
+      : user?.is_active !== undefined
+        ? Boolean(user.is_active)
+        : true;
+
+  const idCandidate =
+    user?.id ?? user?.user_id ?? user?.userId ?? email ?? "unknown-user";
+  const roleValue = isUserRole(user?.role) ? user.role : "patient";
+
+  return {
+    id: idCandidate,
+    email,
+    firstName: firstName || undefined,
+    lastName: lastName || undefined,
+    name:
+      user?.name ||
+      [firstName, lastName].filter(Boolean).join(" ") ||
+      email ||
+      "Unknown User",
+    role: roleValue,
+    avatar: user?.avatarUrl ?? user?.avatar_url ?? user?.avatar ?? undefined,
+    phone: user?.phone ?? user?.phoneNumber ?? undefined,
+    isActive: isActiveValue,
+    lastLoginAt: lastLoginAtRaw ? toIsoString(lastLoginAtRaw) : undefined,
+    createdAt: toIsoString(createdAtRaw),
+    updatedAt: toIsoString(updatedAtRaw),
+    preferences:
+      typeof user?.preferences === "object"
+        ? (user.preferences as UserPreferences)
+        : undefined,
+  };
+};
 
 export interface UserListResponse {
   users: User[];
@@ -55,12 +129,16 @@ export interface UserStatsResponse {
 
 export interface LabResult {
   id: string;
+  labReportId?: string;
   testName: string;
   value: number;
   unit: string;
-  referenceRange: string;
-  status: "normal" | "abnormal" | "critical";
-  date: string;
+  referenceRange?: string;
+  status?: "normal" | "abnormal" | "critical" | string;
+  testDate?: string;
+  labName?: string;
+  doctorNotes?: string;
+  date?: string;
   notes?: string;
 }
 
@@ -73,16 +151,24 @@ export interface Medication {
   endDate?: string;
   prescribedBy: string;
   notes?: string;
+  isActive?: boolean;
 }
 
 export interface VitalSigns {
   id: string;
-  bloodPressure: { systolic: number; diastolic: number };
-  heartRate: number;
-  temperature: number;
-  weight: number;
-  height: number;
-  date: string;
+  userId?: string;
+  heartRate?: number;
+  bloodPressureSystolic?: number;
+  bloodPressureDiastolic?: number;
+  temperature?: number;
+  oxygenSaturation?: number;
+  weight?: number;
+  height?: number;
+  recordedAt?: string;
+  source?: "manual" | "device" | "wearable";
+  // Legacy fields
+  date?: string;
+  bloodPressure?: { systolic: number; diastolic: number };
 }
 
 export interface Program {
@@ -113,7 +199,37 @@ export class AuthService {
   ): Promise<
     ApiResponse<{ user: User; token: string; refreshToken?: string }>
   > {
-    return apiClient.post(API_ENDPOINTS.AUTH.LOGIN, { email, password });
+    const response = await apiClient.post(API_ENDPOINTS.AUTH.LOGIN, {
+      email,
+      password,
+    });
+    const payload: any = (response as any).data ?? response;
+
+    if (payload?.success && payload.data?.user) {
+      return {
+        success: true,
+        data: {
+          user: normalizeUserRecord(payload.data.user),
+          token: payload.data.token,
+          refreshToken: payload.data.refreshToken,
+        },
+        message: payload.message,
+      };
+    }
+
+    if (payload?.user && payload?.token) {
+      return {
+        success: true,
+        data: {
+          user: normalizeUserRecord(payload.user),
+          token: payload.token,
+          refreshToken: payload.refreshToken,
+        },
+        message: payload.message,
+      };
+    }
+
+    return payload;
   }
 
   static async register(userData: {
@@ -160,7 +276,18 @@ export class AuthService {
 // User Service
 export class UserService {
   static async getProfile(): Promise<ApiResponse<User>> {
-    return apiClient.get(API_ENDPOINTS.USERS.PROFILE);
+    const response = await apiClient.get(API_ENDPOINTS.USERS.PROFILE);
+    const payload: any = (response as any).data ?? response;
+
+    if (payload?.user) {
+      return {
+        success: true,
+        data: normalizeUserRecord(payload.user),
+        message: payload.message,
+      };
+    }
+
+    return payload;
   }
 
   static async getPreferences(): Promise<ApiResponse<UserPreferences>> {
@@ -170,13 +297,41 @@ export class UserService {
   static async updateProfile(
     userData: Partial<User>,
   ): Promise<ApiResponse<User>> {
-    return apiClient.put(API_ENDPOINTS.USERS.UPDATE_PROFILE, userData);
+    const response = await apiClient.put(
+      API_ENDPOINTS.USERS.UPDATE_PROFILE,
+      userData,
+    );
+    const payload: any = (response as any).data ?? response;
+
+    if (payload?.user) {
+      return {
+        success: true,
+        data: normalizeUserRecord(payload.user),
+        message: payload.message,
+      };
+    }
+
+    return payload;
   }
 
   static async updatePreferences(
     preferences: Partial<UserPreferences>,
   ): Promise<ApiResponse<UserPreferences>> {
-    return apiClient.put(API_ENDPOINTS.USERS.PREFERENCES, preferences);
+    const response = await apiClient.put(
+      API_ENDPOINTS.USERS.PREFERENCES,
+      preferences,
+    );
+    const payload: any = (response as any).data ?? response;
+
+    if (payload?.preferences) {
+      return {
+        success: true,
+        data: payload.preferences as UserPreferences,
+        message: payload.message,
+      };
+    }
+
+    return payload;
   }
 
   static async uploadAvatar(
@@ -192,46 +347,9 @@ export interface ListUsersParams {
   search?: string;
 }
 
-type RawUserRecord = Record<string, any>;
-
 export class UserAdminService {
   private static normalizeUser(user: RawUserRecord): User {
-    const firstName = user?.firstName ?? user?.first_name ?? "";
-    const lastName = user?.lastName ?? user?.last_name ?? "";
-    const email = user?.email ?? "";
-    const createdAt =
-      user?.createdAt ?? user?.created_at ?? new Date().toISOString();
-    const updatedAt = user?.updatedAt ?? user?.updated_at ?? createdAt;
-    const isActiveValue =
-      typeof user?.isActive === "boolean"
-        ? user.isActive
-        : user?.is_active !== undefined
-          ? Boolean(user.is_active)
-          : true;
-
-    const idCandidate =
-      user?.id ?? user?.user_id ?? user?.userId ?? email ?? "unknown-user";
-
-    const normalized: User = {
-      id: idCandidate,
-      email,
-      firstName: firstName || undefined,
-      lastName: lastName || undefined,
-      name:
-        user?.name ||
-        [firstName, lastName].filter(Boolean).join(" ") ||
-        email ||
-        "Unknown User",
-      role: user?.role && typeof user.role === "string" ? user.role : "patient",
-      avatar: user?.avatarUrl ?? user?.avatar_url ?? user?.avatar ?? undefined,
-      phone: user?.phone ?? user?.phoneNumber ?? undefined,
-      isActive: isActiveValue,
-      lastLoginAt: user?.lastLoginAt ?? user?.last_login_at ?? undefined,
-      createdAt,
-      updatedAt,
-    };
-
-    return normalized;
+    return normalizeUserRecord(user);
   }
 
   private static normalizePagination(

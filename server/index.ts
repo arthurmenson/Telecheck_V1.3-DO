@@ -76,6 +76,7 @@ import allergiesRoutes from "./routes/allergies";
 import immunizationsRoutes from "./routes/immunizations";
 import encountersRoutes from "./routes/encounters";
 import ordersRoutes from "./routes/orders";
+import { ensureLegacyClinicalData } from "./services/legacy-data.service";
 import {
   sendMessage,
   sendCriticalAlert,

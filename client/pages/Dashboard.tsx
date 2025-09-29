@@ -51,7 +51,11 @@ import {
   MedicationService,
   VitalsService,
 } from "../services/api.service";
-import type { LabResult, Medication, VitalSigns } from "@shared/types";
+import type {
+  LabResult,
+  Medication,
+  VitalSigns,
+} from "../services/api.service";
 
 // Chart Components
 const MiniLineChart = ({
@@ -1141,7 +1145,7 @@ export function Dashboard() {
               </CardHeader>
               <CardContent className="grid md:grid-cols-12 gap-6">
                 <div className="md:col-span-5 flex flex-col items-center justify-center gap-4">
-                  <CircularProgressBar
+                  <DoughnutChart
                     data={medicationsStatus.doughnut}
                     size={180}
                     strokeWidth={14}

@@ -128,7 +128,7 @@ class DatabaseAdapter {
       "last_name",
       "role",
     ];
-    const values = [
+    const values: Array<string | boolean | null> = [
       userData.email,
       userData.passwordHash,
       userData.firstName,

@@ -111,7 +111,7 @@ export function useAdminUsers(params: ListUsersParams = {}) {
     queryKeys.adminUsers.list(page, limit, search),
     () => UserAdminService.listUsers({ page, limit, search }),
     {
-      keepPreviousData: true,
+      placeholderData: (previous) => previous,
     },
   );
 }

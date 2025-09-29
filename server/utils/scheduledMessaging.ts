@@ -62,6 +62,7 @@ export interface PatientSchedule {
     careTeamUpdates: boolean;
     preferredChannel: "sms" | "voice" | "both";
   };
+  active?: boolean | number | string;
 }
 
 export interface MessageTemplate {
