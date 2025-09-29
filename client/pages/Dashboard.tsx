@@ -175,6 +175,92 @@ const DoughnutChart = ({
   );
 };
 
+type DashboardLabResult = {
+  id: string;
+  testName: string;
+  value: number;
+  unit: string;
+  status: string;
+  testDate: string;
+  referenceRange?: string;
+  doctorNotes?: string;
+};
+
+type DashboardMedication = {
+  id: string;
+  name: string;
+  dosage: string;
+  frequency: string;
+  isActive: boolean;
+  startDate?: string;
+  endDate?: string;
+  prescribedBy?: string;
+  notes?: string;
+};
+
+type DashboardVitals = {
+  id: string;
+  heartRate?: number | null;
+  bloodPressureSystolic?: number | null;
+  bloodPressureDiastolic?: number | null;
+  temperature?: number | null;
+  oxygenSaturation?: number | null;
+  weight?: number | null;
+  recordedAt: string;
+  source: string;
+};
+
+const toNumber = (value: unknown, fallback = 0): number => {
+  const num = typeof value === "number" ? value : Number(value);
+  return Number.isFinite(num) ? num : fallback;
+};
+
+const toDateString = (value: unknown, fallback = "--"): string => {
+  if (!value) return fallback;
+  const date = value instanceof Date ? value : new Date(value as string);
+  return Number.isNaN(date.getTime()) ? fallback : date.toLocaleDateString();
+};
+
+const sanitizeLabResult = (result: LabResult, index = 0): DashboardLabResult => {
+  const status = typeof result.status === "string" ? result.status : "unknown";
+  const testDate = result.testDate || (result as any).date || new Date().toISOString();
+
+  return {
+    id: result.id ?? `${result.testName ?? "lab"}-${index}`,
+    testName: result.testName ?? "Lab Test",
+    value: toNumber(result.value),
+    unit: result.unit ?? "",
+    status,
+    testDate,
+    referenceRange: result.referenceRange,
+    doctorNotes: result.doctorNotes ?? (result as any).notes ?? undefined,
+  };
+};
+
+const sanitizeMedication = (medication: Medication, index = 0): DashboardMedication => ({
+  id: medication.id ?? `${medication.name ?? "med"}-${index}`,
+  name: medication.name ?? "Medication",
+  dosage: medication.dosage ?? "As prescribed",
+  frequency: medication.frequency ?? "",
+  isActive: medication.isActive ?? true,
+  startDate: medication.startDate,
+  endDate: medication.endDate,
+  prescribedBy: medication.prescribedBy,
+  notes: medication.notes,
+});
+
+const sanitizeVital = (vital: VitalSigns, index = 0): DashboardVitals => ({
+  id: vital.id ?? `vital-${index}`,
+  heartRate: vital.heartRate ?? null,
+  bloodPressureSystolic: vital.bloodPressureSystolic ?? null,
+  bloodPressureDiastolic: vital.bloodPressureDiastolic ?? null,
+  temperature: vital.temperature ?? null,
+  oxygenSaturation: vital.oxygenSaturation ?? null,
+  weight: vital.weight ?? null,
+  recordedAt: vital.recordedAt ?? (vital as any).date ?? new Date().toISOString(),
+  source: vital.source ?? "manual",
+});
+
 const TimeSeriesChart = ({
   data,
   dates,
@@ -717,9 +803,9 @@ export function Dashboard() {
   const [dateFilter, setDateFilter] = useState("7days");
   const [showFlaggedOnly, setShowFlaggedOnly] = useState(false);
   const [labResultsFilter, setLabResultsFilter] = useState("all");
-  const [labResults, setLabResults] = useState<LabResult[]>([]);
-  const [medications, setMedications] = useState<Medication[]>([]);
-  const [vitals, setVitals] = useState<VitalSigns[]>([]);
+  const [labResults, setLabResults] = useState<DashboardLabResult[]>([]);
+  const [medications, setMedications] = useState<DashboardMedication[]>([]);
+  const [vitals, setVitals] = useState<DashboardVitals[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -744,7 +830,11 @@ export function Dashboard() {
               ? (labsRes as LabResult[])
               : [];
 
-        setLabResults(normalizeLabs as LabResult[]);
+        setLabResults(
+          (normalizeLabs as LabResult[]).map((lab, index) =>
+            sanitizeLabResult(lab, index),
+          ),
+        );
 
         const normalizeMedications = Array.isArray(medsRes?.data)
           ? medsRes.data
@@ -754,7 +844,11 @@ export function Dashboard() {
               ? (medsRes as Medication[])
               : [];
 
-        setMedications(normalizeMedications as Medication[]);
+        setMedications(
+          (normalizeMedications as Medication[]).map((med, index) =>
+            sanitizeMedication(med, index),
+          ),
+        );
 
         const normalizeVitals = Array.isArray(vitalsRes?.data)
           ? (vitalsRes.data as VitalSigns[])
@@ -762,7 +856,11 @@ export function Dashboard() {
             ? (vitalsRes as VitalSigns[])
             : [];
 
-        setVitals(normalizeVitals);
+        setVitals(
+          (normalizeVitals as VitalSigns[]).map((vital, index) =>
+            sanitizeVital(vital, index),
+          ),
+        );
       } catch (err: any) {
         console.error("Failed to load dashboard data", err);
         setError(err?.message || "Failed to load dashboard data");
@@ -894,10 +992,11 @@ export function Dashboard() {
       return [];
     }
 
-    const grouped = labResults.reduce<Record<string, LabResult[]>>(
+    const grouped = labResults.reduce<Record<string, DashboardLabResult[]>>(
       (acc, result) => {
-        acc[result.testName] = acc[result.testName] || [];
-        acc[result.testName].push(result);
+        const key = result.testName || "Lab Test";
+        acc[key] = acc[key] || [];
+        acc[key].push(result);
         return acc;
       },
       {},
@@ -908,19 +1007,17 @@ export function Dashboard() {
         (a, b) =>
           new Date(a.testDate).getTime() - new Date(b.testDate).getTime(),
       );
-      const values = sorted.map((r) => Number(r.value));
-      const dates = sorted.map((r) =>
-        new Date(r.testDate).toLocaleDateString(),
-      );
+      const values = sorted.map((r) => toNumber(r.value));
+      const dates = sorted.map((r) => toDateString(r.testDate));
       const latest = sorted[sorted.length - 1];
       return {
         name: testName,
         values,
         dates,
-        unit: latest.unit,
-        mostRecent: latest.value.toString(),
-        date: new Date(latest.testDate).toLocaleDateString(),
-        status: latest.status,
+        unit: latest.unit ?? "",
+        mostRecent: toNumber(latest.value).toString(),
+        date: toDateString(latest.testDate),
+        status: latest.status || "unknown",
         range: latest.referenceRange || "--",
         normalRange: undefined,
         aiInsight:
@@ -935,11 +1032,11 @@ export function Dashboard() {
     if (!labResults.length) return [];
     return labResults.map((result) => ({
       name: result.testName,
-      value: `${result.value} ${result.unit}`,
+      value: `${result.value} ${result.unit}`.trim(),
       status: result.status,
       trend: "neutral",
-      flagged: result.status && result.status !== "normal",
-      lastDate: new Date(result.testDate).toLocaleDateString(),
+      flagged: Boolean(result.status && result.status !== "normal"),
+      lastDate: toDateString(result.testDate),
       priority: result.status === "critical" ? "high" : "medium",
     }));
   }, [labResults]);
