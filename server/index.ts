@@ -77,6 +77,7 @@ import immunizationsRoutes from "./routes/immunizations";
 import encountersRoutes from "./routes/encounters";
 import ordersRoutes from "./routes/orders";
 import { ensureLegacyClinicalData } from "./services/legacy-data.service";
+import { ensureSamplePatient } from "./services/patient.service.simple";
 import {
   sendMessage,
   sendCriticalAlert,
@@ -151,6 +152,7 @@ const upload = multer({
 export async function createServer() {
   // Initialize database connections
   await initializeDatabase();
+  await ensureSamplePatient();
 
   const app = express();
   const isPlaywright =

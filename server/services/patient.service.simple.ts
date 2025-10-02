@@ -122,7 +122,7 @@ export class SimplePatientService {
       const totalResult = await database.query(
         "SELECT COUNT(*) as total FROM users",
       );
-      const total = totalResult[0]?.total || 0;
+      const total = parseInt(totalResult[0]?.total ?? "0", 10);
 
       // Return empty stats if no users exist (no automatic sample data creation)
       if (total === 0) {
@@ -147,14 +147,13 @@ export class SimplePatientService {
       };
     } catch (error) {
       console.error("Error fetching patient stats:", error);
-      // Return mock data on error
       return {
-        total_patients: 248,
-        active_patients: 223,
-        inactive_patients: 25,
-        new_this_month: 18,
-        pediatric_patients: 52,
-        senior_patients: 67,
+        total_patients: 0,
+        active_patients: 0,
+        inactive_patients: 0,
+        new_this_month: 0,
+        pediatric_patients: 0,
+        senior_patients: 0,
       };
     }
   }
@@ -910,5 +909,58 @@ export class SimplePatientService {
       limit,
       totalPages,
     };
+  }
+}
+
+export async function ensureSamplePatient(): Promise<void> {
+  try {
+    if (process.env.ENABLE_SAMPLE_PATIENT?.toLowerCase() !== "true") {
+      return;
+    }
+
+    if (!dbPool) {
+      console.warn(
+        "[SamplePatient] Skipping demo patient creation because the database is not configured.",
+      );
+      return;
+    }
+
+    const email =
+      process.env.SAMPLE_PATIENT_EMAIL || "sample.patient@telecheck.health";
+    const existing = await database.query(
+      "SELECT id FROM users WHERE email = $1",
+      [email],
+    );
+
+    if (existing.length > 0) {
+      return;
+    }
+
+    await SimplePatientService.createPatient(
+      {
+        firstName: process.env.SAMPLE_PATIENT_FIRST_NAME || "Sample",
+        lastName: process.env.SAMPLE_PATIENT_LAST_NAME || "Patient",
+        email,
+        phone: process.env.SAMPLE_PATIENT_PHONE || "(555) 010-0001",
+        dateOfBirth: process.env.SAMPLE_PATIENT_DOB || "1980-01-01",
+        gender: process.env.SAMPLE_PATIENT_GENDER || "female",
+        allergies: [],
+        emergencyContacts: {
+          name: "TeleCheck Care Team",
+          phone: process.env.SAMPLE_PATIENT_CONTACT_PHONE || "(555) 010-0020",
+          relationship: "Care coordinator",
+        },
+        insuranceInfo: {
+          provider: process.env.SAMPLE_PATIENT_INSURANCE || "Demo Insurance",
+          policyNumber: process.env.SAMPLE_PATIENT_POLICY || "DEMO-0001",
+        },
+        password: process.env.SAMPLE_PATIENT_PASSWORD || "SamplePatient!123",
+      },
+      "system",
+    );
+
+    console.log(`[SamplePatient] Created demo patient account for ${email}.`);
+  } catch (error) {
+    console.error("[SamplePatient] Failed to create demo patient", error);
   }
 }

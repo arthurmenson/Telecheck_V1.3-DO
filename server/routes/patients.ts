@@ -555,39 +555,6 @@ router.get(
         });
       }
 
-      // Check if this is a mock intake patient and return mock appointments
-      if (patient.id && patient.id.startsWith("550e8400-e29b-41d4-a716")) {
-        const mockAppointments = [
-          {
-            id: `appt-${patientId}-1`,
-            patientId: patientId,
-            providerId: "provider-1",
-            providerName: "Dr. Sarah Wilson",
-            appointmentDate: "2024-02-20T10:00:00Z",
-            appointmentType: "Follow-up",
-            status: "scheduled",
-            duration: 30,
-            notes: "Regular check-up appointment",
-          },
-          {
-            id: `appt-${patientId}-2`,
-            patientId: patientId,
-            providerId: "provider-2",
-            providerName: "Dr. Michael Johnson",
-            appointmentDate: "2024-02-10T14:30:00Z",
-            appointmentType: "Initial Consultation",
-            status: "completed",
-            duration: 60,
-            notes: "Initial patient consultation and assessment",
-          },
-        ];
-
-        return res.json({
-          data: mockAppointments,
-          success: true,
-        });
-      }
-
       // Fetch appointments from database for real patients
       const { database } = require("../utils/database");
       const result = await database.query(
@@ -671,47 +638,6 @@ router.get(
       const patient = await SimplePatientService.getPatientById(patientId);
       if (!patient) {
         return res.status(404).json({ error: "Patient not found" });
-      }
-
-      // Check if this is a mock intake patient and return mock vitals
-      if (patient.id && patient.id.startsWith("550e8400-e29b-41d4-a716")) {
-        const mockVitals = [
-          {
-            id: `vital-${patientId}-1`,
-            patientId: patientId,
-            recordedAt: "2024-02-15T08:30:00Z",
-            bloodPressureSystolic: 120,
-            bloodPressureDiastolic: 80,
-            heartRate: 72,
-            temperature: 98.6,
-            respiratoryRate: 16,
-            oxygenSaturation: 99,
-            weight: 150,
-            height: 68,
-            bmi: 22.8,
-            recordedBy: "Nurse Williams",
-          },
-          {
-            id: `vital-${patientId}-2`,
-            patientId: patientId,
-            recordedAt: "2024-02-10T09:15:00Z",
-            bloodPressureSystolic: 118,
-            bloodPressureDiastolic: 78,
-            heartRate: 75,
-            temperature: 98.4,
-            respiratoryRate: 18,
-            oxygenSaturation: 98,
-            weight: 152,
-            height: 68,
-            bmi: 23.1,
-            recordedBy: "Dr. Johnson",
-          },
-        ];
-
-        return res.json({
-          data: mockVitals,
-          success: true,
-        });
       }
 
       const { database } = require("../utils/database");

@@ -6,37 +6,6 @@ import {
   validatePagination,
 } from "../middleware/validation";
 import { authenticateToken, AuthenticatedRequest } from "../middleware/auth";
-
-const isDbConfigured = !!dbPool;
-const passthroughAuth: any = (
-  _req: AuthenticatedRequest,
-  _res: Response,
-  next: any,
-) => {
-  _req.user =
-    _req.user ||
-    ({
-      id: "demo-user",
-      email: "demo@example.com",
-      role: "doctor",
-      permissions: [],
-    } as any);
-  next();
-};
-
-const requireAuth = isDbConfigured ? authenticateToken : passthroughAuth;
-
-const mockLabResults: any[] = [
-  {
-    id: "lab-1",
-    test: "Glucose",
-    value: 95,
-    unit: "mg/dL",
-    status: "normal",
-    interpretation: "Within expected range",
-    date: new Date().toISOString().slice(0, 10),
-  },
-];
 import multer from "multer";
 
 const router = Router();
@@ -64,21 +33,14 @@ const upload = multer({
 // Get lab reports for user
 router.get(
   "/reports/:userId?",
-  requireAuth,
+  authenticateToken,
   validatePagination,
   async (req: AuthenticatedRequest, res: Response) => {
     try {
-      if (!isDbConfigured) {
-        return res.json({
-          reports: [],
-          pagination: {
-            page: 1,
-            limit: 0,
-            totalReports: 0,
-            totalPages: 1,
-            hasNext: false,
-            hasPrevious: false,
-          },
+      if (!dbPool) {
+        return res.status(503).json({
+          error: "Database not configured",
+          code: "DB_UNAVAILABLE",
         });
       }
 
@@ -154,11 +116,14 @@ router.get(
 // Get lab report by ID
 router.get(
   "/reports/:id",
-  requireAuth,
+  authenticateToken,
   async (req: AuthenticatedRequest, res: Response) => {
     try {
-      if (!isDbConfigured) {
-        return res.json({ results: mockLabResults });
+      if (!dbPool) {
+        return res.status(503).json({
+          error: "Database not configured",
+          code: "DB_UNAVAILABLE",
+        });
       }
 
       const reportId = req.params.id;
@@ -215,10 +180,17 @@ router.get(
 // Upload and analyze lab report
 router.post(
   "/upload",
-  requireAuth,
+  authenticateToken,
   upload.single("labReport"),
   async (req: AuthenticatedRequest, res: Response) => {
     try {
+      if (!dbPool) {
+        return res.status(503).json({
+          error: "Database not configured",
+          code: "DB_UNAVAILABLE",
+        });
+      }
+
       const userId = req.user!.id;
       const file = req.file;
 
@@ -296,11 +268,15 @@ router.post(
 // Get lab results for a user across all reports
 router.get(
   "/results/user/:userId",
-  requireAuth,
+  authenticateToken,
   async (req: AuthenticatedRequest, res: Response) => {
     try {
-      if (!isDbConfigured) {
-        return res.json({ success: true, data: mockLabResults });
+      if (!dbPool) {
+        return res.status(503).json({
+          success: false,
+          error: "Database not configured",
+          code: "DB_UNAVAILABLE",
+        });
       }
 
       const userId = req.params.userId;
@@ -361,11 +337,15 @@ router.get(
 
 router.get(
   "/results",
-  requireAuth,
+  authenticateToken,
   async (req: AuthenticatedRequest, res: Response) => {
     try {
-      if (!isDbConfigured) {
-        return res.json({ success: true, data: mockLabResults });
+      if (!dbPool) {
+        return res.status(503).json({
+          success: false,
+          error: "Database not configured",
+          code: "DB_UNAVAILABLE",
+        });
       }
 
       const userId = req.user!.id;
@@ -419,7 +399,7 @@ router.get(
 // Existing route to get lab results for a specific report
 router.get(
   "/results/:reportId",
-  requireAuth,
+  authenticateToken,
   async (req: AuthenticatedRequest, res: Response) => {
     try {
       const reportId = req.params.reportId;
@@ -485,18 +465,13 @@ router.get(
 // Add lab results manually
 router.post(
   "/results",
-  requireAuth,
+  authenticateToken,
   async (req: AuthenticatedRequest, res: Response) => {
     try {
-      if (!isDbConfigured) {
-        const mockResult = {
-          id: `lab-${Date.now()}`,
-          ...req.body,
-        };
-        mockLabResults.push(mockResult);
-        return res.status(201).json({
-          message: "Lab result recorded (mock)",
-          result: mockResult,
+      if (!dbPool) {
+        return res.status(503).json({
+          error: "Database not configured",
+          code: "DB_UNAVAILABLE",
         });
       }
 
@@ -599,7 +574,7 @@ router.post(
 // Delete lab report
 router.delete(
   "/reports/:id",
-  requireAuth,
+  authenticateToken,
   async (req: AuthenticatedRequest, res: Response) => {
     try {
       const reportId = req.params.id;
@@ -651,7 +626,7 @@ router.delete(
 // Get lab analysis statistics
 router.get(
   "/stats/overview",
-  requireAuth,
+  authenticateToken,
   async (req: AuthenticatedRequest, res: Response) => {
     try {
       const userId = req.user!.id;
