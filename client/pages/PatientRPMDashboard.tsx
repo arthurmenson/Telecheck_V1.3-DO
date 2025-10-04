@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,9 +6,22 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
-import { PatientService } from "@/services/api.service";
+import {
+  PatientService,
+  LabService,
+  MedicationService,
+  VitalsService,
+} from "@/services/api.service";
 import { PatientProfileCompletion } from "@/components/PatientProfileCompletion";
+import {
+  usePatientStats,
+  useDebouncedPatientSearch,
+  usePatient as usePatientQuery,
+  usePatientAppointments,
+  usePatientVitals,
+} from "@/hooks/api/usePatients";
 import {
   Activity,
   Heart,
@@ -36,12 +49,48 @@ export function PatientRPMDashboard() {
   const [patientData, setPatientData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [vitals, setVitals] = useState<any[]>([]);
+  const [labs, setLabs] = useState<any[]>([]);
+  const [medications, setMedications] = useState<any[]>([]);
   const [showProfileCompletion, setShowProfileCompletion] = useState(false);
   const { user } = useAuth();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const patientId = searchParams.get("patientId");
+  const isDoctor = user?.role === "doctor";
+
+  const setPatientQueryParam = useCallback(
+    (id: string | null) => {
+      const next = new URLSearchParams(searchParams);
+      if (id) {
+        next.set("patientId", id);
+      } else {
+        next.delete("patientId");
+      }
+      setSearchParams(next);
+    },
+    [searchParams, setSearchParams],
+  );
 
   useEffect(() => {
+    if (!isDoctor && !patientId && user?.id) {
+      setPatientQueryParam(user.id);
+    }
+  }, [isDoctor, patientId, setPatientQueryParam, user?.id]);
+
+  if (isDoctor) {
+    return (
+      <DoctorPatientRPMView
+        initialPatientId={patientId}
+        onSelectPatient={setPatientQueryParam}
+      />
+    );
+  }
+
+  useEffect(() => {
+    if (isDoctor) {
+      return;
+    }
+
     const fetchPatientData = async () => {
       if (!patientId) {
         setIsLoading(false);
@@ -53,10 +102,15 @@ export function PatientRPMDashboard() {
         setIsLoading(true);
         setError(null);
 
-        const response = await PatientService.getPatientById(patientId);
+        const [patientRes, labsRes, medsRes, vitalsRes] = await Promise.all([
+          PatientService.getPatientById(patientId),
+          LabService.getResults(patientId),
+          MedicationService.getMedications(patientId),
+          VitalsService.getVitalSigns(patientId),
+        ]);
 
-        if (response.success && response.data) {
-          const patient = response.data;
+        if (patientRes.success && patientRes.data) {
+          const patient = patientRes.data;
           const patientProfile = {
             name: `${patient.firstName} ${patient.lastName}`,
             id: patient.id,
@@ -72,6 +126,21 @@ export function PatientRPMDashboard() {
           };
 
           setPatientData(patientProfile);
+          setLabs(Array.isArray(labsRes?.data) ? labsRes.data : []);
+          setMedications(
+            Array.isArray(medsRes?.data)
+              ? medsRes.data
+              : Array.isArray((medsRes as any)?.medications)
+                ? (medsRes as any).medications
+                : [],
+          );
+          setVitals(
+            Array.isArray((vitalsRes as any)?.data)
+              ? (vitalsRes as any).data
+              : Array.isArray(vitalsRes)
+                ? (vitalsRes as any[])
+                : [],
+          );
 
           // Check if profile needs completion (has default/empty values)
           const needsCompletion =
@@ -86,8 +155,8 @@ export function PatientRPMDashboard() {
         } else {
           // Initialize empty profile for new users
           setPatientData({
-            name: user.name,
-            id: user.id,
+            name: user?.name ?? "Pending Patient",
+            id: user?.id ?? patientId ?? "unknown",
             program: "Not enrolled",
             enrollmentDate: "Not set",
             nextAppointment: "Not scheduled",
@@ -98,6 +167,9 @@ export function PatientRPMDashboard() {
             insuranceInfo: {},
           });
           setShowProfileCompletion(true);
+          setLabs([]);
+          setMedications([]);
+          setVitals([]);
         }
       } catch (err: any) {
         console.error("Failed to fetch patient data:", err);
@@ -106,7 +178,7 @@ export function PatientRPMDashboard() {
         // Initialize empty profile on error
         setPatientData({
           name: user?.name || "Unknown Patient",
-          id: patientId || "unknown",
+          id: patientId || user?.id || "unknown",
           program: "Not enrolled",
           enrollmentDate: "Not set",
           nextAppointment: "Not scheduled",
@@ -117,13 +189,16 @@ export function PatientRPMDashboard() {
           insuranceInfo: {},
         });
         setShowProfileCompletion(true);
+        setLabs([]);
+        setMedications([]);
+        setVitals([]);
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchPatientData();
-  }, [patientId]);
+  }, [patientId, isDoctor, user]);
 
   // Show loading state
   if (isLoading) {
@@ -180,85 +255,93 @@ export function PatientRPMDashboard() {
     temperature: { connected: true, battery: 88, lastReading: "30 min ago" },
   } as const;
 
-  const todaysReadings = [
-    {
-      type: "Glucose",
-      value: "142 mg/dL",
-      time: "2:15 PM",
-      status: "normal",
-      icon: Droplets,
-    },
-    {
-      type: "Blood Pressure",
-      value: "125/82 mmHg",
-      time: "11:30 AM",
-      status: "normal",
-      icon: Heart,
-    },
-    {
-      type: "Weight",
-      value: "184.2 lbs",
-      time: "8:00 AM",
-      status: "normal",
-      icon: Weight,
-    },
-    {
-      type: "Temperature",
-      value: "98.4°F",
-      time: "9:15 AM",
-      status: "normal",
-      icon: Thermometer,
-    },
-  ] as const;
+  const latestVitals = vitals.slice(0, 4).map((vital, index) => ({
+    id:
+      vital.id ??
+      vital.recorded_at ??
+      vital.recordedAt ??
+      `vital-${index}-${vital.user_id ?? "unknown"}`,
+    recordedAt: vital.recorded_at ?? vital.recordedAt,
+    heartRate: vital.heart_rate ?? vital.heartRate,
+    bloodPressureSystolic:
+      vital.blood_pressure_systolic ?? vital.bloodPressureSystolic,
+    bloodPressureDiastolic:
+      vital.blood_pressure_diastolic ?? vital.bloodPressureDiastolic,
+    temperature: vital.temperature,
+    oxygenSaturation: vital.oxygen_saturation ?? vital.oxygenSaturation,
+    weight: vital.weight,
+  }));
 
-  const medications = [
-    { name: "Metformin", dosage: "500mg", time: "8:00 AM", taken: true },
-    { name: "Lisinopril", dosage: "10mg", time: "8:00 AM", taken: true },
-    { name: "Metformin", dosage: "500mg", time: "8:00 PM", taken: false },
-    { name: "Insulin", dosage: "15 units", time: "Before meals", taken: false },
-  ] as const;
+  const activeMeds = medications.filter((med) => med.isActive !== false);
 
-  const weeklyGoals = [
-    {
-      goal: "Take glucose readings 4x daily",
-      current: 26,
-      target: 28,
-      percentage: 93,
-    },
-    {
-      goal: "Take medications as prescribed",
-      current: 13,
-      target: 14,
-      percentage: 93,
-    },
-    {
-      goal: "Check blood pressure daily",
-      current: 6,
-      target: 7,
-      percentage: 86,
-    },
-    {
-      goal: "Maintain weight under 185 lbs",
-      current: 1,
-      target: 1,
-      percentage: 100,
-    },
-  ] as const;
+  const weeklyAdherence = useMemo(() => {
+    const readingCount = vitals.slice(0, 10).length;
+    const medicationCount = activeMeds.length;
 
-  const alerts = [
-    {
-      type: "medication",
-      message: "Metformin dose due in 30 minutes",
-      time: "7:30 PM",
-      priority: "medium",
-    },
-    {
-      type: "device",
-      message: "Weight scale needs charging",
-      time: "Today",
-      priority: "low",
-    },
-  ] as const;
+    if (readingCount === 0 && medicationCount === 0) return null;
+
+    return {
+      readings: {
+        goal: "Record vitals readings",
+        current: readingCount,
+        target: 10,
+        percentage: Math.min(100, Math.round((readingCount / 10) * 100)),
+      },
+      medications: {
+        goal: "Active medications",
+        current: medicationCount,
+        target: Math.max(medicationCount, 1),
+        percentage: medicationCount > 0 ? 100 : 0,
+      },
+    };
+  }, [activeMeds, vitals]);
+
+  const alerts = useMemo(() => {
+    const items: Array<{
+      type: string;
+      message: string;
+      time: string;
+      priority: "low" | "medium" | "high";
+    }> = [];
+
+    const latestVital = latestVitals[0];
+    if (latestVital) {
+      const weight = parseFloat(latestVital.weight ?? "0");
+      if (!Number.isNaN(weight) && weight > 200) {
+        items.push({
+          type: "vital",
+          message: `Recent weight reading ${weight} lbs exceeds threshold`,
+          time: "Latest vital",
+          priority: "medium",
+        });
+      }
+
+      const systolic = parseInt(latestVital.bloodPressureSystolic ?? "0", 10);
+      const diastolic = parseInt(latestVital.bloodPressureDiastolic ?? "0", 10);
+      if (systolic > 140 || diastolic > 90) {
+        items.push({
+          type: "vital",
+          message: `Blood pressure ${systolic}/${diastolic} flagged for review`,
+          time: "Latest vital",
+          priority: "high",
+        });
+      }
+    }
+
+    activeMeds
+      .filter((med) => med.isActive && med.instructions)
+      .slice(0, 2)
+      .forEach((med) => {
+        items.push({
+          type: "medication",
+          message: `${med.name} — ${med.instructions}`,
+          time: "Medication plan",
+          priority: "low",
+        });
+      });
+
+    return items;
+  }, [activeMeds, latestVitals]);
 
   return (
     <div className="min-h-screen bg-background p-6" data-testid="rpm-dashboard">
@@ -390,60 +473,76 @@ export function PatientRPMDashboard() {
 
         <Tabs defaultValue="readings" className="space-y-4">
           <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="readings">Today's Readings</TabsTrigger>
+            <TabsTrigger value="readings">
+              {isDoctor ? "Vitals" : "My Vitals"}
+            </TabsTrigger>
             <TabsTrigger value="medications">Medications</TabsTrigger>
+            <TabsTrigger value="labs">Lab Results</TabsTrigger>
             <TabsTrigger value="devices">My Devices</TabsTrigger>
             <TabsTrigger value="goals">Weekly Goals</TabsTrigger>
-            <TabsTrigger value="trends">Trends</TabsTrigger>
           </TabsList>
 
-          {/* Today's Readings */}
-          <TabsContent
-            value="readings"
-            className="space-y-4"
-            data-testid="rpm-vitals-empty"
-          >
+          {/* Vital Readings */}
+          <TabsContent value="readings" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Today's Health Readings</CardTitle>
+                <CardTitle>Recent Vital Readings</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {todaysReadings.map((reading, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between p-4 border rounded-lg"
-                    >
-                      <div className="flex items-center gap-3">
-                        <reading.icon className="w-5 h-5 text-blue-600" />
-                        <div>
-                          <p className="font-medium">{reading.type}</p>
-                          <p className="text-2xl font-bold">{reading.value}</p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-sm text-muted-foreground">
-                          {reading.time}
-                        </p>
-                        <Badge
-                          variant={
-                            reading.status === "normal"
-                              ? "secondary"
-                              : "destructive"
-                          }
+                {latestVitals.length === 0 ? (
+                  <div className="py-8 text-center text-sm text-muted-foreground">
+                    No vital readings recorded yet.
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {latestVitals.map((reading) => {
+                      const testTime = formatTime(reading.recordedAt);
+                      return (
+                        <div
+                          key={reading.id}
+                          className="flex items-center justify-between p-4 border rounded-lg"
                         >
-                          {reading.status}
-                        </Badge>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <div className="mt-6">
-                  <Button className="w-full">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add New Reading
-                  </Button>
-                </div>
+                          <div className="space-y-1">
+                            <p className="text-sm text-muted-foreground">
+                              {formatDate(reading.recordedAt)}
+                            </p>
+                            <div className="flex flex-wrap items-center gap-2 text-sm">
+                              {reading.heartRate ? (
+                                <Badge variant="outline" className="gap-1">
+                                  <Heart className="w-3 h-3" />
+                                  {reading.heartRate} bpm
+                                </Badge>
+                              ) : null}
+                              {reading.bloodPressureSystolic &&
+                              reading.bloodPressureDiastolic ? (
+                                <Badge variant="outline" className="gap-1">
+                                  <Activity className="w-3 h-3" />
+                                  {reading.bloodPressureSystolic}/
+                                  {reading.bloodPressureDiastolic}
+                                </Badge>
+                              ) : null}
+                              {reading.weight ? (
+                                <Badge variant="outline" className="gap-1">
+                                  <Weight className="w-3 h-3" />
+                                  {reading.weight} lbs
+                                </Badge>
+                              ) : null}
+                              {reading.oxygenSaturation ? (
+                                <Badge variant="outline" className="gap-1">
+                                  <Droplets className="w-3 h-3" />
+                                  {reading.oxygenSaturation}% SpO₂
+                                </Badge>
+                              ) : null}
+                            </div>
+                          </div>
+                          <div className="text-right text-xs text-muted-foreground">
+                            {testTime}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -452,41 +551,101 @@ export function PatientRPMDashboard() {
           <TabsContent value="medications" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Today's Medications</CardTitle>
+                <CardTitle>Medication Plan</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {medications.map((med, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between p-4 border rounded-lg"
-                    >
-                      <div className="flex items-center gap-3">
-                        <Pill
-                          className={`w-5 h-5 ${med.taken ? "text-green-600" : "text-gray-400"}`}
-                        />
-                        <div>
-                          <p className="font-medium">{med.name}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {med.dosage}
-                          </p>
+                  {activeMeds.length === 0 ? (
+                    <div className="text-sm text-muted-foreground py-6 text-center">
+                      No active medications on file.
+                    </div>
+                  ) : (
+                    activeMeds.map((med) => (
+                      <div
+                        key={med.id}
+                        className="flex items-center justify-between p-4 border rounded-lg"
+                      >
+                        <div className="flex items-center gap-3">
+                          <Pill className="w-5 h-5 text-primary" />
+                          <div>
+                            <p className="font-medium">{med.name}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {med.dosage}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <span className="text-sm text-muted-foreground capitalize">
+                            {med.frequency ?? "As prescribed"}
+                          </span>
+                          {med.prescribedBy ? (
+                            <Badge variant="secondary" className="capitalize">
+                              {med.prescribedBy}
+                            </Badge>
+                          ) : null}
                         </div>
                       </div>
-                      <div className="flex items-center gap-3">
-                        <span className="text-sm text-muted-foreground">
-                          {med.time}
-                        </span>
-                        {med.taken ? (
-                          <Badge className="bg-green-100 text-green-800">
-                            Taken
-                          </Badge>
-                        ) : (
-                          <Button size="sm">Mark Taken</Button>
-                        )}
-                      </div>
-                    </div>
-                  ))}
+                    ))
+                  )}
                 </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Labs */}
+          <TabsContent value="labs" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Recent Lab Results</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {labs.length === 0 ? (
+                  <div className="py-8 text-center text-sm text-muted-foreground">
+                    No lab results recorded yet.
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {labs.slice(0, 6).map((lab) => (
+                      <div
+                        key={lab.id}
+                        className="border rounded-lg p-4 space-y-2"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="font-medium">{lab.testName}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {lab.labName ?? "Telecheck Labs"}
+                            </p>
+                          </div>
+                          <Badge
+                            variant={
+                              lab.status === "normal"
+                                ? "secondary"
+                                : "destructive"
+                            }
+                            className="capitalize"
+                          >
+                            {lab.status ?? "pending"}
+                          </Badge>
+                        </div>
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="font-semibold text-foreground">
+                            {lab.value} {lab.unit}
+                          </span>
+                          <span className="text-muted-foreground">
+                            Ref. Range: {lab.referenceRange ?? "—"}
+                          </span>
+                        </div>
+                        <div className="text-xs text-muted-foreground flex justify-between">
+                          <span>{formatDate(lab.testDate)}</span>
+                          {lab.doctorNotes ? (
+                            <span>{lab.doctorNotes}</span>
+                          ) : null}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -558,25 +717,31 @@ export function PatientRPMDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-6">
-                  {weeklyGoals.map((goal, index) => (
-                    <div key={index} className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="font-medium">{goal.goal}</span>
-                        <span className="text-sm text-muted-foreground">
-                          {goal.current}/{goal.target}
-                        </span>
+                  {weeklyAdherence ? (
+                    Object.values(weeklyAdherence).map((goal) => (
+                      <div key={goal.goal} className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="font-medium">{goal.goal}</span>
+                          <span className="text-sm text-muted-foreground">
+                            {goal.current}/{goal.target}
+                          </span>
+                        </div>
+                        <Progress value={goal.percentage} className="h-2" />
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-muted-foreground">
+                            Progress
+                          </span>
+                          <span className="text-sm font-medium">
+                            {goal.percentage}%
+                          </span>
+                        </div>
                       </div>
-                      <Progress value={goal.percentage} className="h-2" />
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-muted-foreground">
-                          Progress
-                        </span>
-                        <span className="text-sm font-medium">
-                          {goal.percentage}%
-                        </span>
-                      </div>
+                    ))
+                  ) : (
+                    <div className="py-6 text-center text-sm text-muted-foreground">
+                      Complete your first readings and medications to see goals.
                     </div>
-                  ))}
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -634,4 +799,543 @@ export function PatientRPMDashboard() {
       </div>
     </div>
   );
+}
+
+function DoctorPatientRPMView({
+  initialPatientId,
+  onSelectPatient,
+}: {
+  initialPatientId?: string | null;
+  onSelectPatient: (patientId: string | null) => void;
+}) {
+  const [page, setPage] = useState(1);
+  const [query, setQuery] = useState<string | undefined>(undefined);
+
+  const patientsQuery = useDebouncedPatientSearch(
+    query ? { query } : undefined,
+    page,
+    10,
+    300,
+  );
+
+  const {
+    data: searchData,
+    isLoading: searchLoading,
+    isFetching: searchFetching,
+    filters,
+    setFilters,
+    isSearching,
+  } = patientsQuery;
+
+  const { data: stats } = usePatientStats();
+  const [selectedPatientId, setSelectedPatientId] = useState<string | null>(
+    initialPatientId ?? null,
+  );
+
+  useEffect(() => {
+    if (initialPatientId && initialPatientId !== selectedPatientId) {
+      setSelectedPatientId(initialPatientId);
+    }
+  }, [initialPatientId, selectedPatientId]);
+
+  const patients = searchData?.patients ?? [];
+  const totalPatients = searchData?.total ?? 0;
+  const totalPages = Math.max(searchData?.totalPages ?? 1, 1);
+
+  useEffect(() => {
+    if (!selectedPatientId && patients.length > 0) {
+      const nextId =
+        initialPatientId &&
+        patients.some((patient) => patient.id === initialPatientId)
+          ? initialPatientId
+          : patients[0].id;
+      setSelectedPatientId(nextId);
+      if (!initialPatientId || nextId !== initialPatientId) {
+        onSelectPatient(nextId);
+      }
+    }
+  }, [selectedPatientId, patients, initialPatientId, onSelectPatient]);
+
+  const handlePatientSelect = (patientId: string) => {
+    setSelectedPatientId(patientId);
+    onSelectPatient(patientId);
+  };
+
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value.trim();
+    setQuery(value.length > 0 ? value : undefined);
+    setFilters((prev) => ({
+      ...prev,
+      query: value.length > 0 ? value : undefined,
+    }));
+    setPage(1);
+  };
+
+  const {
+    data: patientDetails,
+    isLoading: patientLoading,
+    isError: patientHasError,
+    error: patientError,
+  } = usePatientQuery(selectedPatientId ?? "", !!selectedPatientId);
+
+  const { data: vitalsData = [], isLoading: vitalsLoading } = usePatientVitals(
+    selectedPatientId ?? "",
+    6,
+    0,
+    !!selectedPatientId,
+  );
+
+  const { data: appointmentsData = [], isLoading: appointmentsLoading } =
+    usePatientAppointments(selectedPatientId ?? "", !!selectedPatientId);
+
+  const statCards = [
+    { label: "Total Patients", value: stats?.total_patients ?? 0 },
+    { label: "Active", value: stats?.active_patients ?? 0 },
+    { label: "Inactive", value: stats?.inactive_patients ?? 0 },
+    { label: "Senior", value: stats?.senior_patients ?? 0 },
+  ];
+
+  const recentVitals = vitalsData.slice(0, 5);
+  const appointments = appointmentsData.slice(0, 4);
+
+  const renderPatientList = () => {
+    if (searchLoading && patients.length === 0) {
+      return (
+        <div className="py-6 text-center text-sm text-muted-foreground">
+          Loading patients...
+        </div>
+      );
+    }
+
+    if (patients.length === 0) {
+      return (
+        <div className="py-6 text-center text-sm text-muted-foreground">
+          No patients found. Adjust your search filters.
+        </div>
+      );
+    }
+
+    return patients.map((patient) => {
+      const isActive = patient.id === selectedPatientId;
+      return (
+        <button
+          key={patient.id}
+          type="button"
+          onClick={() => handlePatientSelect(patient.id)}
+          className={`w-full text-left rounded-lg border px-3 py-3 transition ${
+            isActive
+              ? "border-primary bg-primary/5 shadow-sm"
+              : "border-border hover:border-primary/40 hover:bg-muted/50"
+          }`}
+        >
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="font-semibold text-foreground">
+                {patient.firstName} {patient.lastName}
+              </p>
+              <p className="text-xs text-muted-foreground break-words">
+                {patient.email}
+              </p>
+            </div>
+            <Badge
+              variant={isActive ? "default" : "outline"}
+              className="capitalize"
+            >
+              {patient.status || "active"}
+            </Badge>
+          </div>
+          <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
+            <span>MRN: {patient.mrn || "—"}</span>
+            {patient.lastAppointment ? (
+              <span>Last visit: {formatDate(patient.lastAppointment)}</span>
+            ) : null}
+          </div>
+        </button>
+      );
+    });
+  };
+
+  const patientErrorMessage =
+    patientError instanceof Error
+      ? patientError.message
+      : "Unable to load patient record. Please select another patient.";
+
+  const emergencyContact = patientDetails?.emergencyContacts;
+  const emergencyContactDisplay = emergencyContact?.name
+    ? `${emergencyContact.name}${
+        emergencyContact.phone ? ` • ${emergencyContact.phone}` : ""
+      }`
+    : "—";
+
+  const insuranceProvider = patientDetails?.insuranceInfo?.provider
+    ? patientDetails.insuranceInfo.provider
+    : typeof patientDetails?.insuranceInfo === "string"
+      ? patientDetails.insuranceInfo
+      : "—";
+
+  const infoBlocks = patientDetails
+    ? [
+        {
+          label: "Date of Birth",
+          value: formatDate(patientDetails.dateOfBirth),
+        },
+        { label: "Age", value: calculateAge(patientDetails.dateOfBirth) },
+        { label: "Phone", value: patientDetails.phone || "—" },
+        { label: "Insurance", value: insuranceProvider },
+        {
+          label: "Primary Provider",
+          value: patientDetails.primaryProviderId || "—",
+        },
+        { label: "Emergency Contact", value: emergencyContactDisplay },
+      ]
+    : [];
+
+  return (
+    <div className="min-h-screen bg-background">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">
+            Remote Monitoring Command Center
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Monitor enrolled patients, review their vitals, and stay ahead of
+            clinical alerts.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {statCards.map((card) => (
+            <Card key={card.label}>
+              <CardHeader className="pb-2">
+                <p className="text-sm text-muted-foreground">{card.label}</p>
+                <CardTitle className="text-2xl">
+                  {typeof card.value === "number"
+                    ? card.value.toLocaleString()
+                    : card.value}
+                </CardTitle>
+              </CardHeader>
+            </Card>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <Card className="lg:col-span-4">
+            <CardHeader>
+              <CardTitle>Monitored Patients</CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Search across all patients participating in remote monitoring.
+              </p>
+            </CardHeader>
+            <CardContent>
+              <Input
+                placeholder="Search patients by name or email"
+                value={filters.query ?? ""}
+                onChange={handleSearchChange}
+                aria-label="Search patients"
+              />
+              <div className="mt-4 space-y-2 max-h-[480px] overflow-y-auto pr-1">
+                {(isSearching || searchFetching) && patients.length > 0 ? (
+                  <div className="py-2 text-xs text-muted-foreground text-center">
+                    Updating results...
+                  </div>
+                ) : null}
+                {renderPatientList()}
+              </div>
+
+              {totalPatients > 0 && (
+                <div className="flex flex-col gap-2 mt-4 text-xs text-muted-foreground">
+                  <div>
+                    Showing{" "}
+                    <span className="font-medium text-foreground">
+                      {Math.min((page - 1) * pageSize + 1, totalPatients)}
+                    </span>
+                    {" - "}
+                    <span className="font-medium text-foreground">
+                      {Math.min(page * pageSize, totalPatients)}
+                    </span>
+                    {" of "}
+                    <span className="font-medium text-foreground">
+                      {totalPatients.toLocaleString()}
+                    </span>
+                    {" patients"}
+                  </div>
+                  <div className="flex items-center justify-between gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={page === 1}
+                      onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+                    >
+                      Previous
+                    </Button>
+                    <span>
+                      Page {page} of {totalPages}
+                    </span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={page >= totalPages}
+                      onClick={() =>
+                        setPage((prev) => Math.min(totalPages, prev + 1))
+                      }
+                    >
+                      Next
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <div className="lg:col-span-8 space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Patient Overview</CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  Clinical snapshot for the selected patient.
+                </p>
+              </CardHeader>
+              <CardContent>
+                {!selectedPatientId ? (
+                  <div className="py-8 text-center text-sm text-muted-foreground">
+                    Select a patient to review their monitoring data.
+                  </div>
+                ) : patientLoading ? (
+                  <div className="py-8 text-center text-sm text-muted-foreground">
+                    Loading patient record...
+                  </div>
+                ) : patientHasError || !patientDetails ? (
+                  <Alert variant="destructive">
+                    <AlertTriangle className="h-4 w-4" />
+                    <AlertDescription>{patientErrorMessage}</AlertDescription>
+                  </Alert>
+                ) : (
+                  <>
+                    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                      <div>
+                        <h2 className="text-2xl font-semibold text-foreground">
+                          {patientDetails.firstName} {patientDetails.lastName}
+                        </h2>
+                        <p className="text-sm text-muted-foreground">
+                          {patientDetails.email}
+                        </p>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        <Badge variant="outline" className="capitalize">
+                          {patientDetails.status || "active"}
+                        </Badge>
+                        {patientDetails.mrn ? (
+                          <Badge variant="outline">
+                            MRN {patientDetails.mrn}
+                          </Badge>
+                        ) : null}
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                      {infoBlocks.map((block) => (
+                        <div
+                          key={block.label}
+                          className="rounded-lg border border-border/60 p-3"
+                        >
+                          <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                            {block.label}
+                          </p>
+                          <p className="mt-1 text-sm font-semibold text-foreground">
+                            {block.value || "—"}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      <Button asChild size="sm">
+                        <Link to={`/ehr/intake?patientId=${patientDetails.id}`}>
+                          Open Intake
+                        </Link>
+                      </Button>
+                      <Button asChild size="sm" variant="outline">
+                        <Link to="/patient-management">Patient Registry</Link>
+                      </Button>
+                    </div>
+                  </>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Recent Vitals</CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  Latest submitted readings from connected devices or manual
+                  entry.
+                </p>
+              </CardHeader>
+              <CardContent>
+                {!selectedPatientId ? (
+                  <p className="text-sm text-muted-foreground">
+                    Select a patient to view recent vitals.
+                  </p>
+                ) : vitalsLoading ? (
+                  <p className="text-sm text-muted-foreground">
+                    Loading vitals...
+                  </p>
+                ) : recentVitals.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">
+                    No vitals recorded for this patient yet.
+                  </p>
+                ) : (
+                  <div className="space-y-3">
+                    {recentVitals.map((vital) => (
+                      <div
+                        key={vital.id}
+                        className="rounded-lg border border-border/60 p-3"
+                      >
+                        <div className="flex items-center justify-between text-xs text-muted-foreground">
+                          <span>{formatDateTime(vital.readingDate)}</span>
+                          {vital.recordedBy ? (
+                            <span>Recorded by {vital.recordedBy}</span>
+                          ) : null}
+                        </div>
+                        <div className="mt-3 grid grid-cols-2 md:grid-cols-3 gap-3">
+                          {Object.entries(vital.vitalSignsData || {}).map(
+                            ([key, value]) => (
+                              <div
+                                key={key}
+                                className="rounded-md bg-muted/50 p-2"
+                              >
+                                <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                                  {key.replace(/_/g, " ")}
+                                </p>
+                                <p className="mt-1 text-sm font-semibold text-foreground">
+                                  {formatValue(value)}
+                                </p>
+                              </div>
+                            ),
+                          )}
+                          {Object.keys(vital.vitalSignsData || {}).length ===
+                            0 && (
+                            <p className="text-sm text-muted-foreground col-span-full">
+                              No structured values recorded for this reading.
+                            </p>
+                          )}
+                        </div>
+                        {vital.notes ? (
+                          <p className="mt-3 text-xs text-muted-foreground">
+                            Notes: {vital.notes}
+                          </p>
+                        ) : null}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Appointments</CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  Recent and upcoming visits for coordination with the care
+                  team.
+                </p>
+              </CardHeader>
+              <CardContent>
+                {!selectedPatientId ? (
+                  <p className="text-sm text-muted-foreground">
+                    Select a patient to view appointment history.
+                  </p>
+                ) : appointmentsLoading ? (
+                  <p className="text-sm text-muted-foreground">
+                    Loading appointments...
+                  </p>
+                ) : appointments.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">
+                    No appointments recorded for this patient.
+                  </p>
+                ) : (
+                  <div className="space-y-3">
+                    {appointments.map((appointment) => (
+                      <div
+                        key={appointment.id}
+                        className="rounded-lg border border-border/60 p-3 flex flex-col gap-2 md:flex-row md:items-start md:justify-between"
+                      >
+                        <div>
+                          <p className="text-sm font-semibold text-foreground">
+                            {appointment.appointmentType || "Appointment"}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {appointment.providerName || "Telecheck Provider"}
+                          </p>
+                          {appointment.duration ? (
+                            <p className="text-xs text-muted-foreground">
+                              Duration: {appointment.duration} mins
+                            </p>
+                          ) : null}
+                        </div>
+                        <div className="text-xs text-muted-foreground text-right">
+                          <p className="text-sm font-semibold text-foreground">
+                            {formatDateTime(appointment.appointmentDate)}
+                          </p>
+                          <p className="capitalize">
+                            {appointment.status || "scheduled"}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function formatDate(value?: string | null): string {
+  if (!value) return "—";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleDateString();
+}
+
+function formatDateTime(value?: string | null): string {
+  if (!value) return "—";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleString();
+}
+
+function formatTime(value?: string | null): string {
+  if (!value) return "—";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+}
+
+function calculateAge(value?: string | null): string {
+  if (!value) return "—";
+  const birthDate = new Date(value);
+  if (Number.isNaN(birthDate.getTime())) return "—";
+  const ageDifMs = Date.now() - birthDate.getTime();
+  const ageDate = new Date(ageDifMs);
+  const age = Math.abs(ageDate.getUTCFullYear() - 1970);
+  return `${age}`;
+}
+
+function formatValue(value: unknown): string {
+  if (value === null || value === undefined) return "—";
+  if (typeof value === "number")
+    return Number.isFinite(value) ? value.toString() : "—";
+  if (typeof value === "string") return value;
+  if (typeof value === "object") {
+    try {
+      return JSON.stringify(value);
+    } catch (error) {
+      return "—";
+    }
+  }
+  return String(value);
 }

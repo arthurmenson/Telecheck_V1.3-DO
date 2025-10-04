@@ -734,6 +734,12 @@ export class LabService {
     return payload;
   }
 
+  static async getResultsForUser(
+    userId: string,
+  ): Promise<ApiResponse<LabResult[]>> {
+    return this.getResults(userId);
+  }
+
   static async uploadLabReport(
     file: File,
     userId?: string,
@@ -796,6 +802,12 @@ export class MedicationService {
     return payload;
   }
 
+  static async getMedicationsForUser(
+    userId: string,
+  ): Promise<ApiResponse<Medication[]>> {
+    return this.getMedications(userId);
+  }
+
   static async addMedication(
     medication: Omit<Medication, "id">,
     userId?: string,
@@ -840,6 +852,12 @@ export class VitalsService {
       ? `${API_ENDPOINTS.VITALS.LIST}/${userId}`
       : API_ENDPOINTS.VITALS.LIST;
     return apiClient.get(endpoint);
+  }
+
+  static async getVitalSignsForUser(
+    userId: string,
+  ): Promise<ApiResponse<VitalSigns[]>> {
+    return this.getVitalSigns(userId);
   }
 
   static async addVitalSigns(

@@ -2,13 +2,28 @@ import { Router, Request, Response } from "express";
 import { dbPool } from "../config/database";
 import {
   validateLabReport,
-  validateUserId,
   validatePagination,
 } from "../middleware/validation";
 import { authenticateToken, AuthenticatedRequest } from "../middleware/auth";
 import multer from "multer";
 
 const router = Router();
+
+const resolveTargetUserId = (req: AuthenticatedRequest): string => {
+  const paramId = req.params.userId ? String(req.params.userId) : undefined;
+  const queryUserId = req.query.userId ? String(req.query.userId) : undefined;
+  const queryPatientId = req.query.patientId
+    ? String(req.query.patientId)
+    : undefined;
+
+  return paramId || queryUserId || queryPatientId || req.user!.id;
+};
+
+const canAccessUser = (req: AuthenticatedRequest, targetUserId: string) => {
+  if (!req.user) return false;
+  if (req.user.id === targetUserId) return true;
+  return ["admin", "doctor"].includes(req.user.role);
+};
 
 // Configure multer for file uploads
 const upload = multer({
@@ -44,18 +59,16 @@ router.get(
         });
       }
 
-      const userId = req.params.userId || req.user!.id;
-      const page = parseInt(req.query.page as string) || 1;
-      const limit = parseInt(req.query.limit as string) || 20;
-      const offset = (page - 1) * limit;
-
-      // Check if user has permission to access this data
-      if (req.user!.role !== "admin" && req.user!.id !== userId) {
+      const userId = resolveTargetUserId(req);
+      if (!canAccessUser(req, userId)) {
         return res.status(403).json({
           error: "Insufficient permissions",
           code: "INSUFFICIENT_PERMISSIONS",
         });
       }
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 20;
+      const offset = (page - 1) * limit;
 
       const query = `
       SELECT id, user_id, file_name, file_size, file_url, upload_date, 
@@ -279,9 +292,8 @@ router.get(
         });
       }
 
-      const userId = req.params.userId;
-
-      if (req.user!.role !== "admin" && req.user!.id !== userId) {
+      const userId = resolveTargetUserId(req);
+      if (!canAccessUser(req, userId)) {
         return res.status(403).json({
           success: false,
           error: "Insufficient permissions",
@@ -348,7 +360,14 @@ router.get(
         });
       }
 
-      const userId = req.user!.id;
+      const userId = resolveTargetUserId(req);
+      if (!canAccessUser(req, userId)) {
+        return res.status(403).json({
+          success: false,
+          error: "Insufficient permissions",
+          code: "INSUFFICIENT_PERMISSIONS",
+        });
+      }
 
       const query = `
         SELECT
