@@ -91,12 +91,147 @@ async function writeState(targetPath: string, state: StorageState) {
   await fs.writeFile(targetPath, JSON.stringify(state, null, 2), "utf-8");
 }
 
+const ROLE_PERMISSIONS: Record<PlaywrightRole, string[]> = {
+  doctor: [
+    "view_all_patients",
+    "prescribe_medications",
+    "review_labs",
+    "telehealth_consults",
+    "approve_treatments",
+  ],
+  patient: [
+    "view_own_records",
+    "book_appointments",
+    "order_medications",
+    "view_lab_results",
+  ],
+  nurse: [
+    "view_all_patients",
+    "patient_assessment",
+    "vital_monitoring",
+    "care_coordination",
+  ],
+  admin: ["full_access"],
+};
+
+const DEFAULT_CREDENTIALS: Partial<
+  Record<PlaywrightRole, { email: string; password: string }>
+> = {
+  doctor: {
+    email: process.env.PW_DOCTOR_EMAIL ?? "doctor@telecheck.com",
+    password: process.env.PW_DOCTOR_PASSWORD ?? "DemoPassword123!",
+  },
+  patient: {
+    email: process.env.PW_PATIENT_EMAIL ?? "patient@telecheck.com",
+    password: process.env.PW_PATIENT_PASSWORD ?? "DemoPassword123!",
+  },
+  admin: {
+    email: process.env.PW_ADMIN_EMAIL ?? "uat-admin@telecheck.com",
+    password: process.env.PW_ADMIN_PASSWORD ?? "DemoPassword123!",
+  },
+};
+
+type LoginResponse = {
+  success: boolean;
+  data?: {
+    user: {
+      id: string;
+      email: string;
+      firstName?: string;
+      lastName?: string;
+      role: PlaywrightRole;
+    };
+    token: string;
+    refreshToken?: string;
+  };
+};
+
+async function attemptRealLogin(
+  baseURL: string,
+  role: PlaywrightRole,
+): Promise<StorageState | null> {
+  const creds = DEFAULT_CREDENTIALS[role];
+  if (!creds) return null;
+
+  try {
+    const response = await fetch(`${baseURL}/api/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: creds.email, password: creds.password }),
+    });
+
+    if (!response.ok) {
+      console.warn(
+        `[Playwright Auth] Login failed for role ${role} (${response.status})`,
+      );
+      return null;
+    }
+
+    const payload = (await response.json()) as LoginResponse;
+    if (!payload?.success || !payload.data?.token) {
+      console.warn(
+        `[Playwright Auth] Login response missing data for role ${role}`,
+      );
+      return null;
+    }
+
+    const apiUser = payload.data.user;
+    const displayName = [apiUser.firstName, apiUser.lastName]
+      .filter(Boolean)
+      .join(" ")
+      .trim();
+
+    const authUser: MockUser = {
+      id: apiUser.id,
+      email: apiUser.email,
+      name: displayName.length > 0 ? displayName : apiUser.email,
+      role: apiUser.role,
+      permissions: ROLE_PERMISSIONS[apiUser.role] ?? [],
+      isActive: true,
+    };
+
+    const storageState: StorageState = {
+      cookies: [],
+      origins: [
+        {
+          origin: new URL(baseURL).origin,
+          localStorage: [
+            { name: "telecheck_user", value: JSON.stringify(authUser) },
+            { name: "auth_token", value: payload.data.token },
+            ...(payload.data.refreshToken
+              ? [{ name: "refresh_token", value: payload.data.refreshToken }]
+              : []),
+          ],
+        },
+      ],
+    };
+
+    return storageState;
+  } catch (error) {
+    console.warn(
+      `[Playwright Auth] Error logging in for role ${role}:`,
+      (error as Error).message,
+    );
+    return null;
+  }
+}
+
 export async function createLoggedInState(
   baseURL: string,
   role: PlaywrightRole = "doctor",
   options?: { outputPath?: string },
 ) {
-  const origin = new URL(baseURL).origin;
+  const normalizedBase = baseURL.endsWith("/") ? baseURL.slice(0, -1) : baseURL;
+  const targetPath = options?.outputPath ?? LOGGED_IN_STATE_PATH;
+
+  const realState = await attemptRealLogin(normalizedBase, role);
+  if (realState) {
+    await writeState(targetPath, realState);
+    return realState;
+  }
+
+  // Fallback to local mock state
+  const origin = new URL(normalizedBase).origin;
   const user = ROLE_MOCKS[role] ?? ROLE_MOCKS.doctor;
   const token = buildToken(user);
 
@@ -113,7 +248,6 @@ export async function createLoggedInState(
     ],
   };
 
-  const targetPath = options?.outputPath ?? LOGGED_IN_STATE_PATH;
   await writeState(targetPath, storageState);
   return storageState;
 }

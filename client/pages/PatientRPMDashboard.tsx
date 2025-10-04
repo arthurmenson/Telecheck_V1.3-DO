@@ -77,6 +77,10 @@ export function PatientRPMDashboard() {
     }
   }, [isDoctor, patientId, setPatientQueryParam, user?.id]);
 
+  useEffect(() => {
+    setError(null);
+  }, [patientId]);
+
   if (isDoctor) {
     return (
       <DoctorPatientRPMView

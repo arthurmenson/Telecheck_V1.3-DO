@@ -1259,7 +1259,9 @@ export class EligibilityService {
 // Patient Service
 export class PatientService {
   static async getPatientById(patientId: string): Promise<ApiResponse<any>> {
-    return apiClient.get(`/patients/${patientId}`);
+    const params = new URLSearchParams();
+    params.set("scope", "supervisor");
+    return apiClient.get(`/patients/${patientId}?${params.toString()}`);
   }
 
   static async getPatientStats(): Promise<ApiResponse<any>> {
@@ -1274,6 +1276,7 @@ export class PatientService {
     const params = new URLSearchParams({
       page: page.toString(),
       limit: limit.toString(),
+      scope: "supervisor",
       ...filters,
     });
     return apiClient.get(`/patients/search?${params}`);
@@ -1297,7 +1300,8 @@ export class PatientService {
   }
 
   static async getPatientVitals(patientId: string): Promise<ApiResponse<any>> {
-    return apiClient.get(`/patients/${patientId}/vitals`);
+    const params = new URLSearchParams({ scope: "supervisor" });
+    return apiClient.get(`/patients/${patientId}/vitals?${params}`);
   }
 }
 
