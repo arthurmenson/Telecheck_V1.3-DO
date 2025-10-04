@@ -5,5 +5,6 @@ test("RPM dashboard loads vitals + alerts", async ({ page }) => {
   await expect(
     page.getByRole("heading", { name: /My Health Dashboard/i }),
   ).toBeVisible();
-  await expect(page.getByText(/Today's Glucose/i)).toBeVisible();
+  await expect(page.getByText(/Recent Vital Readings/i)).toBeVisible();
+  await expect(page.getByText(/Medication Plan/i)).toBeVisible();
 });

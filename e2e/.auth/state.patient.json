@@ -10,7 +10,7 @@
         },
         {
           "name": "auth_token",
-          "value": "eyJ1c2VySWQiOiIxIiwiZW1haWwiOiJwYXRpZW50QHRlbGVjaGVjay5jb20iLCJyb2xlIjoicGF0aWVudCIsInBlcm1pc3Npb25zIjpbInZpZXdfb3duX3JlY29yZHMiLCJib29rX2FwcG9pbnRtZW50cyIsIm9yZGVyX21lZGljYXRpb25zIiwidmlld19sYWJfcmVzdWx0cyJdLCJleHAiOjE3NTk2OTQ5NjAxMzZ9"
+          "value": "eyJ1c2VySWQiOiIxIiwiZW1haWwiOiJwYXRpZW50QHRlbGVjaGVjay5jb20iLCJyb2xlIjoicGF0aWVudCIsInBlcm1pc3Npb25zIjpbInZpZXdfb3duX3JlY29yZHMiLCJib29rX2FwcG9pbnRtZW50cyIsIm9yZGVyX21lZGljYXRpb25zIiwidmlld19sYWJfcmVzdWx0cyJdLCJleHAiOjE3NTk2OTUwNTg4MTd9"
         }
       ]
     }
