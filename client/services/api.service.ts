@@ -1261,7 +1261,7 @@ export class PatientService {
   static async getPatientById(patientId: string): Promise<ApiResponse<any>> {
     const params = new URLSearchParams();
     params.set("scope", "supervisor");
-    return apiClient.get(`/patients/${patientId}?${params.toString()}`);
+    return apiClient.get(`/patients/${patientId}?${params}`);
   }
 
   static async getPatientStats(): Promise<ApiResponse<any>> {
@@ -1296,7 +1296,8 @@ export class PatientService {
   static async getPatientAppointments(
     patientId: string,
   ): Promise<ApiResponse<any>> {
-    return apiClient.get(`/patients/${patientId}/appointments`);
+    const params = new URLSearchParams({ scope: "supervisor" });
+    return apiClient.get(`/patients/${patientId}/appointments?${params}`);
   }
 
   static async getPatientVitals(patientId: string): Promise<ApiResponse<any>> {

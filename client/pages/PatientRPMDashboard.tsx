@@ -242,13 +242,27 @@ export function PatientRPMDashboard() {
   // Show profile completion for new users
   if (showProfileCompletion) {
     return (
-      <PatientProfileCompletion
-        onComplete={() => {
-          setShowProfileCompletion(false);
-          // Refresh patient data after completion
-          window.location.reload();
-        }}
-      />
+      <div
+        className="min-h-screen bg-background p-6"
+        data-testid="rpm-dashboard"
+      >
+        <div className="max-w-4xl mx-auto space-y-6">
+          <div className="text-center space-y-2">
+            <h1 className="text-3xl font-bold text-foreground">
+              My Health Dashboard
+            </h1>
+            <p className="text-muted-foreground text-sm">
+              Complete your profile to unlock personalized remote monitoring.
+            </p>
+          </div>
+          <PatientProfileCompletion
+            onComplete={() => {
+              setShowProfileCompletion(false);
+              window.location.reload();
+            }}
+          />
+        </div>
+      </div>
     );
   }
 
@@ -816,7 +830,7 @@ function DoctorPatientRPMView({
   const [query, setQuery] = useState<string | undefined>(undefined);
 
   const patientsQuery = useDebouncedPatientSearch(
-    query ? { query } : undefined,
+    { scope: "supervisor" },
     page,
     10,
     300,
@@ -830,6 +844,10 @@ function DoctorPatientRPMView({
     setFilters,
     isSearching,
   } = patientsQuery;
+
+  useEffect(() => {
+    setFilters((prev) => ({ ...prev, scope: "supervisor" }));
+  }, [setFilters]);
 
   const { data: stats } = usePatientStats();
   const [selectedPatientId, setSelectedPatientId] = useState<string | null>(

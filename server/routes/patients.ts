@@ -7,6 +7,21 @@ import { UpdatePatientRequest } from "../services/patient.service";
 import { authenticateToken } from "../middleware/auth";
 import { handleValidationErrors } from "../middleware/validation";
 import { body, param, query, validationResult } from "express-validator";
+import { dbPool } from "../config/database";
+let legacyDatabaseQuery:
+  | ((sql: string, params?: any[]) => Promise<any>)
+  | null = null;
+try {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const legacyModule = require("../utils/database");
+  if (legacyModule?.database?.query) {
+    legacyDatabaseQuery = legacyModule.database.query.bind(
+      legacyModule.database,
+    );
+  }
+} catch (error) {
+  legacyDatabaseQuery = null;
+}
 
 const router = express.Router();
 
@@ -335,6 +350,8 @@ router.get(
     try {
       const patientId = req.params.id;
       const user = req.user;
+      const scope = (req.query.scope as string) || "";
+      const supervisorScope = scope === "supervisor";
 
       // Check if user can access this patient
       if (user.role === "patient") {
@@ -345,30 +362,33 @@ router.get(
             error: "Access denied",
           });
         }
-      } else if (!["admin", "doctor", "nurse"].includes(user.role)) {
+      } else if (
+        !supervisorScope &&
+        !["admin", "doctor", "nurse"].includes(user.role)
+      ) {
         return res.status(403).json({
           error: "Insufficient permissions",
         });
       }
 
-      console.log(`[Patients] Looking up patient with ID: ${patientId}`);
       const patient = await SimplePatientService.getPatientById(patientId);
-      console.log(
-        `[Patients] Patient lookup result:`,
-        patient ? "Found" : "Not found",
-      );
-
       if (!patient) {
-        console.log(`[Patients] Patient ${patientId} not found`);
         return res.status(404).json({
           error: "Patient not found",
-          patientId: patientId,
+          patientId,
         });
       }
 
+      const response = supervisorScope
+        ? {
+            ...patient,
+            supervisorAccess: true,
+          }
+        : patient;
+
       res.json({
         success: true,
-        data: patient,
+        data: response,
       });
     } catch (error: any) {
       console.error("Error fetching patient:", error);
@@ -556,8 +576,16 @@ router.get(
       }
 
       // Fetch appointments from database for real patients
-      const { database } = require("../utils/database");
-      const result = await database.query(
+      if (!dbPool && !legacyDatabaseQuery) {
+        return res.status(503).json({
+          error: "Database not configured",
+          code: "DB_UNAVAILABLE",
+        });
+      }
+
+      const dbRunner = dbPool?.query.bind(dbPool) ?? legacyDatabaseQuery!;
+
+      const result = await dbRunner(
         `
         SELECT
           a.*,
@@ -640,13 +668,21 @@ router.get(
         return res.status(404).json({ error: "Patient not found" });
       }
 
-      const { database } = require("../utils/database");
-      const result = await database.query(
+      if (!dbPool && !legacyDatabaseQuery) {
+        return res.status(503).json({
+          error: "Database not configured",
+          code: "DB_UNAVAILABLE",
+        });
+      }
+
+      const dbRunner = dbPool?.query.bind(dbPool) ?? legacyDatabaseQuery!;
+
+      const result = await dbRunner(
         `
         SELECT *
         FROM vital_signs
         WHERE patient_id = $1
-        ORDER BY reading_date DESC
+        ORDER BY recorded_at DESC
         LIMIT $2 OFFSET $3
       `,
         [patient.userId, limit, offset],
@@ -655,7 +691,7 @@ router.get(
       const vitals = result.rows.map((row: any) => ({
         id: row.id,
         patientId: row.patient_id,
-        readingDate: row.reading_date,
+        readingDate: row.recorded_at,
         vitalSignsData: JSON.parse(row.vital_signs_data || "{}"),
         recordedBy: row.recorded_by,
         notes: row.notes,

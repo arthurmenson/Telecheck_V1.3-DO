@@ -369,6 +369,13 @@ export class ApiClient {
       try {
         let response = await fetch(url, attemptConfig);
 
+        if (response.status === 401) {
+          console.warn(
+            `[ApiClient] Received 401 for ${url}. Headers:`,
+            Object.fromEntries(response.headers.entries()),
+          );
+        }
+
         for (const interceptor of this.interceptors.response) {
           response = await interceptor(response);
         }
