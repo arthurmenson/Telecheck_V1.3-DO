@@ -13,6 +13,9 @@ declare global {
 
 export const apiBaseUrl = normalizedBase;
 
+export const defaultPatientId =
+  process.env.PW_PATIENT_ID ?? "39e118e8-f63f-4af6-bd32-1da511cd4f00";
+
 export const test = base.extend({
   page: async ({ page }, use) => {
     // Rewrite `fetch("/api/...")` calls to include the test server origin so components

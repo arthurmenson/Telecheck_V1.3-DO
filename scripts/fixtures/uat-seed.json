@@ -1,4 +1,16 @@
 {
-  "patients": [{ "id": "p-001", "name": "Alex R", "dob": "1979-05-11" }],
-  "vitals": [{ "patientId": "p-001", "hr": 72, "ts": "2025-09-01T10:00:00Z" }]
+  "patients": [
+    {
+      "id": "39e118e8-f63f-4af6-bd32-1da511cd4f00",
+      "name": "Telecheck Demo",
+      "dob": "1979-05-11"
+    }
+  ],
+  "vitals": [
+    {
+      "patientId": "39e118e8-f63f-4af6-bd32-1da511cd4f00",
+      "hr": 72,
+      "ts": "2025-09-01T10:00:00Z"
+    }
+  ]
 }

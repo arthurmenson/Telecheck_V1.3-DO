@@ -1,7 +1,7 @@
-import { test, expect } from "./fixtures";
+import { test, expect, defaultPatientId } from "./fixtures";
 
 test("EHR Intake: load ?+' submit (error path)", async ({ page }) => {
-  await page.goto("/ehr/intake?patientId=123");
+  await page.goto(`/ehr/intake?patientId=${defaultPatientId}`);
   await expect(
     page.getByRole("heading", { name: /Patient Intake & Onboarding/i }),
   ).toBeVisible();
