@@ -103,49 +103,9 @@ services:
       - key: VITE_API_URL
         value: "${APP_URL}/api"
 
-# Managed Databases
-databases:
-  - name: telecheck-db
-    engine: PG
-    version: "15"
-    production: true
-    cluster_name: telecheck-postgres-cluster
-  - name: telecheck-redis
-    engine: REDIS
-    version: "7"
-    production: true
-    cluster_name: telecheck-redis-cluster
-
-# Static Site (for documentation)
-static_sites:
-  - name: docs
-    github:
-      repo: arthurmenson/Telecheck_V1.3-DO
-      branch: ETM_telecheck
-      deploy_on_push: true
-    build_command: echo "No build needed for docs"
-    output_dir: /docs
-    routes:
-      - path: /docs
-
-# Jobs (for migrations)
-jobs:
-  - name: db-migrate
-    github:
-      repo: arthurmenson/Telecheck_V1.3-DO
-      branch: ETM_telecheck
-      deploy_on_push: true
-
-    dockerfile_path: Dockerfile.server
-
-    kind: PRE_DEPLOY
-
-    run_command: node dist/server/database/migrate.js
-
-    envs:
-      - key: DATABASE_URL
-        scope: RUN_TIME
-        type: SECRET
+# Managed Databases - Using existing DigitalOcean managed databases
+# Note: Database cluster names cannot be changed after creation
+# Connect to existing databases using DATABASE_URL and REDIS_URL environment variables
 
 # Alerts
 alerts:
