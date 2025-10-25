@@ -13,7 +13,7 @@ import { Pool } from "pg";
 let dbPool: Pool | null = null;
 try {
   const dbModule = await import("../config/database.js");
-  dbPool = dbModule.dbPool || dbModule.default;
+  dbPool = dbModule.dbPool;
 } catch (error) {
   console.warn("[AUDIT] Database not configured, audit logging disabled");
 }
