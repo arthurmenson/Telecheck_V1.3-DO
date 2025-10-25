@@ -67,9 +67,10 @@ async function runMigrations() {
   // Create database pool
   const pool = new Pool({
     connectionString: DATABASE_URL,
-    ssl: {
-      rejectUnauthorized: false, // Required for DigitalOcean managed databases
-    },
+    ssl:
+      process.env.NODE_ENV === "production"
+        ? { rejectUnauthorized: false } // DigitalOcean managed databases
+        : { rejectUnauthorized: false }, // Allow self-signed certs
   });
 
   try {

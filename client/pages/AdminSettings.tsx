@@ -176,7 +176,7 @@ export default function AdminSettings() {
                 </div>
                 <div>
                   <Label htmlFor="version">Version</Label>
-                  <Input id="version" defaultValue="1.3.0" disabled />
+                  <Input id="version" defaultValue="2.0.0" disabled />
                 </div>
               </div>
             </CardContent>

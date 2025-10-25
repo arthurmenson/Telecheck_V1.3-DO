@@ -65,7 +65,11 @@
       "Bash(then echo \"❌ Deployment ERROR!\")",
       "Bash(done)",
       "Bash(psql:*)",
-      "Bash(./doctl.exe apps list-regions:*)"
+      "Bash(./doctl.exe apps list-regions:*)",
+      "Bash(DATABASE_URL=\"postgresql://doadmin:YOUR_PASSWORD_HERE@telecheck-postgres-cluster-do-user-24735686-0.d.db.ondigitalocean.com:25060/telecheck?sslmode=require\" npm run migrate:prod:*)",
+      "Bash(./doctl.exe databases connection:*)",
+      "Bash(DATABASE_URL=\"postgresql://doadmin:YOUR_PASSWORD_HERE@telecheck-postgres-cluster-do-user-24735686-0.d.db.ondigitalocean.com:25060/telecheck?sslmode=require\" NODE_ENV=production npm run migrate:prod:*)",
+      "Bash(NODE_TLS_REJECT_UNAUTHORIZED=0 DATABASE_URL=\"postgresql://doadmin:YOUR_PASSWORD_HERE@telecheck-postgres-cluster-do-user-24735686-0.d.db.ondigitalocean.com:25060/telecheck?sslmode=require\" npm run migrate:prod:*)"
     ],
     "deny": [],
     "ask": []
