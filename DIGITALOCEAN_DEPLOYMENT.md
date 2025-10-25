@@ -23,13 +23,15 @@ Find your **whale-app** or create new app
 ### Step 3: Configure Services
 
 **API Service** (Dockerfile.server):
+
 - Name: telecheck-api
 - Port: 3000
 - Instances: 2× Professional XS
 - Health Check: /health
 
 **Web Service** (Dockerfile.client):
-- Name: telecheck-web  
+
+- Name: telecheck-web
 - Port: 80
 - Instances: 1× Basic XXS
 
@@ -43,11 +45,12 @@ Generate secrets and add to App Platform:
 # Generate JWT secret
 openssl rand -base64 48
 
-# Generate encryption keys  
+# Generate encryption keys
 openssl rand -hex 32  # For each PHI key
 ```
 
 Set in whale-app settings:
+
 - `DATABASE_URL` (from managed database)
 - `REDIS_URL` (from managed Redis)
 - `JWT_SECRET` (generated above)
@@ -61,10 +64,12 @@ Set in whale-app settings:
 ## 📦 Resources
 
 **Managed Services**:
+
 - PostgreSQL 15 (Basic tier - $15/mo)
 - Redis 7 (Basic tier - $15/mo)
 
 **Compute**:
+
 - API: 2× Professional XS ($24/mo)
 - Web: 1× Basic XXS ($5/mo)
 

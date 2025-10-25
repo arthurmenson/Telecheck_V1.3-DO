@@ -38,6 +38,7 @@ docker images | grep telecheck
 ## 🔧 Common Commands
 
 ### Build
+
 ```bash
 # Build production images
 ./scripts/build-production-images.sh v2.0.0
@@ -47,6 +48,7 @@ DOCKER_REGISTRY=your-registry ./scripts/build-production-images.sh v2.0.0
 ```
 
 ### Deploy
+
 ```bash
 # Full deployment
 ./scripts/deploy-production.sh
@@ -58,6 +60,7 @@ docker-compose -f docker-compose.production.yml up -d api web nginx
 ```
 
 ### Test
+
 ```bash
 # Run smoke tests
 ./scripts/smoke-test-production.sh
@@ -69,6 +72,7 @@ curl http://localhost:8080/health  # Keycloak
 ```
 
 ### Monitor
+
 ```bash
 # View logs (all services)
 docker-compose -f infrastructure/docker-compose.production.yml logs -f
@@ -82,6 +86,7 @@ open http://localhost:3001  # admin/admin
 ```
 
 ### Backup
+
 ```bash
 # Create backup
 ./scripts/backup-database.sh
@@ -98,6 +103,7 @@ open http://localhost:3001  # admin/admin
 ## 🔒 Security Operations
 
 ### Vault Management
+
 ```bash
 # Initialize Vault (first time only)
 ./scripts/vault-init.sh
@@ -112,6 +118,7 @@ vault status
 ```
 
 ### Certificate Management
+
 ```bash
 # Set up Let's Encrypt
 ./scripts/setup-letsencrypt.sh
@@ -124,6 +131,7 @@ vault status
 ```
 
 ### Key Rotation
+
 ```bash
 # Rotate encryption keys
 ./scripts/rotate-encryption-keys.sh
@@ -136,19 +144,20 @@ vault status
 
 ## 📊 Monitoring URLs
 
-| Service | URL | Credentials |
-|---------|-----|-------------|
-| **Application** | https://telecheck.health | - |
-| **Grafana** | http://localhost:3001 | admin/admin |
-| **Prometheus** | http://localhost:9090 | - |
-| **Alertmanager** | http://localhost:9093 | - |
-| **Keycloak** | http://localhost:8080 | admin/admin |
+| Service          | URL                      | Credentials |
+| ---------------- | ------------------------ | ----------- |
+| **Application**  | https://telecheck.health | -           |
+| **Grafana**      | http://localhost:3001    | admin/admin |
+| **Prometheus**   | http://localhost:9090    | -           |
+| **Alertmanager** | http://localhost:9093    | -           |
+| **Keycloak**     | http://localhost:8080    | admin/admin |
 
 ---
 
 ## 🐛 Troubleshooting
 
 ### Service Won't Start
+
 ```bash
 # Check logs
 docker logs <container-name>
@@ -161,6 +170,7 @@ docker inspect --format='{{.State.Health.Status}}' <container-name>
 ```
 
 ### Database Connection Issues
+
 ```bash
 # Check Postgres is running
 docker exec telecheck-postgres pg_isready -U telecheck
@@ -173,6 +183,7 @@ docker logs telecheck-postgres --tail 100
 ```
 
 ### Vault Sealed
+
 ```bash
 # Check status
 docker exec vault-1 vault status
@@ -184,6 +195,7 @@ docker exec vault-1 vault operator unseal <key-3>
 ```
 
 ### API Health Check Failing
+
 ```bash
 # Check API logs
 docker logs telecheck-api --tail 100
@@ -199,6 +211,7 @@ curl http://localhost:3000/health/vault
 ```
 
 ### High Memory/CPU Usage
+
 ```bash
 # Check container resources
 docker stats
@@ -233,45 +246,48 @@ docker-compose -f docker-compose.production.yml up -d
 
 ## 📞 Emergency Contacts
 
-| Issue | Action |
-|-------|--------|
-| **Service Down** | Check logs, restart service |
-| **Database Corruption** | Restore from backup |
-| **Vault Sealed** | Unseal with 3 keys |
-| **SSL Expired** | Run renew-certificates.sh |
-| **High Load** | Check Grafana, scale API replicas |
+| Issue                   | Action                            |
+| ----------------------- | --------------------------------- |
+| **Service Down**        | Check logs, restart service       |
+| **Database Corruption** | Restore from backup               |
+| **Vault Sealed**        | Unseal with 3 keys                |
+| **SSL Expired**         | Run renew-certificates.sh         |
+| **High Load**           | Check Grafana, scale API replicas |
 
 ---
 
 ## ✅ Health Check Matrix
 
-| Component | Endpoint | Expected |
-|-----------|----------|----------|
-| API | `curl localhost:3000/health` | `{"status":"ok"}` |
-| API DB | `curl localhost:3000/health/db` | `{"connected":true}` |
-| API Redis | `curl localhost:3000/health/redis` | `{"connected":true}` |
-| API Vault | `curl localhost:3000/health/vault` | `{"connected":true}` |
-| Web | `curl localhost:80` | HTTP 200 |
-| Keycloak | `curl localhost:8080/health` | `{"status":"UP"}` |
-| Prometheus | `curl localhost:9090/-/healthy` | HTTP 200 |
-| Grafana | `curl localhost:3001/api/health` | `{"status":"ok"}` |
+| Component  | Endpoint                           | Expected             |
+| ---------- | ---------------------------------- | -------------------- |
+| API        | `curl localhost:3000/health`       | `{"status":"ok"}`    |
+| API DB     | `curl localhost:3000/health/db`    | `{"connected":true}` |
+| API Redis  | `curl localhost:3000/health/redis` | `{"connected":true}` |
+| API Vault  | `curl localhost:3000/health/vault` | `{"connected":true}` |
+| Web        | `curl localhost:80`                | HTTP 200             |
+| Keycloak   | `curl localhost:8080/health`       | `{"status":"UP"}`    |
+| Prometheus | `curl localhost:9090/-/healthy`    | HTTP 200             |
+| Grafana    | `curl localhost:3001/api/health`   | `{"status":"ok"}`    |
 
 ---
 
 ## 🔐 Security Checklist
 
 Daily:
+
 - [ ] Check Grafana security dashboard
 - [ ] Review failed login attempts
 - [ ] Verify all services healthy
 
 Weekly:
+
 - [ ] Review audit logs
 - [ ] Check certificate expiration
 - [ ] Verify backups completed
 - [ ] Run security scan
 
 Monthly:
+
 - [ ] Rotate encryption keys
 - [ ] Update dependencies
 - [ ] Review user access
@@ -281,21 +297,22 @@ Monthly:
 
 ## 📦 Container Reference
 
-| Container | Image | Replicas | Resources |
-|-----------|-------|----------|-----------|
-| telecheck-postgres | postgres:15-alpine | 1 | 2 CPU, 4GB RAM |
-| telecheck-redis | redis:7-alpine | 1 | 1 CPU, 1.5GB RAM |
-| telecheck-api | telecheck-api:v2.0.0 | 2 | 2 CPU, 2GB RAM each |
-| telecheck-web | telecheck-web:v2.0.0 | 1 | 0.5 CPU, 512MB RAM |
-| telecheck-nginx | nginx:1.25-alpine | 1 | 1 CPU, 512MB RAM |
-| telecheck-keycloak | quay.io/keycloak/keycloak | 1 | 2 CPU, 2GB RAM |
-| vault-1/2/3 | hashicorp/vault:1.15 | 3 | 1 CPU, 1GB RAM each |
+| Container          | Image                     | Replicas | Resources           |
+| ------------------ | ------------------------- | -------- | ------------------- |
+| telecheck-postgres | postgres:15-alpine        | 1        | 2 CPU, 4GB RAM      |
+| telecheck-redis    | redis:7-alpine            | 1        | 1 CPU, 1.5GB RAM    |
+| telecheck-api      | telecheck-api:v2.0.0      | 2        | 2 CPU, 2GB RAM each |
+| telecheck-web      | telecheck-web:v2.0.0      | 1        | 0.5 CPU, 512MB RAM  |
+| telecheck-nginx    | nginx:1.25-alpine         | 1        | 1 CPU, 512MB RAM    |
+| telecheck-keycloak | quay.io/keycloak/keycloak | 1        | 2 CPU, 2GB RAM      |
+| vault-1/2/3        | hashicorp/vault:1.15      | 3        | 1 CPU, 1GB RAM each |
 
 ---
 
 ## 🎯 Success Criteria
 
 Post-deployment verification:
+
 - [ ] All smoke tests pass (40+)
 - [ ] SSL Labs A+ rating
 - [ ] API response time < 200ms (p95)

@@ -8,6 +8,7 @@
 ## 🎯 Overview
 
 The GitHub Actions workflow automatically:
+
 1. Runs all tests (unit, integration, E2E)
 2. Builds and validates the application
 3. Deploys to DigitalOcean whale-app on push to ETM_telecheck branch
@@ -23,6 +24,7 @@ You need to add ONE secret to your GitHub repository:
 ### DIGITALOCEAN_ACCESS_TOKEN
 
 **Where to get it**:
+
 1. Go to: https://cloud.digitalocean.com/account/api/tokens
 2. Click "Generate New Token"
 3. Name: `github-actions-whale-app`
@@ -30,6 +32,7 @@ You need to add ONE secret to your GitHub repository:
 5. Copy the token (you'll only see it once!)
 
 **How to add to GitHub**:
+
 1. Go to: https://github.com/arthurmenson/Telecheck_V1.3-DO/settings/secrets/actions
 2. Click "New repository secret"
 3. Name: `DIGITALOCEAN_ACCESS_TOKEN`
@@ -43,6 +46,7 @@ You need to add ONE secret to your GitHub repository:
 ### Trigger
 
 The deployment job runs when:
+
 - ✅ Branch: `ETM_telecheck`
 - ✅ Event: `push` (not pull requests)
 - ✅ All tests pass (build-test, contracts, services, pact, e2e_mock, sbom)
@@ -101,6 +105,7 @@ Total: ~15-25 minutes
 When deployment succeeds, you'll see:
 
 **In GitHub Actions**:
+
 ```
 ✅ Deployment successful!
 🚀 Application deployed to: https://whale-app-xxxxx.ondigitalocean.app
@@ -108,6 +113,7 @@ When deployment succeeds, you'll see:
 ```
 
 **In DigitalOcean**:
+
 - Deployment status: ACTIVE
 - Services: All running (green)
 - Health checks: Passing
@@ -119,6 +125,7 @@ When deployment succeeds, you'll see:
 ### Deployment Fails
 
 **Check GitHub Actions logs**:
+
 ```bash
 # Common issues and solutions:
 
@@ -140,11 +147,13 @@ When deployment succeeds, you'll see:
 ### View Detailed Logs
 
 **GitHub Actions**:
+
 - Navigate to failed job
 - Expand each step to see detailed output
 - Download logs: Actions → Workflow run → Download logs
 
 **DigitalOcean**:
+
 - Go to whale-app → Runtime Logs
 - Filter by service (API or Web)
 - Check build logs for Docker errors
@@ -162,6 +171,7 @@ If you need to manually trigger deployment:
 5. Click "Run workflow"
 
 Or push an empty commit:
+
 ```bash
 git commit --allow-empty -m "trigger: manual deployment"
 git push origin ETM_telecheck
@@ -174,6 +184,7 @@ git push origin ETM_telecheck
 The deployment job is configured in: `.github/workflows/ci.yml`
 
 Key settings:
+
 ```yaml
 deploy-digitalocean:
   runs-on: ubuntu-latest
@@ -182,6 +193,7 @@ deploy-digitalocean:
 ```
 
 **Customization**:
+
 - Change branch: Edit `if: github.ref == 'refs/heads/ETM_telecheck'`
 - Change app name: Edit `.do/app.yaml` name field
 - Adjust timeouts: Edit wait loops in workflow steps
@@ -191,6 +203,7 @@ deploy-digitalocean:
 ## 🎯 Next Steps
 
 1. **Add DigitalOcean Token**:
+
    ```
    GitHub → Settings → Secrets → Actions
    → New repository secret
@@ -198,11 +211,13 @@ deploy-digitalocean:
    ```
 
 2. **Push Code**:
+
    ```bash
    git push origin ETM_telecheck
    ```
 
 3. **Watch Deployment**:
+
    ```
    GitHub Actions → Latest run → deploy-digitalocean job
    ```
@@ -218,6 +233,7 @@ deploy-digitalocean:
 ## ✅ Checklist
 
 Before deployment:
+
 - [ ] DigitalOcean access token generated
 - [ ] Token added to GitHub secrets as `DIGITALOCEAN_ACCESS_TOKEN`
 - [ ] `.do/app.yaml` configuration reviewed
@@ -225,6 +241,7 @@ Before deployment:
 - [ ] Environment variables configured in DigitalOcean (optional, can be set after first deploy)
 
 After deployment:
+
 - [ ] GitHub Actions workflow completes successfully
 - [ ] Health check passes
 - [ ] Application accessible at provided URL
@@ -235,6 +252,7 @@ After deployment:
 ## 🎉 Continuous Deployment
 
 Once set up, every push to `ETM_telecheck` will:
+
 - ✅ Run all tests automatically
 - ✅ Deploy to whale-app on DigitalOcean
 - ✅ Run health checks
