@@ -1,0 +1,157 @@
+# DigitalOcean App Platform Configuration for Telecheck V2.0
+# This file configures the whale-app deployment
+
+name: whale-app
+region: nyc
+
+# API Service
+services:
+  - name: telecheck-api
+    github:
+      repo: arthurmenson/Telecheck_V1.3-DO
+      branch: ETM_telecheck
+      deploy_on_push: true
+
+    dockerfile_path: Dockerfile.server
+
+    instance_count: 2
+    instance_size_slug: professional-xs
+
+    http_port: 3000
+
+    health_check:
+      http_path: /health
+      initial_delay_seconds: 30
+      period_seconds: 10
+      timeout_seconds: 5
+      success_threshold: 1
+      failure_threshold: 3
+
+    routes:
+      - path: /api
+      - path: /health
+
+    envs:
+      - key: NODE_ENV
+        value: "production"
+      - key: PORT
+        value: "3000"
+      - key: LOG_LEVEL
+        value: "info"
+      # Database - Use DigitalOcean managed database
+      - key: DATABASE_URL
+        scope: RUN_TIME
+        type: SECRET
+      # Redis - Use DigitalOcean managed Redis
+      - key: REDIS_URL
+        scope: RUN_TIME
+        type: SECRET
+      # JWT Secret
+      - key: JWT_SECRET
+        scope: RUN_TIME
+        type: SECRET
+      # Keycloak
+      - key: KEYCLOAK_URL
+        value: "${APP_URL}/auth"
+      - key: KEYCLOAK_REALM
+        value: "telecheck"
+      - key: KEYCLOAK_CLIENT_ID
+        scope: RUN_TIME
+        type: SECRET
+      - key: KEYCLOAK_CLIENT_SECRET
+        scope: RUN_TIME
+        type: SECRET
+      # Vault
+      - key: VAULT_ADDR
+        scope: RUN_TIME
+        type: SECRET
+      - key: VAULT_TOKEN
+        scope: RUN_TIME
+        type: SECRET
+      # PHI Encryption Keys
+      - key: PHI_PATIENT_KEY
+        scope: RUN_TIME
+        type: SECRET
+      - key: PHI_MEDICAL_KEY
+        scope: RUN_TIME
+        type: SECRET
+      - key: PHI_FINANCIAL_KEY
+        scope: RUN_TIME
+        type: SECRET
+      - key: PHI_COMMUNICATION_KEY
+        scope: RUN_TIME
+        type: SECRET
+
+  # Web Client Service
+  - name: telecheck-web
+    github:
+      repo: arthurmenson/Telecheck_V1.3-DO
+      branch: ETM_telecheck
+      deploy_on_push: true
+
+    dockerfile_path: Dockerfile.client
+
+    instance_count: 1
+    instance_size_slug: basic-xxs
+
+    http_port: 80
+
+    routes:
+      - path: /
+
+    envs:
+      - key: VITE_API_URL
+        value: "${APP_URL}/api"
+
+# Managed Database (PostgreSQL)
+databases:
+  - name: telecheck-db
+    engine: PG
+    version: "15"
+    production: true
+    cluster_name: telecheck-postgres-cluster
+
+# Managed Redis
+databases:
+  - name: telecheck-redis
+    engine: REDIS
+    version: "7"
+    production: true
+
+# Static Site (for documentation)
+static_sites:
+  - name: docs
+    github:
+      repo: arthurmenson/Telecheck_V1.3-DO
+      branch: ETM_telecheck
+      deploy_on_push: true
+    build_command: echo "No build needed for docs"
+    output_dir: /docs
+    routes:
+      - path: /docs
+
+# Jobs (for migrations)
+jobs:
+  - name: db-migrate
+    github:
+      repo: arthurmenson/Telecheck_V1.3-DO
+      branch: ETM_telecheck
+      deploy_on_push: true
+
+    dockerfile_path: Dockerfile.server
+
+    kind: PRE_DEPLOY
+
+    run_command: node dist/server/database/migrate.js
+
+    envs:
+      - key: DATABASE_URL
+        scope: RUN_TIME
+        type: SECRET
+
+# Alerts
+alerts:
+  - rule: DEPLOYMENT_FAILED
+  - rule: DEPLOYMENT_LIVE
+  - rule: DOMAIN_FAILED
+  - rule: DOMAIN_LIVE
