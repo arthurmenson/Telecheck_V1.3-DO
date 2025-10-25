@@ -12,8 +12,8 @@ services:
       branch: ETM_telecheck
       deploy_on_push: true
 
-    # Use automatic buildpack detection instead of custom Dockerfile
-    # dockerfile_path: Dockerfile.server
+    # Use custom Dockerfile (fixed missing tsconfig.strict.json issue)
+    dockerfile_path: Dockerfile.server
 
     instance_count: 2
     instance_size_slug: professional-xs
@@ -90,8 +90,8 @@ services:
       branch: ETM_telecheck
       deploy_on_push: true
 
-    # Use automatic buildpack detection instead of custom Dockerfile
-    # dockerfile_path: Dockerfile.client
+    # Use custom Dockerfile
+    dockerfile_path: Dockerfile.client
 
     instance_count: 1
     instance_size_slug: basic-xxs
