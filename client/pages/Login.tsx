@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Navigate, useNavigate, useLocation, Link } from "react-router-dom";
 import { useAuth, UserRole } from "../contexts/AuthContext";
 import {
@@ -27,6 +27,8 @@ import {
   Heart,
   HeartPulse,
   UserCheck,
+  Chrome,
+  KeyRound,
 } from "lucide-react";
 
 const roleConfigs = {
@@ -128,9 +130,57 @@ export function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showDemoCredentials, setShowDemoCredentials] = useState(false);
+  const [oauthProviders, setOauthProviders] = useState<any>(null);
 
   const from =
     location.state?.from?.pathname || roleConfigs[selectedRole].redirectPath;
+
+  // Fetch OAuth providers on mount
+  useEffect(() => {
+    fetch("/api/auth/providers")
+      .then((res) => res.json())
+      .then((data) => setOauthProviders(data))
+      .catch(() => setOauthProviders(null));
+  }, []);
+
+  // Handle OAuth callback tokens from URL
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const token = params.get("token");
+    const provider = params.get("provider");
+    const error = params.get("error");
+
+    if (error) {
+      toast({
+        title: "Authentication Failed",
+        description: `OAuth login failed: ${error}`,
+        variant: "destructive",
+      });
+      navigate("/login", { replace: true });
+    } else if (token && provider) {
+      // Store token and redirect
+      localStorage.setItem("token", token);
+      const refreshToken = params.get("refresh_token");
+      if (refreshToken) {
+        localStorage.setItem("refreshToken", refreshToken);
+      }
+
+      toast({
+        title: "Login Successful",
+        description: `Logged in via ${provider}`,
+      });
+
+      navigate(from, { replace: true });
+    }
+  }, [location.search, navigate, toast, from]);
+
+  const handleGoogleLogin = () => {
+    window.location.href = "/api/auth/google";
+  };
+
+  const handleKeycloakLogin = () => {
+    window.location.href = "/api/auth/keycloak";
+  };
 
   if (isAuthenticated) {
     return <Navigate to={from} replace />;
@@ -381,6 +431,48 @@ export function Login() {
                   )}
                 </Button>
               </form>
+
+              {/* Social Login Options */}
+              {oauthProviders?.oauth_enabled && (
+                <>
+                  <div className="relative my-6">
+                    <div className="absolute inset-0 flex items-center">
+                      <span className="w-full border-t" />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                      <span className="bg-background px-2 text-muted-foreground">
+                        Or continue with
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="grid gap-3">
+                    {oauthProviders?.google?.enabled && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleGoogleLogin}
+                        className="w-full"
+                      >
+                        <Chrome className="w-4 h-4 mr-2" />
+                        Sign in with Google
+                      </Button>
+                    )}
+
+                    {oauthProviders?.keycloak?.enabled && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleKeycloakLogin}
+                        className="w-full"
+                      >
+                        <KeyRound className="w-4 h-4 mr-2" />
+                        Sign in with Keycloak SSO
+                      </Button>
+                    )}
+                  </div>
+                </>
+              )}
 
               {/* Portal Features */}
               <div className="mt-6 p-4 bg-muted/30 rounded-lg">

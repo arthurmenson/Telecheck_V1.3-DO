@@ -6,6 +6,7 @@ import rateLimit from "express-rate-limit";
 import { initializeDatabase, healthCheck, dbPool } from "./config/database";
 import healthRoutes from "./routes/health";
 import authRoutes from "./routes/auth";
+import oauthRoutes from "./routes/oauth";
 import userRoutes from "./routes/users";
 import patientRoutes from "./routes/patients";
 import labRoutes from "./routes/labs";
@@ -206,6 +207,7 @@ export async function createServer() {
 
   // Authentication routes
   app.use("/api/auth", authRoutes);
+  app.use("/api/auth", oauthRoutes);
 
   // User management routes
   app.use("/api/users", userRoutes);
