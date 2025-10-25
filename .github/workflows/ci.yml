@@ -175,3 +175,115 @@ jobs:
         run: npm i -g npm@${{ env.NPM_VERSION }}
       - run: npm ci
       - run: npm run sbom
+
+  # Deploy to DigitalOcean App Platform
+  deploy-digitalocean:
+    runs-on: ubuntu-latest
+    needs: [build-test, contracts, services, pact, e2e_mock, sbom]
+    if: github.ref == 'refs/heads/ETM_telecheck' && github.event_name == 'push'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      - name: Get App Info
+        id: app_info
+        run: |
+          # Get whale-app ID
+          APP_ID=$(doctl apps list --format ID,Spec.Name --no-header | grep "whale-app" | awk '{print $1}')
+          if [ -z "$APP_ID" ]; then
+            echo "whale-app not found, will create new app"
+            echo "app_exists=false" >> $GITHUB_OUTPUT
+          else
+            echo "Found whale-app with ID: $APP_ID"
+            echo "app_exists=true" >> $GITHUB_OUTPUT
+            echo "app_id=$APP_ID" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create or Update App
+        run: |
+          if [ "${{ steps.app_info.outputs.app_exists }}" == "true" ]; then
+            echo "Updating existing whale-app..."
+            doctl apps update ${{ steps.app_info.outputs.app_id }} --spec .do/app.yaml
+          else
+            echo "Creating new whale-app..."
+            doctl apps create --spec .do/app.yaml
+          fi
+
+      - name: Wait for Deployment
+        if: steps.app_info.outputs.app_exists == 'true'
+        run: |
+          echo "Waiting for deployment to complete..."
+          APP_ID=${{ steps.app_info.outputs.app_id }}
+
+          # Get latest deployment
+          DEPLOYMENT_ID=$(doctl apps list-deployments $APP_ID --format ID --no-header | head -n 1)
+
+          # Wait for deployment (max 15 minutes)
+          for i in {1..90}; do
+            STATUS=$(doctl apps get-deployment $APP_ID $DEPLOYMENT_ID --format Phase --no-header)
+            echo "Deployment status: $STATUS"
+
+            if [ "$STATUS" == "ACTIVE" ]; then
+              echo "✅ Deployment successful!"
+              exit 0
+            elif [ "$STATUS" == "ERROR" ] || [ "$STATUS" == "CANCELED" ]; then
+              echo "❌ Deployment failed with status: $STATUS"
+              doctl apps get-deployment $APP_ID $DEPLOYMENT_ID
+              exit 1
+            fi
+
+            sleep 10
+          done
+
+          echo "⚠️ Deployment timeout after 15 minutes"
+          exit 1
+
+      - name: Get App URL
+        if: success()
+        run: |
+          APP_ID=${{ steps.app_info.outputs.app_id }}
+          APP_URL=$(doctl apps get $APP_ID --format LiveURL --no-header)
+          echo "🚀 Application deployed to: $APP_URL"
+          echo "### Deployment Success! 🎉" >> $GITHUB_STEP_SUMMARY
+          echo "Application URL: $APP_URL" >> $GITHUB_STEP_SUMMARY
+
+      - name: Health Check
+        if: success()
+        run: |
+          APP_ID=${{ steps.app_info.outputs.app_id }}
+          APP_URL=$(doctl apps get $APP_ID --format LiveURL --no-header)
+
+          echo "Running health check on $APP_URL/health..."
+
+          # Wait for app to be ready (max 2 minutes)
+          for i in {1..24}; do
+            if curl -sf "$APP_URL/health" > /dev/null 2>&1; then
+              echo "✅ Health check passed!"
+              curl -s "$APP_URL/health" | jq '.'
+              exit 0
+            fi
+            echo "Waiting for app to be ready... ($i/24)"
+            sleep 5
+          done
+
+          echo "⚠️ Health check timeout"
+          exit 1
+
+      - name: Deployment Summary
+        if: always()
+        run: |
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "### ✅ Deployment Successful" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "- Branch: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+            echo "- Commit: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+            echo "- Status: Live" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### ❌ Deployment Failed" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Please check the logs for errors." >> $GITHUB_STEP_SUMMARY
+          fi
