@@ -1,0 +1,89 @@
+# =============================================================================
+# Telecheck V2.0 - Production API Server Dockerfile
+#
+# Purpose: Multi-stage Docker build for production API deployment
+# Security: Non-root user, minimal attack surface, health checks
+# Size Target: < 400MB
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Stage 1: Build Stage
+# -----------------------------------------------------------------------------
+FROM node:18-alpine AS builder
+
+# Install build dependencies
+RUN apk add --no-cache \
+    python3 \
+    make \
+    g++ \
+    postgresql-dev
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+COPY tsconfig.json ./
+COPY tsconfig.strict.json ./
+
+# Install all dependencies (including devDependencies for build)
+RUN npm ci --only=production=false
+
+# Copy source code
+COPY server/ ./server/
+COPY shared/ ./shared/
+COPY contracts/ ./contracts/
+
+# Build TypeScript
+RUN npm run build:server
+
+# Prune dev dependencies
+RUN npm prune --production
+
+# -----------------------------------------------------------------------------
+# Stage 2: Production Stage
+# -----------------------------------------------------------------------------
+FROM node:18-alpine AS production
+
+# Install runtime dependencies only
+RUN apk add --no-cache \
+    postgresql-client \
+    curl \
+    tini
+
+# Create non-root user
+RUN addgroup -g 1001 -S telecheck && \
+    adduser -S telecheck -u 1001 -G telecheck
+
+WORKDIR /app
+
+# Copy built files and production dependencies
+COPY --from=builder --chown=telecheck:telecheck /app/node_modules ./node_modules
+COPY --from=builder --chown=telecheck:telecheck /app/dist ./dist
+COPY --from=builder --chown=telecheck:telecheck /app/package*.json ./
+
+# Copy database migrations
+COPY --chown=telecheck:telecheck server/database/migrations ./server/database/migrations
+
+# Copy SSL certificates directory structure (actual certs mounted as volumes)
+RUN mkdir -p /app/ssl && chown -R telecheck:telecheck /app/ssl
+
+# Environment variables (overridden by docker-compose/runtime)
+ENV NODE_ENV=production \
+    PORT=3000 \
+    LOG_LEVEL=info
+
+# Switch to non-root user
+USER telecheck
+
+# Expose API port
+EXPOSE 3000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --retries=3 --start-period=40s \
+    CMD curl -f http://localhost:3000/health || exit 1
+
+# Use tini as init system (proper signal handling)
+ENTRYPOINT ["/sbin/tini", "--"]
+
+# Start server
+CMD ["node", "dist/server/node-build.mjs"]
