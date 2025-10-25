@@ -8,7 +8,15 @@
  */
 
 import { Pool } from "pg";
-import dbPool from "../config/database.js";
+
+// Lazy load dbPool to avoid import errors when database is not configured
+let dbPool: Pool | null = null;
+try {
+  const dbModule = await import("../config/database.js");
+  dbPool = dbModule.dbPool || dbModule.default;
+} catch (error) {
+  console.warn("[AUDIT] Database not configured, audit logging disabled");
+}
 
 /**
  * Audit log entry interface
@@ -95,6 +103,12 @@ export enum AuditAction {
  */
 export async function auditLog(entry: AuditLogEntry): Promise<string | null> {
   try {
+    // If database is not configured, just log to console
+    if (!dbPool) {
+      console.log("[AUDIT]", JSON.stringify(entry));
+      return null;
+    }
+
     const {
       userId = null,
       action,
@@ -211,6 +225,12 @@ export async function queryAuditLogs(filters: {
   offset?: number;
 }): Promise<any[]> {
   try {
+    // If database is not configured, return empty array
+    if (!dbPool) {
+      console.warn("[AUDIT] Database not configured, cannot query logs");
+      return [];
+    }
+
     const {
       userId,
       action,
@@ -305,6 +325,21 @@ export async function getAuditStats(
   days: number = 30,
 ): Promise<any> {
   try {
+    // If database is not configured, return default stats
+    if (!dbPool) {
+      return {
+        total_events: 0,
+        unique_users: 0,
+        critical_events: 0,
+        error_events: 0,
+        warning_events: 0,
+        auth_events: 0,
+        authz_events: 0,
+        security_events: 0,
+        failed_attempts: 0,
+      };
+    }
+
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - days);
 
@@ -364,6 +399,12 @@ export async function cleanupOldAuditLogs(
   retentionDays: number = 365,
 ): Promise<number> {
   try {
+    // If database is not configured, return 0
+    if (!dbPool) {
+      console.warn("[AUDIT] Database not configured, cannot cleanup logs");
+      return 0;
+    }
+
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - retentionDays);
 
