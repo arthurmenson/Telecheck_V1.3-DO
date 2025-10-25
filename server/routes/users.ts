@@ -11,6 +11,14 @@ import {
   requireAdmin,
   AuthenticatedRequest,
 } from "../middleware/auth";
+import {
+  requireRole,
+  requirePermission,
+  preventRoleEscalation,
+  Role,
+  Permission,
+} from "../middleware/rbac";
+import { auditLog, AuditAction } from "../services/auditService";
 
 const router = Router();
 
@@ -150,14 +158,15 @@ router.put(
   requireAdmin,
   validateUserId,
   validateUpdateProfile,
+  preventRoleEscalation,
   async (req: AuthenticatedRequest, res: Response) => {
     try {
       const userId = req.params.id;
       const { firstName, lastName, phone, role, isActive } = req.body;
 
-      // Check if user exists
+      // Check if user exists and get previous role for audit
       const existingUser = await dbPool.query(
-        "SELECT id FROM users WHERE id = $1",
+        "SELECT id, role, is_active FROM users WHERE id = $1",
         [userId],
       );
 
@@ -168,8 +177,11 @@ router.put(
         });
       }
 
+      const previousRole = existingUser.rows[0].role;
+      const previousIsActive = existingUser.rows[0].is_active;
+
       const result = await dbPool.query(
-        `UPDATE users 
+        `UPDATE users
        SET first_name = COALESCE($1, first_name),
            last_name = COALESCE($2, last_name),
            phone = COALESCE($3, phone),
@@ -182,6 +194,48 @@ router.put(
       );
 
       const user = result.rows[0];
+
+      // Audit log for role change
+      if (role && role !== previousRole) {
+        await auditLog({
+          userId: req.user.id,
+          action: AuditAction.USER_ROLE_CHANGED,
+          description: `Changed user ${user.email} role from ${previousRole} to ${role}`,
+          details: { targetUserId: userId, previousRole, newRole: role },
+          ipAddress: req.ip,
+          userAgent: req.get("User-Agent"),
+          severity: "warning",
+          category: "authorization",
+        });
+      }
+
+      // Audit log for activation status change
+      if (isActive !== undefined && isActive !== previousIsActive) {
+        await auditLog({
+          userId: req.user.id,
+          action: isActive
+            ? AuditAction.USER_REACTIVATED
+            : AuditAction.USER_DEACTIVATED,
+          description: `${isActive ? "Reactivated" : "Deactivated"} user ${user.email}`,
+          details: { targetUserId: userId },
+          ipAddress: req.ip,
+          userAgent: req.get("User-Agent"),
+          severity: "info",
+          category: "authorization",
+        });
+      } else {
+        // General update audit
+        await auditLog({
+          userId: req.user.id,
+          action: AuditAction.USER_UPDATED,
+          description: `Updated user ${user.email}`,
+          details: { targetUserId: userId, fields: Object.keys(req.body) },
+          ipAddress: req.ip,
+          userAgent: req.get("User-Agent"),
+          severity: "info",
+          category: "data_modification",
+        });
+      }
 
       res.json({
         message: "User updated successfully",
@@ -219,7 +273,7 @@ router.delete(
 
       // Check if user exists
       const existingUser = await dbPool.query(
-        "SELECT id FROM users WHERE id = $1",
+        "SELECT id, email FROM users WHERE id = $1",
         [userId],
       );
 
@@ -230,11 +284,25 @@ router.delete(
         });
       }
 
+      const userEmail = existingUser.rows[0].email;
+
       // Soft delete - set is_active to false
       await dbPool.query(
         "UPDATE users SET is_active = false, updated_at = CURRENT_TIMESTAMP WHERE id = $1",
         [userId],
       );
+
+      // Audit log
+      await auditLog({
+        userId: req.user.id,
+        action: AuditAction.USER_DELETED,
+        description: `Deactivated user ${userEmail}`,
+        details: { targetUserId: userId },
+        ipAddress: req.ip,
+        userAgent: req.get("User-Agent"),
+        severity: "warning",
+        category: "authorization",
+      });
 
       res.json({
         message: "User deactivated successfully",
@@ -254,7 +322,8 @@ router.post(
   "/invite",
   authenticateToken,
   requireAdmin,
-  async (req: Request, res: Response) => {
+  preventRoleEscalation,
+  async (req: AuthenticatedRequest, res: Response) => {
     try {
       const { email, firstName, lastName, role, phone } = req.body;
 
@@ -299,6 +368,18 @@ router.post(
       );
 
       const user = result.rows[0];
+
+      // Audit log
+      await auditLog({
+        userId: req.user.id,
+        action: AuditAction.USER_INVITED,
+        description: `Invited user ${email} with role ${role}`,
+        details: { invitedUserId: user.id, email, role },
+        ipAddress: req.ip,
+        userAgent: req.get("User-Agent"),
+        severity: "info",
+        category: "authorization",
+      });
 
       // TODO: Send invitation email with temporary password (out-of-band)
       res.status(201).json({
