@@ -1,0 +1,78 @@
+spec:
+  name: telecheck-microservices
+  region: nyc
+  services:
+    - name: gateway
+      git:
+        repo_clone_url: https://github.com/your-org/your-repo.git
+        branch: main
+      source_dir: services/gateway
+      environment_slug: node-js
+      instance_size_slug: basic-xxs
+      instance_count: 1
+      http_port: 3000
+      build_command: npm ci && npm run build
+      run_command: node dist/app.js
+      routes:
+        - path: /
+      envs:
+        - key: NODE_ENV
+          value: production
+          scope: RUN_TIME
+        - key: PORT
+          value: "3000"
+          scope: RUN_TIME
+        - key: JWT_SECRET
+          type: SECRET
+          scope: RUN_TIME
+        - key: SKIP_AUTH
+          value: "true"
+          scope: RUN_TIME
+        - key: LABS_SERVICE_URL
+          scope: RUN_TIME
+          value: ${LABS_SERVICE_URL}
+        - key: MEDICATIONS_SERVICE_URL
+          scope: RUN_TIME
+          value: ${MEDICATIONS_SERVICE_URL}
+        - key: ERX_SERVICE_URL
+          scope: RUN_TIME
+          value: ${ERX_SERVICE_URL}
+        - key: PHARMACY_SERVICE_URL
+          scope: RUN_TIME
+          value: ${PHARMACY_SERVICE_URL}
+
+    - name: labs
+      source_dir: services/labs
+      environment_slug: node-js
+      instance_size_slug: basic-xxs
+      instance_count: 1
+      http_port: 3004
+      build_command: npm ci && npm run build
+      run_command: node dist/app.js
+
+    - name: medications
+      source_dir: services/medications
+      environment_slug: node-js
+      instance_size_slug: basic-xxs
+      instance_count: 1
+      http_port: 3005
+      build_command: npm ci && npm run build
+      run_command: node dist/app.js
+
+    - name: erx
+      source_dir: services/erx
+      environment_slug: node-js
+      instance_size_slug: basic-xxs
+      instance_count: 1
+      http_port: 3011
+      build_command: npm ci && npm run build
+      run_command: node dist/app.js
+
+    - name: pharmacy
+      source_dir: services/pharmacy
+      environment_slug: node-js
+      instance_size_slug: basic-xxs
+      instance_count: 1
+      http_port: 3012
+      build_command: npm ci && npm run build
+      run_command: node dist/app.js

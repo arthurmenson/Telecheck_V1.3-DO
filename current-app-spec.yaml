@@ -1,0 +1,142 @@
+alerts:
+  - rule: DEPLOYMENT_FAILED
+  - rule: DEPLOYMENT_LIVE
+  - rule: DOMAIN_FAILED
+  - rule: DOMAIN_LIVE
+envs:
+  - key: DATABASE_URL
+    scope: RUN_AND_BUILD_TIME
+    type: SECRET
+    value: EV[1:y6Lwe8jzmA1oOOY0fir+jFRtVbP5lJ5/:ZwfkPvI/3tTHftwDPYhrbQJNZJNw43H8EiPJtxLgoAJTSiFqcEZ+E/FK6qgz1/5VEEnWfuVop0pDIUgZ9YwuZMvfzr+y7NUkp7I3aZeiN1fwlrfFgC++kq9jWAb4h7MCj+Fbg4PlQfKHNWggg6DhMj3b4spzn0SFOmOHUel8zJyJvuPmMHTXKevRuFCJE0+gVU4H9/YzSqoMsEr/gqj/a2L/Dg==]
+  - key: JWT_SECRET
+    scope: RUN_AND_BUILD_TIME
+    type: SECRET
+    value: EV[1:Rd1oHN75b6Pm3nRrhfWM+dKSVVTNdUqk:vz2nrBLzso3ucPy68OxEF/6k+JePmawcFcp3WrTUXOfM9KsYno4s9yR22hl3nQ//GSBvGjI/sG2E3qNORPLrchz6123whqtmZcgUJYFDato=]
+  - key: PHI_PATIENT_KEY
+    scope: RUN_AND_BUILD_TIME
+    type: SECRET
+    value: EV[1:6lGtU75jgkiBt5lCsYZ8gjdbOqpGwpu1:wb5IoeEkcOnIwKRJA6l4ZX3mJP20Ktf2joxcEIY9GTV12CJtvRjjuouAMVVKNWa2Cjc31hhwf9rFXeAH]
+  - key: PHI_MEDICAL_KEY
+    scope: RUN_AND_BUILD_TIME
+    type: SECRET
+    value: EV[1:kDBFHQ4svvYzKw6v6tOqeSYWd8xBFV2J:a0W6M7LcjUd7u32K62ZLPeHBbCXMdJRijtdv1JuDMp7wHdPdMbP6RpiRy6Z5NVsJAhcqUenkOdzsnUP7]
+  - key: PHI_FINANCIAL_KEY
+    scope: RUN_AND_BUILD_TIME
+    type: SECRET
+    value: EV[1:c4txaAkVsaiW6c0etQ6gXaonnLmDPqkB:v2ghTWu1WYEaXOcGPXnevFoQwYDIH8Yfrh9rJxV60r6p+9A07qKL7f81uf2vWaoUwuKi9Vzyv65kW9GX]
+  - key: PHI_COMMUNICATION_KEY
+    scope: RUN_AND_BUILD_TIME
+    type: SECRET
+    value: EV[1:OcrYSlI8ykw2RA/8k8kdzHR6wbRp6wod:3cyKs0eZRViB81VA/2QuIzUgY4d2p218zQiiaVhDYq2wgzuPTrM48sdj3tetBS65yC+0WZx/WwPfFrc5]
+  - key: NODE_ENV
+    scope: RUN_AND_BUILD_TIME
+    value: production
+ingress:
+  rules:
+    - component:
+        name: telecheck-api
+      match:
+        path:
+          prefix: /api
+    - component:
+        name: telecheck-api
+      match:
+        path:
+          prefix: /health
+    - component:
+        name: telecheck-web
+      match:
+        path:
+          prefix: /
+name: whale-app
+region: nyc
+services:
+  - dockerfile_path: Dockerfile.server
+    envs:
+      - key: NODE_ENV
+        scope: RUN_AND_BUILD_TIME
+        value: production
+      - key: PORT
+        scope: RUN_AND_BUILD_TIME
+        value: "3000"
+      - key: LOG_LEVEL
+        scope: RUN_AND_BUILD_TIME
+        value: info
+      - key: DATABASE_URL
+        scope: RUN_TIME
+        type: SECRET
+        value: EV[1:qUhjm8M6CsjumP3NRnqmPr0Jrae+kuw8:IqdfvSYsOzWJ1YeeW/wbMw==]
+      - key: REDIS_URL
+        scope: RUN_TIME
+        type: SECRET
+        value: EV[1:MrxlMyAvgFYMxX/STnOadbigr0QFZHe1:60/GZqDgTPS7P9YQf3R6Pw==]
+      - key: JWT_SECRET
+        scope: RUN_TIME
+        type: SECRET
+        value: EV[1:8xn4mNJWb6Vjr5g+74wapYuCKa4EDbsW:gdxsScBArWJrm1yNO2d7nA==]
+      - key: KEYCLOAK_URL
+        scope: RUN_AND_BUILD_TIME
+        value: ${APP_URL}/auth
+      - key: KEYCLOAK_REALM
+        scope: RUN_AND_BUILD_TIME
+        value: telecheck
+      - key: KEYCLOAK_CLIENT_ID
+        scope: RUN_TIME
+        type: SECRET
+        value: EV[1:ZXEEYTfDNXpQLTenI5BLBQTiAP2JgbNS:aPx6jeJAW4vQSccxxCi+9Q==]
+      - key: KEYCLOAK_CLIENT_SECRET
+        scope: RUN_TIME
+        type: SECRET
+        value: EV[1:ZmfpO6hxQBfTZxhaw+8lLh251y5+zDP2:0TfCpI8/Y+nImxmxQy2lpA==]
+      - key: VAULT_ADDR
+        scope: RUN_TIME
+        type: SECRET
+        value: EV[1:OIIC09GkSs9oVJcKjVqYuuB5CEhQdh1U:UeIbB+SRXY+p0PzfrlHl5Q==]
+      - key: VAULT_TOKEN
+        scope: RUN_TIME
+        type: SECRET
+        value: EV[1:Jk+td3ad4KZsiLtzSBT2DMHdVEhpfoSn:BlziN/OKbfueY83UgAFJ3g==]
+      - key: PHI_PATIENT_KEY
+        scope: RUN_TIME
+        type: SECRET
+        value: EV[1:F9mgYhPh/urOGN55ktTYd4mkXh/m1yHc:sFl4c3G/Momfu8xLjwLmwA==]
+      - key: PHI_MEDICAL_KEY
+        scope: RUN_TIME
+        type: SECRET
+        value: EV[1:4LiPrGhL3bHk5RrJpGLe3kZgpWdnjc2I:vqs8N2QUjB8OgTKZBV0s4Q==]
+      - key: PHI_FINANCIAL_KEY
+        scope: RUN_TIME
+        type: SECRET
+        value: EV[1:Hf8fmUr7s0fS/uW2VU0e3xREeUN4fXXV:R+ZvcJIahoanocJpdQSMcw==]
+      - key: PHI_COMMUNICATION_KEY
+        scope: RUN_TIME
+        type: SECRET
+        value: EV[1:h/hlmBYRJbE4+SLGIGk/6Jun1xG6tj1x:SiUZ3N7PGY3qMrgL3VL9PQ==]
+    github:
+      branch: ETM_telecheck
+      deploy_on_push: true
+      repo: arthurmenson/Telecheck_V1.3-DO
+    health_check:
+      failure_threshold: 3
+      http_path: /health
+      initial_delay_seconds: 30
+      period_seconds: 10
+      success_threshold: 1
+      timeout_seconds: 5
+    http_port: 3000
+    instance_count: 2
+    instance_size_slug: professional-xs
+    name: telecheck-api
+  - dockerfile_path: Dockerfile.client
+    envs:
+      - key: VITE_API_URL
+        scope: RUN_AND_BUILD_TIME
+        value: ${APP_URL}/api
+    github:
+      branch: ETM_telecheck
+      deploy_on_push: true
+      repo: arthurmenson/Telecheck_V1.3-DO
+    http_port: 80
+    instance_count: 1
+    instance_size_slug: basic-xxs
+    name: telecheck-web

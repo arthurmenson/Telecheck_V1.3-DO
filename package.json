@@ -50,6 +50,7 @@
     "smoke:health": "tsx ./scripts/smoke-health.ts",
     "smoke:health:local": "tsx ./scripts/smoke-with-server.ts",
     "test:contract": "tsx ./scripts/run-contract-tests.ts",
+    "migrate:prod": "tsx ./scripts/migrate-db.ts",
     "ci:install": "npm ci",
     "ci:build": "npm run build --workspaces --if-present || npm run build",
     "ci:test": "npm run test --workspaces --if-present || npm run test",
