@@ -262,23 +262,23 @@ curl https://whale-app-xxxxx.ondigitalocean.app/api/status
 
 ### Development Environment
 
-| Resource        | Plan              | Cost/Month |
-| --------------- | ----------------- | ---------- |
-| PostgreSQL      | Basic (1GB RAM)   | $15        |
-| Redis           | Basic (1GB RAM)   | $15        |
-| telecheck-api   | Professional XS×2 | $24        |
-| telecheck-web   | Basic XXS×1       | $5         |
-| **Total**       |                   | **$59**    |
+| Resource      | Plan              | Cost/Month |
+| ------------- | ----------------- | ---------- |
+| PostgreSQL    | Basic (1GB RAM)   | $15        |
+| Redis         | Basic (1GB RAM)   | $15        |
+| telecheck-api | Professional XS×2 | $24        |
+| telecheck-web | Basic XXS×1       | $5         |
+| **Total**     |                   | **$59**    |
 
 ### Production Environment
 
-| Resource        | Plan                 | Cost/Month |
-| --------------- | -------------------- | ---------- |
-| PostgreSQL      | Production (4GB RAM) | $55        |
-| Redis           | Production (4GB RAM) | $55        |
-| telecheck-api   | Professional S×2     | $72        |
-| telecheck-web   | Basic XS×1           | $10        |
-| **Total**       |                      | **$192**   |
+| Resource      | Plan                 | Cost/Month |
+| ------------- | -------------------- | ---------- |
+| PostgreSQL    | Production (4GB RAM) | $55        |
+| Redis         | Production (4GB RAM) | $55        |
+| telecheck-api | Professional S×2     | $72        |
+| telecheck-web | Basic XS×1           | $10        |
+| **Total**     |                      | **$192**   |
 
 ---
 

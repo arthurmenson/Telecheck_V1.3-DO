@@ -7,6 +7,7 @@
 ## Prerequisites
 
 1. **DigitalOcean CLI (`doctl`) installed**
+
    ```powershell
    # Windows (using Scoop)
    scoop install doctl
@@ -16,6 +17,7 @@
    ```
 
 2. **Authenticate doctl**
+
    ```bash
    doctl auth init
    # Paste your DigitalOcean API token when prompted
@@ -46,6 +48,7 @@ bash scripts/setup-digitalocean-databases.sh dev
 ```
 
 **This will**:
+
 - ✅ Create PostgreSQL 15 cluster (1GB RAM, $15/month)
 - ✅ Create Redis 7 cluster (1GB RAM, $15/month)
 - ✅ Create `telecheck` database
@@ -67,6 +70,7 @@ bash scripts/setup-digitalocean-databases.sh prod
 ```
 
 **This will**:
+
 - ✅ Create PostgreSQL 15 cluster (8GB RAM, $120/month)
 - ✅ Create Redis 7 cluster (2GB RAM, $60/month)
 - ✅ Higher availability (2 nodes each)
@@ -183,6 +187,7 @@ curl https://$APP_URL/health
 ### doctl: command not found
 
 **Windows**:
+
 ```powershell
 # Install using Scoop
 scoop install doctl
@@ -192,6 +197,7 @@ scoop install doctl
 ```
 
 **Linux/macOS**:
+
 ```bash
 # Using Homebrew
 brew install doctl
@@ -235,6 +241,7 @@ doctl apps create --spec .do/app.yaml
 ### Environment variables not applied
 
 After setting env vars in console:
+
 1. Check they're saved: Apps → whale-app → Settings → scroll to env vars
 2. Manually trigger redeploy: Apps → whale-app → Actions → "Force Rebuild and Deploy"
 3. Check deployment logs: Apps → whale-app → Runtime Logs
@@ -245,23 +252,23 @@ After setting env vars in console:
 
 ### Development Environment
 
-| Resource        | Spec           | Cost/Month |
-| --------------- | -------------- | ---------- |
-| PostgreSQL      | 1GB RAM        | $15        |
-| Redis           | 1GB RAM        | $15        |
-| telecheck-api   | Prof XS × 2    | $24        |
-| telecheck-web   | Basic XXS × 1  | $5         |
-| **Total**       |                | **$59**    |
+| Resource      | Spec          | Cost/Month |
+| ------------- | ------------- | ---------- |
+| PostgreSQL    | 1GB RAM       | $15        |
+| Redis         | 1GB RAM       | $15        |
+| telecheck-api | Prof XS × 2   | $24        |
+| telecheck-web | Basic XXS × 1 | $5         |
+| **Total**     |               | **$59**    |
 
 ### Production Environment
 
-| Resource        | Spec           | Cost/Month |
-| --------------- | -------------- | ---------- |
-| PostgreSQL      | 8GB RAM, 2N    | $120       |
-| Redis           | 2GB RAM, 2N    | $60        |
-| telecheck-api   | Prof S × 2     | $72        |
-| telecheck-web   | Basic XS × 1   | $10        |
-| **Total**       |                | **$262**   |
+| Resource      | Spec         | Cost/Month |
+| ------------- | ------------ | ---------- |
+| PostgreSQL    | 8GB RAM, 2N  | $120       |
+| Redis         | 2GB RAM, 2N  | $60        |
+| telecheck-api | Prof S × 2   | $72        |
+| telecheck-web | Basic XS × 1 | $10        |
+| **Total**     |              | **$262**   |
 
 ---
 
