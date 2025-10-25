@@ -30,9 +30,6 @@ dist-ssr
 .env.local
 .env.*.local
 
-# DigitalOcean deployment
-.do/
-
 # Terraform sensitive files
 terraform/*.tfstate
 terraform/*.tfstate.*

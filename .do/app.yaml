@@ -103,20 +103,18 @@ services:
       - key: VITE_API_URL
         value: "${APP_URL}/api"
 
-# Managed Database (PostgreSQL)
+# Managed Databases
 databases:
   - name: telecheck-db
     engine: PG
     version: "15"
     production: true
     cluster_name: telecheck-postgres-cluster
-
-# Managed Redis
-databases:
   - name: telecheck-redis
     engine: REDIS
     version: "7"
     production: true
+    cluster_name: telecheck-redis-cluster
 
 # Static Site (for documentation)
 static_sites:
