@@ -62,52 +62,28 @@ router.post(
         specialty: "General Practice",
       };
 
-      // Create or get HCW patient
-      let hcwPatientId: string;
+      // Create HCW consultation using simplified invite API
+      // This automatically creates patient/doctor records if they don't exist
+      let consultation;
       try {
-        hcwPatientId = await createHcwPatient({
-          telecheckUserId: patient.id,
-          firstName: patient.firstName,
-          lastName: patient.lastName,
-          email: patient.email,
-          phone: patient.phone,
+        consultation = await createHcwConsultation({
+          telecheckAppointmentId: appointment.id,
+          patientFirstName: patient.firstName,
+          patientLastName: patient.lastName,
+          patientEmail: patient.email,
+          patientPhone: patient.phone,
+          doctorId: doctor.email, // HCW will match or create doctor by email
+          scheduledTime: appointment.scheduledTime,
+          reason: appointment.reason,
         });
       } catch (error) {
-        console.error("Failed to create HCW patient:", error);
-        // If HCW is not available, return error
+        console.error("Failed to create HCW consultation:", error);
         return res.status(503).json({
           error: "Video consultation service unavailable",
           message:
             "HCW@Home service is not configured or unavailable. Please contact support.",
         });
       }
-
-      // Create or get HCW doctor
-      let hcwDoctorId: string;
-      try {
-        hcwDoctorId = await createHcwDoctor({
-          telecheckUserId: doctor.id,
-          firstName: doctor.firstName,
-          lastName: doctor.lastName,
-          email: doctor.email,
-          specialty: doctor.specialty,
-        });
-      } catch (error) {
-        console.error("Failed to create HCW doctor:", error);
-        return res.status(503).json({
-          error: "Video consultation service unavailable",
-          message: "Failed to configure doctor for consultation.",
-        });
-      }
-
-      // Create HCW consultation (Mediasoup WebRTC room)
-      const consultation = await createHcwConsultation({
-        telecheckAppointmentId: appointment.id,
-        hcwPatientId,
-        hcwDoctorId,
-        scheduledTime: appointment.scheduledTime,
-        reason: appointment.reason,
-      });
 
       // Return consultation details for frontend
       res.json({

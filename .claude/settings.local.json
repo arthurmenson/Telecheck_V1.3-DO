@@ -79,7 +79,17 @@
       "Bash(then echo \"✅ Deployment ACTIVE with database!\")",
       "Bash(./doctl.exe compute droplet list:*)",
       "Bash(./doctl.exe compute droplet get:*)",
-      "Bash(ssh -o ConnectTimeout=10 -o StrictHostKeyChecking=no root@138.197.122.16 \"echo ''=== System Info ==='' && uname -a && echo '''' && echo ''=== Docker Status ==='' && docker --version 2>&1 || echo ''Docker not installed'' && echo '''' && echo ''=== Running Containers ==='' && docker ps 2>&1 || echo ''No docker or no containers'' && echo '''' && echo ''=== Files in /root ==='' && ls -la /root/ 2>&1 | head -n 20\")"
+      "Bash(ssh -o ConnectTimeout=10 -o StrictHostKeyChecking=no root@138.197.122.16 \"echo ''=== System Info ==='' && uname -a && echo '''' && echo ''=== Docker Status ==='' && docker --version 2>&1 || echo ''Docker not installed'' && echo '''' && echo ''=== Running Containers ==='' && docker ps 2>&1 || echo ''No docker or no containers'' && echo '''' && echo ''=== Files in /root ==='' && ls -la /root/ 2>&1 | head -n 20\")",
+      "Read(//c/Users/menso/.ssh/**)",
+      "Bash(./doctl.exe compute droplet-action add-ssh-key:*)",
+      "Bash(./doctl.exe compute droplet delete:*)",
+      "Bash(ssh root@104.131.182.244 \"echo ''=== Installing Docker ==='' && curl -fsSL https://get.docker.com | sh && systemctl enable --now docker && docker --version && echo ''✅ Docker installed successfully''\")",
+      "Bash(scp:*)",
+      "Bash(ssh -o ConnectTimeout=10 -o StrictHostKeyChecking=no root@104.131.182.244 \"echo ''Droplet accessible''; docker --version; ls -la /root/\")",
+      "Bash(ssh -o ConnectTimeout=15 -o StrictHostKeyChecking=no root@104.131.182.244 \"echo ''=== Droplet Status ==='' && hostname && uptime && echo '''' && echo ''=== Docker Status ==='' && docker --version && docker ps -a && echo '''' && echo ''=== Directory Contents ==='' && ls -la /root/ && echo '''' && echo ''=== Disk Space ==='' && df -h /\")",
+      "Bash(ssh:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": []

@@ -105,16 +105,17 @@ services:
       - key: PHI_COMMUNICATION_KEY
         scope: RUN_TIME
         type: SECRET
-      # HCW@Home Televisit Integration (NO Jitsi/Twilio Video)
+      # HCW@Home Televisit Integration (Native Mediasoup WebRTC)
+      # Updated to new deployment: hcw-video-production (Oct 26, 2025)
       - key: HCW_API_URL
-        value: "http://165.227.180.202:1337"
+        value: "http://143.198.2.224:1337"
       - key: HCW_API_SECRET
         scope: RUN_TIME
         type: SECRET
       - key: HCW_PATIENT_URL
-        value: "http://165.227.180.202:4200"
+        value: "http://143.198.2.224:4200"
       - key: HCW_DOCTOR_URL
-        value: "http://165.227.180.202:4201"
+        value: "http://143.198.2.224:4201"
       # Messaging Services (SMS only - NO Video)
       - key: TELNYX_API_KEY
         scope: RUN_TIME

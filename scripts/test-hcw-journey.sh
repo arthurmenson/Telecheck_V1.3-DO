@@ -15,7 +15,7 @@ NC='\033[0m' # No Color
 
 # Configuration
 TELECHECK_API="https://whale-app-bs3xa.ondigitalocean.app/api"
-HCW_DROPLET_IP="165.227.180.202"
+HCW_DROPLET_IP="104.131.182.244"
 HCW_BACKEND="http://${HCW_DROPLET_IP}:1337"
 HCW_PATIENT_APP="http://${HCW_DROPLET_IP}:4200"
 HCW_DOCTOR_APP="http://${HCW_DROPLET_IP}:4201"

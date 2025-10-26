@@ -24,14 +24,15 @@ import axios, { AxiosInstance } from "axios";
 import jwt from "jsonwebtoken";
 
 // Environment configuration
-const HCW_API_URL = process.env.HCW_API_URL || "http://165.227.180.202:1337";
+// Updated to use new HCW@Home deployment (October 26, 2025)
+const HCW_API_URL = process.env.HCW_API_URL || "http://143.198.2.224:1337";
 const HCW_API_SECRET =
   process.env.HCW_API_SECRET ||
   "5b9a2d7e4f1c8b3a6e9d2f5c8b1a4e7d3f6c9b2e5a8d1f4b7e3a6c9d2b5f8e1a";
 const HCW_PATIENT_URL =
-  process.env.HCW_PATIENT_URL || "http://165.227.180.202:4200";
+  process.env.HCW_PATIENT_URL || "http://143.198.2.224:4200";
 const HCW_DOCTOR_URL =
-  process.env.HCW_DOCTOR_URL || "http://165.227.180.202:4201";
+  process.env.HCW_DOCTOR_URL || "http://143.198.2.224:4201";
 
 // HTTP client for HCW API
 const hcwClient: AxiosInstance = axios.create({
@@ -163,29 +164,38 @@ export async function createHcwDoctor(params: {
  *
  * Creates a new consultation/invite in HCW@Home and returns the join URL.
  * This consultation is linked to a Mediasoup WebRTC room.
+ * Uses HCW's invite API which creates the consultation and sends notifications.
  *
  * @param params Consultation details
  * @returns Consultation data with join URL
  */
 export async function createHcwConsultation(params: {
   telecheckAppointmentId: string;
-  hcwPatientId: string;
-  hcwDoctorId: string;
+  patientFirstName: string;
+  patientLastName: string;
+  patientEmail: string;
+  patientPhone?: string;
+  doctorId?: string; // HCW doctor ID or email
   scheduledTime?: Date;
   reason?: string;
 }): Promise<HcwConsultation> {
   try {
     const token = generateHcwToken();
 
+    // Use HCW's invite API endpoint (creates consultation + patient if needed)
     const response = await hcwClient.post(
-      "/api/consultation",
+      "/api/v1/invite",
       {
-        externalId: params.telecheckAppointmentId,
-        patient: params.hcwPatientId,
-        doctor: params.hcwDoctorId,
+        externalId: params.telecheckAppointmentId, // Link to Telecheck appointment
+        patientFirstname: params.patientFirstName,
+        patientLastname: params.patientLastName,
+        patientEmail: params.patientEmail,
+        patientPhone: params.patientPhone,
+        doctorId: params.doctorId, // Can be HCW doctor ID or email
         scheduledDate:
           params.scheduledTime?.toISOString() || new Date().toISOString(),
-        reason: params.reason || "Televisit consultation",
+        reason: params.reason || "Video consultation",
+        // Optional: sendInvite: false to prevent auto-sending email
       },
       {
         headers: {
@@ -195,20 +205,25 @@ export async function createHcwConsultation(params: {
     );
 
     const consultationId = response.data.id || response.data._id;
+    const patientId = response.data.patient;
+    const doctorId = response.data.doctor;
 
-    // HCW@Home patient interface URL with consultation ID
+    // HCW@Home patient interface URL with consultation/invite ID
     const joinUrl = `${HCW_PATIENT_URL}/consultation/${consultationId}`;
 
     return {
       id: consultationId,
-      patientId: params.hcwPatientId,
-      doctorId: params.hcwDoctorId,
+      patientId,
+      doctorId,
       scheduledDate: params.scheduledTime,
       status: "pending",
       joinUrl,
     };
   } catch (error) {
     console.error("Failed to create HCW consultation:", error);
+    if (axios.isAxiosError(error)) {
+      console.error("HCW API Error:", error.response?.data);
+    }
     throw new Error("Failed to create consultation in HCW@Home");
   }
 }
