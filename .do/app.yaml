@@ -32,6 +32,11 @@ services:
       - path: /api
       - path: /health
 
+    # Use subdomain for API service (recommended for production)
+    domains:
+      - domain: api.whale-app-bs3xa.ondigitalocean.app
+        type: PRIMARY
+
     envs:
       - key: NODE_ENV
         value: "production"
@@ -163,7 +168,7 @@ services:
 
     envs:
       - key: VITE_API_URL
-        value: "${APP_URL}/api"
+        value: "https://api.whale-app-bs3xa.ondigitalocean.app/api"
 
 # Managed Databases - Using existing DigitalOcean managed databases
 # Note: Database cluster names cannot be changed after creation
