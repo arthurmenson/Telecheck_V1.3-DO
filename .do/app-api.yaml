@@ -63,6 +63,13 @@ services:
       - key: FRONTEND_URL
         value: "https://whale-app-bs3xa.ondigitalocean.app"
 
+      # HCW User Credentials for API Integration
+      - key: HCW_USER_EMAIL
+        value: "telecheck-api@telecheckhealth.com"
+      - key: HCW_USER_PASSWORD
+        scope: RUN_TIME
+        type: SECRET
+
       # Database - Use DigitalOcean managed database
       - key: DATABASE_URL
         scope: RUN_TIME

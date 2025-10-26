@@ -21,18 +21,20 @@
  */
 
 import axios, { AxiosInstance } from "axios";
-import jwt from "jsonwebtoken";
 
 // Environment configuration
 // Updated to use new HCW@Home deployment (October 26, 2025)
 const HCW_API_URL = process.env.HCW_API_URL || "http://143.198.2.224:1337";
-const HCW_API_SECRET =
-  process.env.HCW_API_SECRET ||
-  "5b9a2d7e4f1c8b3a6e9d2f5c8b1a4e7d3f6c9b2e5a8d1f4b7e3a6c9d2b5f8e1a";
+const HCW_USER_EMAIL = process.env.HCW_USER_EMAIL || "";
+const HCW_USER_PASSWORD = process.env.HCW_USER_PASSWORD || "";
 const HCW_PATIENT_URL =
   process.env.HCW_PATIENT_URL || "http://143.198.2.224:4200";
 const HCW_DOCTOR_URL =
   process.env.HCW_DOCTOR_URL || "http://143.198.2.224:4201";
+
+// Session management
+let sessionCookie: string | null = null;
+let sessionExpiry: Date | null = null;
 
 // HTTP client for HCW API
 const hcwClient: AxiosInstance = axios.create({
@@ -41,20 +43,67 @@ const hcwClient: AxiosInstance = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
+  withCredentials: true,
 });
 
 /**
- * Generate JWT token for HCW@Home API authentication
+ * Get authenticated session cookie for HCW API
+ * Reuses existing session if not expired, otherwise logs in
  */
-function generateHcwToken(): string {
-  return jwt.sign(
-    {
-      aud: "hcw-backend",
-      iss: "telecheck",
-      exp: Math.floor(Date.now() / 1000) + 3600, // 1 hour expiry
-    },
-    HCW_API_SECRET,
-  );
+async function getHcwSession(): Promise<string> {
+  // Reuse existing session if valid
+  if (sessionCookie && sessionExpiry && sessionExpiry > new Date()) {
+    console.log("🔄 Reusing existing HCW session");
+    return sessionCookie;
+  }
+
+  if (!HCW_USER_EMAIL || !HCW_USER_PASSWORD) {
+    throw new Error(
+      "HCW_USER_EMAIL and HCW_USER_PASSWORD environment variables must be set",
+    );
+  }
+
+  console.log(`🔐 Logging into HCW as ${HCW_USER_EMAIL}...`);
+
+  try {
+    // Login to HCW
+    const response = await axios.post(
+      `${HCW_API_URL}/api/v1/login-local`,
+      {
+        identifier: HCW_USER_EMAIL,
+        password: HCW_USER_PASSWORD,
+      },
+      {
+        withCredentials: true,
+        maxRedirects: 0,
+        validateStatus: (status) => status < 400,
+      },
+    );
+
+    // Extract session cookie from Set-Cookie header
+    const cookies = response.headers["set-cookie"];
+    if (!cookies || !cookies.length) {
+      throw new Error("No session cookie received from HCW login");
+    }
+
+    // Find the sails.sid session cookie
+    const sailsCookie = cookies.find((c) => c.startsWith("sails.sid="));
+    if (!sailsCookie) {
+      throw new Error("No sails.sid session cookie found in response");
+    }
+
+    sessionCookie = sailsCookie.split(";")[0]; // Get just the cookie value
+    sessionExpiry = new Date(Date.now() + 3600000); // 1 hour from now
+
+    console.log("✅ HCW session established");
+    return sessionCookie;
+  } catch (error: any) {
+    console.error(
+      "❌ HCW login failed:",
+      error.response?.data || error.message,
+    );
+    throw new Error(`Failed to login to HCW: ${error.message}`);
+  }
 }
 
 /**
@@ -66,7 +115,8 @@ export interface HcwConsultation {
   doctorId: string;
   scheduledDate?: Date;
   status: "pending" | "active" | "completed" | "cancelled";
-  joinUrl: string;
+  joinUrl: string; // Patient join URL
+  doctorUrl?: string; // Doctor join URL
 }
 
 /**
@@ -180,17 +230,18 @@ export async function createHcwConsultation(params: {
   reason?: string;
 }): Promise<HcwConsultation> {
   try {
-    const token = generateHcwToken();
+    // Get authenticated session
+    const cookie = await getHcwSession();
 
     // Use HCW's invite API endpoint (creates consultation + patient if needed)
     const response = await hcwClient.post(
       "/api/v1/invite",
       {
-        externalId: params.telecheckAppointmentId, // Link to Telecheck appointment
-        patientFirstname: params.patientFirstName,
-        patientLastname: params.patientLastName,
-        patientEmail: params.patientEmail,
-        patientPhone: params.patientPhone,
+        firstName: params.patientFirstName,
+        lastName: params.patientLastName,
+        emailAddress: params.patientEmail,
+        phoneNumber: params.patientPhone,
+        gender: "male", // Required by HCW - can be made dynamic later
         doctorId: params.doctorId, // Can be HCW doctor ID or email
         scheduledDate:
           params.scheduledTime?.toISOString() || new Date().toISOString(),
@@ -199,25 +250,35 @@ export async function createHcwConsultation(params: {
       },
       {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Cookie: cookie,
         },
       },
     );
 
-    const consultationId = response.data.id || response.data._id;
-    const patientId = response.data.patient;
-    const doctorId = response.data.doctor;
+    const invite = response.data;
+    console.log("✅ HCW consultation created:", invite.id || invite._id);
 
-    // HCW@Home patient interface URL with consultation/invite ID
-    const joinUrl = `${HCW_PATIENT_URL}/consultation/${consultationId}`;
+    // HCW returns invitation token for patient join URL
+    const invitationToken = invite.invitationToken;
+    const consultationId = invite.consultation || invite.id;
+
+    // Generate join URLs
+    const patientUrl = invitationToken
+      ? `${HCW_PATIENT_URL}/invite/${invitationToken}`
+      : `${HCW_PATIENT_URL}/consultation/${consultationId}`;
+
+    const doctorUrl = consultationId
+      ? `${HCW_DOCTOR_URL}/consultation/${consultationId}`
+      : HCW_DOCTOR_URL;
 
     return {
       id: consultationId,
-      patientId,
-      doctorId,
+      patientId: invite.patient,
+      doctorId: invite.doctor,
       scheduledDate: params.scheduledTime,
       status: "pending",
-      joinUrl,
+      joinUrl: patientUrl,
+      doctorUrl: doctorUrl,
     };
   } catch (error) {
     console.error("Failed to create HCW consultation:", error);
