@@ -1,0 +1,187 @@
+# DigitalOcean App Platform Configuration for Telecheck API
+# This is the separate API service app (separate from web client)
+# Solves routing conflict where web service's / route was catching /api requests
+
+name: telecheck-api
+region: nyc
+
+services:
+  - name: telecheck-api
+    github:
+      repo: arthurmenson/Telecheck_V1.3-DO
+      branch: ETM_telecheck
+      deploy_on_push: true
+
+    # Use DigitalOcean buildpacks (automatic detection) - more reliable
+    # dockerfile_path: Dockerfile.server
+
+    instance_count: 2
+    instance_size_slug: professional-xs
+
+    http_port: 3000
+
+    health_check:
+      http_path: /api/ping
+      initial_delay_seconds: 60
+      period_seconds: 10
+      timeout_seconds: 30
+      success_threshold: 1
+      failure_threshold: 5
+
+    # No path restrictions - API service handles all routes
+    routes:
+      - path: /
+
+    # CORS configuration for web client access
+    cors:
+      allow_origins:
+        - prefix: https://whale-app-bs3xa
+        - prefix: https://telecheck
+      allow_methods:
+        - GET
+        - POST
+        - PUT
+        - PATCH
+        - DELETE
+        - OPTIONS
+      allow_headers:
+        - Content-Type
+        - Authorization
+        - X-Requested-With
+      allow_credentials: true
+      max_age: "3600s"
+
+    envs:
+      - key: NODE_ENV
+        value: "production"
+      - key: PORT
+        value: "3000"
+      - key: LOG_LEVEL
+        value: "info"
+
+      # CORS Configuration - Allow web client to access API
+      - key: FRONTEND_URL
+        value: "https://whale-app-bs3xa.ondigitalocean.app"
+
+      # Database - Use DigitalOcean managed database
+      - key: DATABASE_URL
+        scope: RUN_TIME
+        type: SECRET
+
+      # Redis - Use DigitalOcean managed Redis
+      - key: REDIS_URL
+        scope: RUN_TIME
+        type: SECRET
+
+      # JWT Secret
+      - key: JWT_SECRET
+        scope: RUN_TIME
+        type: SECRET
+      - key: SESSION_SECRET
+        scope: RUN_TIME
+        type: SECRET
+
+      # OAuth Configuration
+      - key: OAUTH_ENABLED
+        value: "true"
+      - key: OAUTH_SESSION_SECRET
+        scope: RUN_TIME
+        type: SECRET
+
+      # Google OAuth
+      - key: GOOGLE_CLIENT_ID
+        scope: RUN_TIME
+        type: SECRET
+      - key: GOOGLE_CLIENT_SECRET
+        scope: RUN_TIME
+        type: SECRET
+      - key: GOOGLE_CALLBACK_URL
+        value: "${APP_URL}/api/auth/google/callback"
+
+      # Keycloak SSO
+      - key: KEYCLOAK_URL
+        value: "${APP_URL}/auth"
+      - key: KEYCLOAK_REALM
+        value: "telecheck"
+      - key: KEYCLOAK_CLIENT_ID
+        scope: RUN_TIME
+        type: SECRET
+      - key: KEYCLOAK_CLIENT_SECRET
+        scope: RUN_TIME
+        type: SECRET
+      - key: KEYCLOAK_AUTH_SERVER_URL
+        scope: RUN_TIME
+        type: SECRET
+      - key: KEYCLOAK_CALLBACK_URL
+        value: "${APP_URL}/api/auth/keycloak/callback"
+
+      # Vault
+      - key: VAULT_ADDR
+        scope: RUN_TIME
+        type: SECRET
+      - key: VAULT_TOKEN
+        scope: RUN_TIME
+        type: SECRET
+
+      # PHI Encryption Keys
+      - key: PHI_PATIENT_KEY
+        scope: RUN_TIME
+        type: SECRET
+      - key: PHI_MEDICAL_KEY
+        scope: RUN_TIME
+        type: SECRET
+      - key: PHI_FINANCIAL_KEY
+        scope: RUN_TIME
+        type: SECRET
+      - key: PHI_COMMUNICATION_KEY
+        scope: RUN_TIME
+        type: SECRET
+
+      # HCW@Home Televisit Integration (Native Mediasoup WebRTC)
+      # Updated to new deployment: hcw-video-production (Oct 26, 2025)
+      - key: HCW_API_URL
+        value: "http://143.198.2.224:1337"
+      - key: HCW_API_SECRET
+        scope: RUN_TIME
+        type: SECRET
+      - key: HCW_PATIENT_URL
+        value: "http://143.198.2.224:4200"
+      - key: HCW_DOCTOR_URL
+        value: "http://143.198.2.224:4201"
+
+      # Messaging Services (SMS only - NO Video)
+      - key: TELNYX_API_KEY
+        scope: RUN_TIME
+        type: SECRET
+      - key: TWILIO_ACCOUNT_SID
+        scope: RUN_TIME
+        type: SECRET
+      - key: TWILIO_AUTH_TOKEN
+        scope: RUN_TIME
+        type: SECRET
+
+      # Email
+      - key: SENDGRID_API_KEY
+        scope: RUN_TIME
+        type: SECRET
+      - key: EMAIL_FROM
+        value: "noreply@telecheck.com"
+
+      # Payment Processing
+      - key: STRIPE_SECRET_KEY
+        scope: RUN_TIME
+        type: SECRET
+      - key: STRIPE_PUBLISHABLE_KEY
+        scope: RUN_TIME
+        type: SECRET
+
+      # Feature Flags
+      - key: ALLOW_DB_FAILURE
+        value: "true"
+
+# Alerts
+alerts:
+  - rule: DEPLOYMENT_FAILED
+  - rule: DEPLOYMENT_LIVE
+  - rule: DOMAIN_FAILED
+  - rule: DOMAIN_LIVE
