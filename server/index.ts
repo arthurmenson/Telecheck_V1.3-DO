@@ -73,6 +73,7 @@ import allergiesRoutes from "./routes/allergies";
 import immunizationsRoutes from "./routes/immunizations";
 import encountersRoutes from "./routes/encounters";
 import ordersRoutes from "./routes/orders";
+import consultationsRoutes from "./routes/consultations";
 import {
   sendMessage,
   sendCriticalAlert,
@@ -230,6 +231,9 @@ export async function createServer() {
   app.use("/api/ehr/immunizations", immunizationsRoutes);
   app.use("/api/ehr/encounters", encountersRoutes);
   app.use("/api/ehr/orders", ordersRoutes);
+
+  // HCW@Home Consultations (Televisit integration)
+  app.use("/api/consultations", consultationsRoutes);
 
   app.post("/api/chat", handleChat);
   app.get("/api/chat/history/:userId?", getChatHistory);

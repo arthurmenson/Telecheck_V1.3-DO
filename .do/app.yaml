@@ -105,7 +105,17 @@ services:
       - key: PHI_COMMUNICATION_KEY
         scope: RUN_TIME
         type: SECRET
-      # Messaging Services - HCW@Home
+      # HCW@Home Televisit Integration (NO Jitsi/Twilio Video)
+      - key: HCW_API_URL
+        value: "http://165.227.180.202:1337"
+      - key: HCW_API_SECRET
+        scope: RUN_TIME
+        type: SECRET
+      - key: HCW_PATIENT_URL
+        value: "http://165.227.180.202:4200"
+      - key: HCW_DOCTOR_URL
+        value: "http://165.227.180.202:4201"
+      # Messaging Services (SMS only - NO Video)
       - key: TELNYX_API_KEY
         scope: RUN_TIME
         type: SECRET
@@ -113,12 +123,6 @@ services:
         scope: RUN_TIME
         type: SECRET
       - key: TWILIO_AUTH_TOKEN
-        scope: RUN_TIME
-        type: SECRET
-      - key: TWILIO_VIDEO_API_KEY
-        scope: RUN_TIME
-        type: SECRET
-      - key: TWILIO_VIDEO_SECRET
         scope: RUN_TIME
         type: SECRET
       # Email
