@@ -12,6 +12,13 @@ import {
   endHcwConsultation,
   getHcwConsultationStatus,
 } from "../services/hcwService";
+import prisma from "../config/prisma";
+import { AppointmentStatus, VideoConsultationStatus } from "@prisma/client";
+import type {
+  ConsultationNotesRequest,
+  ConsultationNotesResponse,
+  ConsultationNotesError,
+} from "../types/consultations";
 
 const router = Router();
 
@@ -34,47 +41,51 @@ router.post(
     const userId = (req as any).user?.id; // From auth middleware
 
     try {
-      // TODO: Get appointment from Telecheck database
-      // For now, using mock data until DATABASE_URL is configured
-      const appointment = {
-        id: appointmentId,
-        patientId: "patient-123",
-        doctorId: "doctor-456",
-        scheduledTime: new Date(),
-        reason: "Televisit consultation",
-      };
+      // Get appointment from database
+      const appointment = await prisma.appointment.findUnique({
+        where: { id: appointmentId },
+        include: {
+          patient: true,
+          doctor: true,
+        },
+      });
 
-      // Mock patient and doctor data
-      // TODO: Fetch from Telecheck database when DATABASE_URL configured
-      const patient = {
-        id: appointment.patientId,
-        firstName: "John",
-        lastName: "Doe",
-        email: "john.doe@example.com",
-        phone: "+1234567890",
-      };
+      if (!appointment) {
+        return res.status(404).json({
+          error: "Appointment not found",
+          message: `No appointment found with ID: ${appointmentId}`,
+        });
+      }
 
-      const doctor = {
-        id: appointment.doctorId,
-        firstName: "Dr. Jane",
-        lastName: "Smith",
-        email: "jane.smith@hospital.com",
-        specialty: "General Practice",
-      };
+      // Check if video consultation already exists
+      let existingConsultation = await prisma.videoConsultation.findUnique({
+        where: { appointmentId: appointmentId },
+      });
+
+      if (existingConsultation) {
+        // Return existing consultation
+        return res.json({
+          consultationId: existingConsultation.hcwConsultationId,
+          hcwUrl: existingConsultation.patientUrl,
+          doctorUrl: existingConsultation.doctorUrl,
+          status: existingConsultation.status,
+          scheduledTime: appointment.scheduledTime,
+        });
+      }
 
       // Create HCW consultation using simplified invite API
       // This automatically creates patient/doctor records if they don't exist
-      let consultation;
+      let hcwConsultation;
       try {
-        consultation = await createHcwConsultation({
+        hcwConsultation = await createHcwConsultation({
           telecheckAppointmentId: appointment.id,
-          patientFirstName: patient.firstName,
-          patientLastName: patient.lastName,
-          patientEmail: patient.email,
-          patientPhone: patient.phone,
-          doctorId: doctor.email, // HCW will match or create doctor by email
+          patientFirstName: appointment.patient.firstName,
+          patientLastName: appointment.patient.lastName,
+          patientEmail: appointment.patient.email,
+          patientPhone: appointment.patient.phone || "",
+          doctorId: appointment.doctor.email, // HCW will match or create doctor by email
           scheduledTime: appointment.scheduledTime,
-          reason: appointment.reason,
+          reason: appointment.reason || "Video consultation",
         });
       } catch (error) {
         console.error("Failed to create HCW consultation:", error);
@@ -85,12 +96,38 @@ router.post(
         });
       }
 
+      // Save video consultation to database
+      const videoConsultation = await prisma.videoConsultation.create({
+        data: {
+          appointmentId: appointment.id,
+          hcwConsultationId: hcwConsultation.id,
+          patientUrl: hcwConsultation.joinUrl,
+          doctorUrl: hcwConsultation.doctorUrl,
+          status: VideoConsultationStatus.pending,
+          metadata: {
+            hcwPatientId: hcwConsultation.patientId,
+            hcwDoctorId: hcwConsultation.doctorId,
+          },
+        },
+      });
+
+      // Update appointment status and HCW consultation ID
+      await prisma.appointment.update({
+        where: { id: appointmentId },
+        data: {
+          status: AppointmentStatus.confirmed,
+          hcwConsultationId: hcwConsultation.id,
+        },
+      });
+
       // Return consultation details for frontend
       res.json({
-        consultationId: consultation.id,
-        hcwUrl: consultation.joinUrl,
-        status: consultation.status,
-        scheduledTime: consultation.scheduledDate,
+        consultationId: videoConsultation.id,
+        hcwConsultationId: hcwConsultation.id,
+        hcwUrl: videoConsultation.patientUrl,
+        doctorUrl: videoConsultation.doctorUrl,
+        status: videoConsultation.status,
+        scheduledTime: appointment.scheduledTime,
       });
     } catch (error) {
       console.error("Failed to create HCW consultation session:", error);
@@ -125,17 +162,58 @@ router.post("/:appointmentId/end", async (req: Request, res: Response) => {
       });
     }
 
-    // End HCW consultation
-    await endHcwConsultation(consultationId);
+    // Get video consultation from database
+    const videoConsultation = await prisma.videoConsultation.findUnique({
+      where: { appointmentId: appointmentId },
+      include: { appointment: true },
+    });
 
-    // TODO: Update Telecheck appointment status to 'completed'
-    // When DATABASE_URL is configured
+    if (!videoConsultation) {
+      return res.status(404).json({
+        error: "Consultation not found",
+        message: `No video consultation found for appointment: ${appointmentId}`,
+      });
+    }
+
+    // End HCW consultation
+    try {
+      await endHcwConsultation(videoConsultation.hcwConsultationId);
+    } catch (error) {
+      console.warn("Failed to end HCW consultation, continuing...", error);
+    }
+
+    // Calculate duration
+    const startedAt =
+      videoConsultation.startedAt || videoConsultation.createdAt;
+    const endedAt = new Date();
+    const durationMinutes = Math.round(
+      (endedAt.getTime() - startedAt.getTime()) / 60000,
+    );
+
+    // Update video consultation status
+    await prisma.videoConsultation.update({
+      where: { id: videoConsultation.id },
+      data: {
+        status: VideoConsultationStatus.completed,
+        endedAt: endedAt,
+        duration: durationMinutes,
+      },
+    });
+
+    // Update appointment status to completed
+    await prisma.appointment.update({
+      where: { id: appointmentId },
+      data: {
+        status: AppointmentStatus.completed,
+      },
+    });
 
     res.json({
       success: true,
       message: "Consultation ended successfully",
       appointmentId,
-      consultationId,
+      consultationId: videoConsultation.id,
+      duration: durationMinutes,
     });
   } catch (error) {
     console.error("Failed to end consultation:", error);
@@ -154,22 +232,59 @@ router.post("/:appointmentId/end", async (req: Request, res: Response) => {
  */
 router.get("/:appointmentId/status", async (req: Request, res: Response) => {
   const { appointmentId } = req.params;
-  const { consultationId } = req.query;
 
   try {
-    if (!consultationId || typeof consultationId !== "string") {
-      return res.status(400).json({
-        error: "Missing consultationId",
-        message: "consultationId query parameter is required",
+    // Get appointment with video consultation
+    const appointment = await prisma.appointment.findUnique({
+      where: { id: appointmentId },
+      include: {
+        videoConsultation: true,
+      },
+    });
+
+    if (!appointment) {
+      return res.status(404).json({
+        error: "Appointment not found",
+        message: `No appointment found with ID: ${appointmentId}`,
       });
     }
 
-    const status = await getHcwConsultationStatus(consultationId);
+    if (!appointment.videoConsultation) {
+      return res.status(404).json({
+        error: "Consultation not found",
+        message: "No video consultation exists for this appointment",
+      });
+    }
+
+    // Optionally sync with HCW status
+    let hcwStatus = null;
+    try {
+      hcwStatus = await getHcwConsultationStatus(
+        appointment.videoConsultation.hcwConsultationId,
+      );
+
+      // Update local status if different from HCW
+      if (hcwStatus && hcwStatus !== appointment.videoConsultation.status) {
+        await prisma.videoConsultation.update({
+          where: { id: appointment.videoConsultation.id },
+          data: {
+            status: hcwStatus as VideoConsultationStatus,
+          },
+        });
+      }
+    } catch (error) {
+      console.warn("Failed to get HCW status, using local status:", error);
+    }
 
     res.json({
       appointmentId,
-      consultationId,
-      status,
+      consultationId: appointment.videoConsultation.id,
+      hcwConsultationId: appointment.videoConsultation.hcwConsultationId,
+      status: hcwStatus || appointment.videoConsultation.status,
+      appointmentStatus: appointment.status,
+      startedAt: appointment.videoConsultation.startedAt,
+      endedAt: appointment.videoConsultation.endedAt,
+      duration: appointment.videoConsultation.duration,
     });
   } catch (error) {
     console.error("Failed to get consultation status:", error);
@@ -178,6 +293,90 @@ router.get("/:appointmentId/status", async (req: Request, res: Response) => {
       message:
         error instanceof Error ? error.message : "Unknown error occurred",
     });
+  }
+});
+
+/**
+ * POST /api/consultations/:appointmentId/notes
+ *
+ * Add post-consultation notes to a completed consultation
+ *
+ * Simple endpoint for doctors to save consultation notes after ending a session.
+ * Accepts notes, diagnosis, and treatment plan.
+ */
+router.post("/:appointmentId/notes", async (req: Request, res: Response) => {
+  const { appointmentId } = req.params;
+  const { notes, diagnosis, treatmentPlan } =
+    req.body as ConsultationNotesRequest;
+  const userId = (req as any).user?.id; // From auth middleware
+
+  try {
+    // Validate that at least one field is provided
+    if (!notes && !diagnosis && !treatmentPlan) {
+      return res.status(400).json({
+        error: "Missing required fields",
+        message:
+          "At least one of notes, diagnosis, or treatmentPlan must be provided",
+      } as ConsultationNotesError);
+    }
+
+    // Get video consultation from database
+    const videoConsultation = await prisma.videoConsultation.findUnique({
+      where: { appointmentId: appointmentId },
+      include: {
+        appointment: {
+          include: {
+            doctor: true,
+          },
+        },
+      },
+    });
+
+    if (!videoConsultation) {
+      return res.status(404).json({
+        error: "Consultation not found",
+        message: `No video consultation found for appointment: ${appointmentId}`,
+      } as ConsultationNotesError);
+    }
+
+    // Verify user is the doctor for this consultation (optional auth check)
+    // Uncomment if using auth middleware
+    // if (userId && videoConsultation.appointment.doctorId !== userId) {
+    //   return res.status(403).json({
+    //     error: "Not authorized",
+    //     message: "Only the assigned doctor can add notes to this consultation",
+    //   } as ConsultationNotesError);
+    // }
+
+    // Update video consultation with notes
+    const updatedConsultation = await prisma.videoConsultation.update({
+      where: { id: videoConsultation.id },
+      data: {
+        consultationNotes: notes,
+        diagnosis: diagnosis,
+        treatmentPlan: treatmentPlan,
+      },
+    });
+
+    res.json({
+      success: true,
+      message: "Consultation notes saved successfully",
+      data: {
+        appointmentId,
+        consultationId: updatedConsultation.id,
+        notes: updatedConsultation.consultationNotes,
+        diagnosis: updatedConsultation.diagnosis,
+        treatmentPlan: updatedConsultation.treatmentPlan,
+        updatedAt: updatedConsultation.updatedAt,
+      },
+    } as ConsultationNotesResponse);
+  } catch (error) {
+    console.error("Failed to save consultation notes:", error);
+    res.status(500).json({
+      error: "Failed to save notes",
+      message:
+        error instanceof Error ? error.message : "Unknown error occurred",
+    } as ConsultationNotesError);
   }
 });
 

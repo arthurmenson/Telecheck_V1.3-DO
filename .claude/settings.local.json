@@ -95,7 +95,10 @@
       "Bash(./doctl.exe apps tier instance-size list:*)",
       "Bash(then echo \"✅ Deployment ACTIVE with subdomain routing!\")",
       "Bash(do echo \"=== Check $i ===\")",
-      "Bash(./doctl.exe apps create:*)"
+      "Bash(./doctl.exe apps create:*)",
+      "Bash(node -e:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run format:*)"
     ],
     "deny": [],
     "ask": []

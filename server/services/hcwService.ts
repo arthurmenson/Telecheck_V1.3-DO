@@ -21,6 +21,7 @@
  */
 
 import axios, { AxiosInstance } from "axios";
+import jwt from "jsonwebtoken";
 
 // Environment configuration
 // Updated to use new HCW@Home deployment (October 26, 2025)
@@ -45,6 +46,27 @@ const hcwClient: AxiosInstance = axios.create({
   },
   withCredentials: true,
 });
+
+/**
+ * Generate JWT token for HCW API authentication
+ *
+ * Creates a signed JWT token with 1-hour expiry for authenticating
+ * with the HCW@Home backend API.
+ *
+ * @returns Signed JWT token
+ */
+function generateHcwToken(): string {
+  const secret =
+    process.env.HCW_API_SECRET || "default-secret-change-in-production";
+
+  const payload = {
+    aud: "hcw-backend",
+    iss: "telecheck",
+    exp: Math.floor(Date.now() / 1000) + 3600, // 1 hour from now
+  };
+
+  return jwt.sign(payload, secret);
+}
 
 /**
  * Get authenticated session cookie for HCW API

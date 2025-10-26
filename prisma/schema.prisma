@@ -1,0 +1,245 @@
+// Telecheck Database Schema
+// This schema defines the data models for the HCW video consultation integration
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Enums for type safety
+enum UserRole {
+  PATIENT
+  DOCTOR
+  ADMIN
+  NURSE
+}
+
+enum AppointmentStatus {
+  pending
+  confirmed
+  active
+  completed
+  cancelled
+}
+
+enum AppointmentType {
+  video
+  in_person
+}
+
+enum VideoConsultationStatus {
+  pending
+  active
+  completed
+  cancelled
+  failed
+}
+
+// User model (extends existing users table)
+model User {
+  id                     String         @id @default(cuid())
+  email                  String         @unique
+  firstName              String         @map("first_name")
+  lastName               String         @map("last_name")
+  dateOfBirth            DateTime?      @map("date_of_birth") @db.Date
+  phone                  String?
+  role                   UserRole       @default(PATIENT)
+  emergencyContactName   String?        @map("emergency_contact_name")
+  emergencyContactPhone  String?        @map("emergency_contact_phone")
+  medicalHistory         String?        @map("medical_history") @db.Text
+  currentMedications     String?        @map("current_medications") @db.Text
+  allergies              String?        @db.Text
+  insuranceProvider      String?        @map("insurance_provider")
+  insurancePolicyNumber  String?        @map("insurance_policy_number")
+  primaryCarePhysician   String?        @map("primary_care_physician")
+  createdAt              DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt              DateTime       @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  // Relations
+  patientAppointments    Appointment[]  @relation("PatientAppointments")
+  doctorAppointments     Appointment[]  @relation("DoctorAppointments")
+
+  @@index([email])
+  @@map("users")
+}
+
+// Appointment model
+model Appointment {
+  id                  String            @id @default(cuid())
+  patientId           String            @map("patient_id")
+  doctorId            String            @map("doctor_id")
+  scheduledTime       DateTime          @map("scheduled_time") @db.Timestamptz(6)
+  type                AppointmentType   @default(video)
+  status              AppointmentStatus @default(pending)
+  reason              String?           @db.Text
+  notes               String?           @db.Text
+  hcwConsultationId   String?           @unique @map("hcw_consultation_id")
+  createdAt           DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt           DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  // Relations
+  patient             User              @relation("PatientAppointments", fields: [patientId], references: [id], onDelete: Cascade)
+  doctor              User              @relation("DoctorAppointments", fields: [doctorId], references: [id], onDelete: Cascade)
+  videoConsultation   VideoConsultation?
+
+  @@index([patientId])
+  @@index([doctorId])
+  @@index([scheduledTime])
+  @@index([status])
+  @@index([patientId, scheduledTime])
+  @@index([doctorId, scheduledTime])
+  @@map("appointments")
+}
+
+// VideoConsultation model
+model VideoConsultation {
+  id                String                   @id @default(cuid())
+  appointmentId     String                   @unique @map("appointment_id")
+  hcwConsultationId String                   @map("hcw_consultation_id")
+  patientUrl        String                   @map("patient_url") @db.Text
+  doctorUrl         String?                  @map("doctor_url") @db.Text
+  status            VideoConsultationStatus  @default(pending)
+  startedAt         DateTime?                @map("started_at") @db.Timestamptz(6)
+  endedAt           DateTime?                @map("ended_at") @db.Timestamptz(6)
+  duration          Int?                     // Duration in minutes
+  errorMessage      String?                  @map("error_message") @db.Text
+  metadata          Json?                    // Store additional HCW response data
+
+  // Post-consultation documentation (simple approach)
+  consultationNotes String?                  @map("consultation_notes") @db.Text
+  diagnosis         String?                  @db.Text
+  treatmentPlan     String?                  @map("treatment_plan") @db.Text
+
+  createdAt         DateTime                 @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt         DateTime                 @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  // Relations
+  appointment       Appointment              @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+
+  @@index([appointmentId])
+  @@index([hcwConsultationId])
+  @@index([status])
+  @@index([startedAt])
+  @@map("video_consultations")
+}
+
+// ConsultationNote model for post-consultation documentation
+model ConsultationNote {
+  id                String            @id @default(cuid())
+  appointmentId     String            @map("appointment_id")
+  doctorId          String            @map("doctor_id")
+  patientId         String            @map("patient_id")
+
+  // Clinical documentation
+  chiefComplaint    String?           @map("chief_complaint") @db.Text
+  historyOfPresent  String?           @map("history_of_present") @db.Text
+  assessment        String?           @db.Text
+  clinicalNotes     String?           @map("clinical_notes") @db.Text
+  diagnosisCodes    Json?             @map("diagnosis_codes") // Array of ICD-10 codes
+  treatmentPlan     String?           @map("treatment_plan") @db.Text
+  followUpInstructions String?        @map("follow_up_instructions") @db.Text
+
+  // Prescription references
+  prescriptionIds   Json?             @map("prescription_ids") // Array of eRx prescription IDs
+
+  // Follow-up scheduling
+  followUpDate      DateTime?         @map("follow_up_date") @db.Timestamptz(6)
+  followUpType      String?           @map("follow_up_type") // video, in_person, phone
+
+  // Status tracking
+  status            String            @default("draft") // draft, completed, signed
+  isDraft           Boolean           @default(true) @map("is_draft")
+  signedAt          DateTime?         @map("signed_at") @db.Timestamptz(6)
+
+  // Audit fields
+  createdAt         DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt         DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
+  version           Int               @default(1) // For tracking note versions
+
+  @@index([appointmentId])
+  @@index([doctorId])
+  @@index([patientId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("consultation_notes")
+}
+
+// ConsultationNoteAudit for tracking all changes to notes (HIPAA compliance)
+model ConsultationNoteAudit {
+  id                String            @id @default(cuid())
+  noteId            String            @map("note_id")
+  userId            String            @map("user_id")
+  action            String            // created, updated, signed, viewed
+  fieldChanged      String?           @map("field_changed")
+  oldValue          String?           @map("old_value") @db.Text
+  newValue          String?           @map("new_value") @db.Text
+  ipAddress         String?           @map("ip_address")
+  userAgent         String?           @map("user_agent")
+  timestamp         DateTime          @default(now()) @db.Timestamptz(6)
+
+  @@index([noteId])
+  @@index([userId])
+  @@index([timestamp])
+  @@map("consultation_note_audits")
+}
+
+// PatientConsultationSummary for email/in-app summaries
+model PatientConsultationSummary {
+  id                String            @id @default(cuid())
+  appointmentId     String            @unique @map("appointment_id")
+  patientId         String            @map("patient_id")
+  doctorId          String            @map("doctor_id")
+
+  // Summary content
+  summaryHtml       String            @map("summary_html") @db.Text
+  summaryPlainText  String            @map("summary_plain_text") @db.Text
+
+  // Delivery tracking
+  emailSent         Boolean           @default(false) @map("email_sent")
+  emailSentAt       DateTime?         @map("email_sent_at") @db.Timestamptz(6)
+  viewedByPatient   Boolean           @default(false) @map("viewed_by_patient")
+  viewedAt          DateTime?         @map("viewed_at") @db.Timestamptz(6)
+
+  createdAt         DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt         DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@index([appointmentId])
+  @@index([patientId])
+  @@index([doctorId])
+  @@index([emailSent])
+  @@map("patient_consultation_summaries")
+}
+
+// MedicalTemplate for common condition templates
+model MedicalTemplate {
+  id                String            @id @default(cuid())
+  name              String
+  category          String            // respiratory, cardiac, dermatology, etc.
+  specialty         String?           // primary_care, urgent_care, etc.
+
+  // Template content
+  chiefComplaintTemplate    String?   @map("chief_complaint_template") @db.Text
+  historyTemplate           String?   @map("history_template") @db.Text
+  assessmentTemplate        String?   @map("assessment_template") @db.Text
+  treatmentPlanTemplate     String?   @map("treatment_plan_template") @db.Text
+  followUpTemplate          String?   @map("follow_up_template") @db.Text
+
+  // Common ICD-10 codes for this template
+  commonDiagnosisCodes Json?          @map("common_diagnosis_codes")
+
+  // Usage tracking
+  usageCount        Int               @default(0) @map("usage_count")
+  isActive          Boolean           @default(true) @map("is_active")
+
+  createdAt         DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt         DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@index([category])
+  @@index([specialty])
+  @@index([isActive])
+  @@map("medical_templates")
+}

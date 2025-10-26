@@ -20,6 +20,7 @@ import { Labs } from "./pages/Labs";
 import { Chat } from "./pages/Chat";
 import { Dashboard } from "./pages/Dashboard";
 import { DoctorDashboard } from "./pages/DoctorDashboard";
+import { DoctorVideoConsultationsPage } from "./pages/DoctorVideoConsultationsPage";
 import { NurseDashboard } from "./pages/NurseDashboard";
 import { CaregiverDashboard } from "./pages/CaregiverDashboard";
 import { PharmacistDashboard } from "./pages/PharmacistDashboard";
@@ -282,6 +283,16 @@ const App = () => (
                     <ProtectedRoute allowedRoles={["doctor"]}>
                       <Layout>
                         <DoctorDashboard />
+                      </Layout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/doctor/video-consultations"
+                  element={
+                    <ProtectedRoute allowedRoles={["doctor"]}>
+                      <Layout>
+                        <DoctorVideoConsultationsPage />
                       </Layout>
                     </ProtectedRoute>
                   }

@@ -26,8 +26,38 @@ import {
   ArrowLeft,
   Star,
   Shield,
+  Loader2,
+  XCircle,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+
+// Type definitions for API responses
+interface ScheduleAppointmentResponse {
+  success: boolean;
+  data: {
+    appointmentId: string;
+    confirmationNumber: string;
+    meetingLink?: string;
+    instructions: string[];
+  };
+  error?: string;
+}
+
+interface HcwConsultationResponse {
+  consultationId: string;
+  hcwUrl: string;
+  status: string;
+  scheduledTime: string;
+}
+
+interface AppointmentData {
+  providerId: string;
+  userId: string;
+  dateTime: string;
+  type: "video" | "phone" | "in_person";
+  reason: string;
+  duration: number;
+}
 
 // Doctor Card Component
 const DoctorCard = ({
@@ -155,6 +185,15 @@ export function Schedule() {
   const [reason, setReason] = useState("");
   const [step, setStep] = useState(1);
 
+  // Loading and error states
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [appointmentDetails, setAppointmentDetails] = useState<{
+    appointmentId: string;
+    confirmationNumber: string;
+    meetingLink?: string;
+  } | null>(null);
+
   // Mock doctors data with urgent availability
   const doctors = [
     {
@@ -216,12 +255,161 @@ export function Schedule() {
     { time: "2:30 PM", type: "video" as const },
   ];
 
-  const handleBookAppointment = () => {
-    // Here you would integrate with your booking system
-    alert(
-      `Appointment booked with ${selectedDoctor.name} on ${selectedDate} at ${selectedTime}`,
-    );
-    setStep(4); // Confirmation step
+  const handleBookAppointment = async () => {
+    if (!selectedDoctor || !selectedDate || !selectedTime) {
+      setError("Please complete all required fields");
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      // Get auth token from localStorage
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        throw new Error("Authentication required. Please log in.");
+      }
+
+      // Construct the appointment date/time
+      const now = new Date();
+      const appointmentDate =
+        selectedDate === "Today" ? now : new Date(now.getTime() + 86400000); // Tomorrow
+
+      // Parse time string (e.g., "2:00 PM")
+      const [time, period] = selectedTime.split(" ");
+      const [hours, minutes] = time.split(":").map(Number);
+      const adjustedHours =
+        period === "PM" && hours !== 12
+          ? hours + 12
+          : period === "AM" && hours === 12
+            ? 0
+            : hours;
+
+      appointmentDate.setHours(adjustedHours, minutes || 0, 0, 0);
+
+      // Step 1: Create appointment via telemedicine API
+      const appointmentData: AppointmentData = {
+        providerId: selectedDoctor.id.toString(),
+        userId: "user-1", // TODO: Get from auth context
+        dateTime: appointmentDate.toISOString(),
+        type: "video",
+        reason: reason || "Video consultation",
+        duration: 30, // 30 minute consultation
+      };
+
+      const scheduleResponse = await fetch("/api/telemedicine/schedule", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(appointmentData),
+      });
+
+      if (!scheduleResponse.ok) {
+        const errorData = await scheduleResponse.json().catch(() => ({}));
+        throw new Error(
+          errorData.error ||
+            `Failed to schedule appointment (${scheduleResponse.status})`,
+        );
+      }
+
+      const scheduleResult: ScheduleAppointmentResponse =
+        await scheduleResponse.json();
+
+      if (!scheduleResult.success || !scheduleResult.data) {
+        throw new Error(scheduleResult.error || "Failed to create appointment");
+      }
+
+      const { appointmentId, confirmationNumber, meetingLink } =
+        scheduleResult.data;
+
+      // Step 2: Create HCW consultation session
+      let hcwUrl = meetingLink;
+      try {
+        const hcwResponse = await fetch(
+          `/api/consultations/${appointmentId}/hcw-session`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        );
+
+        if (hcwResponse.ok) {
+          const hcwResult: HcwConsultationResponse = await hcwResponse.json();
+          hcwUrl = hcwResult.hcwUrl || meetingLink;
+        } else {
+          // HCW session creation failed, but appointment is still valid
+          console.warn(
+            "HCW consultation session creation failed, using fallback URL",
+          );
+        }
+      } catch (hcwError) {
+        // Non-critical error - appointment is still created
+        console.error("Error creating HCW session:", hcwError);
+      }
+
+      // Step 3: Send appointment confirmation notification (optional)
+      try {
+        await fetch("/api/messaging/send", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            patientId: appointmentData.userId,
+            type: "appointment_confirmation",
+            channel: "sms",
+            message: `Your appointment with ${selectedDoctor.name} is confirmed for ${selectedDate} at ${selectedTime}. Confirmation: ${confirmationNumber}`,
+          }),
+        });
+      } catch (notificationError) {
+        // Non-critical error - appointment is still created
+        console.error("Failed to send notification:", notificationError);
+      }
+
+      // Save appointment details and move to confirmation
+      setAppointmentDetails({
+        appointmentId,
+        confirmationNumber,
+        meetingLink: hcwUrl,
+      });
+
+      // Clear form
+      setReason("");
+
+      // Move to confirmation step
+      setStep(4);
+    } catch (err) {
+      console.error("Appointment booking error:", err);
+
+      // Handle different error types
+      if (err instanceof Error) {
+        if (err.message.includes("Authentication")) {
+          setError(
+            "Session expired. Please log in again to book an appointment.",
+          );
+        } else if (
+          err.message.includes("network") ||
+          err.message.includes("fetch")
+        ) {
+          setError(
+            "Network error. Please check your internet connection and try again.",
+          );
+        } else {
+          setError(err.message);
+        }
+      } else {
+        setError("An unexpected error occurred. Please try again.");
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   if (step === 4) {
@@ -254,13 +442,35 @@ export function Schedule() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Type:</span>
-                    <span className="font-medium">
-                      {appointmentType === "urgent"
-                        ? "Urgent Consultation"
-                        : "Regular Visit"}
-                    </span>
+                    <span className="font-medium">Video Consultation</span>
                   </div>
+                  {appointmentDetails?.confirmationNumber && (
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">
+                        Confirmation:
+                      </span>
+                      <span className="font-medium font-mono">
+                        {appointmentDetails.confirmationNumber}
+                      </span>
+                    </div>
+                  )}
                 </div>
+
+                {appointmentDetails?.meetingLink && (
+                  <div className="mt-4 pt-4 border-t">
+                    <p className="text-sm text-muted-foreground mb-2">
+                      Video Consultation Link:
+                    </p>
+                    <a
+                      href={appointmentDetails.meetingLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-blue-600 hover:text-blue-700 underline break-all"
+                    >
+                      {appointmentDetails.meetingLink}
+                    </a>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
@@ -344,7 +554,10 @@ export function Schedule() {
 
             <div className="flex justify-end">
               <Button
-                onClick={() => setStep(2)}
+                onClick={() => {
+                  setStep(2);
+                  setError(null);
+                }}
                 disabled={!selectedDoctor}
                 size="lg"
               >
@@ -429,11 +642,20 @@ export function Schedule() {
             )}
 
             <div className="flex justify-between">
-              <Button variant="outline" onClick={() => setStep(1)}>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setStep(1);
+                  setError(null);
+                }}
+              >
                 Back
               </Button>
               <Button
-                onClick={() => setStep(3)}
+                onClick={() => {
+                  setStep(3);
+                  setError(null);
+                }}
                 disabled={!selectedDate || !selectedTime}
                 size="lg"
               >
@@ -447,6 +669,25 @@ export function Schedule() {
         {step === 3 && (
           <div className="space-y-6">
             <h2 className="text-xl font-semibold">Appointment Details</h2>
+
+            {/* Error Display */}
+            {error && (
+              <Card className="border-red-200 bg-red-50 dark:bg-red-900/20">
+                <CardContent className="p-4">
+                  <div className="flex items-start gap-3">
+                    <XCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <h3 className="font-medium text-red-900 dark:text-red-100 mb-1">
+                        Booking Failed
+                      </h3>
+                      <p className="text-sm text-red-700 dark:text-red-300">
+                        {error}
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             <Card>
               <CardContent className="p-6">
@@ -513,11 +754,29 @@ export function Schedule() {
             </Card>
 
             <div className="flex justify-between">
-              <Button variant="outline" onClick={() => setStep(2)}>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setStep(2);
+                  setError(null);
+                }}
+                disabled={isLoading}
+              >
                 Back
               </Button>
-              <Button onClick={handleBookAppointment} size="lg">
-                Book Appointment
+              <Button
+                onClick={handleBookAppointment}
+                size="lg"
+                disabled={isLoading || !reason.trim()}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Booking...
+                  </>
+                ) : (
+                  "Book Appointment"
+                )}
               </Button>
             </div>
           </div>
