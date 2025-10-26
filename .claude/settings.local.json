@@ -89,7 +89,12 @@
       "Bash(ssh -o ConnectTimeout=15 -o StrictHostKeyChecking=no root@104.131.182.244 \"echo ''=== Droplet Status ==='' && hostname && uptime && echo '''' && echo ''=== Docker Status ==='' && docker --version && docker ps -a && echo '''' && echo ''=== Directory Contents ==='' && ls -la /root/ && echo '''' && echo ''=== Disk Space ==='' && df -h /\")",
       "Bash(ssh:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(powershell.exe -Command \"for ($i=1; $i -le 10; $i++) { ./doctl.exe apps get-deployment 3e163757-94ee-4483-a241-8b59cd451f32 4d2cb62f-cf6c-4a6a-b071-ba21912d9d18 --format ID,Phase,Progress,UpdatedAt; Start-Sleep -Seconds 15; }\")",
+      "Bash(./doctl.exe apps tier instance-size list:*)",
+      "Bash(then echo \"✅ Deployment ACTIVE with subdomain routing!\")",
+      "Bash(do echo \"=== Check $i ===\")"
     ],
     "deny": [],
     "ask": []
