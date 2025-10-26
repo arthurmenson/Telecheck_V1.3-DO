@@ -69,7 +69,10 @@
       "Bash(DATABASE_URL=\"postgresql://doadmin:YOUR_PASSWORD_HERE@telecheck-postgres-cluster-do-user-24735686-0.d.db.ondigitalocean.com:25060/telecheck?sslmode=require\" npm run migrate:prod:*)",
       "Bash(./doctl.exe databases connection:*)",
       "Bash(DATABASE_URL=\"postgresql://doadmin:YOUR_PASSWORD_HERE@telecheck-postgres-cluster-do-user-24735686-0.d.db.ondigitalocean.com:25060/telecheck?sslmode=require\" NODE_ENV=production npm run migrate:prod:*)",
-      "Bash(NODE_TLS_REJECT_UNAUTHORIZED=0 DATABASE_URL=\"postgresql://doadmin:YOUR_PASSWORD_HERE@telecheck-postgres-cluster-do-user-24735686-0.d.db.ondigitalocean.com:25060/telecheck?sslmode=require\" npm run migrate:prod:*)"
+      "Bash(NODE_TLS_REJECT_UNAUTHORIZED=0 DATABASE_URL=\"postgresql://doadmin:YOUR_PASSWORD_HERE@telecheck-postgres-cluster-do-user-24735686-0.d.db.ondigitalocean.com:25060/telecheck?sslmode=require\" npm run migrate:prod:*)",
+      "Bash(./doctl.exe apps update:*)",
+      "Bash(ls:*)",
+      "Bash(pkill:*)"
     ],
     "deny": [],
     "ask": []

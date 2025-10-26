@@ -1,0 +1,229 @@
+# HCW@Home Production Deployment for DigitalOcean
+# Best Practice Configuration with Telecheck Integration
+# Based on official HCW@Home documentation: https://docs.hcw-at-home.com/
+
+version: "3.8"
+
+services:
+  # HCW@Home Backend API
+  hcw-backend:
+    image: hcwhome/backend:latest
+    container_name: hcw-backend
+    restart: unless-stopped
+    ports:
+      - "1337:1337"
+    environment:
+      # === REQUIRED: Core Configuration ===
+      NODE_ENV: production
+      CONFIG_FILES: /etc/hcw-athome
+
+      # === REQUIRED: Application URLs ===
+      PUBLIC_URL: ${HCW_PUBLIC_URL} # Patient interface URL (no trailing slash)
+      DOCTOR_URL: ${HCW_DOCTOR_URL} # Doctor interface URL (no trailing slash)
+
+      # === REQUIRED: Database (MongoDB) ===
+      DB_URI: ${HCW_MONGODB_URI}
+
+      # === REQUIRED: JWT & Session Security ===
+      APP_SECRET: ${HCW_APP_SECRET}
+      REFRESH_TOKEN_SECRET: ${HCW_REFRESH_TOKEN_SECRET}
+      ACCESS_TOKEN_LIFE: 900000 # 15 minutes (milliseconds)
+      REFRESH_TOKEN_LIFE: 64800000 # 18 hours (milliseconds)
+
+      # === REQUIRED: Authentication Method ===
+      LOGIN_METHOD: openid # Options: openid, saml, password, both
+
+      # === OpenID Connect Configuration (Keycloak) ===
+      OPENID_ISSUER_BASE_URL: ${KEYCLOAK_AUTH_SERVER_URL}/realms/${KEYCLOAK_REALM}
+      OPENID_CLIENT_ID: ${KEYCLOAK_CLIENT_ID}
+      OPENID_CLIENT_SECRET: ${KEYCLOAK_CLIENT_SECRET}
+      OPENID_CALLBACK_URL: ${HCW_PUBLIC_URL}/auth/openid/callback
+      OPENID_AUTHORIZATION_URL: ${KEYCLOAK_AUTH_SERVER_URL}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/auth
+      OPENID_TOKEN_URL: ${KEYCLOAK_AUTH_SERVER_URL}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/token
+      OPENID_USER_INFO_URL: ${KEYCLOAK_AUTH_SERVER_URL}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/userinfo
+      OPENID_LOGOUT_URL: ${KEYCLOAK_AUTH_SERVER_URL}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/logout
+      OPENID_AUTOCREATE_USER: "true"
+
+      # === REQUIRED: Email Configuration (SMTP) ===
+      MAIL_SMTP_HOST: ${SMTP_HOST}
+      MAIL_SMTP_PORT: ${SMTP_PORT:-465}
+      MAIL_SMTP_SECURE: ${SMTP_SECURE:-true}
+      MAIL_SMTP_SENDER: ${SMTP_SENDER}
+      MAIL_SMTP_USER: ${SMTP_USER}
+      MAIL_SMTP_PASSWORD: ${SMTP_PASSWORD}
+
+      # === REQUIRED: Mediasoup Video Server ===
+      MEDIASOUP_URL: http://hcw-mediasoup:3005
+      MEDIASOUP_USER: ${MEDIASOUP_USER}
+      MEDIASOUP_SECRET: ${MEDIASOUP_SECRET}
+
+      # === CORS Configuration ===
+      ALLOW_ORIGINS: ${HCW_PUBLIC_URL},${HCW_DOCTOR_URL},${TELECHECK_APP_URL}
+
+      # === SMS Configuration (Twilio) ===
+      TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID}
+      TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN}
+      TWILIO_PHONE_NUMBER: ${TWILIO_PHONE_NUMBER}
+      TWILIO_STATUS_CALLBACK_URL: ${HCW_PUBLIC_URL}/api/twilio/status
+
+      # === File Upload & Antivirus ===
+      MAX_UPLOAD_SIZE_MB: 20
+      CLAM_HOST: hcw-clamav
+      CLAM_PORT: 3310
+      CLAM_RETRY_COUNT: 5
+      CLAM_RETRY_DELAY: 3000
+
+      # === Consultation Configuration ===
+      OVERRIDE_FIRST_INVITE_REMINDER: 86400000 # 24 hours before (ms)
+      OVERRIDE_SECOND_INVITE_REMINDER: 60000 # 1 minute before (ms)
+      OVERRIDE_TIME_UNTIL_SCHEDULE: 86400000 # 24 hours scheduling window (ms)
+      DELETE_CLOSED_CONSULTATION_AFTER: 86400000 # 1 day retention (ms)
+      DELETE_UNUSED_INVITE_AFTER: 86400000 # 1 day invite retention (ms)
+
+      # === Patient Experience ===
+      DEFAULT_PATIENT_TIMEZONE: America/New_York
+      DEFAULT_PATIENT_LOCALE: en
+      ACCESSIBILITY_MODE: "false"
+
+      # === Branding (Telecheck) ===
+      BRANDING: Telecheck
+      LOGO: ${TELECHECK_APP_URL}/assets/logo.png
+      DOCTOR_APP_PRIMARY_COLOR: "#0891b2" # Telecheck cyan
+      PATIENT_APP_PRIMARY_COLOR: "#0891b2"
+
+      # === Logging ===
+      LOGLEVEL: info
+      LOGFORMAT: default
+
+      # === Internationalization ===
+      I18N_DOCTOR_APP_LANGUAGES: en,es,fr
+      I18N_PATIENT_APP_LANGUAGES: en,es,fr
+
+      # === Required Form Fields ===
+      ENABLED_FIELDS_FORM_DOCTOR: firstName,lastName,gender,birthdate,email,phone
+
+    volumes:
+      - hcw-uploads:/app/uploads
+      - hcw-config:/etc/hcw-athome
+    networks:
+      - hcw-network
+    depends_on:
+      - hcw-mongodb
+      - hcw-mediasoup
+      - hcw-clamav
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:1337/api/healthcheck"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # HCW@Home Patient Interface (Angular/Ionic)
+  hcw-patient:
+    image: hcwhome/frontend-patient:latest
+    container_name: hcw-patient
+    restart: unless-stopped
+    ports:
+      - "4200:80"
+    environment:
+      API_URL: http://hcw-backend:1337
+    networks:
+      - hcw-network
+    depends_on:
+      - hcw-backend
+
+  # HCW@Home Doctor Interface (Angular)
+  hcw-doctor:
+    image: hcwhome/frontend-doctor:latest
+    container_name: hcw-doctor
+    restart: unless-stopped
+    ports:
+      - "4201:80"
+    environment:
+      API_URL: http://hcw-backend:1337
+    networks:
+      - hcw-network
+    depends_on:
+      - hcw-backend
+
+  # Mediasoup Video/Audio Server (WebRTC)
+  hcw-mediasoup:
+    image: hcwhome/mediasoup:latest
+    container_name: hcw-mediasoup
+    restart: unless-stopped
+    ports:
+      - "3005:3005"
+      - "40000-40100:40000-40100/udp" # RTP ports for WebRTC
+      - "40000-40100:40000-40100/tcp"
+    environment:
+      MEDIASOUP_USER: ${MEDIASOUP_USER}
+      MEDIASOUP_SECRET: ${MEDIASOUP_SECRET}
+      MEDIASOUP_LISTEN_IP: 0.0.0.0
+      MEDIASOUP_ANNOUNCED_IP: ${MEDIASOUP_ANNOUNCED_IP} # Public IP for DigitalOcean droplet
+      MEDIASOUP_MIN_PORT: 40000
+      MEDIASOUP_MAX_PORT: 40100
+      LOGLEVEL: info
+    networks:
+      - hcw-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3005/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # MongoDB Database
+  hcw-mongodb:
+    image: mongo:7.0
+    container_name: hcw-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${HCW_MONGO_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${HCW_MONGO_PASSWORD}
+      MONGO_INITDB_DATABASE: hcw-athome
+    volumes:
+      - hcw-mongodb-data:/data/db
+      - hcw-mongodb-config:/data/configdb
+    networks:
+      - hcw-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+
+  # ClamAV Antivirus Scanner
+  hcw-clamav:
+    image: clamav/clamav:latest
+    container_name: hcw-clamav
+    restart: unless-stopped
+    ports:
+      - "3310:3310"
+    volumes:
+      - hcw-clamav-data:/var/lib/clamav
+    networks:
+      - hcw-network
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/clamdcheck.sh"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 300s # ClamAV takes time to download virus definitions
+
+volumes:
+  hcw-mongodb-data:
+    driver: local
+  hcw-mongodb-config:
+    driver: local
+  hcw-uploads:
+    driver: local
+  hcw-config:
+    driver: local
+  hcw-clamav-data:
+    driver: local
+
+networks:
+  hcw-network:
+    driver: bridge
