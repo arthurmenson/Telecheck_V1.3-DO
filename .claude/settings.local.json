@@ -74,7 +74,12 @@
       "Bash(ls:*)",
       "Bash(pkill:*)",
       "Bash(./doctl.exe compute ssh-key:*)",
-      "Bash(./doctl.exe compute droplet create:*)"
+      "Bash(./doctl.exe compute droplet create:*)",
+      "Bash(ssh root@165.227.180.202 \"apt-get update && apt-get install -y curl && curl -fsSL https://get.docker.com | sh && systemctl enable --now docker && docker --version\")",
+      "Bash(then echo \"✅ Deployment ACTIVE with database!\")",
+      "Bash(./doctl.exe compute droplet list:*)",
+      "Bash(./doctl.exe compute droplet get:*)",
+      "Bash(ssh -o ConnectTimeout=10 -o StrictHostKeyChecking=no root@138.197.122.16 \"echo ''=== System Info ==='' && uname -a && echo '''' && echo ''=== Docker Status ==='' && docker --version 2>&1 || echo ''Docker not installed'' && echo '''' && echo ''=== Running Containers ==='' && docker ps 2>&1 || echo ''No docker or no containers'' && echo '''' && echo ''=== Files in /root ==='' && ls -la /root/ 2>&1 | head -n 20\")"
     ],
     "deny": [],
     "ask": []
