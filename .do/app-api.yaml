@@ -142,8 +142,7 @@ services:
       - key: HCW_API_URL
         value: "http://143.198.2.224:1337"
       - key: HCW_API_SECRET
-        scope: RUN_TIME
-        type: SECRET
+        value: "470597356fad10d84db33de9bf8d786a8d3f051a12396a8129da68ee431850e2ff48eba322d41e3d3255faab8ee08888b619972ab99d8154017448fa67ebe7a1"
       - key: HCW_PATIENT_URL
         value: "http://143.198.2.224:4200"
       - key: HCW_DOCTOR_URL
