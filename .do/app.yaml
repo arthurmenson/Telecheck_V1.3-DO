@@ -4,7 +4,7 @@
 name: whale-app
 region: nyc
 
-# API Service
+# API Service (must be listed FIRST for routing priority)
 services:
   - name: telecheck-api
     github:
@@ -21,7 +21,7 @@ services:
     http_port: 3000
 
     health_check:
-      http_path: /health
+      http_path: /api/ping
       initial_delay_seconds: 60
       period_seconds: 10
       timeout_seconds: 30
