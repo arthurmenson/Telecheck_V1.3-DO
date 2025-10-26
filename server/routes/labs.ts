@@ -534,7 +534,7 @@ router.get(
       const userId = req.user!.id;
 
       let query = `
-      SELECT 
+      SELECT
         COUNT(*) as total_reports,
         COUNT(CASE WHEN analysis_status = 'completed' THEN 1 END) as completed_reports,
         COUNT(CASE WHEN analysis_status = 'pending' THEN 1 END) as pending_reports,
@@ -569,6 +569,148 @@ router.get(
       });
     } catch (error) {
       console.error("Get lab stats error:", error);
+      res.status(500).json({
+        error: "Internal server error",
+        code: "INTERNAL_ERROR",
+      });
+    }
+  },
+);
+
+// Get all lab results for a user (for dashboard display)
+router.get(
+  "/results",
+  requireAuth,
+  async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (!isDbConfigured) {
+        // Return mock data for non-configured database
+        const mockResults = [
+          {
+            id: "lab-1",
+            testName: "Total Cholesterol",
+            value: "245",
+            unit: "mg/dL",
+            referenceRange: "< 200",
+            status: "high",
+            date: new Date().toISOString().split("T")[0],
+            orderedBy: "Dr. Demo",
+            trend: "up",
+            flagged: true,
+            priority: "medium",
+          },
+          {
+            id: "lab-2",
+            testName: "HDL",
+            value: "38",
+            unit: "mg/dL",
+            referenceRange: "> 40",
+            status: "low",
+            date: new Date().toISOString().split("T")[0],
+            orderedBy: "Dr. Demo",
+            trend: "down",
+            flagged: true,
+            priority: "medium",
+          },
+          {
+            id: "lab-3",
+            testName: "Glucose",
+            value: "110",
+            unit: "mg/dL",
+            referenceRange: "70-100",
+            status: "borderline",
+            date: new Date().toISOString().split("T")[0],
+            orderedBy: "Dr. Demo",
+            trend: "up",
+            flagged: true,
+            priority: "low",
+          },
+          {
+            id: "lab-4",
+            testName: "Vitamin D",
+            value: "45",
+            unit: "ng/mL",
+            referenceRange: "30-100",
+            status: "normal",
+            date: new Date().toISOString().split("T")[0],
+            orderedBy: "Dr. Demo",
+            trend: "neutral",
+            flagged: false,
+            priority: "low",
+          },
+        ];
+        return res.json({
+          success: true,
+          results: mockResults,
+        });
+      }
+
+      const userId = (req.query.userId as string) || req.user!.id;
+
+      // Check if user has permission to access this data
+      if (req.user!.role !== "admin" && req.user!.id !== userId) {
+        return res.status(403).json({
+          error: "Insufficient permissions",
+          code: "INSUFFICIENT_PERMISSIONS",
+        });
+      }
+
+      // Get all lab results across all reports for the user
+      const query = `
+        SELECT
+          lr.id,
+          lr.test_name,
+          lr.value,
+          lr.unit,
+          lr.reference_range,
+          lr.status,
+          lr.test_date,
+          lr.lab_name,
+          lr.doctor_notes,
+          lr.created_at
+        FROM lab_results lr
+        INNER JOIN lab_reports lrep ON lr.lab_report_id = lrep.id
+        WHERE lrep.user_id = $1
+        ORDER BY lr.test_date DESC, lr.created_at DESC
+        LIMIT 50
+      `;
+
+      const result = await dbPool.query(query, [userId]);
+
+      // Transform database results to match the dashboard interface
+      const results = result.rows.map((row) => {
+        const status = row.status.toLowerCase();
+        const flagged = status === "high" || status === "low";
+        const priority =
+          status === "high" ? "high" : status === "low" ? "medium" : "low";
+
+        // Determine trend (would ideally compare to previous values)
+        const trend =
+          status === "high" ? "up" : status === "low" ? "down" : "neutral";
+
+        return {
+          id: row.id,
+          testName: row.test_name,
+          value: row.value,
+          unit: row.unit || "",
+          referenceRange: row.reference_range || "",
+          status: status,
+          date: row.test_date
+            ? new Date(row.test_date).toISOString().split("T")[0]
+            : new Date(row.created_at).toISOString().split("T")[0],
+          orderedBy: row.lab_name || "Unknown",
+          trend: trend,
+          flagged: flagged,
+          priority: priority,
+        };
+      });
+
+      res.json({
+        success: true,
+        results: results,
+      });
+    } catch (error) {
+      console.error("Get all lab results error:", error);
       res.status(500).json({
         error: "Internal server error",
         code: "INTERNAL_ERROR",

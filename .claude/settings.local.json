@@ -98,7 +98,10 @@
       "Bash(./doctl.exe apps create:*)",
       "Bash(node -e:*)",
       "Bash(npm install:*)",
-      "Bash(npm run format:*)"
+      "Bash(npm run format:*)",
+      "Bash(python:*)",
+      "Bash(npx prisma migrate dev:*)",
+      "Bash(npm run prisma:generate:*)"
     ],
     "deny": [],
     "ask": []

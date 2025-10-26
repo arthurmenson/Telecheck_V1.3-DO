@@ -333,4 +333,27 @@
       @apply outline-2 outline-primary/50;
     }
   }
+
+  /* Screen reader only utility - WCAG 2.1 AA compliant */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  /* Ensure visible focus indicators for keyboard navigation - WCAG 2.1 AA */
+  *:focus-visible {
+    @apply outline-2 outline-offset-2 outline-primary;
+  }
+
+  /* Skip to main content link for keyboard navigation */
+  .skip-to-main {
+    @apply sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-md;
+  }
 }

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -42,9 +42,50 @@ import {
   Upload,
   Camera,
   Dna,
+  Loader2,
+  AlertCircle,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import apiClient from "../lib/api-client";
+import { API_ENDPOINTS } from "../lib/api-endpoints";
+
+// TypeScript interfaces for API responses
+interface LabResult {
+  id: string;
+  testName: string;
+  value: string;
+  unit: string;
+  referenceRange: string;
+  status: "normal" | "high" | "low" | "borderline";
+  date: string;
+  orderedBy?: string;
+  trend?: "up" | "down" | "neutral";
+  flagged?: boolean;
+  priority?: "high" | "medium" | "low";
+}
+
+interface Medication {
+  id: string;
+  name: string;
+  dosage: string;
+  frequency: string;
+  prescribedBy?: string;
+  startDate: string;
+  endDate?: string;
+  instructions?: string;
+  isActive?: boolean;
+}
+
+interface LoadingState {
+  labs: boolean;
+  medications: boolean;
+}
+
+interface ErrorState {
+  labs: string | null;
+  medications: string | null;
+}
 
 // Chart Components
 const MiniLineChart = ({
@@ -707,6 +748,20 @@ export function Dashboard() {
   const [showFlaggedOnly, setShowFlaggedOnly] = useState(false);
   const [labResultsFilter, setLabResultsFilter] = useState("all"); // all, flagged, high, medium, low
 
+  // API data state
+  const [labResults, setLabResults] = useState<LabResult[]>([]);
+  const [medications, setMedications] = useState<Medication[]>([]);
+
+  // Loading and error states
+  const [loading, setLoading] = useState<LoadingState>({
+    labs: true,
+    medications: true,
+  });
+  const [errors, setErrors] = useState<ErrorState>({
+    labs: null,
+    medications: null,
+  });
+
   const currentTime = new Date();
   const currentHour = currentTime.getHours();
   const greeting =
@@ -717,11 +772,75 @@ export function Dashboard() {
         : "Good evening";
   const firstName = user?.name?.split(" ")[0] || "there";
 
-  // Medications doughnut data - Must be declared before healthMetrics
+  // Fetch lab results from API
+  useEffect(() => {
+    const fetchLabResults = async () => {
+      try {
+        setLoading((prev) => ({ ...prev, labs: true }));
+        setErrors((prev) => ({ ...prev, labs: null }));
+
+        const response = await apiClient.get<{ results: LabResult[] }>(
+          `${API_ENDPOINTS.LABS.RESULTS}${user?.id ? `?userId=${user.id}` : ""}`,
+        );
+
+        if (response.success && response.data?.results) {
+          setLabResults(response.data.results);
+        }
+      } catch (error) {
+        console.error("Failed to fetch lab results:", error);
+        setErrors((prev) => ({
+          ...prev,
+          labs: "Failed to load lab results. Please try again later.",
+        }));
+      } finally {
+        setLoading((prev) => ({ ...prev, labs: false }));
+      }
+    };
+
+    if (user?.id) {
+      fetchLabResults();
+    }
+  }, [user?.id]);
+
+  // Fetch medications from API
+  useEffect(() => {
+    const fetchMedications = async () => {
+      try {
+        setLoading((prev) => ({ ...prev, medications: true }));
+        setErrors((prev) => ({ ...prev, medications: null }));
+
+        const response = await apiClient.get<{ medications: Medication[] }>(
+          `${API_ENDPOINTS.MEDICATIONS.LIST}${user?.id ? `/${user.id}` : ""}`,
+        );
+
+        if (response.success && response.data?.medications) {
+          setMedications(response.data.medications);
+        }
+      } catch (error) {
+        console.error("Failed to fetch medications:", error);
+        setErrors((prev) => ({
+          ...prev,
+          medications: "Failed to load medications. Please try again later.",
+        }));
+      } finally {
+        setLoading((prev) => ({ ...prev, medications: false }));
+      }
+    };
+
+    if (user?.id) {
+      fetchMedications();
+    }
+  }, [user?.id]);
+
+  // Medications doughnut data - calculated from real API data
   const medicationsData = [
-    { label: "On Schedule", value: 5, color: "#10b981" },
-    { label: "Delayed", value: 2, color: "#f59e0b" },
-    { label: "Missed", value: 1, color: "#ef4444" },
+    {
+      label: "On Schedule",
+      value: medications.filter((m) => m.isActive !== false).length,
+      color: "#10b981",
+    },
+    { label: "Delayed", value: 0, color: "#f59e0b" }, // This would need adherence tracking
+    { label: "Missed", value: 0, color: "#ef4444" }, // This would need adherence tracking
   ];
 
   // Health metrics data
@@ -737,8 +856,10 @@ export function Dashboard() {
     },
     {
       title: "Medications",
-      value: "8",
-      change: "5 on track",
+      value: loading.medications ? "..." : medications.length.toString(),
+      change: loading.medications
+        ? "Loading..."
+        : `${medications.filter((m) => m.isActive !== false).length} on track`,
       changeType: "neutral" as const,
       icon: Pill,
       chart: null,
@@ -772,117 +893,22 @@ export function Dashboard() {
     },
   ];
 
-  // All lab results with flagged status
-  const allLabResults = [
-    {
-      name: "Creatinine",
-      value: "1.6 mg/dL",
-      status: "high",
-      trend: "up",
-      flagged: true,
-      lastDate: "Jun 20",
-      priority: "high",
-    },
-    {
-      name: "Total Cholesterol",
-      value: "245 mg/dL",
-      status: "high",
-      trend: "up",
-      flagged: true,
-      lastDate: "Jun 18",
-      priority: "medium",
-    },
-    {
-      name: "HDL",
-      value: "38 mg/dL",
-      status: "low",
-      trend: "down",
-      flagged: true,
-      lastDate: "Jun 18",
-      priority: "medium",
-    },
-    {
-      name: "LDL",
-      value: "165 mg/dL",
-      status: "high",
-      trend: "up",
-      flagged: true,
-      lastDate: "Jun 18",
-      priority: "high",
-    },
-    {
-      name: "Triglycerides",
-      value: "210 mg/dL",
-      status: "high",
-      trend: "up",
-      flagged: true,
-      lastDate: "Jun 18",
-      priority: "medium",
-    },
-    {
-      name: "Glucose",
-      value: "110 mg/dL",
-      status: "borderline",
-      trend: "up",
-      flagged: true,
-      lastDate: "Jun 15",
-      priority: "low",
-    },
-    {
-      name: "HbA1c",
-      value: "6.8%",
-      status: "borderline",
-      trend: "up",
-      flagged: true,
-      lastDate: "Jun 10",
-      priority: "medium",
-    },
-    {
-      name: "BUN",
-      value: "28 mg/dL",
-      status: "high",
-      trend: "up",
-      flagged: true,
-      lastDate: "Jun 20",
-      priority: "medium",
-    },
-    {
-      name: "Vitamin D",
-      value: "45 ng/mL",
-      status: "normal",
-      trend: "neutral",
-      flagged: false,
-      lastDate: "Jun 15",
-      priority: "low",
-    },
-    {
-      name: "TSH",
-      value: "2.1 mIU/L",
-      status: "normal",
-      trend: "neutral",
-      flagged: false,
-      lastDate: "Jun 10",
-      priority: "low",
-    },
-    {
-      name: "Hemoglobin",
-      value: "13.8 g/dL",
-      status: "normal",
-      trend: "neutral",
-      flagged: false,
-      lastDate: "Jun 12",
-      priority: "low",
-    },
-    {
-      name: "Platelets",
-      value: "250 K/μL",
-      status: "normal",
-      trend: "neutral",
-      flagged: false,
-      lastDate: "Jun 12",
-      priority: "low",
-    },
-  ];
+  // Map API lab results to display format
+  const allLabResults = labResults.map((lab) => ({
+    name: lab.testName,
+    value: `${lab.value} ${lab.unit}`,
+    status: lab.status,
+    trend: lab.trend || "neutral",
+    flagged: lab.flagged || lab.status === "high" || lab.status === "low",
+    lastDate: lab.date,
+    priority:
+      lab.priority ||
+      (lab.status === "high"
+        ? "high"
+        : lab.status === "low"
+          ? "medium"
+          : "low"),
+  }));
 
   // Goals data
   const todaysGoals = [
@@ -892,23 +918,13 @@ export function Dashboard() {
     { label: "Exercise", current: 3, target: 5, color: "#10b981" },
   ];
 
-  // Recent lab results
-  const labResults = [
-    {
-      name: "Total Cholesterol",
-      value: "245 mg/dL",
-      status: "high",
-      trend: "up",
-    },
-    { name: "HDL", value: "38 mg/dL", status: "low", trend: "down" },
-    { name: "Glucose", value: "110 mg/dL", status: "borderline", trend: "up" },
-    {
-      name: "Vitamin D",
-      value: "45 ng/mL",
-      status: "normal",
-      trend: "neutral",
-    },
-  ];
+  // Recent lab results - get latest 4 results
+  const recentLabResults = labResults.slice(0, 4).map((lab) => ({
+    name: lab.testName,
+    value: `${lab.value} ${lab.unit}`,
+    status: lab.status,
+    trend: lab.trend || "neutral",
+  }));
 
   // AI Insights
   const aiInsights = [
@@ -1373,129 +1389,178 @@ export function Dashboard() {
               </CardHeader>
 
               <CardContent>
-                <div className="space-y-3">
-                  {(() => {
-                    let filteredResults = allLabResults;
+                {loading.labs ? (
+                  <div className="flex flex-col items-center justify-center py-8 space-y-3">
+                    <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                    <p className="text-sm text-muted-foreground">
+                      Loading lab results...
+                    </p>
+                  </div>
+                ) : errors.labs ? (
+                  <div className="flex flex-col items-center justify-center py-8 space-y-3 text-center">
+                    <AlertCircle className="w-8 h-8 text-destructive" />
+                    <div>
+                      <p className="text-sm font-medium text-destructive">
+                        Error Loading Lab Results
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {errors.labs}
+                      </p>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => window.location.reload()}
+                    >
+                      Retry
+                    </Button>
+                  </div>
+                ) : allLabResults.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-8 space-y-3 text-center">
+                    <TestTube className="w-8 h-8 text-muted-foreground" />
+                    <div>
+                      <p className="text-sm font-medium">
+                        No Lab Results Found
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Upload your lab results to see them here
+                      </p>
+                    </div>
+                    <Button variant="outline" size="sm" asChild>
+                      <Link to="/labs/upload">Upload Labs</Link>
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {(() => {
+                      let filteredResults = allLabResults;
 
-                    if (labResultsFilter === "flagged") {
-                      filteredResults = allLabResults.filter((r) => r.flagged);
-                    } else if (labResultsFilter === "high") {
-                      filteredResults = allLabResults.filter(
-                        (r) => r.priority === "high",
-                      );
-                    } else if (labResultsFilter === "medium") {
-                      filteredResults = allLabResults.filter(
-                        (r) => r.priority === "medium",
-                      );
-                    }
+                      if (labResultsFilter === "flagged") {
+                        filteredResults = allLabResults.filter(
+                          (r) => r.flagged,
+                        );
+                      } else if (labResultsFilter === "high") {
+                        filteredResults = allLabResults.filter(
+                          (r) => r.priority === "high",
+                        );
+                      } else if (labResultsFilter === "medium") {
+                        filteredResults = allLabResults.filter(
+                          (r) => r.priority === "medium",
+                        );
+                      }
 
-                    const displayResults = filteredResults.slice(0, 6); // Show max 6 results
+                      const displayResults = filteredResults.slice(0, 6); // Show max 6 results
 
-                    const statusColors = {
-                      high: "text-red-600 bg-red-50 border-red-200",
-                      low: "text-blue-600 bg-blue-50 border-blue-200",
-                      borderline:
-                        "text-orange-600 bg-orange-50 border-orange-200",
-                      normal: "text-green-600 bg-green-50 border-green-200",
-                    };
+                      const statusColors = {
+                        high: "text-red-600 bg-red-50 border-red-200",
+                        low: "text-blue-600 bg-blue-50 border-blue-200",
+                        borderline:
+                          "text-orange-600 bg-orange-50 border-orange-200",
+                        normal: "text-green-600 bg-green-50 border-green-200",
+                      };
 
-                    const priorityColors = {
-                      high: "border-l-red-500",
-                      medium: "border-l-orange-500",
-                      low: "border-l-green-500",
-                    };
+                      const priorityColors = {
+                        high: "border-l-red-500",
+                        medium: "border-l-orange-500",
+                        low: "border-l-green-500",
+                      };
 
-                    const trendIcons = {
-                      up: <TrendingUp className="w-3 h-3" />,
-                      down: <TrendingDown className="w-3 h-3" />,
-                      neutral: <Activity className="w-3 h-3" />,
-                    };
+                      const trendIcons = {
+                        up: <TrendingUp className="w-3 h-3" />,
+                        down: <TrendingDown className="w-3 h-3" />,
+                        neutral: <Activity className="w-3 h-3" />,
+                      };
 
-                    return displayResults.map((result, idx) => (
-                      <div
-                        key={idx}
-                        className={`flex items-center justify-between p-3 rounded-lg border-l-4 transition-all hover:shadow-sm ${
-                          result.flagged
-                            ? "bg-red-50/50 border border-red-100"
-                            : "bg-muted/30 border border-border/50"
-                        } ${priorityColors[result.priority]}`}
-                      >
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2">
-                            <p className="text-sm font-medium">{result.name}</p>
-                            {result.flagged && (
-                              <Badge
-                                variant="destructive"
-                                className="text-xs px-1 py-0"
-                              >
-                                <AlertTriangle className="w-2 h-2 mr-1" />
-                                Flagged
-                              </Badge>
-                            )}
-                            <Badge
-                              variant="outline"
-                              className={`text-xs px-1 py-0 ${
-                                result.priority === "high"
-                                  ? "border-red-300 text-red-700"
-                                  : result.priority === "medium"
-                                    ? "border-orange-300 text-orange-700"
-                                    : "border-green-300 text-green-700"
-                              }`}
-                            >
-                              {result.priority}
-                            </Badge>
-                          </div>
-                          <div className="flex items-center gap-2 mt-1">
-                            <p className="text-xs text-muted-foreground">
-                              {result.value}
-                            </p>
-                            <span className="text-xs text-muted-foreground">
-                              •
-                            </span>
-                            <p className="text-xs text-muted-foreground">
-                              {result.lastDate}
-                            </p>
-                          </div>
-                        </div>
+                      return displayResults.map((result, idx) => (
                         <div
-                          className={`flex items-center gap-1 ${statusColors[result.status].split(" ")[0]} px-2 py-1 rounded-md ${statusColors[result.status]}`}
+                          key={idx}
+                          className={`flex items-center justify-between p-3 rounded-lg border-l-4 transition-all hover:shadow-sm ${
+                            result.flagged
+                              ? "bg-red-50/50 border border-red-100"
+                              : "bg-muted/30 border border-border/50"
+                          } ${priorityColors[result.priority]}`}
                         >
-                          {trendIcons[result.trend]}
-                          <span className="text-xs font-medium uppercase">
-                            {result.status}
-                          </span>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                              <p className="text-sm font-medium">
+                                {result.name}
+                              </p>
+                              {result.flagged && (
+                                <Badge
+                                  variant="destructive"
+                                  className="text-xs px-1 py-0"
+                                >
+                                  <AlertTriangle className="w-2 h-2 mr-1" />
+                                  Flagged
+                                </Badge>
+                              )}
+                              <Badge
+                                variant="outline"
+                                className={`text-xs px-1 py-0 ${
+                                  result.priority === "high"
+                                    ? "border-red-300 text-red-700"
+                                    : result.priority === "medium"
+                                      ? "border-orange-300 text-orange-700"
+                                      : "border-green-300 text-green-700"
+                                }`}
+                              >
+                                {result.priority}
+                              </Badge>
+                            </div>
+                            <div className="flex items-center gap-2 mt-1">
+                              <p className="text-xs text-muted-foreground">
+                                {result.value}
+                              </p>
+                              <span className="text-xs text-muted-foreground">
+                                •
+                              </span>
+                              <p className="text-xs text-muted-foreground">
+                                {result.lastDate}
+                              </p>
+                            </div>
+                          </div>
+                          <div
+                            className={`flex items-center gap-1 ${statusColors[result.status].split(" ")[0]} px-2 py-1 rounded-md ${statusColors[result.status]}`}
+                          >
+                            {trendIcons[result.trend]}
+                            <span className="text-xs font-medium uppercase">
+                              {result.status}
+                            </span>
+                          </div>
                         </div>
-                      </div>
-                    ));
-                  })()}
+                      ));
+                    })()}
 
-                  {/* Summary Stats */}
-                  <div className="mt-4 pt-3 border-t border-border/50">
-                    <div className="grid grid-cols-3 gap-2 text-xs text-center">
-                      <div className="p-2 bg-red-50 rounded-lg">
-                        <div className="font-bold text-red-600">
-                          {allLabResults.filter((r) => r.flagged).length}
+                    {/* Summary Stats */}
+                    <div className="mt-4 pt-3 border-t border-border/50">
+                      <div className="grid grid-cols-3 gap-2 text-xs text-center">
+                        <div className="p-2 bg-red-50 rounded-lg">
+                          <div className="font-bold text-red-600">
+                            {allLabResults.filter((r) => r.flagged).length}
+                          </div>
+                          <div className="text-red-600/70">Flagged</div>
                         </div>
-                        <div className="text-red-600/70">Flagged</div>
-                      </div>
-                      <div className="p-2 bg-orange-50 rounded-lg">
-                        <div className="font-bold text-orange-600">
-                          {
-                            allLabResults.filter((r) => r.priority === "high")
-                              .length
-                          }
+                        <div className="p-2 bg-orange-50 rounded-lg">
+                          <div className="font-bold text-orange-600">
+                            {
+                              allLabResults.filter((r) => r.priority === "high")
+                                .length
+                            }
+                          </div>
+                          <div className="text-orange-600/70">
+                            High Priority
+                          </div>
                         </div>
-                        <div className="text-orange-600/70">High Priority</div>
-                      </div>
-                      <div className="p-2 bg-green-50 rounded-lg">
-                        <div className="font-bold text-green-600">
-                          {allLabResults.filter((r) => !r.flagged).length}
+                        <div className="p-2 bg-green-50 rounded-lg">
+                          <div className="font-bold text-green-600">
+                            {allLabResults.filter((r) => !r.flagged).length}
+                          </div>
+                          <div className="text-green-600/70">Normal</div>
                         </div>
-                        <div className="text-green-600/70">Normal</div>
                       </div>
                     </div>
                   </div>
-                </div>
+                )}
               </CardContent>
             </Card>
 

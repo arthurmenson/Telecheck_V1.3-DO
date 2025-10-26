@@ -96,6 +96,8 @@ import { PatientManagement } from "./pages/PatientManagement";
 import { ClinicalOperations } from "./pages/ClinicalOperations";
 import { RemoteMonitoring } from "./pages/RemoteMonitoring";
 import { Administration } from "./pages/Administration";
+import { PatientProfile } from "./pages/PatientProfile";
+import { PatientSettings } from "./pages/PatientSettings";
 import NotFound from "./pages/NotFound";
 import {
   Activity,
@@ -271,6 +273,26 @@ const App = () => (
                     <ProtectedRoute allowedRoles={["patient"]}>
                       <Layout>
                         <Schedule />
+                      </Layout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/patient-profile"
+                  element={
+                    <ProtectedRoute allowedRoles={["patient"]}>
+                      <Layout>
+                        <PatientProfile />
+                      </Layout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/patient-settings"
+                  element={
+                    <ProtectedRoute allowedRoles={["patient"]}>
+                      <Layout>
+                        <PatientSettings />
                       </Layout>
                     </ProtectedRoute>
                   }

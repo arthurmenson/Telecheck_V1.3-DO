@@ -77,6 +77,29 @@ router.post("/", async (req: Request, res: Response) => {
       });
     }
 
+    // Check for existing appointment at the same time (prevent double-booking)
+    const existingAppointment = await prisma.appointment.findFirst({
+      where: {
+        doctorId,
+        scheduledTime: new Date(scheduledTime),
+        status: {
+          in: [
+            AppointmentStatus.pending,
+            AppointmentStatus.confirmed,
+            AppointmentStatus.active,
+          ],
+        },
+      },
+    });
+
+    if (existingAppointment) {
+      return res.status(409).json({
+        error: "Slot unavailable",
+        message:
+          "This time slot has been taken by another patient. Please select a different time.",
+      });
+    }
+
     // Generate confirmation number
     const confirmationNumber = `APPT-${uuidv4().slice(0, 8).toUpperCase()}`;
 

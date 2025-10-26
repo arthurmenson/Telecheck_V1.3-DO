@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -28,8 +28,13 @@ import {
   Shield,
   Loader2,
   XCircle,
+  AlertCircle,
+  Info,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { Alert, AlertDescription, AlertTitle } from "../components/ui/alert";
+import { Skeleton } from "../components/ui/skeleton";
+import type { Doctor } from "../types/telemedicine";
 
 // Type definitions for API responses
 interface ScheduleAppointmentResponse {
@@ -65,10 +70,15 @@ const DoctorCard = ({
   onSelect,
   isSelected = false,
 }: {
-  doctor: any;
+  doctor: Doctor;
   onSelect: () => void;
   isSelected?: boolean;
 }) => {
+  // Calculate urgent slots today
+  const today = new Date().toISOString().split("T")[0];
+  const todayAvailability = doctor.availability.find((a) => a.date === today);
+  const urgentSlots = todayAvailability ? todayAvailability.slots.length : 0;
+
   return (
     <Card
       className={`cursor-pointer transition-all hover:shadow-md ${
@@ -95,10 +105,12 @@ const DoctorCard = ({
               <div className="text-right">
                 <div className="flex items-center gap-1 mb-1">
                   <Star className="w-3 h-3 text-yellow-500 fill-current" />
-                  <span className="text-xs font-medium">{doctor.rating}</span>
+                  <span className="text-xs font-medium">
+                    {doctor.rating.toFixed(1)}
+                  </span>
                 </div>
                 <Badge variant="secondary" className="text-xs">
-                  {doctor.experience}
+                  {doctor.experience}+ years
                 </Badge>
               </div>
             </div>
@@ -107,27 +119,28 @@ const DoctorCard = ({
               <div className="flex items-center gap-2">
                 <Clock className="w-3 h-3 text-muted-foreground" />
                 <span className="text-xs text-muted-foreground">
-                  Next available: {doctor.nextAvailable}
+                  Next available: {doctor.nextAvailable || "Check calendar"}
                 </span>
               </div>
 
-              {doctor.urgentSlots && (
+              {urgentSlots > 0 && (
                 <div className="flex items-center gap-2">
                   <AlertTriangle className="w-3 h-3 text-orange-500" />
                   <span className="text-xs text-orange-600">
-                    {doctor.urgentSlots} urgent slots today
+                    {urgentSlots} slot{urgentSlots !== 1 ? "s" : ""} available
+                    today
                   </span>
                 </div>
               )}
 
               <div className="flex gap-2 mt-3">
-                {doctor.hasVideo && (
+                {doctor.videoEnabled && (
                   <Badge variant="outline" className="text-xs">
                     <Video className="w-3 h-3 mr-1" />
                     Video
                   </Badge>
                 )}
-                {doctor.hasInPerson && (
+                {doctor.inPersonEnabled && (
                   <Badge variant="outline" className="text-xs">
                     <MapPin className="w-3 h-3 mr-1" />
                     In-Person
@@ -178,14 +191,14 @@ const TimeSlot = ({
 };
 
 export function Schedule() {
-  const [selectedDoctor, setSelectedDoctor] = useState<any>(null);
+  const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null);
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
   const [appointmentType, setAppointmentType] = useState("urgent");
   const [reason, setReason] = useState("");
   const [step, setStep] = useState(1);
 
-  // Loading and error states
+  // Loading and error states for booking
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [appointmentDetails, setAppointmentDetails] = useState<{
@@ -194,48 +207,57 @@ export function Schedule() {
     meetingLink?: string;
   } | null>(null);
 
-  // Mock doctors data with urgent availability
-  const doctors = [
-    {
-      id: 1,
-      name: "Dr. Sarah Johnson",
-      specialty: "Cardiologist",
-      location: "Heart Care Center, Downtown",
-      rating: 4.9,
-      experience: "15+ years",
-      nextAvailable: "Today 2:00 PM",
-      urgentSlots: 3,
-      hasVideo: true,
-      hasInPerson: true,
-      specializes: ["High Cholesterol", "Heart Disease", "Drug Interactions"],
-    },
-    {
-      id: 2,
-      name: "Dr. Michael Chen",
-      specialty: "Internal Medicine",
-      location: "Medical Plaza, Main St",
-      rating: 4.8,
-      experience: "12+ years",
-      nextAvailable: "Tomorrow 9:00 AM",
-      urgentSlots: 1,
-      hasVideo: true,
-      hasInPerson: true,
-      specializes: ["Preventive Care", "Medication Management", "Lab Review"],
-    },
-    {
-      id: 3,
-      name: "Dr. Emily Rodriguez",
-      specialty: "Endocrinologist",
-      location: "Diabetes & Hormone Center",
-      rating: 4.9,
-      experience: "18+ years",
-      nextAvailable: "Today 4:30 PM",
-      urgentSlots: 2,
-      hasVideo: true,
-      hasInPerson: false,
-      specializes: ["Diabetes", "Metabolic Disorders", "Hormone Therapy"],
-    },
-  ];
+  // Loading and error states for doctors
+  const [doctors, setDoctors] = useState<Doctor[]>([]);
+  const [isLoadingDoctors, setIsLoadingDoctors] = useState(true);
+  const [doctorsError, setDoctorsError] = useState<string | null>(null);
+
+  // Fetch doctors from API
+  useEffect(() => {
+    const fetchDoctors = async () => {
+      setIsLoadingDoctors(true);
+      setDoctorsError(null);
+
+      try {
+        const token = localStorage.getItem("authToken");
+        if (!token) {
+          throw new Error("Authentication required. Please log in.");
+        }
+
+        const response = await fetch(
+          "/api/telemedicine/providers?videoEnabled=true",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch doctors");
+        }
+
+        const data = await response.json();
+
+        if (!data.success || !data.providers) {
+          throw new Error("Invalid response format");
+        }
+
+        setDoctors(data.providers);
+      } catch (error) {
+        console.error("Error fetching doctors:", error);
+        setDoctorsError(
+          error instanceof Error
+            ? error.message
+            : "Unable to load doctors. Please try again later.",
+        );
+      } finally {
+        setIsLoadingDoctors(false);
+      }
+    };
+
+    fetchDoctors();
+  }, []);
 
   // Available time slots
   const todaySlots = [
@@ -288,17 +310,15 @@ export function Schedule() {
 
       appointmentDate.setHours(adjustedHours, minutes || 0, 0, 0);
 
-      // Step 1: Create appointment via telemedicine API
-      const appointmentData: AppointmentData = {
-        providerId: selectedDoctor.id.toString(),
-        userId: "user-1", // TODO: Get from auth context
-        dateTime: appointmentDate.toISOString(),
+      // Step 1: Create appointment via appointments API (real database)
+      const appointmentData = {
+        doctorId: selectedDoctor.id.toString(),
+        scheduledTime: appointmentDate.toISOString(),
         type: "video",
         reason: reason || "Video consultation",
-        duration: 30, // 30 minute consultation
       };
 
-      const scheduleResponse = await fetch("/api/telemedicine/schedule", {
+      const scheduleResponse = await fetch("/api/appointments", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -310,20 +330,23 @@ export function Schedule() {
       if (!scheduleResponse.ok) {
         const errorData = await scheduleResponse.json().catch(() => ({}));
         throw new Error(
-          errorData.error ||
+          errorData.message ||
+            errorData.error ||
             `Failed to schedule appointment (${scheduleResponse.status})`,
         );
       }
 
-      const scheduleResult: ScheduleAppointmentResponse =
-        await scheduleResponse.json();
+      const scheduleResult = await scheduleResponse.json();
 
-      if (!scheduleResult.success || !scheduleResult.data) {
-        throw new Error(scheduleResult.error || "Failed to create appointment");
+      if (!scheduleResult.appointmentId) {
+        throw new Error("Failed to create appointment");
       }
 
-      const { appointmentId, confirmationNumber, meetingLink } =
-        scheduleResult.data;
+      const appointmentId = scheduleResult.appointmentId;
+      const confirmationNumber =
+        scheduleResult.confirmationNumber ||
+        `CONF-${appointmentId.slice(0, 8).toUpperCase()}`;
+      let meetingLink = scheduleResult.meetingLink || "";
 
       // Step 2: Create HCW consultation session
       let hcwUrl = meetingLink;
@@ -355,17 +378,15 @@ export function Schedule() {
 
       // Step 3: Send appointment confirmation notification (optional)
       try {
-        await fetch("/api/messaging/send", {
+        await fetch("/api/notifications/appointment", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
-            patientId: appointmentData.userId,
-            type: "appointment_confirmation",
-            channel: "sms",
-            message: `Your appointment with ${selectedDoctor.name} is confirmed for ${selectedDate} at ${selectedTime}. Confirmation: ${confirmationNumber}`,
+            appointmentId,
+            type: "confirmation",
           }),
         });
       } catch (notificationError) {
@@ -541,16 +562,62 @@ export function Schedule() {
               </Badge>
             </div>
 
-            <div className="grid gap-4">
-              {doctors.map((doctor) => (
-                <DoctorCard
-                  key={doctor.id}
-                  doctor={doctor}
-                  isSelected={selectedDoctor?.id === doctor.id}
-                  onSelect={() => setSelectedDoctor(doctor)}
-                />
-              ))}
-            </div>
+            {/* Loading State */}
+            {isLoadingDoctors && (
+              <div className="grid gap-4">
+                {[1, 2, 3].map((i) => (
+                  <Card key={i} className="p-4">
+                    <div className="flex items-start gap-4">
+                      <Skeleton className="h-16 w-16 rounded-full flex-shrink-0" />
+                      <div className="flex-1 space-y-2">
+                        <Skeleton className="h-4 w-3/4" />
+                        <Skeleton className="h-3 w-1/2" />
+                        <Skeleton className="h-3 w-2/3" />
+                        <div className="flex gap-2 mt-3">
+                          <Skeleton className="h-6 w-16" />
+                          <Skeleton className="h-6 w-20" />
+                        </div>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            )}
+
+            {/* Error State */}
+            {doctorsError && !isLoadingDoctors && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Error</AlertTitle>
+                <AlertDescription>{doctorsError}</AlertDescription>
+              </Alert>
+            )}
+
+            {/* Empty State */}
+            {!isLoadingDoctors && !doctorsError && doctors.length === 0 && (
+              <Alert>
+                <Info className="h-4 w-4" />
+                <AlertTitle>No doctors available</AlertTitle>
+                <AlertDescription>
+                  There are no doctors available for video consultations at this
+                  time. Please check back later or contact support.
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {/* Doctors List */}
+            {!isLoadingDoctors && !doctorsError && doctors.length > 0 && (
+              <div className="grid gap-4">
+                {doctors.map((doctor) => (
+                  <DoctorCard
+                    key={doctor.id}
+                    doctor={doctor}
+                    isSelected={selectedDoctor?.id === doctor.id}
+                    onSelect={() => setSelectedDoctor(doctor)}
+                  />
+                ))}
+              </div>
+            )}
 
             <div className="flex justify-end">
               <Button
@@ -558,7 +625,7 @@ export function Schedule() {
                   setStep(2);
                   setError(null);
                 }}
-                disabled={!selectedDoctor}
+                disabled={!selectedDoctor || isLoadingDoctors}
                 size="lg"
               >
                 Continue to Scheduling

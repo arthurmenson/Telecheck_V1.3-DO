@@ -47,6 +47,7 @@ import {
   generateConsultationSummary,
   triageEmergency,
 } from "./routes/telemedicine";
+import { getTelemedicineProviders } from "./routes/telemedicine-providers";
 import { authenticateToken, requireDoctor } from "./middleware/auth";
 import {
   exportFHIRData,
@@ -76,6 +77,8 @@ import ordersRoutes from "./routes/orders";
 import appointmentsRoutes from "./routes/appointments";
 import consultationsRoutes from "./routes/consultations";
 import consultationNotesRoutes from "./routes/consultation-notes";
+import patientProfileRoutes from "./routes/patient-profile";
+import patientSettingsRoutes from "./routes/patient-settings";
 import {
   sendMessage,
   sendCriticalAlert,
@@ -239,6 +242,10 @@ export async function createServer() {
   app.use("/api/consultations", consultationsRoutes);
   app.use("/api/consultation-notes", consultationNotesRoutes);
 
+  // Patient Portal routes
+  app.use("/api/patient/profile", patientProfileRoutes);
+  app.use("/api/patient/settings", patientSettingsRoutes);
+
   app.post("/api/chat", handleChat);
   app.get("/api/chat/history/:userId?", getChatHistory);
 
@@ -276,7 +283,7 @@ export async function createServer() {
   app.get(
     "/api/telemedicine/providers",
     authenticateToken as any,
-    getAvailableProviders,
+    getTelemedicineProviders,
   );
   app.post(
     "/api/telemedicine/schedule",

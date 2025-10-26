@@ -206,6 +206,8 @@ export function Layout({ children }: LayoutProps) {
           { name: "Wellness", href: "/wellness", icon: Heart },
           { name: "Trends", href: "/trends", icon: TrendingUp },
           { name: "AI Chat", href: "/chat", icon: MessageCircle },
+          { name: "My Profile", href: "/patient-profile", icon: User },
+          { name: "Settings", href: "/patient-settings", icon: Settings },
         ];
       case "doctor":
         return [

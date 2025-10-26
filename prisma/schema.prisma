@@ -48,23 +48,93 @@ model User {
   dateOfBirth            DateTime?      @map("date_of_birth") @db.Date
   phone                  String?
   role                   UserRole       @default(PATIENT)
-  emergencyContactName   String?        @map("emergency_contact_name")
-  emergencyContactPhone  String?        @map("emergency_contact_phone")
+
+  // Profile fields
+  gender                 String?
+  address                String?
+  city                   String?
+  state                  String?
+  zipCode                String?        @map("zip_code")
+
+  // Emergency contact
+  emergencyContactName     String?      @map("emergency_contact_name")
+  emergencyContactPhone    String?      @map("emergency_contact_phone")
+  emergencyContactRelation String?      @map("emergency_contact_relation")
+
+  // Medical information
   medicalHistory         String?        @map("medical_history") @db.Text
   currentMedications     String?        @map("current_medications") @db.Text
   allergies              String?        @db.Text
+
+  // Insurance
   insuranceProvider      String?        @map("insurance_provider")
   insurancePolicyNumber  String?        @map("insurance_policy_number")
+  insuranceGroupNumber   String?        @map("insurance_group_number")
   primaryCarePhysician   String?        @map("primary_care_physician")
+
+  // Settings - Notification Preferences
+  emailNotifications     Boolean        @default(true) @map("email_notifications")
+  smsNotifications       Boolean        @default(true) @map("sms_notifications")
+  pushNotifications      Boolean        @default(false) @map("push_notifications")
+  appointmentNotifications Boolean      @default(true) @map("appointment_notifications")
+  labResultNotifications   Boolean      @default(true) @map("lab_result_notifications")
+  messageNotifications     Boolean      @default(true) @map("message_notifications")
+  reminderNotifications    Boolean      @default(true) @map("reminder_notifications")
+
+  // Settings - Privacy Controls
+  dataSharing            Boolean        @default(false) @map("data_sharing")
+  marketingConsent       Boolean        @default(false) @map("marketing_consent")
+  thirdPartySharing      Boolean        @default(false) @map("third_party_sharing")
+
+  // Settings - Communication Preferences
+  preferredContactMethod String         @default("email") @map("preferred_contact_method")
+  languagePreference     String         @default("en") @map("language_preference")
+
+  // Settings - Security
+  twoFactorEnabled       Boolean        @default(false) @map("two_factor_enabled")
+  twoFactorSecret        String?        @map("two_factor_secret")
+
   createdAt              DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt              DateTime       @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   // Relations
   patientAppointments    Appointment[]  @relation("PatientAppointments")
   doctorAppointments     Appointment[]  @relation("DoctorAppointments")
+  doctorProfile          DoctorProfile?
 
   @@index([email])
   @@map("users")
+}
+
+// DoctorProfile model for detailed provider information
+model DoctorProfile {
+  id              String   @id @default(cuid())
+  userId          String   @unique @map("user_id")
+  specialty       String
+  credentials     String   // "MD", "DO", "NP", etc.
+  bio             String?  @db.Text
+  experience      Int      @default(0) // years of experience
+  rating          Float    @default(0.0)
+  reviewCount     Int      @default(0) @map("review_count")
+  languages       String[] @default(["English"])
+  videoEnabled    Boolean  @default(true) @map("video_enabled")
+  phoneEnabled    Boolean  @default(true) @map("phone_enabled")
+  inPersonEnabled Boolean  @default(false) @map("in_person_enabled")
+  licenseNumber   String?  @map("license_number")
+  licenseState    String?  @map("license_state")
+  location        String?  // "Boston, MA" or "Medical Plaza, Main St"
+  education       String?  // "Harvard Medical School"
+
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@index([specialty])
+  @@index([videoEnabled])
+  @@index([rating])
+  @@index([userId])
+  @@map("doctor_profiles")
 }
 
 // Appointment model
@@ -92,6 +162,7 @@ model Appointment {
   @@index([status])
   @@index([patientId, scheduledTime])
   @@index([doctorId, scheduledTime])
+  @@unique([doctorId, scheduledTime], name: "no_double_booking")
   @@map("appointments")
 }
 
