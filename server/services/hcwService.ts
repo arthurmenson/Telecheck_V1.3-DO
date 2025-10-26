@@ -70,7 +70,7 @@ async function getHcwSession(): Promise<string> {
     const response = await axios.post(
       `${HCW_API_URL}/api/v1/login-local`,
       {
-        email: HCW_USER_EMAIL,
+        identifier: HCW_USER_EMAIL,
         password: HCW_USER_PASSWORD,
       },
       {

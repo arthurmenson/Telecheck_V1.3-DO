@@ -67,7 +67,7 @@ services:
       - key: HCW_USER_EMAIL
         value: "telecheck-api@telecheckhealth.com"
       - key: HCW_USER_PASSWORD
-        value: "TeleCh3ck!HCW@2025!Secure"
+        value: "TeleCheck2025Secure"
 
       # Database - Use DigitalOcean managed database
       - key: DATABASE_URL
