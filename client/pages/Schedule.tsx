@@ -35,6 +35,17 @@ import { Link } from "react-router-dom";
 import { Alert, AlertDescription, AlertTitle } from "../components/ui/alert";
 import { Skeleton } from "../components/ui/skeleton";
 import type { Doctor } from "../types/telemedicine";
+import {
+  VisitTypeSelector,
+  ChiefComplaintSelector,
+  SymptomDetailsForm,
+  MedicalHistoryQuickForm,
+  PreVisitInstructions,
+  SchedulingProgressIndicator,
+  type SymptomDetails,
+  type MedicalHistoryData,
+  type ConsentData,
+} from "../components/scheduling";
 
 // Type definitions for API responses
 interface ScheduleAppointmentResponse {
@@ -62,6 +73,14 @@ interface AppointmentData {
   type: "video" | "phone" | "in_person";
   reason: string;
   duration: number;
+  // Enhanced intake data
+  visitType?: string;
+  chiefComplaint?: string;
+  symptomDetails?: SymptomDetails;
+  medicalContext?: MedicalHistoryData;
+  consents?: ConsentData;
+  intakeCompleted?: boolean;
+  intakeVersion?: string;
 }
 
 // Doctor Card Component
@@ -191,12 +210,52 @@ const TimeSlot = ({
 };
 
 export function Schedule() {
+  // Step 1: Visit Type
+  const [visitType, setVisitType] = useState<string>("");
+
+  // Step 2: Chief Complaint
+  const [chiefComplaint, setChiefComplaint] = useState<string>("");
+  const [customReason, setCustomReason] = useState<string>("");
+
+  // Step 3: Symptom Details
+  const [symptomDetails, setSymptomDetails] = useState<SymptomDetails>({
+    startDate: "",
+    duration: "",
+    severity: "",
+    previousTreatment: "",
+    relatedMedications: "",
+  });
+
+  // Step 4: Medical History
+  const [medicalHistory, setMedicalHistory] = useState<MedicalHistoryData>({
+    seenForThisBefore: "",
+    hasAllergies: "",
+    allergyDetails: "",
+    currentMedications: "",
+    recentHospitalizations: "",
+  });
+
+  // Step 5: Doctor Selection (existing)
   const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null);
+
+  // Step 6: Date & Time (existing)
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
+
+  // Step 7: Pre-Visit & Consents
+  const [consents, setConsents] = useState<ConsentData>({
+    telehealthConsent: false,
+    emergencyUnderstanding: false,
+    billingAuthorization: false,
+  });
+
+  // Legacy fields for backward compatibility
   const [appointmentType, setAppointmentType] = useState("urgent");
   const [reason, setReason] = useState("");
+
+  // Navigation & UI state
   const [step, setStep] = useState(1);
+  const totalSteps = 8;
 
   // Loading and error states for booking
   const [isLoading, setIsLoading] = useState(false);
@@ -311,11 +370,48 @@ export function Schedule() {
       appointmentDate.setHours(adjustedHours, minutes || 0, 0, 0);
 
       // Step 1: Create appointment via appointments API (real database)
+      // Build comprehensive reason from intake data
+      const comprehensiveReason =
+        customReason || reason || chiefComplaint || "Video consultation";
+
       const appointmentData = {
         doctorId: selectedDoctor.id.toString(),
         scheduledTime: appointmentDate.toISOString(),
-        type: "video",
-        reason: reason || "Video consultation",
+        type: "video" as const,
+        reason: comprehensiveReason,
+
+        // Enhanced intake data
+        visitType,
+        chiefComplaint,
+
+        // Symptom information
+        symptomDetails: {
+          startDate: symptomDetails.startDate,
+          duration: symptomDetails.duration,
+          severity: symptomDetails.severity,
+          previousTreatment: symptomDetails.previousTreatment,
+          relatedMedications: symptomDetails.relatedMedications,
+        },
+
+        // Medical context
+        medicalContext: {
+          seenForThisBefore: medicalHistory.seenForThisBefore,
+          hasAllergies: medicalHistory.hasAllergies,
+          allergyDetails: medicalHistory.allergyDetails,
+          currentMedications: medicalHistory.currentMedications,
+          recentHospitalizations: medicalHistory.recentHospitalizations,
+        },
+
+        // Consents
+        consents: {
+          telehealthConsent: consents.telehealthConsent,
+          emergencyUnderstanding: consents.emergencyUnderstanding,
+          billingAuthorization: consents.billingAuthorization,
+        },
+
+        // Metadata
+        intakeCompleted: true,
+        intakeVersion: "2.0",
       };
 
       const scheduleResponse = await fetch("/api/appointments", {
@@ -404,8 +500,8 @@ export function Schedule() {
       // Clear form
       setReason("");
 
-      // Move to confirmation step
-      setStep(4);
+      // Move to confirmation step (now step 8)
+      setStep(8);
     } catch (err) {
       console.error("Appointment booking error:", err);
 
@@ -433,7 +529,7 @@ export function Schedule() {
     }
   };
 
-  if (step === 4) {
+  if (step === 8) {
     return (
       <div className="min-h-screen bg-background">
         <div className="max-w-4xl mx-auto px-4 py-6">
@@ -446,52 +542,144 @@ export function Schedule() {
               Your appointment has been successfully scheduled.
             </p>
 
-            <Card className="max-w-md mx-auto mb-6">
-              <CardContent className="p-6">
-                <div className="space-y-3 text-left">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Doctor:</span>
-                    <span className="font-medium">{selectedDoctor?.name}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Date:</span>
-                    <span className="font-medium">{selectedDate}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Time:</span>
-                    <span className="font-medium">{selectedTime}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Type:</span>
-                    <span className="font-medium">Video Consultation</span>
-                  </div>
-                  {appointmentDetails?.confirmationNumber && (
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">
-                        Confirmation:
-                      </span>
-                      <span className="font-medium font-mono">
-                        {appointmentDetails.confirmationNumber}
-                      </span>
+            <Card className="max-w-2xl mx-auto mb-6">
+              <CardHeader>
+                <CardTitle>Appointment Details</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div className="space-y-3">
+                    <h4 className="font-medium text-sm text-muted-foreground uppercase tracking-wider">
+                      Visit Information
+                    </h4>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">
+                          Visit Type:
+                        </span>
+                        <span className="font-medium capitalize">
+                          {visitType.replace("_", " ")}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Reason:</span>
+                        <span className="font-medium">
+                          {chiefComplaint.replace("_", " ")}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">
+                          Consultation Type:
+                        </span>
+                        <span className="font-medium">Video Call</span>
+                      </div>
                     </div>
-                  )}
+                  </div>
+
+                  <div className="space-y-3">
+                    <h4 className="font-medium text-sm text-muted-foreground uppercase tracking-wider">
+                      Appointment Time
+                    </h4>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Provider:</span>
+                        <span className="font-medium">
+                          {selectedDoctor?.name}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Date:</span>
+                        <span className="font-medium">{selectedDate}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Time:</span>
+                        <span className="font-medium">{selectedTime}</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
+                {appointmentDetails?.confirmationNumber && (
+                  <div className="pt-4 border-t">
+                    <div className="bg-primary/5 p-4 rounded-lg">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium">
+                          Confirmation Number:
+                        </span>
+                        <span className="text-lg font-bold font-mono text-primary">
+                          {appointmentDetails.confirmationNumber}
+                        </span>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-2">
+                        Save this number for your records
+                      </p>
+                    </div>
+                  </div>
+                )}
+
                 {appointmentDetails?.meetingLink && (
-                  <div className="mt-4 pt-4 border-t">
-                    <p className="text-sm text-muted-foreground mb-2">
+                  <div className="pt-4 border-t">
+                    <p className="text-sm font-medium mb-2">
                       Video Consultation Link:
                     </p>
                     <a
                       href={appointmentDetails.meetingLink}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-sm text-blue-600 hover:text-blue-700 underline break-all"
+                      className="inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 underline break-all"
                     >
-                      {appointmentDetails.meetingLink}
+                      <Video className="w-4 h-4" />
+                      Join Video Call
                     </a>
+                    <p className="text-xs text-muted-foreground mt-2">
+                      You can also access this link from your appointment
+                      confirmation email
+                    </p>
                   </div>
                 )}
+              </CardContent>
+            </Card>
+
+            {/* Preparation Reminder */}
+            <Card className="max-w-2xl mx-auto mb-6 border-blue-200 bg-blue-50 dark:bg-blue-900/20">
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Info className="w-5 h-5 text-blue-600" />
+                  Before Your Appointment
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2 text-sm">
+                  <li className="flex items-start gap-2">
+                    <CheckCircle className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                    <span>Have your list of current medications ready</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                    <span>
+                      Prepare any questions you want to ask your provider
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                    <span>
+                      Test your camera and microphone 5 minutes before the call
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                    <span>
+                      Find a quiet, private location with good lighting
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                    <span>
+                      Have your insurance card and photo ID available for
+                      verification
+                    </span>
+                  </li>
+                </ul>
               </CardContent>
             </Card>
 
@@ -523,42 +711,149 @@ export function Schedule() {
               Schedule Appointment
             </h1>
             <p className="text-muted-foreground">
-              Book urgent consultation for lab results and medication review
+              Complete our comprehensive intake process to schedule your
+              healthcare visit
             </p>
           </div>
         </div>
 
-        {/* Progress Steps */}
-        <div className="flex items-center gap-4 mb-8">
-          {[1, 2, 3].map((num) => (
-            <div key={num} className="flex items-center">
-              <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                  step >= num
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-muted-foreground"
-                }`}
-              >
-                {num}
-              </div>
-              {num < 3 && (
-                <div
-                  className={`w-12 h-0.5 mx-2 ${
-                    step > num ? "bg-primary" : "bg-muted"
-                  }`}
-                />
-              )}
-            </div>
-          ))}
-        </div>
+        {/* Progress Indicator */}
+        <SchedulingProgressIndicator
+          currentStep={step}
+          totalSteps={totalSteps}
+        />
 
-        {/* Step 1: Choose Doctor */}
+        {/* Step 1: Visit Type Selection */}
         {step === 1 && (
+          <div className="space-y-6">
+            <VisitTypeSelector selected={visitType} onChange={setVisitType} />
+
+            <div className="flex justify-end">
+              <Button
+                onClick={() => {
+                  setStep(2);
+                  setError(null);
+                }}
+                disabled={!visitType}
+                size="lg"
+              >
+                Continue
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Step 2: Chief Complaint */}
+        {step === 2 && (
+          <div className="space-y-6">
+            <ChiefComplaintSelector
+              selected={chiefComplaint}
+              onChange={setChiefComplaint}
+              visitType={visitType}
+              customReason={customReason}
+              onCustomReasonChange={setCustomReason}
+            />
+
+            <div className="flex justify-between">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setStep(1);
+                  setError(null);
+                }}
+              >
+                Back
+              </Button>
+              <Button
+                onClick={() => {
+                  setStep(3);
+                  setError(null);
+                }}
+                disabled={
+                  !chiefComplaint ||
+                  (chiefComplaint === "other" && !customReason.trim())
+                }
+                size="lg"
+              >
+                Continue
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Step 3: Symptom Details */}
+        {step === 3 && (
+          <div className="space-y-6">
+            <SymptomDetailsForm
+              data={symptomDetails}
+              onUpdate={setSymptomDetails}
+            />
+
+            <div className="flex justify-between">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setStep(2);
+                  setError(null);
+                }}
+              >
+                Back
+              </Button>
+              <Button
+                onClick={() => {
+                  setStep(4);
+                  setError(null);
+                }}
+                size="lg"
+              >
+                Continue
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Step 4: Medical History */}
+        {step === 4 && (
+          <div className="space-y-6">
+            <MedicalHistoryQuickForm
+              data={medicalHistory}
+              onUpdate={setMedicalHistory}
+            />
+
+            <div className="flex justify-between">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setStep(3);
+                  setError(null);
+                }}
+              >
+                Back
+              </Button>
+              <Button
+                onClick={() => {
+                  setStep(5);
+                  setError(null);
+                }}
+                disabled={
+                  medicalHistory.hasAllergies === "yes" &&
+                  !medicalHistory.allergyDetails.trim()
+                }
+                size="lg"
+              >
+                Continue
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Step 5: Choose Doctor */}
+        {step === 5 && (
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-semibold">Choose Your Doctor</h2>
-              <Badge className="bg-red-100 text-red-700">
-                Based on your recent lab results
+              <Badge className="bg-blue-100 text-blue-700">
+                {visitType.replace("_", " ")}
               </Badge>
             </div>
 
@@ -619,10 +914,19 @@ export function Schedule() {
               </div>
             )}
 
-            <div className="flex justify-end">
+            <div className="flex justify-between">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setStep(4);
+                  setError(null);
+                }}
+              >
+                Back
+              </Button>
               <Button
                 onClick={() => {
-                  setStep(2);
+                  setStep(6);
                   setError(null);
                 }}
                 disabled={!selectedDoctor || isLoadingDoctors}
@@ -634,8 +938,8 @@ export function Schedule() {
           </div>
         )}
 
-        {/* Step 2: Choose Date & Time */}
-        {step === 2 && (
+        {/* Step 6: Choose Date & Time */}
+        {step === 6 && (
           <div className="space-y-6">
             <div>
               <h2 className="text-xl font-semibold mb-2">Select Date & Time</h2>
@@ -712,7 +1016,7 @@ export function Schedule() {
               <Button
                 variant="outline"
                 onClick={() => {
-                  setStep(1);
+                  setStep(5);
                   setError(null);
                 }}
               >
@@ -720,7 +1024,7 @@ export function Schedule() {
               </Button>
               <Button
                 onClick={() => {
-                  setStep(3);
+                  setStep(7);
                   setError(null);
                 }}
                 disabled={!selectedDate || !selectedTime}
@@ -732,10 +1036,60 @@ export function Schedule() {
           </div>
         )}
 
-        {/* Step 3: Appointment Details */}
-        {step === 3 && (
+        {/* Step 7: Pre-Visit Instructions & Consents */}
+        {step === 7 && (
           <div className="space-y-6">
-            <h2 className="text-xl font-semibold">Appointment Details</h2>
+            <PreVisitInstructions
+              visitType={visitType}
+              appointmentType="video"
+              consents={consents}
+              onConsentChange={setConsents}
+            />
+
+            {/* Summary Card */}
+            <Card className="border-2 border-primary/20 bg-primary/5">
+              <CardHeader>
+                <CardTitle className="text-lg">Appointment Summary</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid md:grid-cols-2 gap-4 text-sm">
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Visit Type:</span>
+                      <span className="font-medium capitalize">
+                        {visitType.replace("_", " ")}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Reason:</span>
+                      <span className="font-medium">
+                        {chiefComplaint.replace("_", " ")}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Provider:</span>
+                      <span className="font-medium">
+                        {selectedDoctor?.name}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Date:</span>
+                      <span className="font-medium">{selectedDate}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Time:</span>
+                      <span className="font-medium">{selectedTime}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Type:</span>
+                      <span className="font-medium">Video Consultation</span>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
             {/* Error Display */}
             {error && (
@@ -756,75 +1110,11 @@ export function Schedule() {
               </Card>
             )}
 
-            <Card>
-              <CardContent className="p-6">
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div>
-                    <h3 className="font-medium mb-4">Appointment Summary</h3>
-                    <div className="space-y-3 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Doctor:</span>
-                        <span>{selectedDoctor?.name}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">
-                          Specialty:
-                        </span>
-                        <span>{selectedDoctor?.specialty}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Date:</span>
-                        <span>{selectedDate}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Time:</span>
-                        <span>{selectedTime}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Type:</span>
-                        <span>
-                          {selectedDate === "Today"
-                            ? "Urgent Consultation"
-                            : "Regular Visit"}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <h3 className="font-medium mb-4">Reason for Visit</h3>
-                    <Textarea
-                      placeholder="Describe your symptoms or concerns (e.g., discuss lab results, medication interactions, follow-up on cholesterol...)"
-                      value={reason}
-                      onChange={(e) => setReason(e.target.value)}
-                      className="h-32"
-                    />
-
-                    <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                      <div className="flex items-start gap-2">
-                        <Shield className="w-4 h-4 text-blue-600 mt-0.5" />
-                        <div className="text-sm">
-                          <div className="font-medium text-blue-900 dark:text-blue-100 mb-1">
-                            Pre-visit Preparation
-                          </div>
-                          <div className="text-blue-700 dark:text-blue-300">
-                            Your recent lab results and medication list will be
-                            automatically shared with the doctor before your
-                            appointment.
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
             <div className="flex justify-between">
               <Button
                 variant="outline"
                 onClick={() => {
-                  setStep(2);
+                  setStep(6);
                   setError(null);
                 }}
                 disabled={isLoading}
@@ -834,15 +1124,20 @@ export function Schedule() {
               <Button
                 onClick={handleBookAppointment}
                 size="lg"
-                disabled={isLoading || !reason.trim()}
+                disabled={
+                  isLoading ||
+                  !consents.telehealthConsent ||
+                  !consents.emergencyUnderstanding ||
+                  !consents.billingAuthorization
+                }
               >
                 {isLoading ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Booking...
+                    Booking Appointment...
                   </>
                 ) : (
-                  "Book Appointment"
+                  "Confirm & Book Appointment"
                 )}
               </Button>
             </div>

@@ -9,6 +9,7 @@ import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Progress } from "../components/ui/progress";
+import { Avatar, AvatarFallback } from "../components/ui/avatar";
 import {
   Activity,
   TrendingUp,
@@ -44,11 +45,15 @@ import {
   Dna,
   Loader2,
   AlertCircle,
+  Video,
+  FileText,
+  Plus,
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import apiClient from "../lib/api-client";
 import { API_ENDPOINTS } from "../lib/api-endpoints";
+import { format, formatDistance, isThisYear } from "date-fns";
 
 // TypeScript interfaces for API responses
 interface LabResult {
@@ -77,14 +82,54 @@ interface Medication {
   isActive?: boolean;
 }
 
+interface Appointment {
+  id: string;
+  patientId: string;
+  doctorId: string;
+  scheduledTime: string;
+  type: "video" | "phone" | "in-person";
+  status: "pending" | "confirmed" | "cancelled" | "completed";
+  reason?: string;
+  visitType?: string;
+  chiefComplaint?: string;
+  symptomDetails?: string;
+  notes?: string;
+  meetingLink?: string;
+  doctor: {
+    id: string;
+    email: string;
+    firstName: string;
+    lastName: string;
+    specialty?: string;
+    phone?: string;
+  };
+  patient?: {
+    id: string;
+    email: string;
+    firstName: string;
+    lastName: string;
+    phone?: string;
+  };
+  videoConsultation?: {
+    id: string;
+    patientUrl?: string;
+    doctorUrl?: string;
+    status: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+}
+
 interface LoadingState {
   labs: boolean;
   medications: boolean;
+  appointments: boolean;
 }
 
 interface ErrorState {
   labs: string | null;
   medications: string | null;
+  appointments: string | null;
 }
 
 // Chart Components
@@ -742,6 +787,7 @@ const LabResultCard = ({
 
 export function Dashboard() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [aiMessage, setAiMessage] = useState("");
   const [showAiChat, setShowAiChat] = useState(false);
   const [dateFilter, setDateFilter] = useState("7days");
@@ -751,15 +797,18 @@ export function Dashboard() {
   // API data state
   const [labResults, setLabResults] = useState<LabResult[]>([]);
   const [medications, setMedications] = useState<Medication[]>([]);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
 
   // Loading and error states
   const [loading, setLoading] = useState<LoadingState>({
     labs: true,
     medications: true,
+    appointments: true,
   });
   const [errors, setErrors] = useState<ErrorState>({
     labs: null,
     medications: null,
+    appointments: null,
   });
 
   const currentTime = new Date();
@@ -829,6 +878,36 @@ export function Dashboard() {
 
     if (user?.id) {
       fetchMedications();
+    }
+  }, [user?.id]);
+
+  // Fetch appointments from API
+  useEffect(() => {
+    const fetchAppointments = async () => {
+      try {
+        setLoading((prev) => ({ ...prev, appointments: true }));
+        setErrors((prev) => ({ ...prev, appointments: null }));
+
+        const response = await apiClient.get<{ appointments: Appointment[] }>(
+          "/appointments/patient",
+        );
+
+        if (response.success && response.data?.appointments) {
+          setAppointments(response.data.appointments);
+        }
+      } catch (error) {
+        console.error("Failed to fetch appointments:", error);
+        setErrors((prev) => ({
+          ...prev,
+          appointments: "Failed to load appointments. Please try again later.",
+        }));
+      } finally {
+        setLoading((prev) => ({ ...prev, appointments: false }));
+      }
+    };
+
+    if (user?.id) {
+      fetchAppointments();
     }
   }, [user?.id]);
 
@@ -951,6 +1030,79 @@ export function Dashboard() {
     },
   ];
 
+  // Appointment helper functions
+  const canJoinCall = (appointment: Appointment): boolean => {
+    const now = new Date();
+    const appointmentTime = new Date(appointment.scheduledTime);
+    const diffMinutes =
+      (appointmentTime.getTime() - now.getTime()) / (1000 * 60);
+
+    return (
+      appointment.type === "video" &&
+      diffMinutes >= -5 &&
+      diffMinutes <= 15 &&
+      appointment.status !== "cancelled"
+    );
+  };
+
+  const getStatusVariant = (
+    status: string,
+  ): "default" | "secondary" | "destructive" | "outline" => {
+    switch (status) {
+      case "confirmed":
+        return "default";
+      case "pending":
+        return "secondary";
+      case "cancelled":
+        return "destructive";
+      case "completed":
+        return "outline";
+      default:
+        return "default";
+    }
+  };
+
+  const getDoctorInitials = (doctor: {
+    firstName: string;
+    lastName: string;
+  }): string => {
+    return `${doctor.firstName[0]}${doctor.lastName[0]}`.toUpperCase();
+  };
+
+  const joinVideoCall = (appointment: Appointment) => {
+    if (appointment.videoConsultation?.patientUrl) {
+      window.open(appointment.videoConsultation.patientUrl, "_blank");
+    } else if (appointment.meetingLink) {
+      navigate(appointment.meetingLink);
+    }
+  };
+
+  const viewDetails = (appointment: Appointment) => {
+    navigate(`/appointments/${appointment.id}`);
+  };
+
+  // Separate appointments into upcoming and past
+  const upcomingAppointments = appointments
+    .filter((apt) => new Date(apt.scheduledTime) > new Date())
+    .filter((apt) => apt.status !== "cancelled")
+    .sort(
+      (a, b) =>
+        new Date(a.scheduledTime).getTime() -
+        new Date(b.scheduledTime).getTime(),
+    );
+
+  const pastAppointments = appointments
+    .filter(
+      (apt) =>
+        new Date(apt.scheduledTime) <= new Date() || apt.status === "completed",
+    )
+    .sort(
+      (a, b) =>
+        new Date(b.scheduledTime).getTime() -
+        new Date(a.scheduledTime).getTime(),
+    )
+    .slice(0, 3);
+
   const handleAiSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (aiMessage.trim()) {
@@ -1064,6 +1216,411 @@ export function Dashboard() {
             </div>
           ))}
         </div>
+
+        {/* Appointments Section */}
+        <section>
+          <h2 className="text-2xl font-bold mb-4">My Appointments</h2>
+
+          {/* Appointment Stats Widgets */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-gray-600">Upcoming</p>
+                    <p className="text-2xl font-bold text-blue-600">
+                      {upcomingAppointments.length}
+                    </p>
+                  </div>
+                  <Calendar className="h-8 w-8 text-blue-600" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-gray-600">This Year</p>
+                    <p className="text-2xl font-bold text-green-600">
+                      {
+                        appointments.filter((a) =>
+                          isThisYear(new Date(a.scheduledTime)),
+                        ).length
+                      }
+                    </p>
+                  </div>
+                  <Activity className="h-8 w-8 text-green-600" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-gray-600">Completed</p>
+                    <p className="text-2xl font-bold text-purple-600">
+                      {
+                        appointments.filter((a) => a.status === "completed")
+                          .length
+                      }
+                    </p>
+                  </div>
+                  <CheckCircle className="h-8 w-8 text-purple-600" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-gray-600">Next In</p>
+                    <p className="text-lg font-bold text-orange-600">
+                      {upcomingAppointments.length > 0
+                        ? formatDistance(
+                            new Date(upcomingAppointments[0].scheduledTime),
+                            new Date(),
+                          )
+                        : "N/A"}
+                    </p>
+                  </div>
+                  <Clock className="h-8 w-8 text-orange-600" />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Loading State */}
+          {loading.appointments && (
+            <Card>
+              <CardContent className="p-12 text-center">
+                <Loader2 className="h-16 w-16 mx-auto text-primary animate-spin mb-4" />
+                <p className="text-gray-600">Loading appointments...</p>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Error State */}
+          {errors.appointments && !loading.appointments && (
+            <Card className="border-destructive">
+              <CardContent className="p-12 text-center">
+                <AlertCircle className="h-16 w-16 mx-auto text-destructive mb-4" />
+                <h3 className="text-lg font-semibold mb-2 text-destructive">
+                  Error Loading Appointments
+                </h3>
+                <p className="text-gray-600 mb-6">{errors.appointments}</p>
+                <Button
+                  variant="outline"
+                  onClick={() => window.location.reload()}
+                >
+                  Retry
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Empty State */}
+          {!loading.appointments &&
+            !errors.appointments &&
+            appointments.length === 0 && (
+              <Card>
+                <CardContent className="p-12 text-center">
+                  <Calendar className="h-16 w-16 mx-auto text-gray-300 mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">
+                    No Appointments Yet
+                  </h3>
+                  <p className="text-gray-600 mb-6">
+                    Schedule your first appointment to get started with your
+                    healthcare journey.
+                  </p>
+                  <Button onClick={() => navigate("/schedule")}>
+                    <Plus className="mr-2 h-4 w-4" />
+                    Schedule Appointment
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+
+          {/* Appointments Content */}
+          {!loading.appointments &&
+            !errors.appointments &&
+            appointments.length > 0 && (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Next Appointment Card */}
+                {upcomingAppointments.length > 0 && (
+                  <Card className="border-blue-500 border-2 bg-blue-50 dark:bg-blue-950">
+                    <CardHeader>
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <CardTitle className="text-xl">
+                            Next Appointment
+                          </CardTitle>
+                          <p className="text-sm text-gray-600 mt-1">
+                            {formatDistance(
+                              new Date(upcomingAppointments[0].scheduledTime),
+                              new Date(),
+                              { addSuffix: true },
+                            )}
+                          </p>
+                        </div>
+                        <Badge
+                          variant={getStatusVariant(
+                            upcomingAppointments[0].status,
+                          )}
+                        >
+                          {upcomingAppointments[0].status}
+                        </Badge>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-4">
+                          <Avatar className="h-16 w-16">
+                            <AvatarFallback className="bg-blue-600 text-white text-xl">
+                              {getDoctorInitials(
+                                upcomingAppointments[0].doctor,
+                              )}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <p className="font-semibold text-lg">
+                              Dr. {upcomingAppointments[0].doctor.firstName}{" "}
+                              {upcomingAppointments[0].doctor.lastName}
+                            </p>
+                            <p className="text-sm text-gray-600">
+                              {upcomingAppointments[0].doctor.specialty ||
+                                "General Practice"}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <p className="text-sm text-gray-600">Date</p>
+                            <p className="font-medium">
+                              {format(
+                                new Date(upcomingAppointments[0].scheduledTime),
+                                "EEEE, MMMM d, yyyy",
+                              )}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-sm text-gray-600">Time</p>
+                            <p className="font-medium">
+                              {format(
+                                new Date(upcomingAppointments[0].scheduledTime),
+                                "h:mm a",
+                              )}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div>
+                          <p className="text-sm text-gray-600">Visit Type</p>
+                          <p className="font-medium">
+                            {upcomingAppointments[0].visitType ||
+                              (upcomingAppointments[0].type === "video"
+                                ? "Video Consultation"
+                                : upcomingAppointments[0].type === "phone"
+                                  ? "Phone Call"
+                                  : "In-Person Visit")}
+                          </p>
+                        </div>
+
+                        {upcomingAppointments[0].reason && (
+                          <div>
+                            <p className="text-sm text-gray-600">Reason</p>
+                            <p className="font-medium">
+                              {upcomingAppointments[0].reason}
+                            </p>
+                          </div>
+                        )}
+
+                        <div className="flex gap-2">
+                          {canJoinCall(upcomingAppointments[0]) && (
+                            <Button
+                              className="flex-1"
+                              onClick={() =>
+                                joinVideoCall(upcomingAppointments[0])
+                              }
+                            >
+                              <Video className="mr-2 h-4 w-4" />
+                              Join Call
+                            </Button>
+                          )}
+                          <Button
+                            variant="outline"
+                            className={
+                              canJoinCall(upcomingAppointments[0])
+                                ? "flex-1"
+                                : "w-full"
+                            }
+                            onClick={() => viewDetails(upcomingAppointments[0])}
+                          >
+                            <FileText className="mr-2 h-4 w-4" />
+                            View Details
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Upcoming Appointments List */}
+                {upcomingAppointments.slice(1, 5).length > 0 && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Upcoming Appointments</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-3">
+                        {upcomingAppointments.slice(1, 5).map((appointment) => (
+                          <div
+                            key={appointment.id}
+                            className="flex justify-between items-center p-3 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors"
+                            onClick={() => viewDetails(appointment)}
+                          >
+                            <div className="flex gap-3">
+                              <Calendar className="h-5 w-5 text-gray-400 mt-1" />
+                              <div>
+                                <p className="font-medium">
+                                  Dr. {appointment.doctor.firstName}{" "}
+                                  {appointment.doctor.lastName}
+                                </p>
+                                <p className="text-sm text-gray-600">
+                                  {format(
+                                    new Date(appointment.scheduledTime),
+                                    "MMM d, yyyy",
+                                  )}{" "}
+                                  at{" "}
+                                  {format(
+                                    new Date(appointment.scheduledTime),
+                                    "h:mm a",
+                                  )}
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                  {appointment.doctor.specialty ||
+                                    "General Practice"}
+                                </p>
+                              </div>
+                            </div>
+                            <Badge
+                              variant={getStatusVariant(appointment.status)}
+                            >
+                              {appointment.status}
+                            </Badge>
+                          </div>
+                        ))}
+                      </div>
+
+                      {upcomingAppointments.length > 5 && (
+                        <Button
+                          variant="link"
+                          className="w-full mt-3"
+                          onClick={() => navigate("/appointments")}
+                        >
+                          View all {upcomingAppointments.length} upcoming
+                          appointments →
+                        </Button>
+                      )}
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Recent Appointments */}
+                {pastAppointments.length > 0 && (
+                  <Card className="lg:col-span-2">
+                    <CardHeader>
+                      <CardTitle>Recent Appointments</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        {pastAppointments.map((appointment) => (
+                          <div
+                            key={appointment.id}
+                            className="p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors"
+                            onClick={() => viewDetails(appointment)}
+                          >
+                            <div className="flex items-center gap-3 mb-3">
+                              <Avatar className="h-10 w-10">
+                                <AvatarFallback className="bg-gray-600 text-white">
+                                  {getDoctorInitials(appointment.doctor)}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div>
+                                <p className="font-medium text-sm">
+                                  Dr. {appointment.doctor.firstName}{" "}
+                                  {appointment.doctor.lastName}
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                  {appointment.doctor.specialty ||
+                                    "General Practice"}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="space-y-2">
+                              <div className="flex items-center gap-2 text-xs text-gray-600">
+                                <Calendar className="h-3 w-3" />
+                                {format(
+                                  new Date(appointment.scheduledTime),
+                                  "MMM d, yyyy",
+                                )}
+                              </div>
+                              <div className="flex items-center gap-2 text-xs text-gray-600">
+                                <Clock className="h-3 w-3" />
+                                {format(
+                                  new Date(appointment.scheduledTime),
+                                  "h:mm a",
+                                )}
+                              </div>
+                              <Badge
+                                variant={getStatusVariant(appointment.status)}
+                                className="text-xs"
+                              >
+                                {appointment.status}
+                              </Badge>
+                            </div>
+                            {appointment.status === "completed" && (
+                              <Button
+                                variant="link"
+                                size="sm"
+                                className="w-full mt-2 text-xs p-0 h-auto"
+                              >
+                                View Consultation Notes →
+                              </Button>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Show "No Upcoming" if only past appointments exist */}
+                {upcomingAppointments.length === 0 &&
+                  appointments.length > 0 && (
+                    <Card className="lg:col-span-2">
+                      <CardContent className="p-12 text-center">
+                        <Calendar className="h-16 w-16 mx-auto text-gray-300 mb-4" />
+                        <h3 className="text-lg font-semibold mb-2">
+                          No Upcoming Appointments
+                        </h3>
+                        <p className="text-gray-600 mb-6">
+                          You have completed appointments but no future
+                          appointments scheduled.
+                        </p>
+                        <Button onClick={() => navigate("/schedule")}>
+                          <Plus className="mr-2 h-4 w-4" />
+                          Schedule New Appointment
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  )}
+              </div>
+            )}
+        </section>
 
         {/* Main Dashboard Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
