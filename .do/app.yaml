@@ -51,7 +51,25 @@ services:
       - key: JWT_SECRET
         scope: RUN_TIME
         type: SECRET
-      # Keycloak
+      - key: SESSION_SECRET
+        scope: RUN_TIME
+        type: SECRET
+      # OAuth Configuration
+      - key: OAUTH_ENABLED
+        value: "true"
+      - key: OAUTH_SESSION_SECRET
+        scope: RUN_TIME
+        type: SECRET
+      # Google OAuth
+      - key: GOOGLE_CLIENT_ID
+        scope: RUN_TIME
+        type: SECRET
+      - key: GOOGLE_CLIENT_SECRET
+        scope: RUN_TIME
+        type: SECRET
+      - key: GOOGLE_CALLBACK_URL
+        value: "${APP_URL}/api/auth/google/callback"
+      # Keycloak SSO
       - key: KEYCLOAK_URL
         value: "${APP_URL}/auth"
       - key: KEYCLOAK_REALM
@@ -62,6 +80,11 @@ services:
       - key: KEYCLOAK_CLIENT_SECRET
         scope: RUN_TIME
         type: SECRET
+      - key: KEYCLOAK_AUTH_SERVER_URL
+        scope: RUN_TIME
+        type: SECRET
+      - key: KEYCLOAK_CALLBACK_URL
+        value: "${APP_URL}/api/auth/keycloak/callback"
       # Vault
       - key: VAULT_ADDR
         scope: RUN_TIME
@@ -82,6 +105,38 @@ services:
       - key: PHI_COMMUNICATION_KEY
         scope: RUN_TIME
         type: SECRET
+      # Messaging Services - HCW@Home
+      - key: TELNYX_API_KEY
+        scope: RUN_TIME
+        type: SECRET
+      - key: TWILIO_ACCOUNT_SID
+        scope: RUN_TIME
+        type: SECRET
+      - key: TWILIO_AUTH_TOKEN
+        scope: RUN_TIME
+        type: SECRET
+      - key: TWILIO_VIDEO_API_KEY
+        scope: RUN_TIME
+        type: SECRET
+      - key: TWILIO_VIDEO_SECRET
+        scope: RUN_TIME
+        type: SECRET
+      # Email
+      - key: SENDGRID_API_KEY
+        scope: RUN_TIME
+        type: SECRET
+      - key: EMAIL_FROM
+        value: "noreply@telecheck.com"
+      # Payment Processing
+      - key: STRIPE_SECRET_KEY
+        scope: RUN_TIME
+        type: SECRET
+      - key: STRIPE_PUBLISHABLE_KEY
+        scope: RUN_TIME
+        type: SECRET
+      # Feature Flags
+      - key: ALLOW_DB_FAILURE
+        value: "true"
 
   # Web Client Service
   - name: telecheck-web
