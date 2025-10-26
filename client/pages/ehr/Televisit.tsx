@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,138 +11,200 @@ import {
   PhoneOff,
   Share,
   Users,
+  AlertCircle,
 } from "lucide-react";
-import {
-  useCreateTelehealthRoom,
-  useJoinTelehealthRoom,
-  useEndTelehealthSession,
-} from "@/hooks/api";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
-// Open-source integration using Jitsi IFrame API
-// No external SDK dependency; we embed the meeting via iframe with room name
+/**
+ * HCW@Home Embedded Televisit Component
+ *
+ * Integrates with HCW@Home open-source teleconsultation platform
+ * - WebRTC video/audio via Mediasoup (NOT Jitsi/Twilio)
+ * - HIPAA-compliant secure consultations
+ * - No external SDK dependencies
+ *
+ * HCW@Home Features:
+ * - Secure chat with file attachments
+ * - HL7 FHIR integration
+ * - OpenID/SAML authentication
+ * - ClamAV antivirus scanning
+ *
+ * Architecture:
+ * Telecheck → HCW Backend API → Mediasoup WebRTC Server
+ */
 
 export function Televisit() {
   const { appointmentId } = useParams<{ appointmentId: string }>();
-  const [roomId, setRoomId] = useState<string | null>(null);
-  const [meetingUrl, setMeetingUrl] = useState<string | null>(null);
-  const [muted, setMuted] = useState(false);
-  const [videoOff, setVideoOff] = useState(false);
-  const iframeRef = useRef<HTMLIFrameElement | null>(null);
-
-  const createRoom = useCreateTelehealthRoom();
-  const joinRoom = useJoinTelehealthRoom();
-  const endSession = useEndTelehealthSession();
-
-  // Derive a Jitsi room name from roomId; fallback to appointmentId
-  const jitsiRoom = useMemo(
-    () => roomId || appointmentId || "telecheck-demo-room",
-    [roomId, appointmentId],
+  const [hcwConsultationUrl, setHcwConsultationUrl] = useState<string | null>(
+    null,
   );
-  const jitsiSrc = useMemo(() => {
-    // Public Jitsi instance for demo; replace with self-hosted for production
-    const base = "https://meet.jit.si";
-    const params = new URLSearchParams({
-      // Start with muted/video off flags reflected in UI only
-    });
-    return `${base}/${encodeURIComponent(jitsiRoom)}#config.prejoinPageEnabled=true&${params.toString()}`;
-  }, [jitsiRoom]);
+  const [consultationId, setConsultationId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
+  // Fetch HCW@Home consultation URL from Telecheck API
   useEffect(() => {
     let mounted = true;
+
     (async () => {
       try {
-        const created = await createRoom.mutateAsync({
-          appointmentId: appointmentId || `appt_${Date.now()}`,
-        });
+        setIsLoading(true);
+        setError(null);
+
+        // Call Telecheck API to get/create HCW consultation
+        const response = await fetch(
+          `/api/consultations/${appointmentId}/hcw-session`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          },
+        );
+
+        if (!response.ok) {
+          throw new Error(
+            `Failed to create consultation: ${response.statusText}`,
+          );
+        }
+
+        const data = await response.json();
+
         if (!mounted) return;
-        const rid = (created as any)?.data?.roomId || (created as any)?.roomId;
-        setRoomId(rid);
-        const joined = await joinRoom.mutateAsync({ roomId: rid });
+
+        // HCW@Home provides the patient interface URL with consultation ID
+        setConsultationId(data.consultationId);
+        setHcwConsultationUrl(data.hcwUrl);
+      } catch (err) {
         if (!mounted) return;
-        const url = (joined as any)?.data?.joinUrl || (joined as any)?.joinUrl;
-        setMeetingUrl(url);
-      } catch (e) {
-        console.error("Televisit init failed", e);
+        console.error("Failed to initialize HCW consultation:", err);
+        setError(
+          err instanceof Error ? err.message : "Failed to load consultation",
+        );
+      } finally {
+        if (mounted) {
+          setIsLoading(false);
+        }
       }
     })();
+
     return () => {
       mounted = false;
     };
   }, [appointmentId]);
 
-  const handleEnd = async () => {
-    if (!roomId) return;
+  const handleEndConsultation = async () => {
+    if (!consultationId) return;
+
     try {
-      await endSession.mutateAsync({ roomId });
-      // Optionally navigate away
-    } catch (e) {
-      console.error(e);
+      await fetch(`/api/consultations/${appointmentId}/end`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({ consultationId }),
+      });
+
+      // Navigate back or show success message
+      window.location.href = "/dashboard";
+    } catch (err) {
+      console.error("Failed to end consultation:", err);
     }
   };
 
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="container mx-auto p-6">
+        <Card>
+          <CardContent className="flex items-center justify-center p-12">
+            <div className="text-center space-y-4">
+              <Video className="w-12 h-12 mx-auto animate-pulse text-cyan-600" />
+              <div>
+                <h3 className="text-lg font-semibold">
+                  Initializing Consultation
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  Connecting to HCW@Home secure video platform...
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="container mx-auto p-6">
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            <strong>Consultation Error:</strong> {error}
+            <br />
+            <span className="text-sm">
+              Please contact support if this issue persists.
+            </span>
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
+
+  // Render HCW@Home consultation
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Televisit</h1>
-          <p className="text-sm text-muted-foreground">
-            Secure video consultation
-          </p>
+    <div className="h-screen w-full flex flex-col">
+      {/* Header */}
+      <div className="bg-background border-b px-6 py-3 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Video className="w-5 h-5 text-cyan-600" />
+          <div>
+            <h1 className="text-lg font-semibold">Secure Televisit</h1>
+            <p className="text-xs text-muted-foreground">
+              Powered by HCW@Home • HIPAA Compliant
+            </p>
+          </div>
         </div>
-        <Badge variant="secondary" className="flex items-center gap-1">
-          <Users className="w-3 h-3" />
-          {jitsiRoom}
-        </Badge>
+        <div className="flex items-center gap-2">
+          {consultationId && (
+            <Badge variant="secondary" className="text-xs">
+              ID: {consultationId}
+            </Badge>
+          )}
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={handleEndConsultation}
+          >
+            <PhoneOff className="w-4 h-4 mr-2" />
+            End Consultation
+          </Button>
+        </div>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Video className="w-5 h-5" />
-            Session
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="aspect-video rounded-md overflow-hidden border">
-            <iframe
-              ref={iframeRef}
-              title="Televisit"
-              src={jitsiSrc}
-              allow="camera; microphone; fullscreen; display-capture"
-              style={{ width: "100%", height: "100%", border: 0 }}
-            />
+      {/* HCW@Home Embedded Consultation */}
+      <div className="flex-1 bg-black">
+        {hcwConsultationUrl ? (
+          <iframe
+            src={hcwConsultationUrl}
+            title="HCW@Home Consultation"
+            className="w-full h-full border-0"
+            allow="camera; microphone; fullscreen; display-capture; autoplay"
+            sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-downloads allow-modals"
+          />
+        ) : (
+          <div className="flex items-center justify-center h-full">
+            <div className="text-center text-white">
+              <AlertCircle className="w-12 h-12 mx-auto mb-4 opacity-50" />
+              <p>Consultation URL not available</p>
+            </div>
           </div>
-
-          <div className="mt-4 flex items-center justify-center gap-3">
-            <Button
-              variant={muted ? "destructive" : "outline"}
-              onClick={() => setMuted((m) => !m)}
-            >
-              {muted ? (
-                <MicOff className="w-4 h-4" />
-              ) : (
-                <Mic className="w-4 h-4" />
-              )}
-            </Button>
-            <Button
-              variant={videoOff ? "destructive" : "outline"}
-              onClick={() => setVideoOff((v) => !v)}
-            >
-              {videoOff ? (
-                <VideoOff className="w-4 h-4" />
-              ) : (
-                <Video className="w-4 h-4" />
-              )}
-            </Button>
-            <Button variant="outline">
-              <Share className="w-4 h-4" />
-            </Button>
-            <Button variant="destructive" onClick={handleEnd}>
-              <PhoneOff className="w-4 h-4" /> End
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+        )}
+      </div>
     </div>
   );
 }
