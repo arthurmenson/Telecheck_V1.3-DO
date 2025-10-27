@@ -268,11 +268,16 @@ export function Schedule() {
 
   // Loading and error states for doctors
   const [doctors, setDoctors] = useState<Doctor[]>([]);
-  const [isLoadingDoctors, setIsLoadingDoctors] = useState(true);
+  const [isLoadingDoctors, setIsLoadingDoctors] = useState(false);
   const [doctorsError, setDoctorsError] = useState<string | null>(null);
 
-  // Fetch doctors from API
+  // Fetch doctors from API - only when user reaches step 5
   useEffect(() => {
+    // Only fetch doctors when user reaches the provider selection step
+    if (step !== 5) {
+      return;
+    }
+
     const fetchDoctors = async () => {
       setIsLoadingDoctors(true);
       setDoctorsError(null);
@@ -316,7 +321,7 @@ export function Schedule() {
     };
 
     fetchDoctors();
-  }, []);
+  }, [step]);
 
   // Available time slots
   const todaySlots = [
