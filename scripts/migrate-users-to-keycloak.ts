@@ -17,7 +17,6 @@ import { dbPool } from "../server/config/database";
 import {
   createKeycloakUser,
   assignRoleToUser,
-  getKeycloakAdminClient,
 } from "../server/services/keycloak-service";
 import { prisma } from "../server/config/prisma";
 
@@ -50,17 +49,6 @@ async function migrateUsersToKeycloak(): Promise<MigrationStats> {
 
   try {
     console.log("🚀 Starting user migration to Keycloak...\n");
-
-    // Verify Keycloak connection
-    try {
-      const adminClient = await getKeycloakAdminClient();
-      console.log("✓ Connected to Keycloak successfully\n");
-    } catch (error) {
-      console.error("❌ Failed to connect to Keycloak:", error);
-      throw new Error(
-        "Keycloak connection failed. Please check configuration.",
-      );
-    }
 
     // Fetch all users from PostgreSQL
     const users = await prisma.user.findMany({
@@ -167,15 +155,13 @@ async function migrateUsersToKeycloak(): Promise<MigrationStats> {
 }
 
 // Run migration
-if (require.main === module) {
-  migrateUsersToKeycloak()
-    .then((stats) => {
-      process.exit(stats.failed > 0 ? 1 : 0);
-    })
-    .catch((error) => {
-      console.error("Fatal error:", error);
-      process.exit(1);
-    });
-}
+migrateUsersToKeycloak()
+  .then((stats) => {
+    process.exit(stats.failed > 0 ? 1 : 0);
+  })
+  .catch((error) => {
+    console.error("Fatal error:", error);
+    process.exit(1);
+  });
 
 export { migrateUsersToKeycloak };
