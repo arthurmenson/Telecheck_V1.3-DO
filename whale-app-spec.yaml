@@ -12,7 +12,7 @@ services:
     envs:
       - key: DATABASE_URL
         scope: RUN_AND_BUILD_TIME
-        value: ${telecheck-postgres-cluster.DATABASE_URL}
+        value: postgresql://doadmin:AVNS_n0t8AkJ6dOrPVyh2Lnd@telecheck-postgres-cluster-do-user-24735686-0.d.db.ondigitalocean.com:25060/telecheck?sslmode=require
       - key: OAUTH_ENABLED
         scope: RUN_AND_BUILD_TIME
         value: "true"
