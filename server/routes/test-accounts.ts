@@ -68,7 +68,8 @@ router.post("/create", async (req, res) => {
             email: providerEmail,
             password: hashedProviderPassword,
             role: "DOCTOR",
-            name: "Dr. Test Provider",
+            firstName: "Test",
+            lastName: "Provider",
             dateOfBirth: new Date("1980-05-15"),
             phone: "+1-555-TEST-DOC",
           },
@@ -88,13 +89,6 @@ router.post("/create", async (req, res) => {
             phoneEnabled: true,
             inPersonEnabled: true,
             location: "New York, NY",
-            availability: {
-              monday: ["09:00-17:00"],
-              tuesday: ["09:00-17:00"],
-              wednesday: ["09:00-17:00"],
-              thursday: ["09:00-17:00"],
-              friday: ["09:00-17:00"],
-            },
           },
         });
 
@@ -144,15 +138,14 @@ router.post("/create", async (req, res) => {
             email: patientEmail,
             password: hashedPatientPassword,
             role: "PATIENT",
-            name: "Test Patient",
+            firstName: "Test",
+            lastName: "Patient",
             dateOfBirth: new Date("1990-01-15"),
             phone: "+1-555-TEST-001",
-            address: {
-              street: "123 Test Street",
-              city: "Test City",
-              state: "NY",
-              zipCode: "10001",
-            },
+            address: "123 Test Street",
+            city: "Test City",
+            state: "NY",
+            zipCode: "10001",
           },
         });
 
