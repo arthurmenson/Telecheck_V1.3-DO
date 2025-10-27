@@ -98,6 +98,9 @@ import { RemoteMonitoring } from "./pages/RemoteMonitoring";
 import { Administration } from "./pages/Administration";
 import { PatientProfile } from "./pages/PatientProfile";
 import { PatientSettings } from "./pages/PatientSettings";
+import MyCareTeam from "./pages/MyCareTeam";
+import HCWMessages from "./pages/HCWMessages";
+import HCWVisits from "./pages/HCWVisits";
 import NotFound from "./pages/NotFound";
 import {
   Activity,
@@ -273,6 +276,36 @@ const App = () => (
                     <ProtectedRoute allowedRoles={["patient"]}>
                       <Layout>
                         <Schedule />
+                      </Layout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/care-team"
+                  element={
+                    <ProtectedRoute allowedRoles={["patient"]}>
+                      <Layout>
+                        <MyCareTeam />
+                      </Layout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/hcw-messages"
+                  element={
+                    <ProtectedRoute allowedRoles={["patient"]}>
+                      <Layout>
+                        <HCWMessages />
+                      </Layout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/hcw-visits"
+                  element={
+                    <ProtectedRoute allowedRoles={["patient"]}>
+                      <Layout>
+                        <HCWVisits />
                       </Layout>
                     </ProtectedRoute>
                   }

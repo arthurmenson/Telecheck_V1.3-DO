@@ -286,6 +286,88 @@ export const API_ENDPOINTS = {
     SUBSCRIBE: "/notifications/subscribe",
   },
 
+  // HCW@Home Care Team Integration
+  HCW: {
+    // Caregiver Management
+    CAREGIVERS: {
+      LIST: "/api/hcw/caregivers",
+      ASSIGNED: "/api/hcw/assigned-caregivers",
+      PROFILE: (id: string) => `/api/hcw/caregiver/${id}/profile`,
+      AVAILABILITY: (id: string) => `/api/hcw/caregiver/${id}/availability`,
+      BIO: (id: string) => `/api/hcw/caregiver/${id}/bio`,
+    },
+
+    // Messaging
+    MESSAGES: {
+      LIST: "/api/hcw/messages",
+      SEND: "/api/hcw/messages/send",
+      THREAD: (caregiverId: string) =>
+        `/api/hcw/messages/thread/${caregiverId}`,
+      MARK_READ: (id: string) => `/api/hcw/messages/${id}/read`,
+      UPLOAD_ATTACHMENT: "/api/hcw/messages/attachment",
+      UNREAD_COUNT: "/api/hcw/messages/unread-count",
+    },
+
+    // Visits
+    VISITS: {
+      UPCOMING: "/api/hcw/visits/upcoming",
+      HISTORY: "/api/hcw/visits/history",
+      DETAILS: (id: string) => `/api/hcw/visits/${id}`,
+      BOOK: "/api/hcw/visits/book",
+      RESCHEDULE: (id: string) => `/api/hcw/visits/${id}/reschedule`,
+      CANCEL: (id: string) => `/api/hcw/visits/${id}/cancel`,
+      FEEDBACK: (id: string) => `/api/hcw/visits/${id}/feedback`,
+    },
+
+    // Care Plans
+    CARE_PLANS: {
+      ACTIVE: "/api/hcw/care-plan",
+      LIST: "/api/hcw/care-plans",
+      DETAILS: (id: string) => `/api/hcw/care-plan/${id}`,
+      GOALS: "/api/hcw/care-plan/goals",
+      TASKS: "/api/hcw/care-plan/tasks",
+      COMPLETE_TASK: (id: string) => `/api/hcw/care-plan/task/${id}/complete`,
+      COMMENT: (id: string) => `/api/hcw/care-plan/task/${id}/comment`,
+      PROGRESS: "/api/hcw/care-plan/progress",
+    },
+
+    // Data Sharing
+    DATA_SHARING: {
+      PREFERENCES: "/api/hcw/data-sharing/preferences",
+      GRANT_ACCESS: "/api/hcw/data-sharing/grant-access",
+      REVOKE_ACCESS: "/api/hcw/data-sharing/revoke-access",
+      AUDIT_LOG: "/api/hcw/data-sharing/audit-log",
+    },
+
+    // Video Consultations
+    CONSULTATIONS: {
+      CREATE_SESSION: (appointmentId: string) =>
+        `/api/consultations/${appointmentId}/hcw-session`,
+      JOIN: (consultationId: string) =>
+        `/api/hcw/consultation/${consultationId}/join`,
+      END: (consultationId: string) =>
+        `/api/hcw/consultation/${consultationId}/end`,
+      RECORDING: (consultationId: string) =>
+        `/api/hcw/consultation/${consultationId}/recording`,
+    },
+
+    // Documents
+    DOCUMENTS: {
+      LIST: "/api/hcw/documents",
+      UPLOAD: "/api/hcw/documents/upload",
+      DOWNLOAD: (id: string) => `/api/hcw/documents/${id}/download`,
+      SHARE: "/api/hcw/documents/share",
+      DELETE: (id: string) => `/api/hcw/documents/${id}`,
+    },
+
+    // Emergency
+    EMERGENCY: {
+      ALERT: "/api/hcw/emergency/alert",
+      CONTACTS: "/api/hcw/emergency/contacts",
+      PROTOCOL: "/api/hcw/emergency/protocol",
+    },
+  },
+
   // Pharmacy Commerce
   COMMERCE: {
     CATALOG: "/commerce/catalog",
@@ -319,6 +401,7 @@ export const {
   INSIGHTS,
   CHAT,
   EHR,
+  HCW,
   ANALYTICS,
   REPORTING,
   ELIGIBILITY,

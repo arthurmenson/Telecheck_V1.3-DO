@@ -206,6 +206,9 @@ export function Layout({ children }: LayoutProps) {
           { name: "Wellness", href: "/wellness", icon: Heart },
           { name: "Trends", href: "/trends", icon: TrendingUp },
           { name: "AI Chat", href: "/chat", icon: MessageCircle },
+          { name: "My Care Team", href: "/care-team", icon: Users },
+          { name: "Messages", href: "/hcw-messages", icon: MessageCircle },
+          { name: "My Visits", href: "/hcw-visits", icon: Calendar },
           { name: "My Profile", href: "/patient-profile", icon: User },
           { name: "Settings", href: "/patient-settings", icon: Settings },
         ];
