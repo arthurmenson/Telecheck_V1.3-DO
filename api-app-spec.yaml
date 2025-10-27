@@ -85,7 +85,7 @@ services:
         value: ${APP_URL}/api/auth/google/callback
       - key: KEYCLOAK_URL
         scope: RUN_AND_BUILD_TIME
-        value: ${APP_URL}/auth
+        value: https://auth.telecheck.health
       - key: KEYCLOAK_REALM
         scope: RUN_AND_BUILD_TIME
         value: telecheck
@@ -99,8 +99,7 @@ services:
         value: EV[1:ViDuyhdoqFVQ7ANMfdLxO/GKOP5Aup1F:9SHd0hEMCDIvKEXD/boYvA==]
       - key: KEYCLOAK_AUTH_SERVER_URL
         scope: RUN_AND_BUILD_TIME
-        type: SECRET
-        value: EV[1:TtyDEGTBOC1TulxpTLmOBL3tSRXX9Zh1:bhdB3rlYkMrelN/ooi5B9w==]
+        value: https://auth.telecheck.health
       - key: KEYCLOAK_CALLBACK_URL
         scope: RUN_AND_BUILD_TIME
         value: ${APP_URL}/api/auth/keycloak/callback
