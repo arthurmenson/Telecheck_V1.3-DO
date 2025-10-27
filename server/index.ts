@@ -4,6 +4,7 @@ import cors from "cors";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import { initializeDatabase, healthCheck, dbPool } from "./config/database";
+import { connectDatabase as connectPrisma } from "./config/prisma";
 import healthRoutes from "./routes/health";
 import authRoutes from "./routes/auth";
 import oauthRoutes from "./routes/oauth";
@@ -153,6 +154,13 @@ const upload = multer({
 export async function createServer() {
   // Initialize database connections
   await initializeDatabase();
+
+  // Initialize Prisma connection
+  try {
+    await connectPrisma();
+  } catch (error) {
+    console.error("Failed to connect Prisma, but continuing:", error);
+  }
 
   const app = express();
   const isPlaywright =
