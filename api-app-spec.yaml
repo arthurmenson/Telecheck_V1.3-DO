@@ -50,34 +50,34 @@ services:
         scope: RUN_AND_BUILD_TIME
         value: TeleCh3ck!HCW@2025!Secure
       - key: DATABASE_URL
-        scope: RUN_TIME
+        scope: RUN_AND_BUILD_TIME
         type: SECRET
         value: EV[1:4rz8jQuetMHSCcCruI5cSc6A4Z0DLop4:DyUXsNlNTL9we3HSkVaimQ==]
       - key: REDIS_URL
-        scope: RUN_TIME
+        scope: RUN_AND_BUILD_TIME
         type: SECRET
         value: EV[1:VHNOys78lTPjhYW2C0JDfZ7eNPGKg0ux:zX3DyWBu58xpOU7ktnkNRw==]
       - key: JWT_SECRET
-        scope: RUN_TIME
+        scope: RUN_AND_BUILD_TIME
         type: SECRET
         value: EV[1:1I6DMaJ86m7mzljEHjtcNAqtt+TU9ehl:9t0F5WXSvVSrspd3+m4ZHw==]
       - key: SESSION_SECRET
-        scope: RUN_TIME
+        scope: RUN_AND_BUILD_TIME
         type: SECRET
         value: EV[1:DcxlTKY68IkH6ouVo7ndox7IqzNO0ym5:MWkn90nSU9Y9afiZ6f/kZw==]
       - key: OAUTH_ENABLED
         scope: RUN_AND_BUILD_TIME
         value: "true"
       - key: OAUTH_SESSION_SECRET
-        scope: RUN_TIME
+        scope: RUN_AND_BUILD_TIME
         type: SECRET
         value: EV[1:JEV++MUi8XXgiK38/xwWVmPcXzjJyQLR:ajamG1tZ3X3hwZecZC1cJw==]
       - key: GOOGLE_CLIENT_ID
-        scope: RUN_TIME
+        scope: RUN_AND_BUILD_TIME
         type: SECRET
         value: EV[1:N5Zt2bE6ysDK2SExonpnki1y1IRDmUHh:qoQRA9k98A20K+KYFn7aQg==]
       - key: GOOGLE_CLIENT_SECRET
-        scope: RUN_TIME
+        scope: RUN_AND_BUILD_TIME
         type: SECRET
         value: EV[1:hiYWnoV02kVh4JQ5jBsoCDL+ym8c+Dus:gEPnMpsdsxHIHBJQrjL8gg==]
       - key: GOOGLE_CALLBACK_URL
@@ -90,15 +90,15 @@ services:
         scope: RUN_AND_BUILD_TIME
         value: telecheck
       - key: KEYCLOAK_CLIENT_ID
-        scope: RUN_TIME
+        scope: RUN_AND_BUILD_TIME
         type: SECRET
         value: EV[1:NOmIUVs4T921+bujQZ5tEG8J42kUlk8G:RKHmhqBmXwd01EBJ0MleoQ==]
       - key: KEYCLOAK_CLIENT_SECRET
-        scope: RUN_TIME
+        scope: RUN_AND_BUILD_TIME
         type: SECRET
         value: EV[1:ViDuyhdoqFVQ7ANMfdLxO/GKOP5Aup1F:9SHd0hEMCDIvKEXD/boYvA==]
       - key: KEYCLOAK_AUTH_SERVER_URL
-        scope: RUN_TIME
+        scope: RUN_AND_BUILD_TIME
         type: SECRET
         value: EV[1:TtyDEGTBOC1TulxpTLmOBL3tSRXX9Zh1:bhdB3rlYkMrelN/ooi5B9w==]
       - key: KEYCLOAK_CALLBACK_URL
