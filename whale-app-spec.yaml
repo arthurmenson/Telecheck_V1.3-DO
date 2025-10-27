@@ -10,6 +10,9 @@ region: nyc
 services:
   - environment_slug: node-js
     envs:
+      - key: DATABASE_URL
+        scope: RUN_AND_BUILD_TIME
+        value: ${telecheck-postgres-cluster.DATABASE_URL}
       - key: OAUTH_ENABLED
         scope: RUN_AND_BUILD_TIME
         value: "true"
@@ -31,6 +34,12 @@ services:
       - key: KEYCLOAK_CALLBACK_URL
         scope: RUN_AND_BUILD_TIME
         value: https://whale-app-bs3xa.ondigitalocean.app/api/auth/keycloak/callback
+      - key: KEYCLOAK_ADMIN_CLIENT_ID
+        scope: RUN_AND_BUILD_TIME
+        value: telecheck-api
+      - key: KEYCLOAK_ADMIN_CLIENT_SECRET
+        scope: RUN_AND_BUILD_TIME
+        value: telecheck-api-secret-production-2025
       - key: VITE_KEYCLOAK_URL
         scope: RUN_AND_BUILD_TIME
         value: https://auth.telecheck.health
