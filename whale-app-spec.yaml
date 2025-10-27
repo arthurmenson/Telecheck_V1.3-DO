@@ -1,0 +1,50 @@
+ingress:
+  rules:
+    - component:
+        name: web
+      match:
+        path:
+          prefix: /
+name: whale-app
+region: nyc
+services:
+  - environment_slug: node-js
+    envs:
+      - key: OAUTH_ENABLED
+        scope: RUN_AND_BUILD_TIME
+        value: "true"
+      - key: ENABLE_KEYCLOAK_NATIVE_AUTH
+        scope: RUN_AND_BUILD_TIME
+        value: "true"
+      - key: KEYCLOAK_REALM
+        scope: RUN_AND_BUILD_TIME
+        value: telecheck
+      - key: KEYCLOAK_AUTH_SERVER_URL
+        scope: RUN_AND_BUILD_TIME
+        value: https://auth.telecheck.health
+      - key: KEYCLOAK_CLIENT_ID
+        scope: RUN_AND_BUILD_TIME
+        value: telecheck-web
+      - key: KEYCLOAK_CLIENT_SECRET
+        scope: RUN_AND_BUILD_TIME
+        value: "public-client-no-secret"
+      - key: KEYCLOAK_CALLBACK_URL
+        scope: RUN_AND_BUILD_TIME
+        value: https://whale-app-bs3xa.ondigitalocean.app/api/auth/keycloak/callback
+      - key: VITE_KEYCLOAK_URL
+        scope: RUN_AND_BUILD_TIME
+        value: https://auth.telecheck.health
+      - key: VITE_KEYCLOAK_REALM
+        scope: RUN_AND_BUILD_TIME
+        value: telecheck
+      - key: VITE_KEYCLOAK_CLIENT_ID
+        scope: RUN_AND_BUILD_TIME
+        value: telecheck-web
+    github:
+      branch: fix-test-accounts-schema
+      deploy_on_push: true
+      repo: arthurmenson/Telecheck_V1.3-DO
+    http_port: 8080
+    instance_count: 1
+    instance_size_slug: basic-xxs
+    name: web
