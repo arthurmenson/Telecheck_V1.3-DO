@@ -59,14 +59,11 @@ router.post("/create", async (req, res) => {
           message: "Provider account already exists",
         };
       } else {
-        // Hash password
-        const hashedProviderPassword = await bcrypt.hash(providerPassword, 10);
-
-        // Create provider user
+        // Note: Prisma schema doesn't include password field (OAuth-only)
+        // Create provider user without password for now
         provider = await prisma.user.create({
           data: {
             email: providerEmail,
-            password: hashedProviderPassword,
             role: "DOCTOR",
             firstName: "Test",
             lastName: "Provider",
@@ -129,14 +126,11 @@ router.post("/create", async (req, res) => {
           message: "Patient account already exists",
         };
       } else {
-        // Hash password
-        const hashedPatientPassword = await bcrypt.hash(patientPassword, 10);
-
-        // Create patient user
+        // Note: Prisma schema doesn't include password field (OAuth-only)
+        // Create patient user without password for now
         patient = await prisma.user.create({
           data: {
             email: patientEmail,
-            password: hashedPatientPassword,
             role: "PATIENT",
             firstName: "Test",
             lastName: "Patient",
