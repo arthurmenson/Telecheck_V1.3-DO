@@ -1,29 +1,29 @@
 ingress:
   rules:
-  - component:
-      name: web
-    match:
-      path:
-        prefix: /
+    - component:
+        name: web
+      match:
+        path:
+          prefix: /
 name: whale-app
 region: nyc
 services:
-- environment_slug: node-js
-  envs:
-  - key: VITE_KEYCLOAK_URL
-    scope: RUN_AND_BUILD_TIME
-    value: https://auth.telecheck.health
-  - key: VITE_KEYCLOAK_REALM
-    scope: RUN_AND_BUILD_TIME
-    value: telecheck
-  - key: VITE_KEYCLOAK_CLIENT_ID
-    scope: RUN_AND_BUILD_TIME
-    value: telecheck-web
-  github:
-    branch: fix-test-accounts-schema
-    deploy_on_push: true
-    repo: arthurmenson/Telecheck_V1.3-DO
-  http_port: 8080
-  instance_count: 1
-  instance_size_slug: basic-xxs
-  name: web
+  - environment_slug: node-js
+    envs:
+      - key: VITE_KEYCLOAK_URL
+        scope: RUN_AND_BUILD_TIME
+        value: https://auth.telecheck.health
+      - key: VITE_KEYCLOAK_REALM
+        scope: RUN_AND_BUILD_TIME
+        value: telecheck
+      - key: VITE_KEYCLOAK_CLIENT_ID
+        scope: RUN_AND_BUILD_TIME
+        value: telecheck-web
+    github:
+      branch: fix-test-accounts-schema
+      deploy_on_push: true
+      repo: arthurmenson/Telecheck_V1.3-DO
+    http_port: 8080
+    instance_count: 1
+    instance_size_slug: basic-xxs
+    name: web

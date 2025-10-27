@@ -240,15 +240,25 @@ router.get("/keycloak/callback", async (req: Request, res: Response) => {
     // Exchange code for tokens
     const tokenUrl = `${KEYCLOAK_AUTH_SERVER_URL}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/token`;
 
+    // Build token request params (omit client_secret for public clients)
+    const tokenParams: Record<string, string> = {
+      code: code as string,
+      client_id: KEYCLOAK_CLIENT_ID!,
+      redirect_uri: KEYCLOAK_CALLBACK_URL,
+      grant_type: "authorization_code",
+    };
+
+    // Only add client_secret if it's a confidential client (not public)
+    if (
+      KEYCLOAK_CLIENT_SECRET &&
+      KEYCLOAK_CLIENT_SECRET !== "public-client-no-secret"
+    ) {
+      tokenParams.client_secret = KEYCLOAK_CLIENT_SECRET;
+    }
+
     const tokenResponse = await axios.post(
       tokenUrl,
-      new URLSearchParams({
-        code: code as string,
-        client_id: KEYCLOAK_CLIENT_ID!,
-        client_secret: KEYCLOAK_CLIENT_SECRET!,
-        redirect_uri: KEYCLOAK_CALLBACK_URL,
-        grant_type: "authorization_code",
-      }),
+      new URLSearchParams(tokenParams),
       {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
