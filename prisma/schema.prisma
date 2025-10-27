@@ -42,6 +42,7 @@ enum VideoConsultationStatus {
 // User model (extends existing users table)
 model User {
   id                     String         @id @default(cuid())
+  keycloakId             String?        @unique @map("keycloak_id") // Keycloak user ID for sync
   email                  String         @unique
   firstName              String         @map("first_name")
   lastName               String         @map("last_name")

@@ -1,0 +1,13 @@
+{
+  "scripts": {
+    "keycloak:migrate": "tsx scripts/migrate-users-to-keycloak.ts",
+    "keycloak:sync": "tsx server/services/keycloak-sync-scheduler.ts",
+    "keycloak:local": "docker-compose -f docker-compose.keycloak.yml up -d",
+    "keycloak:stop": "docker-compose -f docker-compose.keycloak.yml down",
+    "keycloak:logs": "docker logs -f telecheck-keycloak"
+  },
+  "dependencies": {
+    "keycloak-js": "^23.0.0",
+    "cron": "^3.1.6"
+  }
+}
