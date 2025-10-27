@@ -1,8 +1,6 @@
 import { RequestHandler } from "express";
-import { PrismaClient } from "@prisma/client";
+import prisma from "../config/prisma";
 import { startOfDay, endOfDay, addDays, format, parseISO } from "date-fns";
-
-const prisma = new PrismaClient();
 
 // Helper function to generate time slots
 function generateTimeSlots(

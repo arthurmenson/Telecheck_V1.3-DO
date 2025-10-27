@@ -1,0 +1,190 @@
+alerts:
+  - rule: DEPLOYMENT_FAILED
+  - rule: DEPLOYMENT_LIVE
+  - rule: DOMAIN_FAILED
+  - rule: DOMAIN_LIVE
+ingress:
+  rules:
+    - component:
+        name: telecheck-api
+      cors:
+        allow_credentials: true
+        allow_headers:
+          - Content-Type
+          - Authorization
+          - X-Requested-With
+        allow_methods:
+          - GET
+          - POST
+          - PUT
+          - PATCH
+          - DELETE
+          - OPTIONS
+        allow_origins:
+          - exact: https://whale-app-bs3xa
+          - exact: https://telecheck
+        max_age: 3600s
+      match:
+        path:
+          prefix: /
+name: telecheck-api
+region: nyc
+services:
+  - envs:
+      - key: NODE_ENV
+        scope: RUN_AND_BUILD_TIME
+        value: production
+      - key: PORT
+        scope: RUN_AND_BUILD_TIME
+        value: "3000"
+      - key: LOG_LEVEL
+        scope: RUN_AND_BUILD_TIME
+        value: info
+      - key: FRONTEND_URL
+        scope: RUN_AND_BUILD_TIME
+        value: https://whale-app-bs3xa.ondigitalocean.app
+      - key: HCW_USER_EMAIL
+        scope: RUN_AND_BUILD_TIME
+        value: telecheck-api@telecheckhealth.com
+      - key: HCW_USER_PASSWORD
+        scope: RUN_AND_BUILD_TIME
+        value: TeleCh3ck!HCW@2025!Secure
+      - key: DATABASE_URL
+        scope: RUN_TIME
+        type: SECRET
+        value: EV[1:4rz8jQuetMHSCcCruI5cSc6A4Z0DLop4:DyUXsNlNTL9we3HSkVaimQ==]
+      - key: REDIS_URL
+        scope: RUN_TIME
+        type: SECRET
+        value: EV[1:VHNOys78lTPjhYW2C0JDfZ7eNPGKg0ux:zX3DyWBu58xpOU7ktnkNRw==]
+      - key: JWT_SECRET
+        scope: RUN_TIME
+        type: SECRET
+        value: EV[1:1I6DMaJ86m7mzljEHjtcNAqtt+TU9ehl:9t0F5WXSvVSrspd3+m4ZHw==]
+      - key: SESSION_SECRET
+        scope: RUN_TIME
+        type: SECRET
+        value: EV[1:DcxlTKY68IkH6ouVo7ndox7IqzNO0ym5:MWkn90nSU9Y9afiZ6f/kZw==]
+      - key: OAUTH_ENABLED
+        scope: RUN_AND_BUILD_TIME
+        value: "true"
+      - key: OAUTH_SESSION_SECRET
+        scope: RUN_TIME
+        type: SECRET
+        value: EV[1:JEV++MUi8XXgiK38/xwWVmPcXzjJyQLR:ajamG1tZ3X3hwZecZC1cJw==]
+      - key: GOOGLE_CLIENT_ID
+        scope: RUN_TIME
+        type: SECRET
+        value: EV[1:N5Zt2bE6ysDK2SExonpnki1y1IRDmUHh:qoQRA9k98A20K+KYFn7aQg==]
+      - key: GOOGLE_CLIENT_SECRET
+        scope: RUN_TIME
+        type: SECRET
+        value: EV[1:hiYWnoV02kVh4JQ5jBsoCDL+ym8c+Dus:gEPnMpsdsxHIHBJQrjL8gg==]
+      - key: GOOGLE_CALLBACK_URL
+        scope: RUN_AND_BUILD_TIME
+        value: ${APP_URL}/api/auth/google/callback
+      - key: KEYCLOAK_URL
+        scope: RUN_AND_BUILD_TIME
+        value: ${APP_URL}/auth
+      - key: KEYCLOAK_REALM
+        scope: RUN_AND_BUILD_TIME
+        value: telecheck
+      - key: KEYCLOAK_CLIENT_ID
+        scope: RUN_TIME
+        type: SECRET
+        value: EV[1:NOmIUVs4T921+bujQZ5tEG8J42kUlk8G:RKHmhqBmXwd01EBJ0MleoQ==]
+      - key: KEYCLOAK_CLIENT_SECRET
+        scope: RUN_TIME
+        type: SECRET
+        value: EV[1:ViDuyhdoqFVQ7ANMfdLxO/GKOP5Aup1F:9SHd0hEMCDIvKEXD/boYvA==]
+      - key: KEYCLOAK_AUTH_SERVER_URL
+        scope: RUN_TIME
+        type: SECRET
+        value: EV[1:TtyDEGTBOC1TulxpTLmOBL3tSRXX9Zh1:bhdB3rlYkMrelN/ooi5B9w==]
+      - key: KEYCLOAK_CALLBACK_URL
+        scope: RUN_AND_BUILD_TIME
+        value: ${APP_URL}/api/auth/keycloak/callback
+      - key: VAULT_ADDR
+        scope: RUN_TIME
+        type: SECRET
+        value: EV[1:fgj752fjdGCl7fBprsTSupzONEWXNyQw:pcmTplB4ZROLWtpZB6BL2g==]
+      - key: VAULT_TOKEN
+        scope: RUN_TIME
+        type: SECRET
+        value: EV[1:+8FNbDE/xxIj+Q5ugVDecLaKPxiOYCSf:JeZ3Z2D3cZcYHA6w78VsPQ==]
+      - key: PHI_PATIENT_KEY
+        scope: RUN_TIME
+        type: SECRET
+        value: EV[1:Wdhjw+OzXCbsYfwdvT6d+mxq35YLwpLw:vg7NYTZAZ4zK+jtwghpWYg==]
+      - key: PHI_MEDICAL_KEY
+        scope: RUN_TIME
+        type: SECRET
+        value: EV[1:b0g8guRdO9fzZuBqDcElWtulqxKawbxq:s/qdUE1FCo/tCG/VbWNG+w==]
+      - key: PHI_FINANCIAL_KEY
+        scope: RUN_TIME
+        type: SECRET
+        value: EV[1:+6s7VLbuUqB2AKV1zBzaHNxW2SNYwIYh:XT57dqX338xRGa2QH+3HhQ==]
+      - key: PHI_COMMUNICATION_KEY
+        scope: RUN_TIME
+        type: SECRET
+        value: EV[1:M8tRC+Cw3p7+O+xFjfc3ViLE0DLXlKM9:3bZ9Ovob08KfCiY5UYYXIw==]
+      - key: HCW_API_URL
+        scope: RUN_AND_BUILD_TIME
+        value: http://143.198.2.224:1337
+      - key: HCW_API_SECRET
+        scope: RUN_AND_BUILD_TIME
+        value: 470597356fad10d84db33de9bf8d786a8d3f051a12396a8129da68ee431850e2ff48eba322d41e3d3255faab8ee08888b619972ab99d8154017448fa67ebe7a1
+      - key: HCW_PATIENT_URL
+        scope: RUN_AND_BUILD_TIME
+        value: http://143.198.2.224:4200
+      - key: HCW_DOCTOR_URL
+        scope: RUN_AND_BUILD_TIME
+        value: http://143.198.2.224:4201
+      - key: TELNYX_API_KEY
+        scope: RUN_TIME
+        type: SECRET
+        value: EV[1:z2JE7JwBJfT/uq0zykAVVnGBqwChKmk0:25ywleyVnKtP2GmR96EO3A==]
+      - key: TWILIO_ACCOUNT_SID
+        scope: RUN_TIME
+        type: SECRET
+        value: EV[1:YQ0LDQz0RJqtpINOA4wRPv7aPj4gU8TB:2Ux4Z+Cn1gOh35QzpQpWsw==]
+      - key: TWILIO_AUTH_TOKEN
+        scope: RUN_TIME
+        type: SECRET
+        value: EV[1:Ea1XBWRPDccR34/AjwZB71mEO+EFtThE:OTix4TnevpgCrYrrBGfJ/A==]
+      - key: SENDGRID_API_KEY
+        scope: RUN_TIME
+        type: SECRET
+        value: EV[1:B3KHKBcEM3HLkMuUTbcuwo50Yx/1nWBD:dWNlD8S6slNmzvbMJJe8eg==]
+      - key: EMAIL_FROM
+        scope: RUN_AND_BUILD_TIME
+        value: noreply@telecheck.com
+      - key: STRIPE_SECRET_KEY
+        scope: RUN_TIME
+        type: SECRET
+        value: EV[1:QdGUhhnB9JyvVEDwcvV98bXKwNpde/11:2N5qDqfUhpZtpWFu/X79ew==]
+      - key: STRIPE_PUBLISHABLE_KEY
+        scope: RUN_TIME
+        type: SECRET
+        value: EV[1:QyCrf/9sB4G7TKgoPTaCpm1NoUlM9YGt:tBeGiyl1ts5PyBD14IetLQ==]
+      - key: ALLOW_DB_FAILURE
+        scope: RUN_AND_BUILD_TIME
+        value: "true"
+      - key: ALLOW_TEST_ACCOUNTS
+        scope: RUN_AND_BUILD_TIME
+        value: "true"
+    github:
+      branch: ETM_telecheck
+      deploy_on_push: true
+      repo: arthurmenson/Telecheck_V1.3-DO
+    health_check:
+      failure_threshold: 5
+      http_path: /api/ping
+      initial_delay_seconds: 60
+      period_seconds: 10
+      success_threshold: 1
+      timeout_seconds: 30
+    http_port: 3000
+    instance_count: 2
+    instance_size_slug: professional-xs
+    name: telecheck-api

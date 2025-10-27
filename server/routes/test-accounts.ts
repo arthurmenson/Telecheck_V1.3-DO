@@ -7,11 +7,10 @@
  */
 
 import express from "express";
-import { PrismaClient } from "@prisma/client";
+import prisma from "../config/prisma";
 import * as bcrypt from "bcrypt";
 
 const router = express.Router();
-const prisma = new PrismaClient();
 
 /**
  * POST /api/test-accounts/create
