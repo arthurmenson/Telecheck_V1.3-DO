@@ -105,31 +105,29 @@ services:
         value: "${APP_URL}/api/auth/google/callback"
 
       # Keycloak SSO - Production Security Configuration
+      # Keycloak server deployed at: 198.211.110.151:8080
       - key: KEYCLOAK_URL
         value: "${APP_URL}/auth"
       - key: KEYCLOAK_REALM
         value: "telecheck"
       - key: KEYCLOAK_CLIENT_ID
-        scope: RUN_TIME
-        type: SECRET
+        value: "telecheck-web"
       - key: KEYCLOAK_CLIENT_SECRET
-        scope: RUN_TIME
-        type: SECRET
+        value: "8xsouRkEdqvCuluhBr3LTMGsT9ArOOYq"
       - key: KEYCLOAK_ADMIN_CLIENT_ID
-        scope: RUN_TIME
-        type: SECRET
+        value: "telecheck-api"
       - key: KEYCLOAK_ADMIN_CLIENT_SECRET
-        scope: RUN_TIME
-        type: SECRET
+        value: "8xsouRkEdqvCuluhBr3LTMGsT9ArOOYq"
       - key: KEYCLOAK_AUTH_SERVER_URL
-        scope: RUN_TIME
-        type: SECRET
+        value: "http://198.211.110.151:8080"
       - key: KEYCLOAK_CALLBACK_URL
         value: "${APP_URL}/api/auth/keycloak/callback"
 
       # Keycloak Security Settings (Production)
+      # Note: KEYCLOAK_REQUIRE_HTTPS set to false for initial HTTP setup
+      # Will be changed to true after SSL/HTTPS is configured
       - key: KEYCLOAK_REQUIRE_HTTPS
-        value: "true"
+        value: "false"
       - key: KEYCLOAK_VALIDATE_ISSUER
         value: "true"
       - key: KEYCLOAK_VALIDATE_AUDIENCE
