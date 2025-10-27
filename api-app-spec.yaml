@@ -51,35 +51,28 @@ services:
         value: TeleCh3ck!HCW@2025!Secure
       - key: DATABASE_URL
         scope: RUN_AND_BUILD_TIME
-        type: SECRET
-        value: EV[1:4rz8jQuetMHSCcCruI5cSc6A4Z0DLop4:DyUXsNlNTL9we3HSkVaimQ==]
+        value: postgresql://doadmin:AVNS_n0t8AkJ6dOrPVyh2Lnd@telecheck-postgres-cluster-do-user-24735686-0.d.db.ondigitalocean.com:25060/telecheck?sslmode=require
       - key: REDIS_URL
         scope: RUN_AND_BUILD_TIME
-        type: SECRET
-        value: EV[1:VHNOys78lTPjhYW2C0JDfZ7eNPGKg0ux:zX3DyWBu58xpOU7ktnkNRw==]
+        value: redis://default:AVNS_DummyRedisPassword@redis-cluster:25061
       - key: JWT_SECRET
         scope: RUN_AND_BUILD_TIME
-        type: SECRET
-        value: EV[1:1I6DMaJ86m7mzljEHjtcNAqtt+TU9ehl:9t0F5WXSvVSrspd3+m4ZHw==]
+        value: telecheck_jwt_secret_key_minimum_32_characters_for_production_2025
       - key: SESSION_SECRET
         scope: RUN_AND_BUILD_TIME
-        type: SECRET
-        value: EV[1:DcxlTKY68IkH6ouVo7ndox7IqzNO0ym5:MWkn90nSU9Y9afiZ6f/kZw==]
+        value: telecheck_session_secret_key_minimum_32_characters_production_2025
       - key: OAUTH_ENABLED
         scope: RUN_AND_BUILD_TIME
         value: "true"
       - key: OAUTH_SESSION_SECRET
         scope: RUN_AND_BUILD_TIME
-        type: SECRET
-        value: EV[1:JEV++MUi8XXgiK38/xwWVmPcXzjJyQLR:ajamG1tZ3X3hwZecZC1cJw==]
+        value: telecheck_oauth_session_secret_minimum_32_characters_prod_2025
       - key: GOOGLE_CLIENT_ID
         scope: RUN_AND_BUILD_TIME
-        type: SECRET
-        value: EV[1:N5Zt2bE6ysDK2SExonpnki1y1IRDmUHh:qoQRA9k98A20K+KYFn7aQg==]
+        value: dummy-google-client-id.apps.googleusercontent.com
       - key: GOOGLE_CLIENT_SECRET
         scope: RUN_AND_BUILD_TIME
-        type: SECRET
-        value: EV[1:hiYWnoV02kVh4JQ5jBsoCDL+ym8c+Dus:gEPnMpsdsxHIHBJQrjL8gg==]
+        value: GOCSPX-dummy_google_client_secret_value
       - key: GOOGLE_CALLBACK_URL
         scope: RUN_AND_BUILD_TIME
         value: ${APP_URL}/api/auth/google/callback
@@ -91,43 +84,34 @@ services:
         value: telecheck
       - key: KEYCLOAK_CLIENT_ID
         scope: RUN_AND_BUILD_TIME
-        type: SECRET
-        value: EV[1:NOmIUVs4T921+bujQZ5tEG8J42kUlk8G:RKHmhqBmXwd01EBJ0MleoQ==]
+        value: telecheck-web-app
       - key: KEYCLOAK_CLIENT_SECRET
         scope: RUN_AND_BUILD_TIME
-        type: SECRET
-        value: EV[1:ViDuyhdoqFVQ7ANMfdLxO/GKOP5Aup1F:9SHd0hEMCDIvKEXD/boYvA==]
+        value: 9XOvgmwXE2bxhT8YkKJi2qQR1mHkLpJc
       - key: KEYCLOAK_AUTH_SERVER_URL
         scope: RUN_AND_BUILD_TIME
-        type: SECRET
-        value: EV[1:TtyDEGTBOC1TulxpTLmOBL3tSRXX9Zh1:bhdB3rlYkMrelN/ooi5B9w==]
+        value: https://keycloak-production-fkbh.ondigitalocean.app
       - key: KEYCLOAK_CALLBACK_URL
         scope: RUN_AND_BUILD_TIME
         value: ${APP_URL}/api/auth/keycloak/callback
       - key: VAULT_ADDR
-        scope: RUN_TIME
-        type: SECRET
-        value: EV[1:fgj752fjdGCl7fBprsTSupzONEWXNyQw:pcmTplB4ZROLWtpZB6BL2g==]
+        scope: RUN_AND_BUILD_TIME
+        value: http://vault-internal:8200
       - key: VAULT_TOKEN
-        scope: RUN_TIME
-        type: SECRET
-        value: EV[1:+8FNbDE/xxIj+Q5ugVDecLaKPxiOYCSf:JeZ3Z2D3cZcYHA6w78VsPQ==]
+        scope: RUN_AND_BUILD_TIME
+        value: telecheck_vault_root_token_for_development_only_2025
       - key: PHI_PATIENT_KEY
-        scope: RUN_TIME
-        type: SECRET
-        value: EV[1:Wdhjw+OzXCbsYfwdvT6d+mxq35YLwpLw:vg7NYTZAZ4zK+jtwghpWYg==]
+        scope: RUN_AND_BUILD_TIME
+        value: 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
       - key: PHI_MEDICAL_KEY
-        scope: RUN_TIME
-        type: SECRET
-        value: EV[1:b0g8guRdO9fzZuBqDcElWtulqxKawbxq:s/qdUE1FCo/tCG/VbWNG+w==]
+        scope: RUN_AND_BUILD_TIME
+        value: fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210
       - key: PHI_FINANCIAL_KEY
-        scope: RUN_TIME
-        type: SECRET
-        value: EV[1:+6s7VLbuUqB2AKV1zBzaHNxW2SNYwIYh:XT57dqX338xRGa2QH+3HhQ==]
+        scope: RUN_AND_BUILD_TIME
+        value: 1111222233334444555566667777888899990000aaaabbbbccccddddeeeeffff
       - key: PHI_COMMUNICATION_KEY
-        scope: RUN_TIME
-        type: SECRET
-        value: EV[1:M8tRC+Cw3p7+O+xFjfc3ViLE0DLXlKM9:3bZ9Ovob08KfCiY5UYYXIw==]
+        scope: RUN_AND_BUILD_TIME
+        value: ffff000011112222333344445555666677778888999900001111222233334444
       - key: HCW_API_URL
         scope: RUN_AND_BUILD_TIME
         value: http://143.198.2.224:1337
@@ -141,32 +125,26 @@ services:
         scope: RUN_AND_BUILD_TIME
         value: http://143.198.2.224:4201
       - key: TELNYX_API_KEY
-        scope: RUN_TIME
-        type: SECRET
-        value: EV[1:z2JE7JwBJfT/uq0zykAVVnGBqwChKmk0:25ywleyVnKtP2GmR96EO3A==]
+        scope: RUN_AND_BUILD_TIME
+        value: KEY_dummy_telnyx_api_key_for_development_testing
       - key: TWILIO_ACCOUNT_SID
-        scope: RUN_TIME
-        type: SECRET
-        value: EV[1:YQ0LDQz0RJqtpINOA4wRPv7aPj4gU8TB:2Ux4Z+Cn1gOh35QzpQpWsw==]
+        scope: RUN_AND_BUILD_TIME
+        value: AC_dummy_twilio_account_sid_for_testing
       - key: TWILIO_AUTH_TOKEN
-        scope: RUN_TIME
-        type: SECRET
-        value: EV[1:Ea1XBWRPDccR34/AjwZB71mEO+EFtThE:OTix4TnevpgCrYrrBGfJ/A==]
+        scope: RUN_AND_BUILD_TIME
+        value: dummy_twilio_auth_token_for_testing_only
       - key: SENDGRID_API_KEY
-        scope: RUN_TIME
-        type: SECRET
-        value: EV[1:B3KHKBcEM3HLkMuUTbcuwo50Yx/1nWBD:dWNlD8S6slNmzvbMJJe8eg==]
+        scope: RUN_AND_BUILD_TIME
+        value: SG.dummy_sendgrid_api_key_for_development_testing
       - key: EMAIL_FROM
         scope: RUN_AND_BUILD_TIME
         value: noreply@telecheck.com
       - key: STRIPE_SECRET_KEY
-        scope: RUN_TIME
-        type: SECRET
-        value: EV[1:QdGUhhnB9JyvVEDwcvV98bXKwNpde/11:2N5qDqfUhpZtpWFu/X79ew==]
+        scope: RUN_AND_BUILD_TIME
+        value: sk_test_dummy_stripe_secret_key_for_development_testing
       - key: STRIPE_PUBLISHABLE_KEY
-        scope: RUN_TIME
-        type: SECRET
-        value: EV[1:QyCrf/9sB4G7TKgoPTaCpm1NoUlM9YGt:tBeGiyl1ts5PyBD14IetLQ==]
+        scope: RUN_AND_BUILD_TIME
+        value: pk_test_dummy_stripe_publishable_key_for_development
       - key: ALLOW_DB_FAILURE
         scope: RUN_AND_BUILD_TIME
         value: "true"
