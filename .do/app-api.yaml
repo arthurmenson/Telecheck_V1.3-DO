@@ -104,7 +104,7 @@ services:
       - key: GOOGLE_CALLBACK_URL
         value: "${APP_URL}/api/auth/google/callback"
 
-      # Keycloak SSO
+      # Keycloak SSO - Production Security Configuration
       - key: KEYCLOAK_URL
         value: "${APP_URL}/auth"
       - key: KEYCLOAK_REALM
@@ -115,11 +115,29 @@ services:
       - key: KEYCLOAK_CLIENT_SECRET
         scope: RUN_TIME
         type: SECRET
+      - key: KEYCLOAK_ADMIN_CLIENT_ID
+        scope: RUN_TIME
+        type: SECRET
+      - key: KEYCLOAK_ADMIN_CLIENT_SECRET
+        scope: RUN_TIME
+        type: SECRET
       - key: KEYCLOAK_AUTH_SERVER_URL
         scope: RUN_TIME
         type: SECRET
       - key: KEYCLOAK_CALLBACK_URL
         value: "${APP_URL}/api/auth/keycloak/callback"
+
+      # Keycloak Security Settings (Production)
+      - key: KEYCLOAK_REQUIRE_HTTPS
+        value: "true"
+      - key: KEYCLOAK_VALIDATE_ISSUER
+        value: "true"
+      - key: KEYCLOAK_VALIDATE_AUDIENCE
+        value: "true"
+      - key: KEYCLOAK_TOKEN_LIFESPAN
+        value: "900"
+      - key: KEYCLOAK_REFRESH_TOKEN_LIFESPAN
+        value: "1800"
 
       # Vault
       - key: VAULT_ADDR
