@@ -1,0 +1,91 @@
+# Docker Compose for Keycloak
+# This file sets up Keycloak with PostgreSQL database for Telecheck
+
+version: "3.8"
+
+services:
+  # Keycloak Database
+  keycloak-db:
+    image: postgres:15-alpine
+    container_name: telecheck-keycloak-db
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: ${KEYCLOAK_DB_PASSWORD:-keycloak_secure_password_change_in_production}
+    volumes:
+      - keycloak-db-data:/var/lib/postgresql/data
+    networks:
+      - telecheck-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U keycloak"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Keycloak Server
+  keycloak:
+    image: quay.io/keycloak/keycloak:23.0
+    container_name: telecheck-keycloak
+    environment:
+      # Database Configuration
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://keycloak-db:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD:-keycloak_secure_password_change_in_production}
+
+      # Keycloak Admin User
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin_change_in_production}
+
+      # Hostname Configuration
+      KC_HOSTNAME: ${KEYCLOAK_HOSTNAME:-localhost}
+      KC_HOSTNAME_STRICT: false
+      KC_HOSTNAME_STRICT_HTTPS: false
+
+      # HTTP Configuration
+      KC_HTTP_ENABLED: true
+      KC_HTTP_PORT: 8080
+      KC_HTTPS_PORT: 8443
+
+      # Proxy Configuration (for DigitalOcean App Platform / Load Balancer)
+      KC_PROXY: edge
+      KC_PROXY_ADDRESS_FORWARDING: true
+
+      # Health Check
+      KC_HEALTH_ENABLED: true
+      KC_METRICS_ENABLED: true
+
+      # Logging
+      KC_LOG_LEVEL: ${KEYCLOAK_LOG_LEVEL:-info}
+    command:
+      - start-dev
+      - --import-realm
+    ports:
+      - "8180:8080"
+      - "8443:8443"
+    volumes:
+      - ./keycloak/realm-export.json:/opt/keycloak/data/import/realm-export.json:ro
+      - ./keycloak/themes:/opt/keycloak/themes:ro
+    networks:
+      - telecheck-network
+    depends_on:
+      keycloak-db:
+        condition: service_healthy
+    healthcheck:
+      test:
+        ["CMD-SHELL", "curl -f http://localhost:8080/health/ready || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+
+networks:
+  telecheck-network:
+    name: telecheck-network
+    driver: bridge
+
+volumes:
+  keycloak-db-data:
+    name: telecheck-keycloak-db-data

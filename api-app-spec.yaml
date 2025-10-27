@@ -51,10 +51,12 @@ services:
         value: TeleCh3ck!HCW@2025!Secure
       - key: DATABASE_URL
         scope: RUN_AND_BUILD_TIME
-        value: postgresql://doadmin:AVNS_n0t8AkJ6dOrPVyh2Lnd@telecheck-postgres-cluster-do-user-24735686-0.d.db.ondigitalocean.com:25060/telecheck?sslmode=require
+        type: SECRET
+        value: EV[1:4rz8jQuetMHSCcCruI5cSc6A4Z0DLop4:DyUXsNlNTL9we3HSkVaimQ==]
       - key: REDIS_URL
         scope: RUN_AND_BUILD_TIME
-        value: redis://default:AVNS_DummyRedisPassword@redis-cluster:25061
+        type: SECRET
+        value: EV[1:VHNOys78lTPjhYW2C0JDfZ7eNPGKg0ux:zX3DyWBu58xpOU7ktnkNRw==]
       - key: JWT_SECRET
         scope: RUN_AND_BUILD_TIME
         value: telecheck_jwt_secret_key_minimum_32_characters_for_production_2025
@@ -78,7 +80,7 @@ services:
         value: ${APP_URL}/api/auth/google/callback
       - key: KEYCLOAK_URL
         scope: RUN_AND_BUILD_TIME
-        value: ${APP_URL}/auth
+        value: https://auth.telecheck.health
       - key: KEYCLOAK_REALM
         scope: RUN_AND_BUILD_TIME
         value: telecheck
@@ -90,7 +92,7 @@ services:
         value: 9XOvgmwXE2bxhT8YkKJi2qQR1mHkLpJc
       - key: KEYCLOAK_AUTH_SERVER_URL
         scope: RUN_AND_BUILD_TIME
-        value: https://keycloak-production-fkbh.ondigitalocean.app
+        value: https://auth.telecheck.health
       - key: KEYCLOAK_CALLBACK_URL
         scope: RUN_AND_BUILD_TIME
         value: ${APP_URL}/api/auth/keycloak/callback

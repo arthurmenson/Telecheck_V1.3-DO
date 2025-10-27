@@ -51,6 +51,19 @@ import {
 import { getTelemedicineProviders } from "./routes/telemedicine-providers";
 import { authenticateToken, requireDoctor } from "./middleware/auth";
 import {
+  authenticateKeycloak,
+  optionalKeycloakAuth,
+  requireRole,
+  requireMFA,
+  requireTokenIntrospection,
+  requireAdmin,
+  requireDoctor as requireDoctorKeycloak,
+  requireHealthcareProvider,
+  requirePatient,
+  requirePharmacist,
+  requireNurse,
+} from "./middleware/keycloak-auth";
+import {
   exportFHIRData,
   importFHIRData,
   getFHIRPatient,
@@ -221,21 +234,40 @@ export async function createServer() {
 
   app.get("/api/demo", handleDemo);
 
-  // Authentication routes
+  // Authentication routes (public - no auth required)
   app.use("/api/auth", authRoutes);
   app.use("/api/auth", oauthRoutes);
 
-  // User management routes
-  app.use("/api/users", userRoutes);
+  // Determine authentication strategy
+  const useKeycloakAuth = process.env.ENABLE_KEYCLOAK_NATIVE_AUTH === "true";
+  const authMiddleware = useKeycloakAuth
+    ? authenticateKeycloak
+    : authenticateToken;
+  const doctorMiddleware = useKeycloakAuth
+    ? requireDoctorKeycloak
+    : requireDoctor;
+  const adminMiddleware = useKeycloakAuth ? requireAdmin : authenticateToken;
 
-  // Patient routes
-  app.use("/api/patients", patientRoutes);
+  console.log(
+    `🔐 Authentication Strategy: ${useKeycloakAuth ? "Keycloak Native" : "Legacy JWT"}`,
+  );
 
-  // Lab routes
-  app.use("/api/labs", labRoutes);
+  // User management routes (Admin only)
+  app.use(
+    "/api/users",
+    authMiddleware as any,
+    adminMiddleware as any,
+    userRoutes,
+  );
 
-  // Medication routes
-  app.use("/api/medications", medicationRoutes);
+  // Patient routes (Healthcare providers only)
+  app.use("/api/patients", authMiddleware as any, patientRoutes);
+
+  // Lab routes (Authenticated users)
+  app.use("/api/labs", authMiddleware as any, labRoutes);
+
+  // Medication routes (Authenticated users)
+  app.use("/api/medications", authMiddleware as any, medicationRoutes);
 
   // e-Prescribing routes (stub)
   app.use("/api/erx", erxRoutes);
@@ -298,48 +330,48 @@ export async function createServer() {
   // Telemedicine routes
   app.get(
     "/api/telemedicine/providers",
-    authenticateToken as any,
+    authMiddleware as any,
     getTelemedicineProviders,
   );
   app.post(
     "/api/telemedicine/schedule",
-    authenticateToken as any,
+    authMiddleware as any,
     scheduleAppointment,
   );
   app.get(
     "/api/telemedicine/appointments/:userId?",
-    authenticateToken as any,
+    authMiddleware as any,
     getUserAppointments,
   );
   app.post(
     "/api/telemedicine/room",
-    authenticateToken as any,
-    requireDoctor as any,
+    authMiddleware as any,
+    doctorMiddleware as any,
     createConsultationRoom,
   );
   app.get(
     "/api/telemedicine/summary/:roomId",
-    authenticateToken as any,
-    requireDoctor as any,
+    authMiddleware as any,
+    doctorMiddleware as any,
     generateConsultationSummary,
   );
-  app.post(
-    "/api/telemedicine/triage",
-    authenticateToken as any,
-    triageEmergency,
-  );
+  app.post("/api/telemedicine/triage", authMiddleware as any, triageEmergency);
 
   // EHR Telehealth alias routes (for client API_ENDPOINTS.EHR.TELEHEALTH)
-  app.get("/api/ehr/telehealth/sessions", (_req, res) => {
-    const rooms = (
-      require("./utils/telemedicine") as any
-    ).TelemedicineService.listActiveConsultationRooms();
-    res.json({ success: true, data: rooms });
-  });
+  app.get(
+    "/api/ehr/telehealth/sessions",
+    authMiddleware as any,
+    (_req, res) => {
+      const rooms = (
+        require("./utils/telemedicine") as any
+      ).TelemedicineService.listActiveConsultationRooms();
+      res.json({ success: true, data: rooms });
+    },
+  );
   app.post(
     "/api/ehr/telehealth/create-room",
-    authenticateToken as any,
-    requireDoctor as any,
+    authMiddleware as any,
+    doctorMiddleware as any,
     async (req, res) => {
       const { appointmentId } = req.body || {};
       try {
@@ -358,7 +390,7 @@ export async function createServer() {
   );
   app.post(
     "/api/ehr/telehealth/:id/join",
-    authenticateToken as any,
+    authMiddleware as any,
     async (req, res) => {
       const { id } = req.params as any;
       const svc = (require("./utils/telemedicine") as any).TelemedicineService;
@@ -375,8 +407,8 @@ export async function createServer() {
   );
   app.post(
     "/api/ehr/telehealth/:id/end",
-    authenticateToken as any,
-    requireDoctor as any,
+    authMiddleware as any,
+    doctorMiddleware as any,
     (req, res) => {
       const { id } = req.params as any;
       const svc = (require("./utils/telemedicine") as any).TelemedicineService;
