@@ -79,6 +79,7 @@ import consultationsRoutes from "./routes/consultations";
 import consultationNotesRoutes from "./routes/consultation-notes";
 import patientProfileRoutes from "./routes/patient-profile";
 import patientSettingsRoutes from "./routes/patient-settings";
+import testAccountsRoutes from "./routes/test-accounts";
 import {
   sendMessage,
   sendCriticalAlert,
@@ -245,6 +246,9 @@ export async function createServer() {
   // Patient Portal routes
   app.use("/api/patient/profile", patientProfileRoutes);
   app.use("/api/patient/settings", patientSettingsRoutes);
+
+  // Test accounts (development/staging only)
+  app.use("/api/test-accounts", testAccountsRoutes);
 
   app.post("/api/chat", handleChat);
   app.get("/api/chat/history/:userId?", getChatHistory);

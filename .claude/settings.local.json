@@ -102,7 +102,9 @@
       "Bash(python:*)",
       "Bash(npx prisma migrate dev:*)",
       "Bash(npm run prisma:generate:*)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(chmod:*)",
+      "Bash(npx tsx:*)"
     ],
     "deny": [],
     "ask": []
