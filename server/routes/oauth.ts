@@ -6,6 +6,7 @@
 import { Router, Request, Response } from "express";
 import axios from "axios";
 import jwt from "jsonwebtoken";
+import crypto from "crypto";
 import { dbPool } from "../config/database";
 
 const router = Router();
@@ -211,13 +212,30 @@ router.get("/keycloak", (req: Request, res: Response) => {
     "base64",
   );
 
+  // Generate PKCE code verifier and challenge
+  const codeVerifier = crypto.randomBytes(32).toString("base64url");
+  const codeChallenge = crypto
+    .createHash("sha256")
+    .update(codeVerifier)
+    .digest("base64url");
+
+  // Store code_verifier in session cookie for callback
+  res.cookie("pkce_code_verifier", codeVerifier, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 600000, // 10 minutes
+  });
+
   const keycloakAuthUrl =
     `${KEYCLOAK_AUTH_SERVER_URL}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/auth?` +
     `client_id=${KEYCLOAK_CLIENT_ID}&` +
     `redirect_uri=${encodeURIComponent(redirectUri)}&` +
     `response_type=code&` +
     `scope=openid profile email&` +
-    `state=${state}`;
+    `state=${state}&` +
+    `code_challenge=${codeChallenge}&` +
+    `code_challenge_method=S256`;
 
   res.redirect(keycloakAuthUrl);
 });
@@ -237,15 +255,26 @@ router.get("/keycloak/callback", async (req: Request, res: Response) => {
   }
 
   try {
+    // Get PKCE code_verifier from cookie
+    const codeVerifier = req.cookies?.pkce_code_verifier;
+    if (!codeVerifier) {
+      console.error("PKCE code_verifier missing from cookie");
+      return res.redirect("/login?error=invalid_request");
+    }
+
+    // Clear the code_verifier cookie
+    res.clearCookie("pkce_code_verifier");
+
     // Exchange code for tokens
     const tokenUrl = `${KEYCLOAK_AUTH_SERVER_URL}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/token`;
 
-    // Build token request params (omit client_secret for public clients)
+    // Build token request params with PKCE
     const tokenParams: Record<string, string> = {
       code: code as string,
       client_id: KEYCLOAK_CLIENT_ID!,
       redirect_uri: KEYCLOAK_CALLBACK_URL,
       grant_type: "authorization_code",
+      code_verifier: codeVerifier,
     };
 
     // Only add client_secret if it's a confidential client (not public)
