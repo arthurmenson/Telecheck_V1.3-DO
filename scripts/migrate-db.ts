@@ -67,10 +67,9 @@ async function runMigrations() {
   // Create database pool
   const pool = new Pool({
     connectionString: DATABASE_URL,
-    ssl:
-      process.env.NODE_ENV === "production"
-        ? { rejectUnauthorized: false } // DigitalOcean managed databases
-        : { rejectUnauthorized: false }, // Allow self-signed certs
+    ssl: {
+      rejectUnauthorized: false, // Required for DigitalOcean managed databases
+    },
   });
 
   try {
@@ -132,6 +131,30 @@ async function runMigrations() {
     } catch (error) {
       logError(
         `Messaging schema migration failed: ${(error as Error).message}`,
+      );
+      migrationsFailed++;
+    }
+
+    console.log("");
+
+    // Migration 3: Align users table with Prisma schema
+    try {
+      logInfo(
+        "Running migration: Align users table with Prisma schema (add missing columns)",
+      );
+      const alignmentSql = readFileSync(
+        join(
+          process.cwd(),
+          "prisma/migrations/20251027000000_align_users_table_with_prisma_schema/migration.sql",
+        ),
+        "utf-8",
+      );
+      await pool.query(alignmentSql);
+      logSuccess("User table alignment migration completed");
+      migrationsRun++;
+    } catch (error) {
+      logError(
+        `User table alignment migration failed: ${(error as Error).message}`,
       );
       migrationsFailed++;
     }
