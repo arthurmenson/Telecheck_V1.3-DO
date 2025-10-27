@@ -82,7 +82,7 @@ async function migrateUsersToKeycloak(): Promise<MigrationStats> {
         }
 
         // Create user in Keycloak
-        const keycloakUserId = await createKeycloakUser(
+        const keycloakUserResult = await createKeycloakUser(
           {
             email: user.email,
             firstName: user.firstName,
@@ -96,9 +96,11 @@ async function migrateUsersToKeycloak(): Promise<MigrationStats> {
           "migration-script", // Admin user ID
         );
 
-        if (!keycloakUserId) {
+        if (!keycloakUserResult || !keycloakUserResult.id) {
           throw new Error("Failed to create user in Keycloak");
         }
+
+        const keycloakUserId = keycloakUserResult.id;
 
         // Assign role in Keycloak
         const keycloakRole = ROLE_MAPPING[user.role] || "PATIENT";
