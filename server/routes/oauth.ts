@@ -220,10 +220,11 @@ router.get("/keycloak", (req: Request, res: Response) => {
     .digest("base64url");
 
   // Store code_verifier in session cookie for callback
+  // SameSite must be "none" for cross-site redirects from Keycloak
   res.cookie("pkce_code_verifier", codeVerifier, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    secure: true, // Required for SameSite=None
+    sameSite: "none", // Allow cookie to be sent from Keycloak redirect
     maxAge: 600000, // 10 minutes
   });
 
