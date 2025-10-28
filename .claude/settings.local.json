@@ -127,7 +127,9 @@
       "Bash(DATABASE_URL='postgresql://doadmin:AVNS_n0t8AkJ6dOrPVyh2Lnd@telecheck-postgres-cluster-do-user-24735686-0.d.db.ondigitalocean.com:25060/telecheck?sslmode=require' ENABLE_KEYCLOAK_NATIVE_AUTH=true KEYCLOAK_REALM=telecheck KEYCLOAK_AUTH_SERVER_URL=http://143.244.152.52:8080 KEYCLOAK_ADMIN_CLIENT_ID=telecheck-api KEYCLOAK_ADMIN_CLIENT_SECRET=telecheck-api-secret-production-2025 npx tsx scripts/migrate-users-to-keycloak.ts)",
       "Bash(then if ./doctl.exe apps get-deployment 3e163757-94ee-4483-a241-8b59cd451f32 e3905eb2-8c24-4c38-8dfd-e418309dfc28 --format Phase)",
       "Bash(then echo \"✅ Both deployments ACTIVE with new Keycloak server!\")",
-      "Bash(then echo \"✅ Frontend deployment ACTIVE!\")"
+      "Bash(then echo \"✅ Frontend deployment ACTIVE!\")",
+      "Bash(then echo \"✅ Deployment ACTIVE with database connection!\")",
+      "Bash(then echo \"✅ Deployment ACTIVE with full Keycloak config!\")"
     ],
     "deny": [],
     "ask": []

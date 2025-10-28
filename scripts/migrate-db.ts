@@ -161,6 +161,27 @@ async function runMigrations() {
 
     console.log("");
 
+    // Migration 4: HCW Care Team schema
+    try {
+      logInfo(
+        "Running migration: HCW Care Team schema (caregivers, visits, messages)",
+      );
+      const hcwSql = readFileSync(
+        join(process.cwd(), "hcw_migration_manual.sql"),
+        "utf-8",
+      );
+      await pool.query(hcwSql);
+      logSuccess("HCW Care Team schema migration completed");
+      migrationsRun++;
+    } catch (error) {
+      logError(
+        `HCW Care Team schema migration failed: ${(error as Error).message}`,
+      );
+      migrationsFailed++;
+    }
+
+    console.log("");
+
     // Verify migrations
     console.log("=".repeat(70));
     console.log("  Verifying Database Schema");
