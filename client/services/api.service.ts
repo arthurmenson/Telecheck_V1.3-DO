@@ -9,6 +9,7 @@ import { ApiResponse } from "../../shared/types";
 import {
   EHR as EHR_ENDPOINTS,
   ELIGIBILITY as ELIGIBILITY_ENDPOINTS,
+  HCW as HCW_ENDPOINTS,
 } from "../lib/api-endpoints";
 
 // Type definitions for API responses
@@ -656,5 +657,214 @@ export class PharmacyService {
 
   static async getOrder(id: string): Promise<ApiResponse<any>> {
     return apiClient.get(API_ENDPOINTS.COMMERCE.ORDER(id));
+  }
+}
+
+export interface HcwCaregiver {
+  id: string;
+  userId: string;
+  firstName: string;
+  lastName: string;
+  specialty: string;
+  credentials: string;
+  bio?: string;
+  phoneNumber?: string;
+  email?: string;
+  isActive: boolean;
+  isPrimary?: boolean;
+  assignmentType?: string;
+  rating?: number;
+  reviewCount?: number;
+}
+
+export interface HcwThread {
+  caregiverId: string;
+  caregiverName: string;
+  caregiverSpecialty: string;
+  lastMessage: string;
+  lastMessageTime: string;
+  unreadCount: number;
+}
+
+export interface HcwMessage {
+  id: string;
+  senderId: string;
+  recipientId: string;
+  content: string;
+  isRead: boolean;
+  readAt?: string;
+  messageType: string;
+  priority?: string;
+  createdAt: string;
+  sender: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    role?: string;
+  };
+  recipient?: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    role?: string;
+  };
+}
+
+export interface HcwVisit {
+  id: string;
+  scheduledTime: string;
+  actualStart?: string;
+  actualEnd?: string;
+  visitType: string;
+  purpose?: string;
+  location?: string;
+  status: string;
+  rating?: number;
+  feedback?: string;
+  notes?: string;
+  cancellationReason?: string;
+  caregiver: {
+    firstName: string;
+    lastName: string;
+    specialty: string;
+    credentials: string;
+  };
+}
+
+export class HcwService {
+  static async getAssignedCaregivers(): Promise<ApiResponse<HcwCaregiver[]>> {
+    const raw = await apiClient.get<{ caregivers?: HcwCaregiver[] }>(
+      HCW_ENDPOINTS.CAREGIVERS.ASSIGNED,
+    );
+
+    const caregivers = (raw as any)?.caregivers ?? [];
+    return {
+      success: true,
+      data: caregivers,
+    };
+  }
+
+  static async getMessages(): Promise<ApiResponse<HcwThread[]>> {
+    const raw = await apiClient.get<{ threads?: HcwThread[] }>(
+      HCW_ENDPOINTS.MESSAGES.LIST,
+    );
+
+    const threads = (raw as any)?.threads ?? [];
+    return {
+      success: true,
+      data: threads,
+    };
+  }
+
+  static async getMessagesForCaregiver(
+    caregiverId: string,
+  ): Promise<ApiResponse<HcwMessage[]>> {
+    const raw = await apiClient.get<{ messages?: HcwMessage[] }>(
+      HCW_ENDPOINTS.MESSAGES.THREAD(caregiverId),
+    );
+
+    const messages = (raw as any)?.messages ?? [];
+    return {
+      success: true,
+      data: messages,
+    };
+  }
+
+  static async sendMessage(payload: {
+    recipientId: string;
+    content: string;
+    messageType?: string;
+    priority?: string;
+  }): Promise<ApiResponse<HcwMessage>> {
+    const raw = await apiClient.post<{ message?: HcwMessage }>(
+      HCW_ENDPOINTS.MESSAGES.SEND,
+      payload,
+    );
+
+    return {
+      success: true,
+      data: (raw as any)?.message,
+    };
+  }
+
+  static async markMessageRead(
+    messageId: string,
+  ): Promise<ApiResponse<{ messageId: string; readAt?: string }>> {
+    const raw = await apiClient.put<{
+      success?: boolean;
+      messageId: string;
+      readAt?: string;
+    }>(HCW_ENDPOINTS.MESSAGES.MARK_READ(messageId));
+
+    const { readAt } = raw as any;
+    return {
+      success: true,
+      data: {
+        messageId,
+        readAt,
+      },
+    };
+  }
+
+  static async getUpcomingVisits(): Promise<ApiResponse<HcwVisit[]>> {
+    const raw = await apiClient.get<{ visits?: HcwVisit[] }>(
+      HCW_ENDPOINTS.VISITS.UPCOMING,
+    );
+
+    const visits = (raw as any)?.visits ?? [];
+    return {
+      success: true,
+      data: visits,
+    };
+  }
+
+  static async getVisitHistory(): Promise<ApiResponse<HcwVisit[]>> {
+    const raw = await apiClient.get<{ visits?: HcwVisit[] }>(
+      HCW_ENDPOINTS.VISITS.HISTORY,
+    );
+
+    const visits = (raw as any)?.visits ?? [];
+    return {
+      success: true,
+      data: visits,
+    };
+  }
+
+  static async cancelVisit(payload: {
+    visitId: string;
+    cancellationReason: string;
+  }): Promise<
+    ApiResponse<{
+      visitId: string;
+      status: string;
+      cancellationReason?: string;
+      cancelledAt?: string;
+    }>
+  > {
+    const raw = await apiClient.delete<{
+      success?: boolean;
+      visitId: string;
+      status: string;
+      cancellationReason?: string;
+      cancelledAt?: string;
+    }>(HCW_ENDPOINTS.VISITS.CANCEL(payload.visitId), {
+      body: JSON.stringify({
+        cancellationReason: payload.cancellationReason,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    const result = raw as any;
+    return {
+      success: true,
+      data: {
+        visitId: result?.visitId ?? payload.visitId,
+        status: result?.status ?? "cancelled",
+        cancellationReason: result?.cancellationReason,
+        cancelledAt: result?.cancelledAt,
+      },
+    };
   }
 }

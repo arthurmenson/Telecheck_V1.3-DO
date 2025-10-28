@@ -105,6 +105,18 @@ export const queryKeys = {
     orders: (patientId?: string) =>
       [...queryKeys.clinical.all, "orders", patientId] as const,
   },
+  // HCW integration
+  hcw: {
+    all: ["hcw"] as const,
+    caregivers: () => [...queryKeys.hcw.all, "caregivers"] as const,
+    threads: () => [...queryKeys.hcw.all, "threads"] as const,
+    messages: (caregiverId?: string | null) =>
+      [...queryKeys.hcw.all, "messages", caregiverId ?? "none"] as const,
+    visits: {
+      upcoming: () => [...queryKeys.hcw.all, "visits", "upcoming"] as const,
+      history: () => [...queryKeys.hcw.all, "visits", "history"] as const,
+    },
+  },
 } as const;
 
 // Generic query hook with type safety

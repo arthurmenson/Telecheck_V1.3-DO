@@ -1,9 +1,14 @@
-import { useState, useEffect } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type KeyboardEvent,
+} from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -16,164 +21,128 @@ import {
   ArrowLeft,
   CheckCheck,
 } from "lucide-react";
-import { HCW } from "@/lib/api-endpoints";
-import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
-
-interface Message {
-  id: string;
-  senderId: string;
-  recipientId: string;
-  content: string;
-  isRead: boolean;
-  readAt?: Date;
-  messageType: string;
-  createdAt: Date;
-  sender: {
-    firstName: string;
-    lastName: string;
-    role: string;
-  };
-}
-
-interface Thread {
-  caregiverId: string;
-  caregiverName: string;
-  caregiverSpecialty: string;
-  lastMessage: string;
-  lastMessageTime: Date;
-  unreadCount: number;
-}
+import { useToast } from "@/hooks/use-toast";
+import {
+  useHcwMessageThreads,
+  useHcwMessages,
+  useMarkHcwMessageRead,
+  useSendHcwMessage,
+  useUserProfile,
+} from "@/hooks/api";
+import type { ApiError } from "@/lib/api-client";
+import type { HcwMessage, HcwThread } from "@/services/api.service";
 
 export default function HCWMessages() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
 
-  const [threads, setThreads] = useState<Thread[]>([]);
-  const [messages, setMessages] = useState<Message[]>([]);
   const [selectedCaregiver, setSelectedCaregiver] = useState<string | null>(
     searchParams.get("caregiver"),
   );
   const [newMessage, setNewMessage] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [sending, setSending] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
-  useEffect(() => {
-    fetchThreads();
-  }, []);
+  const threadsQuery = useHcwMessageThreads();
+  const messagesQuery = useHcwMessages(selectedCaregiver);
+  const sendMessageMutation = useSendHcwMessage();
+  const markMessageReadMutation = useMarkHcwMessageRead();
+  const { data: currentUser } = useUserProfile();
+
+  const markedMessagesRef = useRef<Set<string>>(new Set());
+
+  const threads: HcwThread[] = threadsQuery.data ?? [];
+  const messages: HcwMessage[] = messagesQuery.data ?? [];
 
   useEffect(() => {
-    if (selectedCaregiver) {
-      fetchMessages(selectedCaregiver);
+    const error = threadsQuery.error as ApiError | undefined;
+    if (error?.status === 401) {
+      navigate("/login");
+      return;
     }
-  }, [selectedCaregiver]);
 
-  const fetchThreads = async () => {
-    try {
-      const token = localStorage.getItem("authToken");
-      if (!token) {
-        navigate("/login");
-        return;
-      }
-
-      const response = await fetch(HCW.MESSAGES.LIST, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch messages");
-      }
-
-      const data = await response.json();
-      setThreads(data.threads || []);
-    } catch (error) {
-      console.error("Error fetching threads:", error);
+    if (error) {
       toast({
         title: "Error",
-        description: "Failed to load messages. Please try again.",
+        description: error.message ?? "Failed to load messages.",
         variant: "destructive",
       });
-    } finally {
-      setLoading(false);
     }
+  }, [threadsQuery.error, navigate, toast]);
+
+  useEffect(() => {
+    const error = messagesQuery.error as ApiError | undefined;
+    if (error && error.status !== 401) {
+      toast({
+        title: "Error",
+        description: error.message ?? "Failed to load conversation.",
+        variant: "destructive",
+      });
+    }
+  }, [messagesQuery.error, toast]);
+
+  useEffect(() => {
+    if (!messages?.length || !currentUser?.id || !selectedCaregiver) {
+      return;
+    }
+
+    messages
+      .filter(
+        (message) => message.recipientId === currentUser.id && !message.isRead,
+      )
+      .forEach((message) => {
+        if (!markedMessagesRef.current.has(message.id)) {
+          markedMessagesRef.current.add(message.id);
+          markMessageReadMutation.mutate({
+            messageId: message.id,
+            caregiverId: selectedCaregiver,
+          });
+        }
+      });
+  }, [messages, currentUser?.id, selectedCaregiver, markMessageReadMutation]);
+
+  const filteredThreads = useMemo(() => {
+    if (!searchQuery.trim()) {
+      return threads;
+    }
+    const normalized = searchQuery.trim().toLowerCase();
+    return threads.filter((thread) =>
+      `${thread.caregiverName} ${thread.caregiverSpecialty}`
+        .toLowerCase()
+        .includes(normalized),
+    );
+  }, [threads, searchQuery]);
+
+  const selectedThread = useMemo(
+    () => threads.find((thread) => thread.caregiverId === selectedCaregiver),
+    [threads, selectedCaregiver],
+  );
+
+  useEffect(() => {
+    markedMessagesRef.current.clear();
+  }, [selectedCaregiver]);
+
+  const handleSelectThread = (caregiverId: string) => {
+    setSelectedCaregiver(caregiverId);
   };
 
-  const fetchMessages = async (caregiverId: string) => {
-    try {
-      const token = localStorage.getItem("authToken");
-      if (!token) return;
-
-      const response = await fetch(HCW.MESSAGES.THREAD(caregiverId), {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch messages");
-      }
-
-      const data = await response.json();
-      setMessages(data.messages || []);
-
-      // Mark messages as read
-      data.messages
-        .filter((msg: Message) => !msg.isRead)
-        .forEach((msg: Message) => markAsRead(msg.id));
-    } catch (error) {
-      console.error("Error fetching messages:", error);
+  const handleSendMessage = async () => {
+    if (!selectedCaregiver || !newMessage.trim()) {
+      return;
     }
-  };
 
-  const markAsRead = async (messageId: string) => {
     try {
-      const token = localStorage.getItem("authToken");
-      if (!token) return;
-
-      await fetch(HCW.MESSAGES.MARK_READ(messageId), {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      await sendMessageMutation.mutateAsync({
+        recipientId: selectedCaregiver,
+        content: newMessage.trim(),
       });
-    } catch (error) {
-      console.error("Error marking message as read:", error);
-    }
-  };
-
-  const sendMessage = async () => {
-    if (!newMessage.trim() || !selectedCaregiver) return;
-
-    setSending(true);
-    try {
-      const token = localStorage.getItem("authToken");
-      if (!token) return;
-
-      const response = await fetch(HCW.MESSAGES.SEND, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          recipientId: selectedCaregiver,
-          content: newMessage,
-          messageType: "text",
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to send message");
-      }
-
-      const data = await response.json();
-      setMessages([...messages, data.message]);
       setNewMessage("");
-      fetchThreads(); // Refresh threads to update last message
+      markedMessagesRef.current.clear();
+      toast({
+        title: "Message sent",
+        description: "Your message was delivered to the care team.",
+      });
     } catch (error) {
       console.error("Error sending message:", error);
       toast({
@@ -181,129 +150,140 @@ export default function HCWMessages() {
         description: "Failed to send message. Please try again.",
         variant: "destructive",
       });
-    } finally {
-      setSending(false);
     }
   };
 
-  const filteredThreads = threads.filter((thread) =>
-    thread.caregiverName.toLowerCase().includes(searchQuery.toLowerCase()),
-  );
+  const handleKeyPress = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      handleSendMessage();
+    }
+  };
 
-  const selectedThread = threads.find(
-    (t) => t.caregiverId === selectedCaregiver,
-  );
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background p-6">
-        <div className="max-w-7xl mx-auto">
-          <Skeleton className="h-10 w-64 mb-6" />
-          <Skeleton className="h-[600px]" />
-        </div>
-      </div>
-    );
-  }
+  const isLoadingThreads = threadsQuery.isLoading;
+  const isLoadingMessages =
+    messagesQuery.isLoading ||
+    (messagesQuery.isFetching && !!selectedCaregiver);
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-7xl mx-auto p-6">
-        {/* Header */}
-        <div className="flex items-center gap-4 mb-6">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => navigate("/care-team")}
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold flex items-center gap-3">
-              <MessageCircle className="w-8 h-8 text-primary" />
-              Messages
-            </h1>
-            <p className="text-muted-foreground mt-1">
-              Communicate with your care team
-            </p>
+      <div className="bg-muted/30 border-b">
+        <div className="max-w-7xl mx-auto">
+          <div className="px-6 py-10">
+            <Button
+              variant="ghost"
+              className="mb-6 gap-2 text-muted-foreground hover:text-foreground"
+              onClick={() => navigate("/my-care-team")}
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back to care team
+            </Button>
+            <Card className="bg-background/80 backdrop-blur-sm border-0 shadow-none">
+              <CardHeader className="px-0">
+                <Badge
+                  variant="outline"
+                  className="w-fit mb-4 uppercase tracking-wide"
+                >
+                  Care Team Messaging
+                </Badge>
+                <CardTitle className="text-3xl font-semibold tracking-tight">
+                  Message your HCW@Home care team
+                </CardTitle>
+                <p className="text-muted-foreground max-w-2xl">
+                  Secure messaging with your assigned caregivers for quick
+                  questions, follow-ups, and visit preparation.
+                </p>
+              </CardHeader>
+            </Card>
           </div>
         </div>
+      </div>
 
-        {/* Messages Interface */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-200px)]">
-          {/* Threads List */}
-          <Card className="lg:col-span-1">
-            <CardHeader>
-              <CardTitle className="text-lg">Conversations</CardTitle>
-              <div className="relative mt-2">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search conversations..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
-                />
+      <div className="max-w-7xl mx-auto px-6 py-10">
+        <div className="grid lg:grid-cols-[340px,1fr] gap-6">
+          <Card className="border-muted/60">
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg font-semibold">
+                  Your Care Team
+                </CardTitle>
+                <Badge variant="outline" className="rounded-full px-3 py-1">
+                  {threads.length} members
+                </Badge>
               </div>
             </CardHeader>
-            <CardContent className="p-0">
-              <ScrollArea className="h-[calc(100vh-350px)]">
-                {filteredThreads.length === 0 ? (
-                  <div className="p-6 text-center text-muted-foreground">
-                    <MessageCircle className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                    <p>No conversations yet</p>
-                    <p className="text-sm mt-2">
-                      Message your care team to start a conversation
+            <CardContent className="pt-2 space-y-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search caregivers..."
+                  className="pl-9"
+                  value={searchQuery}
+                  onChange={(event) => setSearchQuery(event.target.value)}
+                />
+              </div>
+
+              <ScrollArea className="h-[calc(100vh-340px)] pr-3">
+                {isLoadingThreads ? (
+                  <div className="space-y-3">
+                    {Array.from({ length: 6 }).map((_, index) => (
+                      <Skeleton key={index} className="h-20 rounded-xl" />
+                    ))}
+                  </div>
+                ) : filteredThreads.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center text-center text-muted-foreground py-10">
+                    <MessageCircle className="w-10 h-10 mb-3" />
+                    <p>No care team members found</p>
+                    <p className="text-sm">
+                      Your assigned caregivers will appear here.
                     </p>
                   </div>
                 ) : (
-                  <div className="space-y-1 p-2">
+                  <div className="space-y-2">
                     {filteredThreads.map((thread) => (
                       <button
                         key={thread.caregiverId}
-                        onClick={() => setSelectedCaregiver(thread.caregiverId)}
-                        className={`w-full text-left p-4 rounded-lg transition-colors ${
-                          selectedCaregiver === thread.caregiverId
-                            ? "bg-primary/10"
-                            : "hover:bg-muted"
-                        }`}
+                        onClick={() => handleSelectThread(thread.caregiverId)}
+                        className={`w-full text-left rounded-xl border transition-colors ${selectedCaregiver === thread.caregiverId ? "border-primary/20 bg-primary/5" : "border-transparent hover:bg-muted/80"}`}
                       >
-                        <div className="flex items-start justify-between">
-                          <div className="flex items-center gap-3 flex-1 min-w-0">
-                            <Avatar className="w-10 h-10">
-                              <AvatarFallback>
-                                {thread.caregiverName
-                                  .split(" ")
-                                  .map((n) => n[0])
-                                  .join("")}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2">
-                                <p className="font-medium truncate">
+                        <div className="flex gap-3 p-4">
+                          <Avatar className="h-10 w-10">
+                            <AvatarFallback>
+                              {thread.caregiverName
+                                .split(" ")
+                                .map((name) => name[0])
+                                .join("")}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1">
+                            <div className="flex items-center justify-between gap-2">
+                              <div>
+                                <p className="font-semibold leading-tight">
                                   {thread.caregiverName}
                                 </p>
-                                {thread.unreadCount > 0 && (
-                                  <Badge className="h-5 px-2" variant="default">
-                                    {thread.unreadCount}
-                                  </Badge>
-                                )}
+                                <p className="text-xs text-muted-foreground">
+                                  {thread.caregiverSpecialty}
+                                </p>
                               </div>
-                              <p className="text-sm text-muted-foreground truncate">
-                                {thread.caregiverSpecialty}
-                              </p>
-                              <p className="text-sm text-muted-foreground truncate mt-1">
-                                {thread.lastMessage}
-                              </p>
+                              <span className="text-xs text-muted-foreground whitespace-nowrap">
+                                {formatDistanceToNow(
+                                  new Date(thread.lastMessageTime),
+                                  { addSuffix: true },
+                                )}
+                              </span>
                             </div>
+                            <p className="mt-2 text-sm text-muted-foreground line-clamp-2">
+                              {thread.lastMessage}
+                            </p>
                           </div>
-                          <span className="text-xs text-muted-foreground whitespace-nowrap ml-2">
-                            {formatDistanceToNow(
-                              new Date(thread.lastMessageTime),
-                              {
-                                addSuffix: true,
-                              },
-                            )}
-                          </span>
                         </div>
+                        {thread.unreadCount > 0 && (
+                          <div className="px-4 pb-3">
+                            <Badge className="rounded-full">
+                              {thread.unreadCount} unread
+                            </Badge>
+                          </div>
+                        )}
                       </button>
                     ))}
                   </div>
@@ -312,22 +292,22 @@ export default function HCWMessages() {
             </CardContent>
           </Card>
 
-          {/* Message Thread */}
-          <Card className="lg:col-span-2">
+          <Card className="border-muted/60">
             {selectedCaregiver && selectedThread ? (
               <>
-                <CardHeader className="border-b">
+                <CardHeader className="border-b bg-muted/30">
                   <div className="flex items-center gap-3">
-                    <Avatar className="w-10 h-10">
-                      <AvatarFallback>
+                    <Avatar className="w-12 h-12">
+                      <AvatarImage alt={selectedThread.caregiverName} />
+                      <AvatarFallback className="text-lg">
                         {selectedThread.caregiverName
                           .split(" ")
-                          .map((n) => n[0])
+                          .map((name) => name[0])
                           .join("")}
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <CardTitle className="text-lg">
+                      <CardTitle className="text-xl">
                         {selectedThread.caregiverName}
                       </CardTitle>
                       <p className="text-sm text-muted-foreground">
@@ -337,70 +317,92 @@ export default function HCWMessages() {
                   </div>
                 </CardHeader>
                 <CardContent className="p-0 flex flex-col h-[calc(100vh-350px)]">
-                  {/* Messages */}
-                  <ScrollArea className="flex-1 p-4">
-                    <div className="space-y-4">
-                      {messages.map((message) => {
-                        const isFromMe = message.sender.role === "PATIENT";
-                        return (
-                          <div
-                            key={message.id}
-                            className={`flex ${isFromMe ? "justify-end" : "justify-start"}`}
-                          >
+                  <ScrollArea className="flex-1 p-6">
+                    {isLoadingMessages ? (
+                      <div className="space-y-4">
+                        {Array.from({ length: 6 }).map((_, index) => (
+                          <Skeleton
+                            key={index}
+                            className="h-16 w-3/4 rounded-lg"
+                          />
+                        ))}
+                      </div>
+                    ) : messages.length === 0 ? (
+                      <div className="flex flex-col items-center justify-center text-center text-muted-foreground py-16">
+                        <MessageCircle className="w-12 h-12 mb-4" />
+                        <p className="font-medium">No messages yet</p>
+                        <p className="text-sm max-w-sm">
+                          Send the first message to start a conversation with
+                          your care team.
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {messages.map((message) => {
+                          const fromCurrentUser =
+                            currentUser?.id &&
+                            message.senderId === currentUser.id;
+
+                          return (
                             <div
-                              className={`max-w-[70%] rounded-lg p-3 ${
-                                isFromMe
-                                  ? "bg-primary text-primary-foreground"
-                                  : "bg-muted"
-                              }`}
+                              key={message.id}
+                              className={`flex ${fromCurrentUser ? "justify-end" : "justify-start"}`}
                             >
-                              <p className="text-sm">{message.content}</p>
                               <div
-                                className={`flex items-center gap-2 mt-1 text-xs ${
-                                  isFromMe
-                                    ? "text-primary-foreground/70"
-                                    : "text-muted-foreground"
+                                className={`max-w-[70%] rounded-2xl px-4 py-3 shadow-sm ${
+                                  fromCurrentUser
+                                    ? "bg-primary text-primary-foreground rounded-br-none"
+                                    : "bg-muted rounded-bl-none"
                                 }`}
                               >
-                                <span>
-                                  {formatDistanceToNow(
-                                    new Date(message.createdAt),
-                                    {
-                                      addSuffix: true,
-                                    },
+                                <p className="text-sm leading-relaxed">
+                                  {message.content}
+                                </p>
+                                <div
+                                  className={`mt-2 flex items-center gap-2 text-xs ${fromCurrentUser ? "text-primary-foreground/70" : "text-muted-foreground"}`}
+                                >
+                                  <span>
+                                    {formatDistanceToNow(
+                                      new Date(message.createdAt),
+                                      {
+                                        addSuffix: true,
+                                      },
+                                    )}
+                                  </span>
+                                  {fromCurrentUser && message.isRead && (
+                                    <CheckCheck className="w-3 h-3" />
                                   )}
-                                </span>
-                                {isFromMe && message.isRead && (
-                                  <CheckCheck className="w-3 h-3" />
-                                )}
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        );
-                      })}
-                    </div>
+                          );
+                        })}
+                      </div>
+                    )}
                   </ScrollArea>
 
-                  {/* Message Input */}
-                  <div className="border-t p-4">
+                  <div className="border-t bg-muted/30 p-4">
                     <div className="flex gap-2">
-                      <Button variant="outline" size="icon">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        disabled
+                      >
                         <Paperclip className="w-4 h-4" />
                       </Button>
                       <Input
                         placeholder="Type your message..."
                         value={newMessage}
-                        onChange={(e) => setNewMessage(e.target.value)}
-                        onKeyPress={(e) => {
-                          if (e.key === "Enter" && !e.shiftKey) {
-                            e.preventDefault();
-                            sendMessage();
-                          }
-                        }}
+                        onChange={(event) => setNewMessage(event.target.value)}
+                        onKeyDown={handleKeyPress}
+                        disabled={sendMessageMutation.isPending}
                       />
                       <Button
-                        onClick={sendMessage}
-                        disabled={sending || !newMessage.trim()}
+                        onClick={handleSendMessage}
+                        disabled={
+                          sendMessageMutation.isPending || !newMessage.trim()
+                        }
                       >
                         <Send className="w-4 h-4" />
                       </Button>
@@ -409,10 +411,16 @@ export default function HCWMessages() {
                 </CardContent>
               </>
             ) : (
-              <CardContent className="flex items-center justify-center h-full">
-                <div className="text-center text-muted-foreground">
-                  <MessageCircle className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                  <p>Select a conversation to start messaging</p>
+              <CardContent className="flex flex-col items-center justify-center text-center h-full space-y-4 py-24 text-muted-foreground">
+                <MessageCircle className="w-12 h-12 opacity-60" />
+                <div>
+                  <p className="text-lg font-medium text-foreground">
+                    Select a care team member to begin
+                  </p>
+                  <p className="text-sm">
+                    Your conversation history and secure messages will appear
+                    here.
+                  </p>
                 </div>
               </CardContent>
             )}

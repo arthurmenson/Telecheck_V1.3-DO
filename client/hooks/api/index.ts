@@ -27,6 +27,11 @@ import {
   EligibilityService,
   PharmacyService,
   ClinicalService,
+  HcwService,
+  HcwCaregiver,
+  HcwThread,
+  HcwMessage,
+  HcwVisit,
   User,
   UserPreferences,
   LabResult,
@@ -631,6 +636,95 @@ export function useOrders(patientId?: string) {
   return useApiQuery(
     queryKeys.clinical.orders(patientId),
     () => ClinicalService.listOrders?.(patientId) as any,
+  );
+}
+
+// ========================================
+// HCW Hooks
+// ========================================
+
+export function useHcwCaregivers() {
+  return useApiQuery(queryKeys.hcw.caregivers(), () =>
+    HcwService.getAssignedCaregivers(),
+  );
+}
+
+export function useHcwMessageThreads() {
+  return useApiQuery(queryKeys.hcw.threads(), () => HcwService.getMessages(), {
+    staleTime: 60 * 1000,
+  });
+}
+
+export function useHcwMessages(caregiverId?: string | null) {
+  const enabled = Boolean(caregiverId);
+  return useApiQuery(
+    queryKeys.hcw.messages(caregiverId),
+    () => HcwService.getMessagesForCaregiver(caregiverId!),
+    { enabled },
+  );
+}
+
+export function useSendHcwMessage() {
+  const { invalidateQueries } = useOptimisticUpdate();
+  return useApiMutation(
+    (payload: {
+      recipientId: string;
+      content: string;
+      messageType?: string;
+      priority?: string;
+    }) => HcwService.sendMessage(payload),
+    {
+      onSuccess: (_response, variables) => {
+        invalidateQueries(queryKeys.hcw.messages(variables.recipientId));
+        invalidateQueries(queryKeys.hcw.threads());
+      },
+    },
+  );
+}
+
+export function useMarkHcwMessageRead() {
+  const { invalidateQueries } = useOptimisticUpdate();
+  return useApiMutation(
+    ({ messageId, caregiverId }: { messageId: string; caregiverId?: string }) =>
+      HcwService.markMessageRead(messageId),
+    {
+      onSuccess: (_response, variables) => {
+        if (variables.caregiverId) {
+          invalidateQueries(queryKeys.hcw.messages(variables.caregiverId));
+        }
+        invalidateQueries(queryKeys.hcw.threads());
+      },
+    },
+  );
+}
+
+export function useHcwUpcomingVisits() {
+  return useApiQuery(
+    queryKeys.hcw.visits.upcoming(),
+    () => HcwService.getUpcomingVisits(),
+    { staleTime: 60 * 1000 },
+  );
+}
+
+export function useHcwVisitHistory(enabled: boolean = false) {
+  return useApiQuery(
+    queryKeys.hcw.visits.history(),
+    () => HcwService.getVisitHistory(),
+    { enabled },
+  );
+}
+
+export function useCancelHcwVisit() {
+  const { invalidateQueries } = useOptimisticUpdate();
+  return useApiMutation(
+    (payload: { visitId: string; cancellationReason: string }) =>
+      HcwService.cancelVisit(payload),
+    {
+      onSuccess: () => {
+        invalidateQueries(queryKeys.hcw.visits.upcoming());
+        invalidateQueries(queryKeys.hcw.visits.history());
+      },
+    },
   );
 }
 
