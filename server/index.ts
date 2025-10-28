@@ -94,6 +94,7 @@ import consultationNotesRoutes from "./routes/consultation-notes";
 import patientProfileRoutes from "./routes/patient-profile";
 import patientSettingsRoutes from "./routes/patient-settings";
 import hcwRoutes from "./routes/hcw";
+import migrateRoutes from "./routes/migrate";
 import testAccountsRoutes from "./routes/test-accounts";
 import debugRoutes from "./routes/debug";
 import {
@@ -291,6 +292,9 @@ export async function createServer() {
 
   // HCW@Home Care Team routes
   app.use("/api/hcw", authMiddleware as any, hcwRoutes);
+
+  // Migration routes (TEMPORARY - for running migrations)
+  app.use("/api/migrate", migrateRoutes);
 
   // Test accounts (development/staging only)
   app.use("/api/test-accounts", testAccountsRoutes);
