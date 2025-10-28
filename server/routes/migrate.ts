@@ -20,7 +20,10 @@ router.post("/hcw", async (req: Request, res: Response) => {
   try {
     // Simple API key auth for this endpoint
     const apiKey = req.headers["x-migration-key"];
-    if (apiKey !== process.env.MIGRATION_API_KEY && apiKey !== "telecheck-migration-2025") {
+    if (
+      apiKey !== process.env.MIGRATION_API_KEY &&
+      apiKey !== "telecheck-migration-2025"
+    ) {
       return res.status(401).json({ error: "Unauthorized" });
     }
 

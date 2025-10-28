@@ -208,9 +208,6 @@ router.get("/keycloak", (req: Request, res: Response) => {
   }
 
   const redirectUri = KEYCLOAK_CALLBACK_URL;
-  const state = Buffer.from(JSON.stringify({ timestamp: Date.now() })).toString(
-    "base64",
-  );
 
   // Generate PKCE code verifier and challenge
   const codeVerifier = crypto.randomBytes(32).toString("base64url");
@@ -219,14 +216,13 @@ router.get("/keycloak", (req: Request, res: Response) => {
     .update(codeVerifier)
     .digest("base64url");
 
-  // Store code_verifier in session cookie for callback
-  // SameSite must be "none" for cross-site redirects from Keycloak
-  res.cookie("pkce_code_verifier", codeVerifier, {
-    httpOnly: true,
-    secure: true, // Required for SameSite=None
-    sameSite: "none", // Allow cookie to be sent from Keycloak redirect
-    maxAge: 600000, // 10 minutes
-  });
+  // Store code_verifier in the state parameter (encrypted)
+  // This avoids cookie issues with cross-site redirects
+  const stateData = {
+    timestamp: Date.now(),
+    codeVerifier: codeVerifier,
+  };
+  const state = Buffer.from(JSON.stringify(stateData)).toString("base64url");
 
   const keycloakAuthUrl =
     `${KEYCLOAK_AUTH_SERVER_URL}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/auth?` +
@@ -256,15 +252,30 @@ router.get("/keycloak/callback", async (req: Request, res: Response) => {
   }
 
   try {
-    // Get PKCE code_verifier from cookie
-    const codeVerifier = req.cookies?.pkce_code_verifier;
-    if (!codeVerifier) {
-      console.error("PKCE code_verifier missing from cookie");
-      return res.redirect("/login?error=invalid_request");
+    // Extract code_verifier from state parameter
+    let codeVerifier: string;
+    try {
+      const stateData = JSON.parse(
+        Buffer.from(state as string, "base64url").toString("utf-8"),
+      );
+      codeVerifier = stateData.codeVerifier;
+
+      // Validate timestamp (state should be used within 10 minutes)
+      const age = Date.now() - stateData.timestamp;
+      if (age > 600000) {
+        // 10 minutes
+        console.error("PKCE state expired:", age, "ms");
+        return res.redirect("/login?error=state_expired");
+      }
+    } catch (e) {
+      console.error("Failed to parse state parameter:", e);
+      return res.redirect("/login?error=invalid_state");
     }
 
-    // Clear the code_verifier cookie
-    res.clearCookie("pkce_code_verifier");
+    if (!codeVerifier) {
+      console.error("PKCE code_verifier missing from state");
+      return res.redirect("/login?error=invalid_request");
+    }
 
     // Exchange code for tokens
     const tokenUrl = `${KEYCLOAK_AUTH_SERVER_URL}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/token`;
