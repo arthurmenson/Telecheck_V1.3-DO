@@ -50,7 +50,7 @@ services:
         scope: RUN_AND_BUILD_TIME
         value: telecheck-web
     github:
-      branch: fix-test-accounts-schema
+      branch: ETM_telecheck
       deploy_on_push: true
       repo: arthurmenson/Telecheck_V1.3-DO
     http_port: 8080

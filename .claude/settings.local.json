@@ -129,7 +129,12 @@
       "Bash(then echo \"✅ Both deployments ACTIVE with new Keycloak server!\")",
       "Bash(then echo \"✅ Frontend deployment ACTIVE!\")",
       "Bash(then echo \"✅ Deployment ACTIVE with database connection!\")",
-      "Bash(then echo \"✅ Deployment ACTIVE with full Keycloak config!\")"
+      "Bash(then echo \"✅ Deployment ACTIVE with full Keycloak config!\")",
+      "Bash(node run-hcw-migration.js:*)",
+      "Bash(NODE_TLS_REJECT_UNAUTHORIZED=0 node:*)",
+      "Bash(node check-db.js:*)",
+      "Bash(then echo \"✅ Deployment ACTIVE with HCW pages!\")",
+      "Bash(npx prisma format:*)"
     ],
     "deny": [],
     "ask": []

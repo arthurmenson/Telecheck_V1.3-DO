@@ -14,8 +14,8 @@ END $$;
 
 -- Create HCWCaregiver table
 CREATE TABLE IF NOT EXISTS "hcw_caregivers" (
-    "id" TEXT NOT NULL PRIMARY KEY,
-    "user_id" TEXT NOT NULL UNIQUE,
+    "id" UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    "user_id" UUID NOT NULL UNIQUE,
     "hcw_user_id" TEXT UNIQUE,
     "specialty" TEXT NOT NULL,
     "credentials" TEXT NOT NULL,
@@ -34,9 +34,9 @@ CREATE INDEX IF NOT EXISTS "hcw_caregivers_is_active_idx" ON "hcw_caregivers"("i
 
 -- Create HCWAssignment table
 CREATE TABLE IF NOT EXISTS "hcw_assignments" (
-    "id" TEXT NOT NULL PRIMARY KEY,
-    "patient_id" TEXT NOT NULL,
-    "caregiver_id" TEXT NOT NULL,
+    "id" UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    "patient_id" UUID NOT NULL,
+    "caregiver_id" UUID NOT NULL,
     "assigned_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "is_primary" BOOLEAN NOT NULL DEFAULT false,
     "status" TEXT NOT NULL DEFAULT 'active',
@@ -56,9 +56,9 @@ CREATE INDEX IF NOT EXISTS "hcw_assignments_is_primary_idx" ON "hcw_assignments"
 
 -- Create HCWVisit table
 CREATE TABLE IF NOT EXISTS "hcw_visits" (
-    "id" TEXT NOT NULL PRIMARY KEY,
-    "patient_id" TEXT NOT NULL,
-    "caregiver_id" TEXT NOT NULL,
+    "id" UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    "patient_id" UUID NOT NULL,
+    "caregiver_id" UUID NOT NULL,
     "scheduled_time" TIMESTAMPTZ(6) NOT NULL,
     "actual_start" TIMESTAMPTZ(6),
     "actual_end" TIMESTAMPTZ(6),
@@ -83,9 +83,9 @@ CREATE INDEX IF NOT EXISTS "hcw_visits_status_idx" ON "hcw_visits"("status");
 
 -- Create HCWMessage table
 CREATE TABLE IF NOT EXISTS "hcw_messages" (
-    "id" TEXT NOT NULL PRIMARY KEY,
-    "sender_id" TEXT NOT NULL,
-    "recipient_id" TEXT NOT NULL,
+    "id" UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    "sender_id" UUID NOT NULL,
+    "recipient_id" UUID NOT NULL,
     "content" TEXT NOT NULL,
     "attachments" JSONB,
     "is_read" BOOLEAN NOT NULL DEFAULT false,
@@ -107,9 +107,9 @@ CREATE INDEX IF NOT EXISTS "hcw_messages_created_at_idx" ON "hcw_messages"("crea
 
 -- Create HCWCarePlan table
 CREATE TABLE IF NOT EXISTS "hcw_care_plans" (
-    "id" TEXT NOT NULL PRIMARY KEY,
-    "patient_id" TEXT NOT NULL,
-    "caregiver_id" TEXT NOT NULL,
+    "id" UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    "patient_id" UUID NOT NULL,
+    "caregiver_id" UUID NOT NULL,
     "title" TEXT NOT NULL,
     "description" TEXT,
     "start_date" TIMESTAMPTZ(6) NOT NULL,
@@ -127,8 +127,8 @@ CREATE INDEX IF NOT EXISTS "hcw_care_plans_status_idx" ON "hcw_care_plans"("stat
 
 -- Create HCWCarePlanTask table
 CREATE TABLE IF NOT EXISTS "hcw_care_plan_tasks" (
-    "id" TEXT NOT NULL PRIMARY KEY,
-    "care_plan_id" TEXT NOT NULL,
+    "id" UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    "care_plan_id" UUID NOT NULL,
     "title" TEXT NOT NULL,
     "description" TEXT,
     "due_date" TIMESTAMPTZ(6),
@@ -148,9 +148,9 @@ CREATE INDEX IF NOT EXISTS "hcw_care_plan_tasks_due_date_idx" ON "hcw_care_plan_
 
 -- Create HCWTaskComment table
 CREATE TABLE IF NOT EXISTS "hcw_task_comments" (
-    "id" TEXT NOT NULL PRIMARY KEY,
-    "task_id" TEXT NOT NULL,
-    "user_id" TEXT NOT NULL,
+    "id" UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    "task_id" UUID NOT NULL,
+    "user_id" UUID NOT NULL,
     "comment" TEXT NOT NULL,
     "is_system_comment" BOOLEAN NOT NULL DEFAULT false,
     "created_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -163,14 +163,14 @@ CREATE INDEX IF NOT EXISTS "hcw_task_comments_user_id_idx" ON "hcw_task_comments
 
 -- Create HCWDataSharingPreference table
 CREATE TABLE IF NOT EXISTS "hcw_data_sharing_preferences" (
-    "id" TEXT NOT NULL PRIMARY KEY,
-    "patient_id" TEXT NOT NULL,
-    "caregiver_id" TEXT NOT NULL,
+    "id" UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    "patient_id" UUID NOT NULL,
+    "caregiver_id" UUID NOT NULL,
     "data_type" TEXT NOT NULL,
     "can_view" BOOLEAN NOT NULL DEFAULT true,
     "can_edit" BOOLEAN NOT NULL DEFAULT false,
     "expires_at" TIMESTAMPTZ(6),
-    "granted_by" TEXT,
+    "granted_by" UUID,
     "created_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ(6) NOT NULL,
     CONSTRAINT "hcw_data_sharing_preferences_patient_id_fkey" FOREIGN KEY ("patient_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE,
@@ -183,10 +183,10 @@ CREATE INDEX IF NOT EXISTS "hcw_data_sharing_preferences_caregiver_id_idx" ON "h
 
 -- Create HCWDocument table
 CREATE TABLE IF NOT EXISTS "hcw_documents" (
-    "id" TEXT NOT NULL PRIMARY KEY,
-    "patient_id" TEXT NOT NULL,
+    "id" UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    "patient_id" UUID NOT NULL,
     "caregiver_id" TEXT,
-    "uploaded_by" TEXT NOT NULL,
+    "uploaded_by" UUID NOT NULL,
     "file_name" TEXT NOT NULL,
     "file_size" INTEGER NOT NULL,
     "file_type" TEXT NOT NULL,

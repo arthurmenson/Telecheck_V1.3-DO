@@ -42,74 +42,76 @@ enum VideoConsultationStatus {
 
 // User model (extends existing users table)
 model User {
-  id                     String         @id @default(cuid())
-  keycloakId             String?        @unique @map("keycloak_id") // Keycloak user ID for sync
-  email                  String         @unique
-  firstName              String         @map("first_name")
-  lastName               String         @map("last_name")
-  dateOfBirth            DateTime?      @map("date_of_birth") @db.Date
-  phone                  String?
-  role                   UserRole       @default(PATIENT)
+  id          String    @id @default(cuid())
+  keycloakId  String?   @unique @map("keycloak_id") // Keycloak user ID for sync
+  email       String    @unique
+  firstName   String    @map("first_name")
+  lastName    String    @map("last_name")
+  dateOfBirth DateTime? @map("date_of_birth") @db.Date
+  phone       String?
+  role        UserRole  @default(PATIENT)
 
   // Profile fields
-  gender                 String?
-  address                String?
-  city                   String?
-  state                  String?
-  zipCode                String?        @map("zip_code")
+  gender  String?
+  address String?
+  city    String?
+  state   String?
+  zipCode String? @map("zip_code")
 
   // Emergency contact
-  emergencyContactName     String?      @map("emergency_contact_name")
-  emergencyContactPhone    String?      @map("emergency_contact_phone")
-  emergencyContactRelation String?      @map("emergency_contact_relation")
+  emergencyContactName     String? @map("emergency_contact_name")
+  emergencyContactPhone    String? @map("emergency_contact_phone")
+  emergencyContactRelation String? @map("emergency_contact_relation")
 
   // Medical information
-  medicalHistory         String?        @map("medical_history") @db.Text
-  currentMedications     String?        @map("current_medications") @db.Text
-  allergies              String?        @db.Text
+  medicalHistory     String? @map("medical_history") @db.Text
+  currentMedications String? @map("current_medications") @db.Text
+  allergies          String? @db.Text
 
   // Insurance
-  insuranceProvider      String?        @map("insurance_provider")
-  insurancePolicyNumber  String?        @map("insurance_policy_number")
-  insuranceGroupNumber   String?        @map("insurance_group_number")
-  primaryCarePhysician   String?        @map("primary_care_physician")
+  insuranceProvider     String? @map("insurance_provider")
+  insurancePolicyNumber String? @map("insurance_policy_number")
+  insuranceGroupNumber  String? @map("insurance_group_number")
+  primaryCarePhysician  String? @map("primary_care_physician")
 
   // Settings - Notification Preferences
-  emailNotifications     Boolean        @default(true) @map("email_notifications")
-  smsNotifications       Boolean        @default(true) @map("sms_notifications")
-  pushNotifications      Boolean        @default(false) @map("push_notifications")
-  appointmentNotifications Boolean      @default(true) @map("appointment_notifications")
-  labResultNotifications   Boolean      @default(true) @map("lab_result_notifications")
-  messageNotifications     Boolean      @default(true) @map("message_notifications")
-  reminderNotifications    Boolean      @default(true) @map("reminder_notifications")
+  emailNotifications       Boolean @default(true) @map("email_notifications")
+  smsNotifications         Boolean @default(true) @map("sms_notifications")
+  pushNotifications        Boolean @default(false) @map("push_notifications")
+  appointmentNotifications Boolean @default(true) @map("appointment_notifications")
+  labResultNotifications   Boolean @default(true) @map("lab_result_notifications")
+  messageNotifications     Boolean @default(true) @map("message_notifications")
+  reminderNotifications    Boolean @default(true) @map("reminder_notifications")
 
   // Settings - Privacy Controls
-  dataSharing            Boolean        @default(false) @map("data_sharing")
-  marketingConsent       Boolean        @default(false) @map("marketing_consent")
-  thirdPartySharing      Boolean        @default(false) @map("third_party_sharing")
+  dataSharing       Boolean @default(false) @map("data_sharing")
+  marketingConsent  Boolean @default(false) @map("marketing_consent")
+  thirdPartySharing Boolean @default(false) @map("third_party_sharing")
 
   // Settings - Communication Preferences
-  preferredContactMethod String         @default("email") @map("preferred_contact_method")
-  languagePreference     String         @default("en") @map("language_preference")
+  preferredContactMethod String @default("email") @map("preferred_contact_method")
+  languagePreference     String @default("en") @map("language_preference")
 
   // Settings - Security
-  twoFactorEnabled       Boolean        @default(false) @map("two_factor_enabled")
-  twoFactorSecret        String?        @map("two_factor_secret")
+  twoFactorEnabled Boolean @default(false) @map("two_factor_enabled")
+  twoFactorSecret  String? @map("two_factor_secret")
 
-  createdAt              DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt              DateTime       @updatedAt @map("updated_at") @db.Timestamptz(6)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   // Relations
-  patientAppointments    Appointment[]  @relation("PatientAppointments")
-  doctorAppointments     Appointment[]  @relation("DoctorAppointments")
+  patientAppointments    Appointment[]              @relation("PatientAppointments")
+  doctorAppointments     Appointment[]              @relation("DoctorAppointments")
   doctorProfile          DoctorProfile?
-  caregiverProfile       HCWCaregiver?  @relation("CaregiverProfile")
-  caregiverAssignments   HCWAssignment[] @relation("PatientCaregivers")
-  visits                 HCWVisit[]     @relation("PatientVisits")
-  carePlans              HCWCarePlan[]  @relation("PatientCarePlans")
-  taskComments           HCWTaskComment[] @relation("TaskComments")
+  caregiverProfile       HCWCaregiver?              @relation("CaregiverProfile")
+  caregiverAssignments   HCWAssignment[]            @relation("PatientCaregivers")
+  visits                 HCWVisit[]                 @relation("PatientVisits")
+  carePlans              HCWCarePlan[]              @relation("PatientCarePlans")
+  taskComments           HCWTaskComment[]           @relation("TaskComments")
   dataSharingPreferences HCWDataSharingPreference[] @relation("PatientDataSharing")
-  documents              HCWDocument[]  @relation("PatientDocuments")
+  documents              HCWDocument[]              @relation("PatientDocuments")
+  sentMessages           HCWMessage[]               @relation("SentHCWMessages")
+  receivedMessages       HCWMessage[]               @relation("ReceivedHCWMessages")
 
   @@index([email])
   @@map("users")
@@ -120,7 +122,7 @@ model DoctorProfile {
   id              String   @id @default(cuid())
   userId          String   @unique @map("user_id")
   specialty       String
-  credentials     String   // "MD", "DO", "NP", etc.
+  credentials     String // "MD", "DO", "NP", etc.
   bio             String?  @db.Text
   experience      Int      @default(0) // years of experience
   rating          Float    @default(0.0)
@@ -131,13 +133,13 @@ model DoctorProfile {
   inPersonEnabled Boolean  @default(false) @map("in_person_enabled")
   licenseNumber   String?  @map("license_number")
   licenseState    String?  @map("license_state")
-  location        String?  // "Boston, MA" or "Medical Plaza, Main St"
-  education       String?  // "Harvard Medical School"
+  location        String? // "Boston, MA" or "Medical Plaza, Main St"
+  education       String? // "Harvard Medical School"
 
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt       DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   @@index([specialty])
   @@index([videoEnabled])
@@ -148,57 +150,57 @@ model DoctorProfile {
 
 // Appointment model
 model Appointment {
-  id                  String            @id @default(cuid())
-  patientId           String            @map("patient_id")
-  doctorId            String            @map("doctor_id")
-  scheduledTime       DateTime          @map("scheduled_time") @db.Timestamptz(6)
-  type                AppointmentType   @default(video)
-  status              AppointmentStatus @default(pending)
-  reason              String?           @db.Text
-  notes               String?           @db.Text
-  hcwConsultationId   String?           @unique @map("hcw_consultation_id")
-  createdAt           DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt           DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
+  id                String            @id @default(cuid())
+  patientId         String            @map("patient_id")
+  doctorId          String            @map("doctor_id")
+  scheduledTime     DateTime          @map("scheduled_time") @db.Timestamptz(6)
+  type              AppointmentType   @default(video)
+  status            AppointmentStatus @default(pending)
+  reason            String?           @db.Text
+  notes             String?           @db.Text
+  hcwConsultationId String?           @unique @map("hcw_consultation_id")
+  createdAt         DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt         DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   // Relations
-  patient             User              @relation("PatientAppointments", fields: [patientId], references: [id], onDelete: Cascade)
-  doctor              User              @relation("DoctorAppointments", fields: [doctorId], references: [id], onDelete: Cascade)
-  videoConsultation   VideoConsultation?
+  patient           User               @relation("PatientAppointments", fields: [patientId], references: [id], onDelete: Cascade)
+  doctor            User               @relation("DoctorAppointments", fields: [doctorId], references: [id], onDelete: Cascade)
+  videoConsultation VideoConsultation?
 
+  @@unique([doctorId, scheduledTime], name: "no_double_booking")
   @@index([patientId])
   @@index([doctorId])
   @@index([scheduledTime])
   @@index([status])
   @@index([patientId, scheduledTime])
   @@index([doctorId, scheduledTime])
-  @@unique([doctorId, scheduledTime], name: "no_double_booking")
   @@map("appointments")
 }
 
 // VideoConsultation model
 model VideoConsultation {
-  id                String                   @id @default(cuid())
-  appointmentId     String                   @unique @map("appointment_id")
-  hcwConsultationId String                   @map("hcw_consultation_id")
-  patientUrl        String                   @map("patient_url") @db.Text
-  doctorUrl         String?                  @map("doctor_url") @db.Text
-  status            VideoConsultationStatus  @default(pending)
-  startedAt         DateTime?                @map("started_at") @db.Timestamptz(6)
-  endedAt           DateTime?                @map("ended_at") @db.Timestamptz(6)
-  duration          Int?                     // Duration in minutes
-  errorMessage      String?                  @map("error_message") @db.Text
-  metadata          Json?                    // Store additional HCW response data
+  id                String                  @id @default(cuid())
+  appointmentId     String                  @unique @map("appointment_id")
+  hcwConsultationId String                  @map("hcw_consultation_id")
+  patientUrl        String                  @map("patient_url") @db.Text
+  doctorUrl         String?                 @map("doctor_url") @db.Text
+  status            VideoConsultationStatus @default(pending)
+  startedAt         DateTime?               @map("started_at") @db.Timestamptz(6)
+  endedAt           DateTime?               @map("ended_at") @db.Timestamptz(6)
+  duration          Int? // Duration in minutes
+  errorMessage      String?                 @map("error_message") @db.Text
+  metadata          Json? // Store additional HCW response data
 
   // Post-consultation documentation (simple approach)
-  consultationNotes String?                  @map("consultation_notes") @db.Text
-  diagnosis         String?                  @db.Text
-  treatmentPlan     String?                  @map("treatment_plan") @db.Text
+  consultationNotes String? @map("consultation_notes") @db.Text
+  diagnosis         String? @db.Text
+  treatmentPlan     String? @map("treatment_plan") @db.Text
 
-  createdAt         DateTime                 @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt         DateTime                 @updatedAt @map("updated_at") @db.Timestamptz(6)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   // Relations
-  appointment       Appointment              @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  appointment Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
 
   @@index([appointmentId])
   @@index([hcwConsultationId])
@@ -209,36 +211,36 @@ model VideoConsultation {
 
 // ConsultationNote model for post-consultation documentation
 model ConsultationNote {
-  id                String            @id @default(cuid())
-  appointmentId     String            @map("appointment_id")
-  doctorId          String            @map("doctor_id")
-  patientId         String            @map("patient_id")
+  id            String @id @default(cuid())
+  appointmentId String @map("appointment_id")
+  doctorId      String @map("doctor_id")
+  patientId     String @map("patient_id")
 
   // Clinical documentation
-  chiefComplaint    String?           @map("chief_complaint") @db.Text
-  historyOfPresent  String?           @map("history_of_present") @db.Text
-  assessment        String?           @db.Text
-  clinicalNotes     String?           @map("clinical_notes") @db.Text
-  diagnosisCodes    Json?             @map("diagnosis_codes") // Array of ICD-10 codes
-  treatmentPlan     String?           @map("treatment_plan") @db.Text
-  followUpInstructions String?        @map("follow_up_instructions") @db.Text
+  chiefComplaint       String? @map("chief_complaint") @db.Text
+  historyOfPresent     String? @map("history_of_present") @db.Text
+  assessment           String? @db.Text
+  clinicalNotes        String? @map("clinical_notes") @db.Text
+  diagnosisCodes       Json?   @map("diagnosis_codes") // Array of ICD-10 codes
+  treatmentPlan        String? @map("treatment_plan") @db.Text
+  followUpInstructions String? @map("follow_up_instructions") @db.Text
 
   // Prescription references
-  prescriptionIds   Json?             @map("prescription_ids") // Array of eRx prescription IDs
+  prescriptionIds Json? @map("prescription_ids") // Array of eRx prescription IDs
 
   // Follow-up scheduling
-  followUpDate      DateTime?         @map("follow_up_date") @db.Timestamptz(6)
-  followUpType      String?           @map("follow_up_type") // video, in_person, phone
+  followUpDate DateTime? @map("follow_up_date") @db.Timestamptz(6)
+  followUpType String?   @map("follow_up_type") // video, in_person, phone
 
   // Status tracking
-  status            String            @default("draft") // draft, completed, signed
-  isDraft           Boolean           @default(true) @map("is_draft")
-  signedAt          DateTime?         @map("signed_at") @db.Timestamptz(6)
+  status   String    @default("draft") // draft, completed, signed
+  isDraft  Boolean   @default(true) @map("is_draft")
+  signedAt DateTime? @map("signed_at") @db.Timestamptz(6)
 
   // Audit fields
-  createdAt         DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt         DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
-  version           Int               @default(1) // For tracking note versions
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  version   Int      @default(1) // For tracking note versions
 
   @@index([appointmentId])
   @@index([doctorId])
@@ -250,16 +252,16 @@ model ConsultationNote {
 
 // ConsultationNoteAudit for tracking all changes to notes (HIPAA compliance)
 model ConsultationNoteAudit {
-  id                String            @id @default(cuid())
-  noteId            String            @map("note_id")
-  userId            String            @map("user_id")
-  action            String            // created, updated, signed, viewed
-  fieldChanged      String?           @map("field_changed")
-  oldValue          String?           @map("old_value") @db.Text
-  newValue          String?           @map("new_value") @db.Text
-  ipAddress         String?           @map("ip_address")
-  userAgent         String?           @map("user_agent")
-  timestamp         DateTime          @default(now()) @db.Timestamptz(6)
+  id           String   @id @default(cuid())
+  noteId       String   @map("note_id")
+  userId       String   @map("user_id")
+  action       String // created, updated, signed, viewed
+  fieldChanged String?  @map("field_changed")
+  oldValue     String?  @map("old_value") @db.Text
+  newValue     String?  @map("new_value") @db.Text
+  ipAddress    String?  @map("ip_address")
+  userAgent    String?  @map("user_agent")
+  timestamp    DateTime @default(now()) @db.Timestamptz(6)
 
   @@index([noteId])
   @@index([userId])
@@ -269,23 +271,23 @@ model ConsultationNoteAudit {
 
 // PatientConsultationSummary for email/in-app summaries
 model PatientConsultationSummary {
-  id                String            @id @default(cuid())
-  appointmentId     String            @unique @map("appointment_id")
-  patientId         String            @map("patient_id")
-  doctorId          String            @map("doctor_id")
+  id            String @id @default(cuid())
+  appointmentId String @unique @map("appointment_id")
+  patientId     String @map("patient_id")
+  doctorId      String @map("doctor_id")
 
   // Summary content
-  summaryHtml       String            @map("summary_html") @db.Text
-  summaryPlainText  String            @map("summary_plain_text") @db.Text
+  summaryHtml      String @map("summary_html") @db.Text
+  summaryPlainText String @map("summary_plain_text") @db.Text
 
   // Delivery tracking
-  emailSent         Boolean           @default(false) @map("email_sent")
-  emailSentAt       DateTime?         @map("email_sent_at") @db.Timestamptz(6)
-  viewedByPatient   Boolean           @default(false) @map("viewed_by_patient")
-  viewedAt          DateTime?         @map("viewed_at") @db.Timestamptz(6)
+  emailSent       Boolean   @default(false) @map("email_sent")
+  emailSentAt     DateTime? @map("email_sent_at") @db.Timestamptz(6)
+  viewedByPatient Boolean   @default(false) @map("viewed_by_patient")
+  viewedAt        DateTime? @map("viewed_at") @db.Timestamptz(6)
 
-  createdAt         DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt         DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   @@index([appointmentId])
   @@index([patientId])
@@ -296,27 +298,27 @@ model PatientConsultationSummary {
 
 // MedicalTemplate for common condition templates
 model MedicalTemplate {
-  id                String            @id @default(cuid())
-  name              String
-  category          String            // respiratory, cardiac, dermatology, etc.
-  specialty         String?           // primary_care, urgent_care, etc.
+  id        String  @id @default(cuid())
+  name      String
+  category  String // respiratory, cardiac, dermatology, etc.
+  specialty String? // primary_care, urgent_care, etc.
 
   // Template content
-  chiefComplaintTemplate    String?   @map("chief_complaint_template") @db.Text
-  historyTemplate           String?   @map("history_template") @db.Text
-  assessmentTemplate        String?   @map("assessment_template") @db.Text
-  treatmentPlanTemplate     String?   @map("treatment_plan_template") @db.Text
-  followUpTemplate          String?   @map("follow_up_template") @db.Text
+  chiefComplaintTemplate String? @map("chief_complaint_template") @db.Text
+  historyTemplate        String? @map("history_template") @db.Text
+  assessmentTemplate     String? @map("assessment_template") @db.Text
+  treatmentPlanTemplate  String? @map("treatment_plan_template") @db.Text
+  followUpTemplate       String? @map("follow_up_template") @db.Text
 
   // Common ICD-10 codes for this template
-  commonDiagnosisCodes Json?          @map("common_diagnosis_codes")
+  commonDiagnosisCodes Json? @map("common_diagnosis_codes")
 
   // Usage tracking
-  usageCount        Int               @default(0) @map("usage_count")
-  isActive          Boolean           @default(true) @map("is_active")
+  usageCount Int     @default(0) @map("usage_count")
+  isActive   Boolean @default(true) @map("is_active")
 
-  createdAt         DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt         DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   @@index([category])
   @@index([specialty])
@@ -330,25 +332,23 @@ model MedicalTemplate {
 
 // HCWCaregiver model for home healthcare workers
 model HCWCaregiver {
-  id            String   @id @default(cuid())
-  userId        String   @unique @map("user_id")
-  hcwUserId     String?  @unique @map("hcw_user_id") // ID in HCW@Home system
-  specialty     String
-  credentials   String
-  bio           String?  @db.Text
-  phoneNumber   String?  @map("phone_number")
-  email         String
-  isActive      Boolean  @default(true) @map("is_active")
+  id          String  @id @default(cuid())
+  userId      String  @unique @map("user_id")
+  hcwUserId   String? @unique @map("hcw_user_id") // ID in HCW@Home system
+  specialty   String
+  credentials String
+  bio         String? @db.Text
+  phoneNumber String? @map("phone_number")
+  email       String
+  isActive    Boolean @default(true) @map("is_active")
 
-  user          User     @relation("CaregiverProfile", fields: [userId], references: [id], onDelete: Cascade)
-  assignments   HCWAssignment[]
-  visits        HCWVisit[]
-  sentMessages  HCWMessage[] @relation("SentMessages")
-  receivedMessages HCWMessage[] @relation("ReceivedMessages")
+  user                   User                       @relation("CaregiverProfile", fields: [userId], references: [id], onDelete: Cascade)
+  assignments            HCWAssignment[]
+  visits                 HCWVisit[]
   dataSharingPreferences HCWDataSharingPreference[]
 
-  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   @@index([userId])
   @@index([specialty])
@@ -358,21 +358,21 @@ model HCWCaregiver {
 
 // HCWAssignment model for patient-caregiver relationships
 model HCWAssignment {
-  id            String   @id @default(cuid())
-  patientId     String   @map("patient_id")
-  caregiverId   String   @map("caregiver_id")
-  assignedAt    DateTime @default(now()) @map("assigned_at") @db.Timestamptz(6)
-  isPrimary     Boolean  @default(false) @map("is_primary")
-  status        String   @default("active") // active, inactive, transferred
-  endDate       DateTime? @map("end_date") @db.Timestamptz(6)
-  assignmentType String?  @map("assignment_type") // primary_care, home_health, specialist, care_coordinator
-  notes         String?  @db.Text
+  id             String    @id @default(cuid())
+  patientId      String    @map("patient_id")
+  caregiverId    String    @map("caregiver_id")
+  assignedAt     DateTime  @default(now()) @map("assigned_at") @db.Timestamptz(6)
+  isPrimary      Boolean   @default(false) @map("is_primary")
+  status         String    @default("active") // active, inactive, transferred
+  endDate        DateTime? @map("end_date") @db.Timestamptz(6)
+  assignmentType String?   @map("assignment_type") // primary_care, home_health, specialist, care_coordinator
+  notes          String?   @db.Text
 
-  patient       User     @relation("PatientCaregivers", fields: [patientId], references: [id], onDelete: Cascade)
-  caregiver     HCWCaregiver @relation(fields: [caregiverId], references: [id], onDelete: Cascade)
+  patient   User         @relation("PatientCaregivers", fields: [patientId], references: [id], onDelete: Cascade)
+  caregiver HCWCaregiver @relation(fields: [caregiverId], references: [id], onDelete: Cascade)
 
-  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   @@index([patientId])
   @@index([caregiverId])
@@ -383,26 +383,26 @@ model HCWAssignment {
 
 // HCWVisit model for home health visits
 model HCWVisit {
-  id            String   @id @default(cuid())
-  patientId     String   @map("patient_id")
-  caregiverId   String   @map("caregiver_id")
-  scheduledTime DateTime @map("scheduled_time") @db.Timestamptz(6)
-  actualStart   DateTime? @map("actual_start") @db.Timestamptz(6)
-  actualEnd     DateTime? @map("actual_end") @db.Timestamptz(6)
-  visitType     String   @map("visit_type") // routine, urgent, follow_up, initial_assessment
-  purpose       String   @db.Text
-  location      String?  // for home visits, patient address
-  notes         String?  @db.Text
-  status        String   @default("scheduled") // scheduled, in_progress, completed, cancelled, no_show
-  rating        Int?     // 1-5 star rating from patient
-  feedback      String?  @db.Text
-  cancellationReason String? @map("cancellation_reason") @db.Text
+  id                 String    @id @default(cuid())
+  patientId          String    @map("patient_id")
+  caregiverId        String    @map("caregiver_id")
+  scheduledTime      DateTime  @map("scheduled_time") @db.Timestamptz(6)
+  actualStart        DateTime? @map("actual_start") @db.Timestamptz(6)
+  actualEnd          DateTime? @map("actual_end") @db.Timestamptz(6)
+  visitType          String    @map("visit_type") // routine, urgent, follow_up, initial_assessment
+  purpose            String    @db.Text
+  location           String? // for home visits, patient address
+  notes              String?   @db.Text
+  status             String    @default("scheduled") // scheduled, in_progress, completed, cancelled, no_show
+  rating             Int? // 1-5 star rating from patient
+  feedback           String?   @db.Text
+  cancellationReason String?   @map("cancellation_reason") @db.Text
 
-  patient       User     @relation("PatientVisits", fields: [patientId], references: [id], onDelete: Cascade)
-  caregiver     HCWCaregiver @relation(fields: [caregiverId], references: [id], onDelete: Cascade)
+  patient   User         @relation("PatientVisits", fields: [patientId], references: [id], onDelete: Cascade)
+  caregiver HCWCaregiver @relation(fields: [caregiverId], references: [id], onDelete: Cascade)
 
-  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   @@index([patientId])
   @@index([caregiverId])
@@ -413,22 +413,25 @@ model HCWVisit {
 
 // HCWMessage model for patient-caregiver messaging
 model HCWMessage {
-  id            String   @id @default(cuid())
-  senderId      String   @map("sender_id")
-  recipientId   String   @map("recipient_id")
-  content       String   @db.Text
-  attachments   Json?    // Array of attachment URLs or metadata
-  isRead        Boolean  @default(false) @map("is_read")
+  id            String    @id @default(cuid())
+  senderId      String    @map("sender_id")
+  senderType    String    @default("patient") @map("sender_type") // "patient" or "caregiver"
+  recipientId   String    @map("recipient_id")
+  recipientType String    @default("caregiver") @map("recipient_type") // "patient" or "caregiver"
+  content       String    @db.Text
+  attachments   Json? // Array of attachment URLs or metadata
+  isRead        Boolean   @default(false) @map("is_read")
   readAt        DateTime? @map("read_at") @db.Timestamptz(6)
-  threadId      String?  @map("thread_id") // for grouping conversations
-  messageType   String   @default("text") @map("message_type") // text, voice, video_request, system
-  priority      String   @default("normal") // normal, urgent, high
+  threadId      String?   @map("thread_id") // for grouping conversations
+  messageType   String    @default("text") @map("message_type") // text, voice, video_request, system
+  priority      String    @default("normal") // normal, urgent, high
 
-  sender        HCWCaregiver @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
-  recipient     HCWCaregiver @relation("ReceivedMessages", fields: [recipientId], references: [id], onDelete: Cascade)
+  // Relations now reference User table instead of HCWCaregiver
+  sender    User @relation("SentHCWMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  recipient User @relation("ReceivedHCWMessages", fields: [recipientId], references: [id], onDelete: Cascade)
 
-  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   @@index([senderId])
   @@index([recipientId])
@@ -440,21 +443,21 @@ model HCWMessage {
 
 // HCWCarePlan model for patient care plans
 model HCWCarePlan {
-  id            String   @id @default(cuid())
-  patientId     String   @map("patient_id")
-  caregiverId   String   @map("caregiver_id")
-  title         String
-  description   String?  @db.Text
-  startDate     DateTime @map("start_date") @db.Timestamptz(6)
-  endDate       DateTime? @map("end_date") @db.Timestamptz(6)
-  status        String   @default("active") // active, completed, cancelled, on_hold
-  goals         Json?    // Array of care plan goals
+  id          String    @id @default(cuid())
+  patientId   String    @map("patient_id")
+  caregiverId String    @map("caregiver_id")
+  title       String
+  description String?   @db.Text
+  startDate   DateTime  @map("start_date") @db.Timestamptz(6)
+  endDate     DateTime? @map("end_date") @db.Timestamptz(6)
+  status      String    @default("active") // active, completed, cancelled, on_hold
+  goals       Json? // Array of care plan goals
 
-  patient       User     @relation("PatientCarePlans", fields: [patientId], references: [id], onDelete: Cascade)
-  tasks         HCWCarePlanTask[]
+  patient User              @relation("PatientCarePlans", fields: [patientId], references: [id], onDelete: Cascade)
+  tasks   HCWCarePlanTask[]
 
-  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   @@index([patientId])
   @@index([caregiverId])
@@ -464,22 +467,22 @@ model HCWCarePlan {
 
 // HCWCarePlanTask model for care plan tasks
 model HCWCarePlanTask {
-  id            String   @id @default(cuid())
-  carePlanId    String   @map("care_plan_id")
-  title         String
-  description   String?  @db.Text
-  dueDate       DateTime? @map("due_date") @db.Timestamptz(6)
-  frequency     String?  // daily, weekly, bi_weekly, monthly, as_needed
-  status        String   @default("pending") // pending, in_progress, completed, skipped, overdue
-  completedAt   DateTime? @map("completed_at") @db.Timestamptz(6)
-  notes         String?  @db.Text
-  priority      String   @default("medium") // low, medium, high, critical
+  id          String    @id @default(cuid())
+  carePlanId  String    @map("care_plan_id")
+  title       String
+  description String?   @db.Text
+  dueDate     DateTime? @map("due_date") @db.Timestamptz(6)
+  frequency   String? // daily, weekly, bi_weekly, monthly, as_needed
+  status      String    @default("pending") // pending, in_progress, completed, skipped, overdue
+  completedAt DateTime? @map("completed_at") @db.Timestamptz(6)
+  notes       String?   @db.Text
+  priority    String    @default("medium") // low, medium, high, critical
 
-  carePlan      HCWCarePlan @relation(fields: [carePlanId], references: [id], onDelete: Cascade)
-  comments      HCWTaskComment[]
+  carePlan HCWCarePlan      @relation(fields: [carePlanId], references: [id], onDelete: Cascade)
+  comments HCWTaskComment[]
 
-  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   @@index([carePlanId])
   @@index([status])
@@ -489,16 +492,16 @@ model HCWCarePlanTask {
 
 // HCWTaskComment model for task comments
 model HCWTaskComment {
-  id            String   @id @default(cuid())
-  taskId        String   @map("task_id")
-  userId        String   @map("user_id")
-  comment       String   @db.Text
+  id              String  @id @default(cuid())
+  taskId          String  @map("task_id")
+  userId          String  @map("user_id")
+  comment         String  @db.Text
   isSystemComment Boolean @default(false) @map("is_system_comment")
 
-  task          HCWCarePlanTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
-  user          User     @relation("TaskComments", fields: [userId], references: [id], onDelete: Cascade)
+  task HCWCarePlanTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  user User            @relation("TaskComments", fields: [userId], references: [id], onDelete: Cascade)
 
-  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
 
   @@index([taskId])
   @@index([userId])
@@ -507,20 +510,20 @@ model HCWTaskComment {
 
 // HCWDataSharingPreference model for patient data access control
 model HCWDataSharingPreference {
-  id            String   @id @default(cuid())
-  patientId     String   @map("patient_id")
-  caregiverId   String   @map("caregiver_id")
-  dataType      String   @map("data_type") // labs, medications, vitals, medical_history, family_history, mental_health
-  canView       Boolean  @default(true) @map("can_view")
-  canEdit       Boolean  @default(false) @map("can_edit")
-  expiresAt     DateTime? @map("expires_at") @db.Timestamptz(6)
-  grantedBy     String?  @map("granted_by") // user_id who granted access
+  id          String    @id @default(cuid())
+  patientId   String    @map("patient_id")
+  caregiverId String    @map("caregiver_id")
+  dataType    String    @map("data_type") // labs, medications, vitals, medical_history, family_history, mental_health
+  canView     Boolean   @default(true) @map("can_view")
+  canEdit     Boolean   @default(false) @map("can_edit")
+  expiresAt   DateTime? @map("expires_at") @db.Timestamptz(6)
+  grantedBy   String?   @map("granted_by") // user_id who granted access
 
-  patient       User     @relation("PatientDataSharing", fields: [patientId], references: [id], onDelete: Cascade)
-  caregiver     HCWCaregiver @relation(fields: [caregiverId], references: [id], onDelete: Cascade)
+  patient   User         @relation("PatientDataSharing", fields: [patientId], references: [id], onDelete: Cascade)
+  caregiver HCWCaregiver @relation(fields: [caregiverId], references: [id], onDelete: Cascade)
 
-  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   @@unique([patientId, caregiverId, dataType])
   @@index([patientId])
@@ -530,23 +533,23 @@ model HCWDataSharingPreference {
 
 // HCWDocument model for shared documents
 model HCWDocument {
-  id            String   @id @default(cuid())
-  patientId     String   @map("patient_id")
-  caregiverId   String?  @map("caregiver_id")
-  uploadedBy    String   @map("uploaded_by") // user_id
-  fileName      String   @map("file_name")
-  fileSize      Int      @map("file_size") // bytes
-  fileType      String   @map("file_type") // pdf, jpg, png, etc
-  fileUrl       String   @map("file_url") @db.Text
-  category      String   // lab_result, imaging, discharge_summary, care_instruction, educational
-  description   String?  @db.Text
-  isShared      Boolean  @default(false) @map("is_shared")
-  sharedWith    Json?    @map("shared_with") // Array of caregiver IDs
+  id          String  @id @default(cuid())
+  patientId   String  @map("patient_id")
+  caregiverId String? @map("caregiver_id")
+  uploadedBy  String  @map("uploaded_by") // user_id
+  fileName    String  @map("file_name")
+  fileSize    Int     @map("file_size") // bytes
+  fileType    String  @map("file_type") // pdf, jpg, png, etc
+  fileUrl     String  @map("file_url") @db.Text
+  category    String // lab_result, imaging, discharge_summary, care_instruction, educational
+  description String? @db.Text
+  isShared    Boolean @default(false) @map("is_shared")
+  sharedWith  Json?   @map("shared_with") // Array of caregiver IDs
 
-  patient       User     @relation("PatientDocuments", fields: [patientId], references: [id], onDelete: Cascade)
+  patient User @relation("PatientDocuments", fields: [patientId], references: [id], onDelete: Cascade)
 
-  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   @@index([patientId])
   @@index([caregiverId])
