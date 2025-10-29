@@ -10,7 +10,10 @@ import {
   EHR as EHR_ENDPOINTS,
   ELIGIBILITY as ELIGIBILITY_ENDPOINTS,
   HCW as HCW_ENDPOINTS,
+  APPOINTMENTS as APPOINTMENT_ENDPOINTS,
+  TELEMEDICINE as TELEMEDICINE_ENDPOINTS,
 } from "../lib/api-endpoints";
+import type { Doctor, ProvidersQueryParams } from "../types/telemedicine";
 
 // Type definitions for API responses
 export interface User {
@@ -660,6 +663,91 @@ export class PharmacyService {
   }
 }
 
+export interface CreateAppointmentPayload {
+  patientId: string;
+  doctorId: string;
+  scheduledTime: string;
+  type?: "video" | "phone" | "in_person";
+  reason?: string;
+  notes?: string;
+  [key: string]: unknown;
+}
+
+export interface AppointmentCreationResult {
+  appointmentId: string;
+  confirmationNumber?: string;
+  meetingLink?: string;
+  appointment?: any;
+}
+
+export interface HcwSessionResult {
+  consultationId: string;
+  hcwConsultationId?: string;
+  hcwUrl?: string;
+  doctorUrl?: string;
+  status?: string;
+  scheduledTime?: string;
+}
+
+export class SchedulingService {
+  static async getTelemedicineProviders(
+    params?: ProvidersQueryParams,
+  ): Promise<ApiResponse<Doctor[]>> {
+    const searchParams = new URLSearchParams();
+    if (params?.specialty) {
+      searchParams.set("specialty", params.specialty);
+    }
+    if (params?.videoEnabled !== undefined) {
+      searchParams.set("videoEnabled", String(params.videoEnabled));
+    }
+    if (params?.available) {
+      searchParams.set("available", params.available);
+    }
+
+    const endpoint =
+      searchParams.toString().length > 0
+        ? `${TELEMEDICINE_ENDPOINTS.PROVIDERS}?${searchParams.toString()}`
+        : TELEMEDICINE_ENDPOINTS.PROVIDERS;
+
+    const response = await apiClient.get<{ providers?: Doctor[] }>(endpoint);
+    const raw = (response as any)?.data ?? response;
+    const providers = raw?.providers ?? [];
+
+    return {
+      success: true,
+      data: providers as Doctor[],
+    };
+  }
+
+  static async createAppointment(
+    payload: CreateAppointmentPayload,
+  ): Promise<ApiResponse<AppointmentCreationResult>> {
+    const response = await apiClient.post<any>(
+      APPOINTMENT_ENDPOINTS.ROOT,
+      payload,
+    );
+    const raw = (response as any)?.data ?? response;
+    const appointmentId = raw?.id ?? raw?.appointmentId;
+
+    if (!appointmentId) {
+      return {
+        success: false,
+        error: "Failed to create appointment",
+      };
+    }
+
+    return {
+      success: true,
+      data: {
+        appointmentId,
+        confirmationNumber: raw?.confirmationNumber,
+        meetingLink: raw?.meetingLink,
+        appointment: raw,
+      },
+    };
+  }
+}
+
 export interface HcwCaregiver {
   id: string;
   userId: string;
@@ -732,6 +820,46 @@ export interface HcwVisit {
 }
 
 export class HcwService {
+  static async createConsultationSession(
+    appointmentId: string,
+  ): Promise<ApiResponse<HcwSessionResult>> {
+    const response = await apiClient.post<any>(
+      HCW_ENDPOINTS.CONSULTATIONS.CREATE_SESSION(appointmentId),
+    );
+    const raw = (response as any)?.data ?? response;
+
+    return {
+      success: true,
+      data: {
+        consultationId:
+          raw?.consultationId ?? raw?.hcwConsultationId ?? appointmentId,
+        hcwConsultationId: raw?.hcwConsultationId,
+        hcwUrl: raw?.hcwUrl ?? raw?.patientUrl,
+        doctorUrl: raw?.doctorUrl,
+        status: raw?.status,
+        scheduledTime: raw?.scheduledTime,
+      },
+    };
+  }
+
+  static async endConsultation(
+    appointmentId: string,
+    consultationId: string,
+  ): Promise<ApiResponse<any>> {
+    const response = await apiClient.post<any>(
+      `/api/consultations/${appointmentId}/end`,
+      {
+        consultationId,
+      },
+    );
+    const raw = (response as any)?.data ?? response;
+
+    return {
+      success: raw?.success ?? true,
+      data: raw,
+    };
+  }
+
   static async getAssignedCaregivers(): Promise<ApiResponse<HcwCaregiver[]>> {
     const raw = await apiClient.get<{ caregivers?: HcwCaregiver[] }>(
       HCW_ENDPOINTS.CAREGIVERS.ASSIGNED,

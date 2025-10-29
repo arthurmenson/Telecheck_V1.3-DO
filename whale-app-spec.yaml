@@ -24,7 +24,7 @@ services:
         value: telecheck
       - key: KEYCLOAK_AUTH_SERVER_URL
         scope: RUN_AND_BUILD_TIME
-        value: https://auth.telecheck.health
+        value: http://143.244.152.52:8080
       - key: KEYCLOAK_CLIENT_ID
         scope: RUN_AND_BUILD_TIME
         value: telecheck-web
@@ -42,7 +42,7 @@ services:
         value: telecheck-api-secret-production-2025
       - key: VITE_KEYCLOAK_URL
         scope: RUN_AND_BUILD_TIME
-        value: https://auth.telecheck.health
+        value: http://143.244.152.52:8080
       - key: VITE_KEYCLOAK_REALM
         scope: RUN_AND_BUILD_TIME
         value: telecheck

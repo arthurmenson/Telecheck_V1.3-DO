@@ -134,7 +134,10 @@
       "Bash(NODE_TLS_REJECT_UNAUTHORIZED=0 node:*)",
       "Bash(node check-db.js:*)",
       "Bash(then echo \"✅ Deployment ACTIVE with HCW pages!\")",
-      "Bash(npx prisma format:*)"
+      "Bash(npx prisma format:*)",
+      "Bash(then echo \"✅ Deployment ACTIVE - HCW database integration deployed!\")",
+      "Bash(node:*)",
+      "Bash(DATABASE_URL=\"postgresql://doadmin:AVNS_n0t8AkJ6dOrPVyh2Lnd@telecheck-postgres-cluster-do-user-24735686-0.d.db.ondigitalocean.com:25060/telecheck?sslmode=require\" node:*)"
     ],
     "deny": [],
     "ask": []

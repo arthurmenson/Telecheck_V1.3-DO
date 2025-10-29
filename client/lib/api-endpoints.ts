@@ -72,6 +72,17 @@ export const API_ENDPOINTS = {
     DELETE_SESSION: (id: string) => `/chat/sessions/${id}`,
   },
 
+  // Appointments
+  APPOINTMENTS: {
+    ROOT: "/api/appointments",
+    DETAIL: (id: string) => `/api/appointments/${id}`,
+  },
+
+  // Telemedicine Providers & Scheduling
+  TELEMEDICINE: {
+    PROVIDERS: "/api/telemedicine/providers",
+  },
+
   // EHR Modules
   EHR: {
     // Patient Management
@@ -400,6 +411,8 @@ export const {
   VITALS,
   INSIGHTS,
   CHAT,
+  APPOINTMENTS,
+  TELEMEDICINE,
   EHR,
   HCW,
   ANALYTICS,

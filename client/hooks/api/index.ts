@@ -11,6 +11,7 @@ import {
   useOptimisticUpdate,
   queryKeys,
 } from "./useQuery";
+import type { ProvidersQueryParams, Doctor } from "../../types/telemedicine";
 import {
   AuthService,
   UserService,
@@ -28,6 +29,8 @@ import {
   PharmacyService,
   ClinicalService,
   HcwService,
+  SchedulingService,
+  type CreateAppointmentPayload,
   HcwCaregiver,
   HcwThread,
   HcwMessage,
@@ -636,6 +639,48 @@ export function useOrders(patientId?: string) {
   return useApiQuery(
     queryKeys.clinical.orders(patientId),
     () => ClinicalService.listOrders?.(patientId) as any,
+  );
+}
+
+// ========================================
+// Scheduling & Telemedicine Hooks
+// ========================================
+
+export function useTelemedicineProviders(
+  params?: ProvidersQueryParams,
+  options?: { enabled?: boolean },
+) {
+  return useApiQuery<Doctor[]>(
+    queryKeys.telemedicine.providers(params),
+    () => SchedulingService.getTelemedicineProviders(params),
+    {
+      enabled: options?.enabled ?? true,
+      staleTime: 60 * 1000,
+    },
+  );
+}
+
+export function useBookAppointment() {
+  return useApiMutation((payload: CreateAppointmentPayload) =>
+    SchedulingService.createAppointment(payload),
+  );
+}
+
+export function useCreateHcwSession() {
+  return useApiMutation((appointmentId: string) =>
+    HcwService.createConsultationSession(appointmentId),
+  );
+}
+
+export function useEndHcwSession() {
+  return useApiMutation(
+    ({
+      appointmentId,
+      consultationId,
+    }: {
+      appointmentId: string;
+      consultationId: string;
+    }) => HcwService.endConsultation(appointmentId, consultationId),
   );
 }
 

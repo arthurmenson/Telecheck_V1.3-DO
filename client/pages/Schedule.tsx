@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   Card,
   CardContent,
@@ -35,6 +35,12 @@ import { Link } from "react-router-dom";
 import { Alert, AlertDescription, AlertTitle } from "../components/ui/alert";
 import { Skeleton } from "../components/ui/skeleton";
 import type { Doctor } from "../types/telemedicine";
+import {
+  useUserProfile,
+  useTelemedicineProviders,
+  useBookAppointment,
+  useCreateHcwSession,
+} from "../hooks/api";
 import {
   VisitTypeSelector,
   ChiefComplaintSelector,
@@ -175,40 +181,6 @@ const DoctorCard = ({
 };
 
 // Time Slot Component
-const TimeSlot = ({
-  time,
-  type = "regular",
-  onSelect,
-  isSelected = false,
-}: {
-  time: string;
-  type?: "urgent" | "regular" | "video";
-  onSelect: () => void;
-  isSelected?: boolean;
-}) => {
-  const typeColors = {
-    urgent: "border-red-200 bg-red-50 text-red-700 hover:bg-red-100",
-    regular: "border-gray-200 bg-white text-gray-700 hover:bg-gray-50",
-    video: "border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100",
-  };
-
-  return (
-    <button
-      onClick={onSelect}
-      className={`p-3 rounded-lg border-2 transition-all text-sm font-medium ${
-        isSelected ? "ring-2 ring-primary border-primary" : typeColors[type]
-      }`}
-    >
-      <div className="flex items-center justify-center gap-2">
-        {type === "urgent" && <AlertTriangle className="w-3 h-3" />}
-        {type === "video" && <Video className="w-3 h-3" />}
-        <span>{time}</span>
-      </div>
-      {type === "urgent" && <div className="text-xs mt-1">Same Day</div>}
-    </button>
-  );
-};
-
 export function Schedule() {
   // Step 1: Visit Type
   const [visitType, setVisitType] = useState<string>("");
@@ -250,7 +222,6 @@ export function Schedule() {
   });
 
   // Legacy fields for backward compatibility
-  const [appointmentType, setAppointmentType] = useState("urgent");
   const [reason, setReason] = useState("");
 
   // Navigation & UI state
@@ -266,80 +237,116 @@ export function Schedule() {
     meetingLink?: string;
   } | null>(null);
 
-  // Loading and error states for doctors
-  const [doctors, setDoctors] = useState<Doctor[]>([]);
-  const [isLoadingDoctors, setIsLoadingDoctors] = useState(false);
-  const [doctorsError, setDoctorsError] = useState<string | null>(null);
+  const {
+    data: doctors = [],
+    isLoading: isLoadingDoctors,
+    isFetching: isFetchingDoctors,
+    error: providersError,
+  } = useTelemedicineProviders({ videoEnabled: true }, { enabled: step >= 5 });
 
-  // Fetch doctors from API - only when user reaches step 5
+  const doctorsError =
+    providersError instanceof Error
+      ? providersError.message
+      : providersError
+        ? "Unable to load doctors. Please try again later."
+        : null;
+
+  const providersLoading = isLoadingDoctors || isFetchingDoctors;
+
+  const { data: currentUser } = useUserProfile();
+  const bookAppointmentMutation = useBookAppointment();
+  const createHcwSessionMutation = useCreateHcwSession();
+
+  const availableDates = useMemo(() => {
+    if (!selectedDoctor?.availability) {
+      return [];
+    }
+    return selectedDoctor.availability.filter((day) => day.slots.length > 0);
+  }, [selectedDoctor]);
+
   useEffect(() => {
-    // Only fetch doctors when user reaches the provider selection step
-    if (step !== 5) {
+    if (!selectedDoctor) {
+      setSelectedDate("");
+      setSelectedTime("");
       return;
     }
 
-    const fetchDoctors = async () => {
-      setIsLoadingDoctors(true);
-      setDoctorsError(null);
+    if (availableDates.length === 0) {
+      setSelectedDate("");
+      setSelectedTime("");
+      return;
+    }
 
-      try {
-        const token = localStorage.getItem("authToken");
-        if (!token) {
-          throw new Error("Authentication required. Please log in.");
-        }
-
-        const response = await fetch(
-          "/api/telemedicine/providers?videoEnabled=true",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          },
-        );
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch doctors");
-        }
-
-        const data = await response.json();
-
-        if (!data.success || !data.providers) {
-          throw new Error("Invalid response format");
-        }
-
-        setDoctors(data.providers);
-      } catch (error) {
-        console.error("Error fetching doctors:", error);
-        setDoctorsError(
-          error instanceof Error
-            ? error.message
-            : "Unable to load doctors. Please try again later.",
-        );
-      } finally {
-        setIsLoadingDoctors(false);
+    setSelectedDate((prevDate) => {
+      if (prevDate && availableDates.some((day) => day.date === prevDate)) {
+        return prevDate;
       }
-    };
+      return availableDates[0].date;
+    });
+  }, [selectedDoctor, availableDates]);
 
-    fetchDoctors();
-  }, [step]);
+  useEffect(() => {
+    if (!selectedDate) {
+      setSelectedTime("");
+      return;
+    }
 
-  // Available time slots
-  const todaySlots = [
-    { time: "2:00 PM", type: "urgent" as const },
-    { time: "2:30 PM", type: "urgent" as const },
-    { time: "4:30 PM", type: "urgent" as const },
-    { time: "5:00 PM", type: "video" as const },
-    { time: "5:30 PM", type: "video" as const },
-  ];
+    const day = availableDates.find(
+      (availability) => availability.date === selectedDate,
+    );
+    if (!day || day.slots.length === 0) {
+      setSelectedTime("");
+      return;
+    }
 
-  const tomorrowSlots = [
-    { time: "9:00 AM", type: "regular" as const },
-    { time: "9:30 AM", type: "regular" as const },
-    { time: "10:00 AM", type: "video" as const },
-    { time: "10:30 AM", type: "regular" as const },
-    { time: "2:00 PM", type: "regular" as const },
-    { time: "2:30 PM", type: "video" as const },
-  ];
+    setSelectedTime((previous) =>
+      previous && day.slots.includes(previous)
+        ? previous
+        : (day.slots[0] ?? ""),
+    );
+  }, [selectedDate, availableDates]);
+
+  const slotsForSelectedDate = useMemo(() => {
+    if (!selectedDate) {
+      return [];
+    }
+    const day = availableDates.find(
+      (availability) => availability.date === selectedDate,
+    );
+    return day?.slots ?? [];
+  }, [availableDates, selectedDate]);
+
+  const getDateLabel = (date: string): string => {
+    const today = new Date();
+    const todayIso = today.toISOString().slice(0, 10);
+    const tomorrowIso = new Date(today.getTime() + 86400000)
+      .toISOString()
+      .slice(0, 10);
+
+    if (date === todayIso) {
+      return "Today";
+    }
+    if (date === tomorrowIso) {
+      return "Tomorrow";
+    }
+
+    const formatter = new Intl.DateTimeFormat(undefined, {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+    });
+    return formatter.format(new Date(`${date}T00:00:00`));
+  };
+
+  const getTimeLabel = (slot: string): string => {
+    const [hours, minutes] = slot.split(":").map(Number);
+    const date = new Date();
+    date.setHours(hours, minutes, 0, 0);
+    return new Intl.DateTimeFormat(undefined, {
+      hour: "numeric",
+      minute: "2-digit",
+    }).format(date);
+  };
 
   const handleBookAppointment = async () => {
     if (!selectedDoctor || !selectedDate || !selectedTime) {
@@ -347,181 +354,92 @@ export function Schedule() {
       return;
     }
 
+    if (!currentUser?.id) {
+      setError("Session expired. Please log in again to continue.");
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
 
     try {
-      // Get auth token from localStorage
-      const token = localStorage.getItem("authToken");
-      if (!token) {
-        throw new Error("Authentication required. Please log in.");
-      }
+      const [year, month, day] = selectedDate.split("-").map(Number);
+      const [hours, minutes] = selectedTime.split(":").map(Number);
+      const scheduledDate = new Date(
+        year,
+        month - 1,
+        day,
+        hours,
+        minutes ?? 0,
+        0,
+        0,
+      );
 
-      // Construct the appointment date/time
-      const now = new Date();
-      const appointmentDate =
-        selectedDate === "Today" ? now : new Date(now.getTime() + 86400000); // Tomorrow
-
-      // Parse time string (e.g., "2:00 PM")
-      const [time, period] = selectedTime.split(" ");
-      const [hours, minutes] = time.split(":").map(Number);
-      const adjustedHours =
-        period === "PM" && hours !== 12
-          ? hours + 12
-          : period === "AM" && hours === 12
-            ? 0
-            : hours;
-
-      appointmentDate.setHours(adjustedHours, minutes || 0, 0, 0);
-
-      // Step 1: Create appointment via appointments API (real database)
-      // Build comprehensive reason from intake data
       const comprehensiveReason =
         customReason || reason || chiefComplaint || "Video consultation";
 
-      const appointmentData = {
-        doctorId: selectedDoctor.id.toString(),
-        scheduledTime: appointmentDate.toISOString(),
-        type: "video" as const,
+      const appointmentPayload: CreateAppointmentPayload = {
+        patientId: currentUser.id,
+        doctorId: selectedDoctor.id,
+        scheduledTime: scheduledDate.toISOString(),
+        type: "video",
         reason: comprehensiveReason,
-
-        // Enhanced intake data
         visitType,
         chiefComplaint,
-
-        // Symptom information
-        symptomDetails: {
-          startDate: symptomDetails.startDate,
-          duration: symptomDetails.duration,
-          severity: symptomDetails.severity,
-          previousTreatment: symptomDetails.previousTreatment,
-          relatedMedications: symptomDetails.relatedMedications,
-        },
-
-        // Medical context
-        medicalContext: {
-          seenForThisBefore: medicalHistory.seenForThisBefore,
-          hasAllergies: medicalHistory.hasAllergies,
-          allergyDetails: medicalHistory.allergyDetails,
-          currentMedications: medicalHistory.currentMedications,
-          recentHospitalizations: medicalHistory.recentHospitalizations,
-        },
-
-        // Consents
-        consents: {
-          telehealthConsent: consents.telehealthConsent,
-          emergencyUnderstanding: consents.emergencyUnderstanding,
-          billingAuthorization: consents.billingAuthorization,
-        },
-
-        // Metadata
+        symptomDetails,
+        medicalContext: medicalHistory,
+        consents,
         intakeCompleted: true,
         intakeVersion: "2.0",
       };
 
-      const scheduleResponse = await fetch("/api/appointments", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(appointmentData),
-      });
+      const appointmentResponse =
+        await bookAppointmentMutation.mutateAsync(appointmentPayload);
+      const appointmentResult =
+        appointmentResponse.data ?? (appointmentResponse as any);
 
-      if (!scheduleResponse.ok) {
-        const errorData = await scheduleResponse.json().catch(() => ({}));
-        throw new Error(
-          errorData.message ||
-            errorData.error ||
-            `Failed to schedule appointment (${scheduleResponse.status})`,
-        );
-      }
+      const appointmentId =
+        appointmentResult?.appointmentId ?? appointmentResult?.appointment?.id;
 
-      const scheduleResult = await scheduleResponse.json();
-
-      if (!scheduleResult.appointmentId) {
+      if (!appointmentId) {
         throw new Error("Failed to create appointment");
       }
 
-      const appointmentId = scheduleResult.appointmentId;
       const confirmationNumber =
-        scheduleResult.confirmationNumber ||
+        appointmentResult?.confirmationNumber ??
+        appointmentResult?.appointment?.confirmationNumber ??
         `CONF-${appointmentId.slice(0, 8).toUpperCase()}`;
-      let meetingLink = scheduleResult.meetingLink || "";
 
-      // Step 2: Create HCW consultation session
-      let hcwUrl = meetingLink;
+      let meetingLink =
+        appointmentResult?.meetingLink ??
+        appointmentResult?.appointment?.meetingLink ??
+        "";
+
       try {
-        const hcwResponse = await fetch(
-          `/api/consultations/${appointmentId}/hcw-session`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          },
-        );
-
-        if (hcwResponse.ok) {
-          const hcwResult: HcwConsultationResponse = await hcwResponse.json();
-          hcwUrl = hcwResult.hcwUrl || meetingLink;
-        } else {
-          // HCW session creation failed, but appointment is still valid
-          console.warn(
-            "HCW consultation session creation failed, using fallback URL",
-          );
+        const hcwResponse =
+          await createHcwSessionMutation.mutateAsync(appointmentId);
+        const hcwResult = hcwResponse.data ?? (hcwResponse as any);
+        if (hcwResult?.hcwUrl) {
+          meetingLink = hcwResult.hcwUrl;
         }
       } catch (hcwError) {
-        // Non-critical error - appointment is still created
         console.error("Error creating HCW session:", hcwError);
       }
 
-      // Step 3: Send appointment confirmation notification (optional)
-      try {
-        await fetch("/api/notifications/appointment", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            appointmentId,
-            type: "confirmation",
-          }),
-        });
-      } catch (notificationError) {
-        // Non-critical error - appointment is still created
-        console.error("Failed to send notification:", notificationError);
-      }
-
-      // Save appointment details and move to confirmation
       setAppointmentDetails({
         appointmentId,
         confirmationNumber,
-        meetingLink: hcwUrl,
+        meetingLink,
       });
 
-      // Clear form
       setReason("");
-
-      // Move to confirmation step (now step 8)
       setStep(8);
     } catch (err) {
       console.error("Appointment booking error:", err);
-
-      // Handle different error types
       if (err instanceof Error) {
-        if (err.message.includes("Authentication")) {
+        if (err.message.toLowerCase().includes("network")) {
           setError(
-            "Session expired. Please log in again to book an appointment.",
-          );
-        } else if (
-          err.message.includes("network") ||
-          err.message.includes("fetch")
-        ) {
-          setError(
-            "Network error. Please check your internet connection and try again.",
+            "Network error. Please check your connection and try again.",
           );
         } else {
           setError(err.message);
@@ -594,11 +512,15 @@ export function Schedule() {
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Date:</span>
-                        <span className="font-medium">{selectedDate}</span>
+                        <span className="font-medium">
+                          {selectedDate ? getDateLabel(selectedDate) : "---"}
+                        </span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Time:</span>
-                        <span className="font-medium">{selectedTime}</span>
+                        <span className="font-medium">
+                          {selectedTime ? getTimeLabel(selectedTime) : "---"}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -863,7 +785,7 @@ export function Schedule() {
             </div>
 
             {/* Loading State */}
-            {isLoadingDoctors && (
+            {providersLoading && (
               <div className="grid gap-4">
                 {[1, 2, 3].map((i) => (
                   <Card key={i} className="p-4">
@@ -885,7 +807,7 @@ export function Schedule() {
             )}
 
             {/* Error State */}
-            {doctorsError && !isLoadingDoctors && (
+            {doctorsError && !providersLoading && (
               <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
                 <AlertTitle>Error</AlertTitle>
@@ -894,7 +816,7 @@ export function Schedule() {
             )}
 
             {/* Empty State */}
-            {!isLoadingDoctors && !doctorsError && doctors.length === 0 && (
+            {!providersLoading && !doctorsError && doctors.length === 0 && (
               <Alert>
                 <Info className="h-4 w-4" />
                 <AlertTitle>No doctors available</AlertTitle>
@@ -906,7 +828,7 @@ export function Schedule() {
             )}
 
             {/* Doctors List */}
-            {!isLoadingDoctors && !doctorsError && doctors.length > 0 && (
+            {!providersLoading && !doctorsError && doctors.length > 0 && (
               <div className="grid gap-4">
                 {doctors.map((doctor) => (
                   <DoctorCard
@@ -934,7 +856,7 @@ export function Schedule() {
                   setStep(6);
                   setError(null);
                 }}
-                disabled={!selectedDoctor || isLoadingDoctors}
+                disabled={!selectedDoctor || providersLoading}
                 size="lg"
               >
                 Continue to Scheduling
@@ -949,73 +871,108 @@ export function Schedule() {
             <div>
               <h2 className="text-xl font-semibold mb-2">Select Date & Time</h2>
               <p className="text-muted-foreground">
-                Dr. {selectedDoctor?.name} - {selectedDoctor?.specialty}
+                Dr. {selectedDoctor?.name} — {selectedDoctor?.specialty}
               </p>
             </div>
 
-            {/* Date Selection */}
-            <div className="space-y-4">
-              <h3 className="font-medium">Available Dates</h3>
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setSelectedDate("Today")}
-                  className={`p-4 rounded-lg border-2 transition-all ${
-                    selectedDate === "Today"
-                      ? "border-primary ring-2 ring-primary/20"
-                      : "border-gray-200 hover:border-gray-300"
-                  }`}
-                >
-                  <div className="text-center">
-                    <div className="font-semibold">Today</div>
-                    <div className="text-sm text-muted-foreground">
-                      {new Date().toLocaleDateString()}
-                    </div>
-                    <Badge variant="destructive" className="mt-1 text-xs">
-                      Urgent
-                    </Badge>
+            {availableDates.length === 0 ? (
+              <Alert>
+                <Info className="h-4 w-4" />
+                <AlertTitle>No availability</AlertTitle>
+                <AlertDescription>
+                  This provider does not have any telehealth slots in the next
+                  week. Please go back and select a different provider.
+                </AlertDescription>
+              </Alert>
+            ) : (
+              <>
+                <div className="space-y-4">
+                  <h3 className="font-medium">Available Dates</h3>
+                  <div className="flex gap-3 flex-wrap">
+                    {availableDates.map((day) => (
+                      <button
+                        key={day.date}
+                        onClick={() => setSelectedDate(day.date)}
+                        className={`p-4 rounded-lg border-2 transition-all min-w-[160px] ${selectedDate === day.date ? "border-primary ring-2 ring-primary/20 bg-primary/5" : "border-gray-200 hover:border-gray-300"}`}
+                      >
+                        <div className="text-center space-y-1">
+                          <div className="font-semibold">
+                            {getDateLabel(day.date)}
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            {new Date(
+                              `${day.date}T00:00:00`,
+                            ).toLocaleDateString()}
+                          </div>
+                          <Badge
+                            variant={
+                              selectedDate === day.date
+                                ? "default"
+                                : "secondary"
+                            }
+                            className="text-xs"
+                          >
+                            {day.slots.length} slots
+                          </Badge>
+                        </div>
+                      </button>
+                    ))}
                   </div>
-                </button>
+                </div>
 
-                <button
-                  onClick={() => setSelectedDate("Tomorrow")}
-                  className={`p-4 rounded-lg border-2 transition-all ${
-                    selectedDate === "Tomorrow"
-                      ? "border-primary ring-2 ring-primary/20"
-                      : "border-gray-200 hover:border-gray-300"
-                  }`}
-                >
-                  <div className="text-center">
-                    <div className="font-semibold">Tomorrow</div>
-                    <div className="text-sm text-muted-foreground">
-                      {new Date(Date.now() + 86400000).toLocaleDateString()}
+                <div className="space-y-4">
+                  <h3 className="font-medium">Available Times</h3>
+                  {slotsForSelectedDate.length === 0 ? (
+                    <Alert>
+                      <Info className="h-4 w-4" />
+                      <AlertTitle>No times available</AlertTitle>
+                      <AlertDescription>
+                        All slots for {getDateLabel(selectedDate)} are booked.
+                        Please choose another date.
+                      </AlertDescription>
+                    </Alert>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {slotsForSelectedDate.map((slot) => (
+                        <button
+                          key={slot}
+                          onClick={() => setSelectedTime(slot)}
+                          className={`p-4 rounded-lg border-2 transition-all text-left ${selectedTime === slot ? "border-primary bg-primary/5 ring-2 ring-primary/20" : "border-gray-200 hover-border-gray-300"}`}
+                        >
+                          <div className="flex justify-between items-center">
+                            <div>
+                              <div className="font-semibold">
+                                {getTimeLabel(slot)}
+                              </div>
+                              <div className="text-xs text-muted-foreground">
+                                30 min video visit
+                              </div>
+                            </div>
+                            <Badge
+                              variant="secondary"
+                              className="text-xs uppercase"
+                            >
+                              Video
+                            </Badge>
+                          </div>
+                        </button>
+                      ))}
                     </div>
-                    <Badge variant="secondary" className="mt-1 text-xs">
-                      Regular
-                    </Badge>
-                  </div>
-                </button>
-              </div>
-            </div>
-
-            {/* Time Selection */}
-            {selectedDate && (
-              <div className="space-y-4">
-                <h3 className="font-medium">Available Times</h3>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-                  {(selectedDate === "Today" ? todaySlots : tomorrowSlots).map(
-                    (slot, idx) => (
-                      <TimeSlot
-                        key={idx}
-                        time={slot.time}
-                        type={slot.type}
-                        isSelected={selectedTime === slot.time}
-                        onSelect={() => setSelectedTime(slot.time)}
-                      />
-                    ),
                   )}
                 </div>
-              </div>
+              </>
             )}
+
+            <div className="flex items-center gap-4 bg-blue-50 border border-blue-200 rounded-lg p-4 text-blue-900">
+              <Clock className="w-6 h-6" />
+              <div>
+                <p className="font-medium">Video Visit Duration</p>
+                <p className="text-sm">
+                  Each telehealth visit includes 25 minutes with your provider
+                  and a 5-minute wrap-up for care plan review.
+                </p>
+              </div>
+            </div>
 
             <div className="flex justify-between">
               <Button
@@ -1040,7 +997,6 @@ export function Schedule() {
             </div>
           </div>
         )}
-
         {/* Step 7: Pre-Visit Instructions & Consents */}
         {step === 7 && (
           <div className="space-y-6">
@@ -1081,11 +1037,15 @@ export function Schedule() {
                   <div className="space-y-2">
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Date:</span>
-                      <span className="font-medium">{selectedDate}</span>
+                      <span className="font-medium">
+                        {selectedDate ? getDateLabel(selectedDate) : "---"}
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Time:</span>
-                      <span className="font-medium">{selectedTime}</span>
+                      <span className="font-medium">
+                        {selectedTime ? getTimeLabel(selectedTime) : "---"}
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Type:</span>

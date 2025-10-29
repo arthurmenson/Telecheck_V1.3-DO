@@ -17,6 +17,7 @@ import {
 } from "@tanstack/react-query";
 import { ApiResponse } from "../../../shared/types";
 import { ApiError } from "../../lib/api-client";
+import type { ProvidersQueryParams } from "../../types/telemedicine";
 
 // Query Keys Factory
 export const queryKeys = {
@@ -86,6 +87,18 @@ export const queryKeys = {
       [...queryKeys.analytics.all, "reports", type] as const,
     populationHealth: () =>
       [...queryKeys.analytics.all, "population-health"] as const,
+  },
+  // Telemedicine scheduling
+  telemedicine: {
+    all: ["telemedicine"] as const,
+    providers: (filters?: ProvidersQueryParams) =>
+      [
+        ...queryKeys.telemedicine.all,
+        "providers",
+        filters?.specialty ?? null,
+        filters?.videoEnabled ?? null,
+        filters?.available ?? null,
+      ] as const,
   },
   // eRx queries
   erx: {

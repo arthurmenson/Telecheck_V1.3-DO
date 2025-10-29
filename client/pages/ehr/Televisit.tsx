@@ -14,6 +14,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { HcwService } from "@/services/api.service";
 
 /**
  * HCW@Home Embedded Televisit Component
@@ -46,38 +47,38 @@ export function Televisit() {
   useEffect(() => {
     let mounted = true;
 
-    (async () => {
+    const loadConsultation = async () => {
+      if (!appointmentId) {
+        setError("Invalid appointment reference.");
+        setIsLoading(false);
+        return;
+      }
+
       try {
         setIsLoading(true);
         setError(null);
 
-        // Call Telecheck API to get/create HCW consultation
-        const response = await fetch(
-          `/api/consultations/${appointmentId}/hcw-session`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          },
-        );
+        const response =
+          await HcwService.createConsultationSession(appointmentId);
 
-        if (!response.ok) {
-          throw new Error(
-            `Failed to create consultation: ${response.statusText}`,
-          );
+        if (!mounted) {
+          return;
         }
 
-        const data = await response.json();
+        const data = response.data ?? (response as any);
 
-        if (!mounted) return;
+        if (!data?.hcwUrl) {
+          throw new Error("Consultation link unavailable");
+        }
 
-        // HCW@Home provides the patient interface URL with consultation ID
-        setConsultationId(data.consultationId);
+        setConsultationId(
+          data.hcwConsultationId ?? data.consultationId ?? null,
+        );
         setHcwConsultationUrl(data.hcwUrl);
       } catch (err) {
-        if (!mounted) return;
+        if (!mounted) {
+          return;
+        }
         console.error("Failed to initialize HCW consultation:", err);
         setError(
           err instanceof Error ? err.message : "Failed to load consultation",
@@ -87,7 +88,9 @@ export function Televisit() {
           setIsLoading(false);
         }
       }
-    })();
+    };
+
+    loadConsultation();
 
     return () => {
       mounted = false;
@@ -95,19 +98,12 @@ export function Televisit() {
   }, [appointmentId]);
 
   const handleEndConsultation = async () => {
-    if (!consultationId) return;
+    if (!appointmentId || !consultationId) {
+      return;
+    }
 
     try {
-      await fetch(`/api/consultations/${appointmentId}/end`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-        body: JSON.stringify({ consultationId }),
-      });
-
-      // Navigate back or show success message
+      await HcwService.endConsultation(appointmentId, consultationId);
       window.location.href = "/dashboard";
     } catch (err) {
       console.error("Failed to end consultation:", err);
